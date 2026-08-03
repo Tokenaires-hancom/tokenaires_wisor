@@ -1,0 +1,630 @@
+/* Wisor 디자인 토큰
+ *
+ * 규칙 하나: 빨강과 초록을 쓰지 않는다.
+ * 주식 화면에서 빨강·초록은 가격의 방향을 뜻한다. Wisor는 방향을 말하지 않기로 한
+ * 제품이므로 방향색을 팔레트에서 뺀다. 통과는 자두빛(plum), 미충족은 황토(ochre)로
+ * 구분하고, 이 두 색은 어떤 시장에서도 등락을 뜻하지 않는다.
+ */
+
+:root {
+  --paper: #f6f5f8;
+  --surface: #ffffff;
+  --surface-sunk: #fbfafc;
+  --ink: #1b1720;
+  --ink-soft: #6a6472;
+  --ink-faint: #9a95a3;
+  --line: #e4e1ea;
+  --line-strong: #cfcad8;
+
+  --plum: #4a2e5c;
+  --plum-deep: #33203f;
+  --plum-soft: #ede6f2;
+  --plum-line: #c9b8d6;
+
+  --ochre: #8a5a17;
+  --ochre-soft: #f5ecdd;
+  --ochre-line: #dcc49a;
+
+  --sans: "Pretendard Variable", Pretendard, -apple-system, system-ui, sans-serif;
+  --serif: "Gowun Batang", "Nanum Myeongjo", serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", ui-monospace, monospace;
+
+  --gutter: clamp(1.25rem, 5vw, 4rem);
+  --radius: 3px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--plum);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- 레이아웃 ---------- */
+
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-inline: var(--gutter);
+}
+
+.wrap-narrow {
+  max-width: 720px;
+}
+
+.masthead {
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.masthead-inner {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  height: 60px;
+}
+
+.wordmark {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  letter-spacing: 0.02em;
+  color: var(--plum-deep);
+}
+
+.wordmark span {
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  margin-left: 0.5rem;
+  text-transform: uppercase;
+}
+
+.nav {
+  display: flex;
+  gap: 1.5rem;
+  margin-left: auto;
+  font-size: 0.9rem;
+  overflow-x: auto;
+}
+
+.nav a {
+  color: var(--ink-soft);
+  padding-block: 0.35rem;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+
+.nav a:hover {
+  color: var(--ink);
+}
+
+.nav a[data-active="true"] {
+  color: var(--plum);
+  border-bottom-color: var(--plum);
+}
+
+.foot {
+  margin-top: auto;
+  border-top: 1px solid var(--line);
+  padding-block: 2rem 3rem;
+  color: var(--ink-faint);
+  font-size: 0.8rem;
+}
+
+.foot p {
+  margin: 0.2rem 0;
+  max-width: 60ch;
+}
+
+/* ---------- 활자 ---------- */
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 0 0 0.75rem;
+}
+
+.thesis {
+  font-family: var(--serif);
+  font-size: clamp(1.9rem, 4.4vw, 3rem);
+  line-height: 1.35;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  margin: 0 0 1.25rem;
+  max-width: 20ch;
+}
+
+.thesis em {
+  font-style: normal;
+  color: var(--plum);
+  box-shadow: inset 0 -0.35em 0 var(--plum-soft);
+}
+
+h2.section {
+  font-family: var(--serif);
+  font-size: 1.45rem;
+  font-weight: 400;
+  margin: 0 0 0.35rem;
+}
+
+h3.sub {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+
+.lede {
+  color: var(--ink-soft);
+  max-width: 62ch;
+  margin: 0 0 2rem;
+}
+
+.mono {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+}
+
+/* ---------- 기준 막대: 이 제품의 서명 요소 ----------
+ * 점수 숫자보다 '몇 개 기준을 어떻게 통과했는가'가 먼저 보이게 한다.
+ */
+
+.criteria-bar {
+  display: flex;
+  gap: 3px;
+  align-items: stretch;
+  height: 22px;
+}
+
+.criteria-bar[data-size="sm"] {
+  height: 14px;
+  gap: 2px;
+}
+
+.tick {
+  flex: var(--weight, 1);
+  border-radius: 1px;
+  border: 1px solid transparent;
+}
+
+.tick[data-status="pass"] {
+  background: var(--plum);
+}
+
+.tick[data-status="fail"] {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--ochre-soft),
+    var(--ochre-soft) 3px,
+    var(--ochre-line) 3px,
+    var(--ochre-line) 4px
+  );
+  border-color: var(--ochre-line);
+}
+
+.tick[data-status="unknown"] {
+  background: var(--surface);
+  border: 1px dashed var(--line-strong);
+}
+
+.criteria-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.6rem;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+
+.criteria-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.swatch {
+  width: 11px;
+  height: 11px;
+  border-radius: 1px;
+  display: inline-block;
+}
+
+/* ---------- 카드 ---------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.card-link {
+  display: block;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.card-link:hover {
+  border-color: var(--plum-line);
+  transform: translateY(-2px);
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.stack > * + * {
+  margin-top: 1rem;
+}
+
+.rule {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 2.5rem 0;
+}
+
+/* ---------- 데이터 기준일 ---------- */
+
+.stamp {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--ink-faint);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 1rem;
+  border-top: 1px dotted var(--line-strong);
+  padding-top: 0.6rem;
+  margin-top: 1rem;
+}
+
+.sample-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--ochre-soft);
+  border: 1px solid var(--ochre-line);
+  color: var(--ochre);
+  font-size: 0.75rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--radius);
+}
+
+/* ---------- 종목 줄 ---------- */
+
+.stock-row {
+  display: grid;
+  grid-template-columns: 2.2rem 1fr auto;
+  gap: 1rem;
+  align-items: start;
+  padding: 1.1rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.stock-rank {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--ink-faint);
+  padding-top: 0.2rem;
+}
+
+.stock-name {
+  font-weight: 600;
+}
+
+.stock-ticker {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  margin-left: 0.5rem;
+}
+
+.stock-score {
+  text-align: right;
+  min-width: 6.5rem;
+}
+
+.score-value {
+  font-family: var(--mono);
+  font-size: 1.5rem;
+  color: var(--plum-deep);
+  line-height: 1.1;
+}
+
+.score-of {
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  font-family: var(--mono);
+}
+
+.reason-list {
+  margin: 0.65rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.88rem;
+}
+
+.reason-list li {
+  display: flex;
+  gap: 0.55rem;
+  color: var(--ink-soft);
+  padding: 0.12rem 0;
+}
+
+.reason-list li::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  margin-top: 0.62rem;
+  flex: none;
+  border-radius: 1px;
+}
+
+.reason-list li[data-kind="pass"]::before {
+  background: var(--plum);
+}
+
+.reason-list li[data-kind="fail"]::before {
+  background: var(--ochre);
+}
+
+.reason-list li[data-kind="unknown"]::before {
+  border: 1px dashed var(--line-strong);
+}
+
+/* ---------- 두 렌즈 ---------- */
+
+.lens-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 2rem;
+}
+
+.lens-tab {
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 0.85rem 1.25rem;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+.lens-tab[aria-selected="true"] {
+  color: var(--plum);
+  border-bottom-color: var(--plum);
+  font-weight: 600;
+}
+
+.lens-note {
+  font-family: var(--serif);
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  border-left: 2px solid var(--plum-line);
+  padding-left: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* ---------- 폼 ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--plum);
+  color: #fff;
+  border: 1px solid var(--plum);
+  border-radius: var(--radius);
+  padding: 0.6rem 1.1rem;
+  font-size: 0.9rem;
+}
+
+.btn:hover {
+  background: var(--plum-deep);
+}
+
+.btn[data-variant="quiet"] {
+  background: transparent;
+  color: var(--plum);
+}
+
+.btn[data-variant="quiet"]:hover {
+  background: var(--plum-soft);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.field {
+  display: block;
+  margin-bottom: 1.25rem;
+}
+
+.field > span {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.field textarea,
+.field input[type="text"] {
+  width: 100%;
+  font: inherit;
+  font-size: 0.92rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  resize: vertical;
+}
+
+.choice {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.7rem 0.9rem;
+  margin-bottom: 0.5rem;
+  background: var(--surface);
+  text-align: left;
+  width: 100%;
+  color: var(--ink);
+  font-size: 0.92rem;
+}
+
+.choice:hover {
+  border-color: var(--plum-line);
+}
+
+.choice[data-state="correct"] {
+  border-color: var(--plum);
+  background: var(--plum-soft);
+}
+
+.choice[data-state="wrong"] {
+  border-color: var(--ochre-line);
+  background: var(--ochre-soft);
+}
+
+.choice[data-state="missed"] {
+  border-color: var(--plum-line);
+  border-style: dashed;
+}
+
+.dropzone {
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface-sunk);
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+.dropzone[data-over="true"] {
+  border-color: var(--plum);
+  background: var(--plum-soft);
+}
+
+.notice {
+  border: 1px solid var(--ochre-line);
+  background: var(--ochre-soft);
+  color: var(--ochre);
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  font-size: 0.86rem;
+}
+
+.disclaimer {
+  border-top: 1px solid var(--line);
+  margin-top: 1.5rem;
+  padding-top: 0.9rem;
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+}
+
+/* ---------- 관찰 항목 ---------- */
+
+.observation {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  gap: 1rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--line);
+  align-items: start;
+}
+
+.visibility {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.45rem;
+  border-radius: 1px;
+  border: 1px solid var(--line-strong);
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.visibility[data-v="clear"] {
+  border-color: var(--plum-line);
+  color: var(--plum);
+  background: var(--plum-soft);
+}
+
+.visibility[data-v="unclear"] {
+  border-style: dashed;
+}
+
+.obs-category {
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+@media (max-width: 640px) {
+  .observation {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
+
+  .stock-row {
+    grid-template-columns: 1.6rem 1fr;
+  }
+
+  .stock-score {
+    grid-column: 2;
+    text-align: left;
+  }
+}

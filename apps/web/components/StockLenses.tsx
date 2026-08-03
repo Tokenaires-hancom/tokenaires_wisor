@@ -1,0 +1,351 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import CriteriaBar from "./CriteriaBar";
+import ChartAnalyzer from "./ChartAnalyzer";
+import WatchButton from "./WatchButton";
+import { CHART_LESSONS } from "@/content/chartLessons";
+import { MASTER_BY_ID } from "@/content/masters";
+import { formatMetric } from "@/lib/format";
+import { METRIC_LABELS, type Company } from "@/lib/scores.types";
+import { NOTE_STATUS_LABEL, getNote, saveNote, type NoteStatus } from "@/lib/store";
+import { track } from "@/lib/analytics";
+
+type Lens = "business" | "chart" | "note";
+
+const LENS_LABEL: Record<Lens, string> = {
+  business: "기업 관점",
+  chart: "차트 관점",
+  note: "나의 학습노트",
+};
+
+const LENS_NOTE: Record<Lens, string> = {
+  business: "어떤 기업을 관심 있게 볼 것인가 — 대가의 기준으로 이 회사를 훑어봅니다.",
+  chart: "현재 가격이 어떤 움직임을 보이고 있는가 — 차트에서 보이는 것만 읽습니다. 두 관점을 합쳐 하나의 매수 점수를 만들지 않습니다.",
+  note: "두 관점에서 확인한 것을 한자리에 모아 두고, 판단은 직접 기록합니다.",
+};
+
+export default function StockLenses({
+  company,
+  initialStyle,
+}: {
+  company: Company;
+  initialStyle: string;
+}) {
+  const [lens, setLens] = useState<Lens>("business");
+  const [styleId, setStyleId] = useState(initialStyle);
+  const score = company.scores[styleId];
+
+  return (
+    <>
+      <div className="lens-tabs" role="tablist" aria-label="종목을 보는 관점">
+        {(Object.keys(LENS_LABEL) as Lens[]).map((key) => (
+          <button
+            key={key}
+            role="tab"
+            type="button"
+            className="lens-tab"
+            aria-selected={lens === key}
+            onClick={() => setLens(key)}
+          >
+            {LENS_LABEL[key]}
+          </button>
+        ))}
+      </div>
+
+      <p className="lens-note">{LENS_NOTE[lens]}</p>
+
+      {lens === "business" && (
+        <BusinessLens company={company} styleId={styleId} onStyleChange={setStyleId} />
+      )}
+      {lens === "chart" && <ChartLens />}
+      {lens === "note" && <NoteLens company={company} styleId={styleId} />}
+
+      {lens === "business" && score && (
+        <p className="disclaimer">
+          이 점수는 {score.modelVersion} 모델이 공개된 재무데이터에 같은 기준을 적용한 결과입니다.
+          기업을 좁히는 출발점이며, 매수·매도 판단이 아닙니다.
+        </p>
+      )}
+    </>
+  );
+}
+
+function BusinessLens({
+  company,
+  styleId,
+  onStyleChange,
+}: {
+  company: Company;
+  styleId: string;
+  onStyleChange: (id: string) => void;
+}) {
+  const score = company.scores[styleId];
+  if (!score) return <p>이 스타일의 점수가 없습니다.</p>;
+
+  const passed = score.criteria.filter((c) => c.status === "pass");
+  const failed = score.criteria.filter((c) => c.status === "fail");
+  const unknown = score.criteria.filter((c) => c.status === "unknown");
+
+  return (
+    <>
+      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
+        {Object.keys(company.scores).map((id) => (
+          <button
+            key={id}
+            type="button"
+            className="btn"
+            data-variant={id === styleId ? undefined : "quiet"}
+            onClick={() => onStyleChange(id)}
+          >
+            {MASTER_BY_ID[id as keyof typeof MASTER_BY_ID]?.name.split(" · ")[0] ?? id}{" "}
+            {score && company.scores[id].score !== null ? `${company.scores[id].score}점` : "정보 부족"}
+          </button>
+        ))}
+      </div>
+
+      <div className="card">
+        <p className="eyebrow">
+          {score.modelVersion} · 판정한 {score.totalJudged}개 기준 중 {score.passed}개 충족
+        </p>
+        <div style={{ display: "flex", alignItems: "baseline", gap: "0.6rem", marginBottom: "1rem" }}>
+          <span className="score-value" style={{ fontSize: "2.2rem" }}>
+            {score.score ?? "—"}
+          </span>
+          <span className="score-of">{score.score !== null ? "점" : "정보 부족"}</span>
+        </div>
+        <CriteriaBar criteria={score.criteria} showLegend />
+      </div>
+
+      <h3 className="sub" style={{ marginTop: "2rem" }}>
+        이 스타일에 맞는 점 ({passed.length})
+      </h3>
+      <ul className="reason-list">
+        {passed.map((c) => (
+          <li key={c.code} data-kind="pass">
+            {c.message}
+          </li>
+        ))}
+        {passed.length === 0 && <li data-kind="unknown">충족한 기준이 없습니다.</li>}
+      </ul>
+
+      <h3 className="sub" style={{ marginTop: "2rem" }}>
+        확인이 필요한 점 ({failed.length + unknown.length})
+      </h3>
+      <ul className="reason-list">
+        {failed.map((c) => (
+          <li key={c.code} data-kind="fail">
+            {c.message}
+          </li>
+        ))}
+        {unknown.map((c) => (
+          <li key={c.code} data-kind="unknown">
+            {c.label} — {c.message}
+          </li>
+        ))}
+        {failed.length + unknown.length === 0 && (
+          <li data-kind="pass">이 스타일의 기준은 모두 충족했습니다. 기준 밖의 위험은 직접 확인해야 합니다.</li>
+        )}
+      </ul>
+
+      <details style={{ marginTop: "2rem" }}>
+        <summary style={{ cursor: "pointer", fontSize: "0.9rem", color: "var(--plum)" }}>
+          기준과 실제 수치 펼쳐보기
+        </summary>
+        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1rem", fontSize: "0.86rem" }}>
+          <tbody>
+            {score.criteria.map((c) => (
+              <tr key={c.code} style={{ borderBottom: "1px solid var(--line)" }}>
+                <td style={{ padding: "0.5rem 0", width: "34%" }}>{c.label}</td>
+                <td style={{ padding: "0.5rem 0", color: "var(--ink-soft)" }} className="mono">
+                  {c.detail}
+                </td>
+                <td style={{ padding: "0.5rem 0", width: "6rem", textAlign: "right" }}>
+                  {c.status === "pass" ? "충족" : c.status === "fail" ? "미충족" : "판정 불가"}
+                </td>
+              </tr>
+            ))}
+            {Object.entries(METRIC_LABELS).map(([key, meta]) => (
+              <tr key={key} style={{ borderBottom: "1px solid var(--line)" }}>
+                <td style={{ padding: "0.5rem 0" }}>{meta.label}</td>
+                <td colSpan={2} style={{ padding: "0.5rem 0", textAlign: "right" }} className="mono">
+                  {formatMetric(company.metrics[key], meta.format)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </details>
+    </>
+  );
+}
+
+function ChartLens() {
+  return (
+    <>
+      <p style={{ color: "var(--ink-soft)", maxWidth: "62ch" }}>
+        차트 분석에는 종목명이나 티커를 넘기지 않습니다. 모델이 회사에 대해 알고 있는 것으로
+        전망을 덧붙이지 않고, 이미지에 보이는 것만 설명하게 하기 위해서입니다.
+      </p>
+      <div style={{ marginTop: "1.5rem" }}>
+        <ChartAnalyzer />
+      </div>
+      <h3 className="sub" style={{ marginTop: "2.5rem" }}>
+        차트를 읽는 순서
+      </h3>
+      <div className="grid">
+        {CHART_LESSONS.map((lesson) => (
+          <Link key={lesson.id} href={`/learn/chart/${lesson.id}`} className="card card-link">
+            <p className="eyebrow">{lesson.order}단원</p>
+            <strong>{lesson.title}</strong>
+          </Link>
+        ))}
+      </div>
+    </>
+  );
+}
+
+function NoteLens({ company, styleId }: { company: Company; styleId: string }) {
+  const score = company.scores[styleId];
+  const [why, setWhy] = useState("");
+  const [questions, setQuestions] = useState("");
+  const [chartNote, setChartNote] = useState("");
+  const [status, setStatus] = useState<NoteStatus>("first");
+  const [savedAt, setSavedAt] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    void getNote(company.ticker).then((existing) => {
+      if (!alive || !existing) return;
+      setWhy(existing.whyInterested);
+      setQuestions(existing.openQuestions);
+      setChartNote(existing.chartObservations.join("\n"));
+      setStatus(existing.status);
+      setSavedAt(existing.updatedAt);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [company.ticker]);
+
+  async function save() {
+    const note = await saveNote({
+      ticker: company.ticker,
+      name: company.name,
+      whyInterested: why,
+      styleScores: Object.entries(company.scores).map(([id, s]) => ({
+        styleId: id,
+        label: MASTER_BY_ID[id as keyof typeof MASTER_BY_ID]?.name ?? id,
+        score: s.score,
+      })),
+      strengths: score?.reasons ?? [],
+      risks: score?.risks ?? [],
+      chartObservations: chartNote.split("\n").filter(Boolean),
+      openQuestions: questions,
+      status,
+    });
+    setSavedAt(note.updatedAt);
+    track("study_note_saved", {
+      ticker: company.ticker,
+      hasChartObservation: note.chartObservations.length > 0,
+    });
+  }
+
+  return (
+    <div style={{ maxWidth: "680px" }}>
+      <label className="field">
+        <span>1. 이 기업에 관심을 가진 이유</span>
+        <textarea rows={3} value={why} onChange={(e) => setWhy(e.target.value)} placeholder="내 말로 적어보세요." />
+      </label>
+
+      <div className="card" style={{ marginBottom: "1.25rem" }}>
+        <p className="eyebrow">2. 스타일별 적합도</p>
+        <ul className="reason-list">
+          {Object.entries(company.scores).map(([id, s]) => (
+            <li key={id} data-kind={s.score === null ? "unknown" : "pass"}>
+              {MASTER_BY_ID[id as keyof typeof MASTER_BY_ID]?.name ?? id} —{" "}
+              {s.score === null ? "정보 부족" : `${s.score}점`}
+            </li>
+          ))}
+        </ul>
+
+        <p className="eyebrow" style={{ marginTop: "1.25rem" }}>
+          3. 기업 관점에서 확인한 강점
+        </p>
+        <ul className="reason-list">
+          {(score?.reasons ?? []).slice(0, 4).map((r, i) => (
+            <li key={i} data-kind="pass">
+              {r}
+            </li>
+          ))}
+        </ul>
+
+        <p className="eyebrow" style={{ marginTop: "1.25rem" }}>
+          4. 기업 관점에서 확인한 위험
+        </p>
+        <ul className="reason-list">
+          {(score?.risks ?? []).slice(0, 4).map((r, i) => (
+            <li key={i} data-kind="fail">
+              {r}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <label className="field">
+        <span>5. 차트에서 관찰한 내용</span>
+        <textarea
+          rows={4}
+          value={chartNote}
+          onChange={(e) => setChartNote(e.target.value)}
+          placeholder="차트 관점 탭의 분석 결과 중 남길 문장을 한 줄에 하나씩 옮겨 적으세요."
+        />
+      </label>
+
+      <label className="field">
+        <span>6. 추가로 확인할 질문</span>
+        <textarea
+          rows={3}
+          value={questions}
+          onChange={(e) => setQuestions(e.target.value)}
+          placeholder="다음 실적에서 무엇을 확인할지 적어두면 나중에 되짚기 좋습니다."
+        />
+      </label>
+
+      <fieldset style={{ border: 0, padding: 0, margin: "0 0 1.5rem" }}>
+        <legend style={{ fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem" }}>
+          7. 나의 판단
+        </legend>
+        {(Object.keys(NOTE_STATUS_LABEL) as NoteStatus[]).map((key) => (
+          <button
+            key={key}
+            type="button"
+            className="choice"
+            data-state={status === key ? "correct" : undefined}
+            aria-pressed={status === key}
+            onClick={() => setStatus(key)}
+          >
+            {NOTE_STATUS_LABEL[key]}
+          </button>
+        ))}
+      </fieldset>
+
+      <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap" }}>
+        <button type="button" className="btn" onClick={() => void save()}>
+          학습노트 저장
+        </button>
+        <WatchButton ticker={company.ticker} />
+        {savedAt && (
+          <span className="mono" style={{ color: "var(--ink-faint)" }}>
+            마지막 저장 {new Date(savedAt).toLocaleString("ko-KR")}
+          </span>
+        )}
+      </div>
+
+      <p className="disclaimer">
+        학습노트는 지금 이 브라우저에만 저장됩니다. 계정 연동은 다음 단계에서 붙습니다.
+      </p>
+    </div>
+  );
+}
