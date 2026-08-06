@@ -38,8 +38,8 @@ export default function Home() {
       <p className="eyebrow">세 가지 스타일</p>
       <h2 className="section">어떤 기준으로 기업을 보시겠습니까?</h2>
       <p className="lede">
-        각 스타일은 그 투자자가 공개한 원칙을 참고해 Wisor가 재구성한 것입니다. 3~4분 학습과 세
-        문항 퀴즈를 마치면 같은 기준으로 정리된 종목 목록으로 이어집니다.
+        각 스타일은 그 투자자가 공개한 원칙을 참고해 Wisor가 재구성한 것입니다. 3~4분 학습을
+        마치면 같은 기준으로 정리된 종목 목록으로 이어집니다.
       </p>
 
       <div className="grid">
