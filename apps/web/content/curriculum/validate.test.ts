@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { BUFFETT } from "./buffett.ts";
+import { GRAHAM } from "./graham.ts";
+import { LYNCH } from "./lynch.ts";
 import type { Chapter, Curriculum } from "./types.ts";
 import { curriculumProblems } from "./validate.ts";
 
@@ -117,6 +120,74 @@ test("첨삭형 문항의 체크 포인트에 권유형 표현이 있으면 잡�
   assert.equal(problems.length, 1);
   assert.match(problems[0], /권유형/);
   assert.match(problems[0], /1번 문항/);
+});
+
+test("채점형 문항의 prompt에 권유형 표현이 있으면 잡는다", () => {
+  const problems = curriculumProblems([
+    curriculum(
+      chapter({
+        exercises: [
+          {
+            kind: "graded",
+            prompt: "지금 사야 할까요?",
+            choices: ["가", "나"],
+            answers: [0],
+            explain: "해설",
+          },
+        ],
+      }),
+    ),
+  ]);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /권유형/);
+});
+
+test("채점형 문항의 선택지에 권유형 표현이 있으면 잡는다", () => {
+  const problems = curriculumProblems([
+    curriculum(
+      chapter({
+        exercises: [
+          {
+            kind: "graded",
+            prompt: "질문",
+            choices: ["지금 사야 합니다", "나"],
+            answers: [0],
+            explain: "해설",
+          },
+        ],
+      }),
+    ),
+  ]);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /권유형/);
+});
+
+test("첨삭형 문항의 prompt에 권유형 표현이 있으면 잡는다", () => {
+  const problems = curriculumProblems([
+    curriculum(
+      chapter({
+        exercises: [{ kind: "guided", prompt: "지금 파세요?", checkpoints: ["체크"] }],
+      }),
+    ),
+  ]);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /권유형/);
+});
+
+test("기록형 문항의 prompt에 권유형 표현이 있으면 잡는다", () => {
+  const problems = curriculumProblems([
+    curriculum(
+      chapter({
+        exercises: [{ kind: "journal", prompt: "손절하세요." }],
+      }),
+    ),
+  ]);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /권유형/);
+});
+
+test("실제 세 커리큘럼(버핏·그레이엄·린치)은 문제를 내지 않는다", () => {
+  assert.deepEqual(curriculumProblems([BUFFETT, GRAHAM, LYNCH]), []);
 });
 
 test("문제를 전부 모아서 돌려준다 — 첫 개에서 멈추지 않는다", () => {
