@@ -52,8 +52,10 @@ def series(tag, base, duration=True, unit="USD"):
 
 
 def company_facts(**extra_tags):
-    """필수 태그를 채운 companyfacts. extra_tags로 선택 항목의 태그 이름을 바꿔 끼운다.
+    """필수 태그를 채운 companyfacts. extra_tags로 선택 항목의 태그를 바꿔 끼운다.
 
+    값 자리에 dict를 주면 그 연도에만 넣는다. 회사가 몇 해 전에 쓰다 만 태그를
+    표현하기 위한 것이다(VZ의 LongTermDebt는 2013년에서 멈춰 있다).
     실제 API와 마찬가지로 sicDescription을 넣지 않는다.
     """
     facts = {}
@@ -61,7 +63,8 @@ def company_facts(**extra_tags):
         facts.update(series(tag, base, duration))
     facts.update(series("EarningsPerShareDiluted", 2, unit="USD/shares"))
     for tag, (value, duration) in extra_tags.items():
-        facts.update(fact(tag, [annual(value, year, duration) for year in YEARS]))
+        by_year = value if isinstance(value, dict) else {year: value for year in YEARS}
+        facts.update(fact(tag, [annual(v, y, duration) for y, v in by_year.items()]))
     return {"facts": {"us-gaap": facts}}
 
 
@@ -123,6 +126,17 @@ def test_interest_expense_falls_back_to_interest_and_debt_expense():
     assert result.interest_expense == 10 / 1_000_000
 
 
+def test_interest_expense_reads_the_nonoperating_tag_with_its_real_spelling():
+    """실제 태그는 InterestExpenseNonoperating이다(소문자 o).
+
+    대문자 O로 적힌 이름은 어디에도 없어서 한 번도 매칭되지 않았다. ADBE·MSFT·GILD·VZ는
+    최근 연도에 이 태그로만 이자비용을 공시한다.
+    """
+    result = build(InterestExpenseNonoperating=(6694, True))
+
+    assert result.interest_expense == 6694 / 1_000_000
+
+
 def test_missing_optional_tags_stay_none_and_are_not_filled_with_zero():
     """ULTA·LULU처럼 장기차입금 태그가 아예 없는 회사는 0이 아니라 판정 불가다."""
     result = build()
@@ -130,3 +144,60 @@ def test_missing_optional_tags_stay_none_and_are_not_filled_with_zero():
     assert result.total_debt is None
     assert result.interest_expense is None
     assert result.depreciation is None
+
+
+def test_stale_debt_tag_from_another_year_is_not_used_as_current_debt():
+    """VZ의 LongTermDebt는 2013년에서 멈춰 있는데 그 값이 현재 부채로 쓰이고 있었다.
+
+    재무 기준연도에 값이 없으면 다른 해의 값으로 대신 채우지 않는다.
+    """
+    result = build(LongTermDebt=({2019: 900}, False))
+
+    assert result.total_debt is None
+
+
+def test_total_debt_prefers_the_combined_total_over_the_long_term_only_tag():
+    """UNH·VZ는 DebtLongtermAndShorttermCombinedAmount에만 최신 총부채가 있다.
+
+    좁은 태그를 먼저 잡으면 부채를 적게 잡아 판정이 관대해진다.
+    """
+    result = build(
+        DebtLongtermAndShorttermCombinedAmount=(800, False),
+        LongTermDebtNoncurrent=(500, False),
+    )
+
+    assert result.total_debt == 800 / 1_000_000
+
+
+def test_total_debt_adds_the_current_portion_when_only_the_split_tags_exist():
+    result = build(LongTermDebtNoncurrent=(500, False), LongTermDebtCurrent=(120, False))
+
+    assert result.total_debt == 620 / 1_000_000
+
+
+def test_long_term_debt_total_is_not_double_counted_with_its_current_portion():
+    """LongTermDebt는 유동성 장기부채를 이미 포함한 총액이다(MSFT 40,294 = 31,067 + 9,227)."""
+    result = build(
+        LongTermDebt=(620, False),
+        LongTermDebtNoncurrent=(500, False),
+        LongTermDebtCurrent=(120, False),
+    )
+
+    assert result.total_debt == 620 / 1_000_000
+
+
+def test_depreciation_adds_intangible_amortization_when_only_depreciation_is_reported():
+    """MSFT·GILD는 Depreciation만 쓴다. 상각을 빼면 EBITDA가 크게 어긋난다(GILD 370 vs 2,770)."""
+    result = build(Depreciation=(370, True), AmortizationOfIntangibleAssets=(2400, True))
+
+    assert result.depreciation == 2770 / 1_000_000
+
+
+def test_inclusive_depreciation_tag_is_not_double_counted_with_amortization():
+    """VZ의 DepreciationAndAmortization 18,349는 이미 상각 2,999를 포함한다."""
+    result = build(
+        DepreciationAndAmortization=(18349, True),
+        AmortizationOfIntangibleAssets=(2999, True),
+    )
+
+    assert result.depreciation == 18349 / 1_000_000

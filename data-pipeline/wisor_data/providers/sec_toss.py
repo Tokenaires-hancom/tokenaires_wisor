@@ -68,9 +68,59 @@ def _annual_values(
     return merged
 
 
-def _latest_value(company_facts: dict, tags: tuple[str, ...], duration: bool = False) -> float | None:
-    values = _annual_values(company_facts, tags, duration=duration)
-    return values[max(values)] if values else None
+def _value_at(
+    company_facts: dict, tags: tuple[str, ...], end: str, duration: bool = False
+) -> float | None:
+    """재무 기준연도의 값. 그 해에 없으면 다른 해의 값으로 대신 채우지 않는다.
+
+    회사는 쓰던 태그를 도중에 버린다. VZ의 LongTermDebt는 2013년에서 멈춰 있는데,
+    '가장 최근에 값이 있는 해'를 집으면 12년 전 부채가 현재 부채로 나간다.
+    """
+    return _annual_values(company_facts, tags, duration=duration).get(end)
+
+
+def _total_debt_at(company_facts: dict, end: str) -> float | None:
+    """총부채. 넓은 정의부터 찾는다.
+
+    좁은 태그를 먼저 잡으면 부채를 적게 잡게 되고, 레버리지 판정이 관대해진다.
+    관대한 쪽으로 틀리는 것이 이 지표에서는 더 위험하다.
+    """
+    for tags in (
+        ("DebtLongtermAndShorttermCombinedAmount",),
+        ("LongTermDebtAndFinanceLeaseObligations", "LongTermDebtAndCapitalLeaseObligations"),
+        ("LongTermDebt",),  # 유동성 장기부채를 이미 포함한 총액이다. 따로 더하지 않는다
+    ):
+        value = _value_at(company_facts, tags, end)
+        if value is not None:
+            return value
+
+    # 총액 태그가 없는 회사는 비유동 + 유동으로 맞춘다. 한쪽만 있으면 판정 불가다
+    noncurrent = _value_at(company_facts, ("LongTermDebtNoncurrent",), end)
+    current = _value_at(company_facts, ("LongTermDebtCurrent",), end)
+    if noncurrent is None or current is None:
+        return None
+    return noncurrent + current
+
+
+def _depreciation_at(company_facts: dict, end: str) -> float | None:
+    """EBITDA에 더할 감가상각비. 상각을 포함한 값이어야 한다."""
+    inclusive = _value_at(company_facts, (
+        "DepreciationDepletionAndAmortization",
+        "DepreciationDepletionAndAmortizationPropertyPlantAndEquipment",
+        "DepreciationAndAmortization",
+    ), end, duration=True)
+    if inclusive is not None:
+        return inclusive
+
+    # Depreciation은 유형자산 감가상각만 뜻한다. 무형자산 상각이 큰 회사는
+    # 이것만 쓰면 EBITDA가 크게 어긋난다(GILD 370 vs 2,770).
+    depreciation = _value_at(company_facts, ("Depreciation",), end, duration=True)
+    if depreciation is None:
+        return None
+    amortization = _value_at(company_facts, ("AmortizationOfIntangibleAssets",), end, duration=True)
+    # 상각 태그가 없으면 감가상각만 쓴다. EBITDA가 작게 잡혀 레버리지 판정이
+    # 엄격해지는 쪽으로 틀린다. 반대 방향보다 안전하다.
+    return depreciation if amortization is None else depreciation + amortization
 
 
 def fundamentals_from_sec(
@@ -128,17 +178,17 @@ def fundamentals_from_sec(
     ]
     eps_series = [eps[end] for end in common_ends if end in eps]
 
-    debt = _latest_value(company_facts, (
-        "LongTermDebtAndFinanceLeaseObligations", "LongTermDebt", "LongTermDebtNoncurrent",
-    ))
+    # 아래 값은 모두 시계열과 같은 회계연도에서만 가져온다. 해가 섞이면
+    # 오래된 부채와 최근 이익을 나누게 된다.
+    as_of = common_ends[-1]
+    debt = _total_debt_at(company_facts, as_of)
+    depreciation = _depreciation_at(company_facts, as_of)
     # 태그는 회사마다 다르다. 넓은 항목부터 좁은 항목 순으로 두고 앞쪽을 우선한다.
-    interest = _latest_value(company_facts, (
-        "InterestExpenseNonOperating", "InterestExpense", "InterestAndDebtExpense",
-    ), duration=True)
-    depreciation = _latest_value(company_facts, (
-        "DepreciationDepletionAndAmortization", "DepreciationDepletionAndAmortizationPropertyPlantAndEquipment",
-        "DepreciationAndAmortization", "Depreciation",
-    ), duration=True)
+    # Nonoperating의 o는 소문자다. 대문자로 적힌 이름은 taxonomy에 없어 매칭되지 않는다.
+    interest = _value_at(company_facts, (
+        "InterestExpenseNonoperating", "InterestExpense", "InterestAndDebtExpense",
+    ), as_of, duration=True)
+    current_assets = _value_at(company_facts, ("AssetsCurrent",), as_of)
 
     return Fundamentals(
         ticker=ticker,
@@ -156,13 +206,11 @@ def fundamentals_from_sec(
         equity=[equity[end] / million for end in common_ends],
         eps=eps_series,
         total_debt=None if debt is None else debt / million,
-        cash=cash[common_ends[-1]] / million,
+        cash=cash[as_of] / million,
         interest_expense=None if interest is None else interest / million,
         depreciation=None if depreciation is None else depreciation / million,
-        current_assets=(
-            None if (value := _latest_value(company_facts, ("AssetsCurrent",))) is None else value / million
-        ),
-        current_liabilities=current_liabilities[common_ends[-1]] / million,
+        current_assets=None if current_assets is None else current_assets / million,
+        current_liabilities=current_liabilities[as_of] / million,
     )
 
 
