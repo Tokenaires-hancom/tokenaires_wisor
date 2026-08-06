@@ -132,6 +132,8 @@ export default function Home() {
               ))}
             </ul>
             <DataStamp
+              price={sample.asOf.price}
+              financial={sample.asOf.financial}
               modelVersion={meta.modelVersion}
               confidence={sample.scores.buffett.dataConfidence}
             />

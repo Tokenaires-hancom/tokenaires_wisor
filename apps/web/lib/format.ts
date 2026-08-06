@@ -1,3 +1,13 @@
+/** 여러 종목을 한 화면에 놓을 때의 재무 기준일.
+ *
+ * 회계연도 종료일은 회사마다 다르다. 목록에 날짜 하나를 찍으면 나머지 종목에는
+ * 틀린 날짜가 된다. 가장 이른 날을 쓰면 신선도를 낮춰 말하고, 늦은 날을 쓰면
+ * 실제보다 최신인 것처럼 말한다. 그래서 섞여 있다는 사실을 그대로 보여준다.
+ */
+export function dateRange(from: string, to: string): string {
+  return from === to ? from : `${from} ~ ${to}`;
+}
+
 export function pct(value: number | null | undefined, digits = 1): string {
   if (value === null || value === undefined) return "정보 없음";
   return `${(value * 100).toFixed(digits)}%`;

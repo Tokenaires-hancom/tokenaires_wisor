@@ -1,7 +1,17 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { formatMetric } from "./format.ts";
+import { dateRange, formatMetric } from "./format.ts";
 import { METRIC_LABELS } from "./scores.types.ts";
+
+test("회계연도가 제각각이면 재무 기준일을 범위로 쓴다", () => {
+  // 목록 화면의 9종목은 회계연도 종료일이 6개로 흩어져 있다. 하나를 고르면
+  // 나머지 8종목에 대해 틀린 날짜가 된다.
+  assert.equal(dateRange("2025-11-28", "2026-06-30"), "2025-11-28 ~ 2026-06-30");
+});
+
+test("기준일이 하나뿐이면 범위로 쓰지 않는다", () => {
+  assert.equal(dateRange("2025-12-31", "2025-12-31"), "2025-12-31");
+});
 
 test("상한이 정해진 지표는 큰 값을 숫자 그대로 쓰지 않는다", () => {
   // 이자 부담이 거의 없는 회사는 배수가 무의미하게 커진다(실측 ULTA 8286배).
