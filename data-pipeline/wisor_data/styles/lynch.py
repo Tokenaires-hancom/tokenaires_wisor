@@ -1,7 +1,10 @@
-"""피터 린치 스타일 — Lynch 0.9 (초안)
+"""피터 린치 스타일 — Lynch 1.0
 
 "이해할 수 있고 잘 성장하는 회사를 합리적인 가격에." 성장의 크기와 지속성,
 그리고 성장률 대비 가격(PEG)을 함께 본다.
+
+2026-08-06에 상위 종목을 SEC 공시와 대조한 뒤 0.9(초안)에서 올렸다. 기준과
+임계값은 초안과 같다.
 """
 
 from .base import Criterion, Style, num, pct
@@ -56,4 +59,4 @@ CRITERIA = [
     ),
 ]
 
-STYLE = Style(id="lynch", name="피터 린치", model_version="Lynch 0.9", criteria=CRITERIA)
+STYLE = Style(id="lynch", name="피터 린치", model_version="Lynch 1.0", criteria=CRITERIA)

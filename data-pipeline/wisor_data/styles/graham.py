@@ -1,7 +1,10 @@
-"""벤저민 그레이엄 스타일 — Graham 0.9 (초안)
+"""벤저민 그레이엄 스타일 — Graham 1.0
 
 "재무가 안전한 기업을 충분히 싸게." 안전마진과 재무 안정성에 무게를 둔다.
-0.9는 초안 표기다. 상위 종목 검수(3번 담당) 이후 1.0으로 올린다.
+
+2026-08-06에 상위 종목을 SEC 공시와 대조한 뒤 0.9(초안)에서 올렸다. 기준과
+임계값은 초안과 같다. 올린 것은 판정 근거가 되는 재무 숫자를 실제 공시로
+확인했기 때문이다.
 """
 
 from .base import Criterion, Style, num, pct
@@ -63,4 +66,4 @@ CRITERIA = [
     ),
 ]
 
-STYLE = Style(id="graham", name="벤저민 그레이엄", model_version="Graham 0.9", criteria=CRITERIA)
+STYLE = Style(id="graham", name="벤저민 그레이엄", model_version="Graham 1.0", criteria=CRITERIA)

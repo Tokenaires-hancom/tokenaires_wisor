@@ -59,6 +59,16 @@ def test_score_is_share_of_passed_weight():
     assert score.score == round(passed_weight / total_weight * 100)
 
 
+def test_no_style_ships_a_draft_model_version():
+    """0.9는 검수 전 초안 표기다. 화면에 나가는 모델은 1.0 이상이어야 한다.
+
+    모델 버전은 DataStamp로 사용자에게 그대로 노출된다. 초안이 나가면 안 된다.
+    """
+    for style in [*ALL_STYLES, greenblatt.STYLE]:
+        version = float(style.model_version.rsplit(" ", 1)[1])
+        assert version >= 1.0, f"{style.model_version}은 검수 전 초안 표기입니다."
+
+
 def test_criteria_count_is_eight_for_buffett():
     """기획서 11.3의 '8개 기준 중 6개' 문구가 성립해야 한다."""
     assert len(buffett.STYLE.criteria) == 8
