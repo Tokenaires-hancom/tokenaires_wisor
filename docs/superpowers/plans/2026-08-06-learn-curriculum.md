@@ -14,8 +14,18 @@
 
 이 절의 규칙은 모든 과제에 암묵적으로 포함된다.
 
-- **의존성을 추가하지 않는다.** 지금 `apps/web`의 dependencies는 `next` · `react` · `react-dom` 셋뿐이고 그 상태를 유지한다. 테스트 러너도 추가하지 않는다
-- **테스트 러너가 없다.** 검증은 `cd apps/web && npm run build` 하나다. 타입 오류, 정적 생성 실패, 로드 시점 검사 실패가 모두 여기서 잡힌다
+- **의존성을 추가하지 않는다.** 지금 `apps/web`의 dependencies는 `next` · `react` · `react-dom` 셋뿐이고 그 상태를 유지한다. 테스트 러너도 설치하지 않는다
+- **테스트는 Node 내장 러너를 쓴다.** `node:test` + `node:assert`는 Node에 들어 있어 설치할 것이 없다. Node 23+는 `.ts` 타입 스트리핑이 기본이라 TypeScript를 그대로 돌린다. 확인된 환경은 v24.18.0
+  - 테스트 파일은 소스를 **확장자까지 적어** 가져온다 — `import { isCorrect } from "./grading.ts"`. Node ESM은 확장자 생략을 허용하지 않는다
+  - 그래서 `tsconfig.json`에 `"allowImportingTsExtensions": true`가 필요하다. `noEmit: true`라 쓸 수 있다
+  - `@/` 경로 별칭은 Node가 해석하지 못한다. 테스트 대상 모듈은 상대 경로만 쓴다
+  - React 컴포넌트 렌더링은 이 방식으로 테스트할 수 없다(DOM 환경이 필요하고 그건 의존성이다). 컴포넌트는 빌드와 손 확인으로 검증한다
+- **검증 두 가지.** 두 명령이 모두 통과해야 과제가 끝난다
+
+  ```bash
+  cd apps/web && npm test        # 순수 로직
+  cd apps/web && npm run build   # 타입 오류 · 정적 생성 · 로드 시점 검사
+  ```
 - **순수 CSS만.** Tailwind·CSS-in-JS·UI 라이브러리 금지. `app/globals.css`의 토큰과 클래스만 쓰고 하드코딩 hex를 넣지 않는다. 인라인 `style`은 일회성 여백 조정에만
 - **빨강·초록 금지.** 충족은 `--plum`, 미충족은 `--ochre`. 색만으로 의미를 전달하지 않고 채움·빗금·점선을 함께 쓴다
 - **클라이언트 컴포넌트에서 `lib/scores.ts`를 import하지 않는다.** 타입은 `lib/scores.types.ts`에서 가져온다
@@ -30,7 +40,13 @@
 | 파일 | 책임 |
 |---|---|
 | `docs/sources/investment-styles-curriculum.md` | 원본 커리큘럼 문서. 콘텐츠의 출처를 저장소 안에 고정 |
+| `apps/web/package.json` | (수정) `test` 스크립트와 `engines` 추가 |
+| `apps/web/tsconfig.json` | (수정) `allowImportingTsExtensions` |
 | `apps/web/content/curriculum/types.ts` | `Exercise` · `Chapter` · `Curriculum` 타입과 `CHAPTER_SLOTS` 상수. 값 import 없음 |
+| `apps/web/content/curriculum/validate.ts` | 커리큘럼 검사. 오류 메시지 배열을 돌려주는 순수 함수 |
+| `apps/web/content/curriculum/validate.test.ts` | 위 함수의 테스트 |
+| `apps/web/content/curriculum/grading.ts` | `isCorrect(answers, picked)`. 복수정답 집합 비교 |
+| `apps/web/content/curriculum/grading.test.ts` | 위 함수의 테스트 |
 | `apps/web/content/curriculum/buffett.ts` | 해자 집중형 5장 |
 | `apps/web/content/curriculum/graham.ts` | 안전마진형 5장 |
 | `apps/web/content/curriculum/lynch.ts` | 저평가 성장형 5장 |
@@ -55,10 +71,13 @@
 
 **Files:**
 - Create: `docs/sources/investment-styles-curriculum.md`
+- Modify: `apps/web/package.json` (`test` 스크립트, `engines`)
+- Modify: `apps/web/tsconfig.json` (`allowImportingTsExtensions`)
 - Create: `apps/web/content/curriculum/types.ts`
+- Create: `apps/web/content/curriculum/validate.ts`
 - Create: `apps/web/content/curriculum/buffett.ts`
 - Create: `apps/web/content/curriculum/index.ts`
-- Test: 테스트 파일 없음. `cd apps/web && npm run build`가 검증 수단
+- Test: `apps/web/content/curriculum/validate.test.ts`
 
 **Interfaces:**
 - Produces:
@@ -66,6 +85,7 @@
   - `type Exercise = GradedExercise | GuidedExercise | JournalExercise`
   - `type Chapter = { title: string; lede: string; body: string[]; exercises: Exercise[] }`
   - `type Curriculum = { masterId: Master["id"]; sellType: string; sellTrigger: string; currency: string; chapters: [Chapter, Chapter, Chapter, Chapter, Chapter] }`
+  - `curriculumProblems(curricula: Curriculum[]): string[]` — 문제를 찾으면 메시지 배열, 없으면 빈 배열
   - `CURRICULA: Curriculum[]`, `CURRICULUM_BY_MASTER: Record<Master["id"], Curriculum>`, `chapterOf(masterId: string, no: number): Chapter | undefined`
 
 - [ ] **Step 1: 원본 문서를 저장소로 들여온다**
@@ -77,7 +97,27 @@ mkdir -p docs/sources
 cp "/c/Users/Har10/Downloads/investment-styles-curriculum.md" docs/sources/investment-styles-curriculum.md
 ```
 
-- [ ] **Step 2: 타입 파일을 만든다**
+- [ ] **Step 2: 테스트 실행 환경을 연다**
+
+`apps/web/package.json`의 `scripts`에 추가한다. 설치할 것은 없다 — `node:test`는 Node 내장이다.
+
+```json
+"test": "node --test \"content/**/*.test.ts\" \"lib/**/*.test.ts\"",
+```
+
+같은 파일에 `engines`를 추가한다. `.ts` 타입 스트리핑이 기본인 버전을 요구한다.
+
+```json
+"engines": { "node": ">=23" }
+```
+
+`apps/web/tsconfig.json`의 `compilerOptions`에 한 줄 추가한다. 테스트가 소스를 `./grading.ts`처럼 확장자까지 적어 가져오기 때문이고, `noEmit: true`라 켤 수 있다.
+
+```json
+"allowImportingTsExtensions": true,
+```
+
+- [ ] **Step 3: 타입 파일을 만든다**
 
 `apps/web/content/curriculum/types.ts`:
 
@@ -135,61 +175,197 @@ export type Curriculum = {
 };
 ```
 
-- [ ] **Step 3: 검사가 들어간 index를 만든다 — 아직 커리큘럼은 비어 있다**
+- [ ] **Step 4: 검사 함수의 실패하는 테스트를 먼저 쓴다**
+
+`apps/web/content/curriculum/validate.test.ts`:
+
+```ts
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import type { Chapter, Curriculum } from "./types.ts";
+import { curriculumProblems } from "./validate.ts";
+
+function chapter(overrides: Partial<Chapter> = {}): Chapter {
+  return {
+    title: "제목",
+    lede: "인용구",
+    body: ["본문 한 단락."],
+    exercises: [],
+    ...overrides,
+  };
+}
+
+function curriculum(first: Chapter): Curriculum {
+  return {
+    masterId: "buffett",
+    sellType: "논거 붕괴형",
+    sellTrigger: "해자 침식",
+    currency: "학습 내용은 2026년 7월 기준입니다.",
+    chapters: [first, chapter(), chapter(), chapter(), chapter()],
+  };
+}
+
+test("멀쩡한 커리큘럼은 문제를 내지 않는다", () => {
+  assert.deepEqual(curriculumProblems([curriculum(chapter())]), []);
+});
+
+test("정답 인덱스가 선택지 범위를 벗어나면 잡는다", () => {
+  const problems = curriculumProblems([
+    curriculum(
+      chapter({
+        exercises: [
+          {
+            kind: "graded",
+            prompt: "질문",
+            choices: ["가", "나"],
+            answers: [5],
+            explain: "해설",
+          },
+        ],
+      }),
+    ),
+  ]);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /범위 밖/);
+});
+
+test("정답이 하나도 없으면 잡는다", () => {
+  const problems = curriculumProblems([
+    curriculum(
+      chapter({
+        exercises: [
+          { kind: "graded", prompt: "질문", choices: ["가", "나"], answers: [], explain: "해설" },
+        ],
+      }),
+    ),
+  ]);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /정답이 지정되지/);
+});
+
+test("체크 포인트가 비면 잡는다", () => {
+  const problems = curriculumProblems([
+    curriculum(chapter({ exercises: [{ kind: "guided", prompt: "질문", checkpoints: [] }] })),
+  ]);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /체크 포인트/);
+});
+
+test("본문이 비면 잡는다", () => {
+  const problems = curriculumProblems([curriculum(chapter({ body: [] }))]);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /본문이 비어/);
+});
+
+test("권유형 표현을 잡는다", () => {
+  const problems = curriculumProblems([
+    curriculum(chapter({ body: ["이 종목은 지금 사야 합니다."] })),
+  ]);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /권유형/);
+});
+
+test("문제를 전부 모아서 돌려준다 — 첫 개에서 멈추지 않는다", () => {
+  const problems = curriculumProblems([
+    curriculum(chapter({ body: [], exercises: [{ kind: "guided", prompt: "질문", checkpoints: [] }] })),
+  ]);
+  assert.equal(problems.length, 2);
+});
+
+test("어느 대가의 몇 장인지 메시지에 담는다", () => {
+  const problems = curriculumProblems([curriculum(chapter({ body: [] }))]);
+  assert.match(problems[0], /buffett 1장/);
+});
+```
+
+- [ ] **Step 5: 테스트가 실패하는지 확인한다**
+
+Run: `cd apps/web && npm test`
+
+Expected: FAIL — `Cannot find module '.../content/curriculum/validate.ts'`
+
+- [ ] **Step 6: 검사 함수를 구현한다**
+
+`apps/web/content/curriculum/validate.ts`. 던지지 않고 **모아서 돌려준다.** 문제가 여러 개일 때 하나씩 고치며 빌드를 반복하는 것은 낭비다.
+
+```ts
+import type { Curriculum } from "./types.ts";
+
+/** 사용자에게 보이는 문장에서 막는 표현.
+ *  이 제품은 관찰과 확인 사항까지만 말한다. 권유하지 않는다. */
+const BANNED = ["지금 사", "지금 파", "손절하", "추천합니다", "확실합니다", "보장합니다"];
+
+/** 타입이 잡지 못하는 것만 본다. 문제를 전부 모아 메시지 배열로 돌려준다. */
+export function curriculumProblems(curricula: Curriculum[]): string[] {
+  const problems: string[] = [];
+
+  for (const curriculum of curricula) {
+    curriculum.chapters.forEach((chapter, index) => {
+      const where = `${curriculum.masterId} ${index + 1}장`;
+
+      if (chapter.body.length === 0) {
+        problems.push(`${where}: 본문이 비어 있습니다.`);
+      }
+
+      const text = [chapter.title, chapter.lede, ...chapter.body].join(" ");
+      for (const banned of BANNED) {
+        if (text.includes(banned)) {
+          problems.push(`${where}: 권유형 표현 '${banned}'가 본문에 있습니다.`);
+        }
+      }
+
+      chapter.exercises.forEach((exercise, position) => {
+        const at = `${where} ${position + 1}번 문항`;
+
+        if (exercise.kind === "graded") {
+          if (exercise.answers.length === 0) {
+            problems.push(`${at}: 정답이 지정되지 않았습니다.`);
+          }
+          for (const answer of exercise.answers) {
+            if (answer < 0 || answer >= exercise.choices.length) {
+              // 범위 밖 인덱스는 조용히 오답을 정답으로 가르친다
+              problems.push(
+                `${at}: 정답 인덱스 ${answer}가 선택지 ${exercise.choices.length}개의 범위 밖입니다.`,
+              );
+            }
+          }
+        }
+
+        if (exercise.kind === "guided" && exercise.checkpoints.length === 0) {
+          problems.push(`${at}: 체크 포인트가 비어 있습니다.`);
+        }
+      });
+    });
+  }
+
+  return problems;
+}
+```
+
+- [ ] **Step 7: 테스트가 통과하는지 확인한다**
+
+Run: `cd apps/web && npm test`
+
+Expected: PASS — 8문항 전부
+
+- [ ] **Step 8: index를 만든다**
 
 `apps/web/content/curriculum/index.ts`:
 
 ```ts
 import type { Master } from "../masters";
 import { BUFFETT } from "./buffett";
-import type { Curriculum } from "./types";
+import type { Chapter, Curriculum } from "./types";
+import { curriculumProblems } from "./validate";
 
 export * from "./types";
 
 export const CURRICULA: Curriculum[] = [BUFFETT];
 
-/** 사용자에게 보이는 문장에서 막는 표현.
- *  이 제품은 관찰과 확인 사항까지만 말한다. 권유하지 않는다. */
-const BANNED = ["지금 사", "지금 파", "손절하", "추천합니다", "확실합니다", "보장"];
-
-/** 타입이 잡지 못하는 것만 본다. 페이지가 전부 정적 생성이라 이 검사는 빌드에서 돈다. */
-for (const curriculum of CURRICULA) {
-  curriculum.chapters.forEach((chapter, index) => {
-    const where = `${curriculum.masterId} ${index + 1}장`;
-
-    if (chapter.body.length === 0) {
-      throw new Error(`${where}: 본문이 비어 있습니다.`);
-    }
-
-    const text = [chapter.title, chapter.lede, ...chapter.body].join(" ");
-    for (const banned of BANNED) {
-      if (text.includes(banned)) {
-        throw new Error(`${where}: 권유형 표현 '${banned}'가 본문에 있습니다.`);
-      }
-    }
-
-    chapter.exercises.forEach((exercise, position) => {
-      const at = `${where} ${position + 1}번 문항`;
-
-      if (exercise.kind === "graded") {
-        if (exercise.answers.length === 0) {
-          throw new Error(`${at}: 정답이 지정되지 않았습니다.`);
-        }
-        for (const answer of exercise.answers) {
-          if (answer < 0 || answer >= exercise.choices.length) {
-            // 범위 밖 인덱스는 조용히 오답을 정답으로 가르친다
-            throw new Error(
-              `${at}: 정답 인덱스 ${answer}가 선택지 ${exercise.choices.length}개의 범위 밖입니다.`,
-            );
-          }
-        }
-      }
-
-      if (exercise.kind === "guided" && exercise.checkpoints.length === 0) {
-        throw new Error(`${at}: 체크 포인트가 비어 있습니다.`);
-      }
-    });
-  });
+// 페이지가 전부 정적 생성이라 이 검사는 빌드에서 돈다. 건너뛸 수 없다.
+const problems = curriculumProblems(CURRICULA);
+if (problems.length > 0) {
+  throw new Error(`커리큘럼에 문제가 있습니다:\n- ${problems.join("\n- ")}`);
 }
 
 export const CURRICULUM_BY_MASTER = Object.fromEntries(
@@ -201,9 +377,9 @@ export function chapterOf(masterId: string, no: number): Chapter | undefined {
 }
 ```
 
-`Chapter` 타입은 `export * from "./types"`로 재수출되므로 `chapterOf`의 반환 타입에 그대로 쓸 수 있다.
+`index.ts`는 Next가 번들하는 경로이므로 `@/` 없이 확장자 없는 상대 경로를 쓴다. 확장자를 적는 것은 Node가 직접 읽는 `*.test.ts`뿐이다.
 
-- [ ] **Step 4: 버핏 커리큘럼을 쓴다 — 1장에 일부러 잘못된 정답 인덱스를 넣는다**
+- [ ] **Step 9: 버핏 커리큘럼을 쓴다 — 1장에 일부러 잘못된 정답 인덱스를 넣는다**
 
 `apps/web/content/curriculum/buffett.ts`. 본문은 `docs/sources/investment-styles-curriculum.md`의 **`# C. 해자 집중형 · 버핏`** 절(C1~C5)에서 옮긴다.
 
@@ -283,38 +459,45 @@ export const BUFFETT: Curriculum = {
 };
 ```
 
-- [ ] **Step 5: 빌드를 돌려 검사가 잡는지 확인한다**
+- [ ] **Step 10: 빌드를 돌려 검사가 잡는지 확인한다**
 
 Run: `cd apps/web && npm run build`
 
 Expected: FAIL. 다음 메시지가 나와야 한다.
 
 ```
-Error: buffett 1장 1번 문항: 정답 인덱스 9가 선택지 4개의 범위 밖입니다.
+Error: 커리큘럼에 문제가 있습니다:
+- buffett 1장 1번 문항: 정답 인덱스 9가 선택지 4개의 범위 밖입니다.
 ```
 
-빌드가 통과하면 검사가 작동하지 않는 것이다. `index.ts`가 실제로 `CURRICULA`를 순회하는지, 어느 페이지도 이 모듈을 import하지 않아 로드 자체가 안 되는 것은 아닌지 확인한다. **이 시점엔 아직 챕터 페이지가 없으므로 `index.ts`를 import하는 페이지가 없을 수 있다.** 그럴 경우 Task 6까지 이 검사가 돌지 않으므로, 확인을 위해 `app/learn/page.tsx`에 `import { CURRICULA } from "@/content/curriculum";`를 임시로 추가하고 빌드한 뒤 되돌린다.
+Step 7에서 검사 함수 자체는 이미 테스트로 확인했다. 이 단계가 확인하는 것은 **배선**이다 — `index.ts`가 실제로 그 함수를 부르고, 빌드가 그 예외로 죽는가. 빌드가 통과하면 배선이 끊긴 것이다. `index.ts`가 실제로 `CURRICULA`를 순회하는지, 어느 페이지도 이 모듈을 import하지 않아 로드 자체가 안 되는 것은 아닌지 확인한다. **이 시점엔 아직 챕터 페이지가 없으므로 `index.ts`를 import하는 페이지가 없을 수 있다.** 그럴 경우 Task 6까지 이 검사가 돌지 않으므로, 확인을 위해 `app/learn/page.tsx`에 `import { CURRICULA } from "@/content/curriculum";`를 임시로 추가하고 빌드한 뒤 되돌린다.
 
-- [ ] **Step 6: 정답 인덱스를 고치고 나머지 4개 장을 채운다**
+- [ ] **Step 11: 정답 인덱스를 고치고 나머지 4개 장을 채운다**
 
 `answers: [9]` → `answers: [1]`로 고친다. 그리고 2~5장을 문서 C2~C5에서 전사한다.
 
-- [ ] **Step 7: 빌드가 통과하는지 확인한다**
+- [ ] **Step 12: 테스트와 빌드가 모두 통과하는지 확인한다**
 
-Run: `cd apps/web && npm run build`
+Run: `cd apps/web && npm test && npm run build`
 
-Expected: PASS. 아직 챕터 라우트가 없으므로 페이지 수는 기존과 같다.
+Expected: 테스트 8문항 PASS, 빌드 PASS. 아직 챕터 라우트가 없으므로 페이지 수는 기존과 같다.
 
-- [ ] **Step 8: 커밋**
+- [ ] **Step 13: 커밋**
 
 ```bash
-git add docs/sources/ apps/web/content/curriculum/
+git add docs/sources/ apps/web/content/curriculum/ apps/web/package.json apps/web/tsconfig.json
 git commit -F - <<'EOF'
-버핏 커리큘럼과 콘텐츠 로드 시점 검사 추가
+버핏 커리큘럼과 콘텐츠 검사 추가
 
 정답 인덱스가 선택지 범위를 벗어나면 조용히 오답을 정답으로 가르치게 된다.
-타입으로는 잡히지 않으므로 모듈 로드 시점에 검사한다. 페이지가 전부 정적
-생성이라 이 검사는 빌드에서 돌고 건너뛸 수 없다.
+타입으로는 잡히지 않으므로 따로 검사한다. index.ts가 모듈 로드 시점에 부르고,
+페이지가 전부 정적 생성이라 이 검사는 빌드에서 돌고 건너뛸 수 없다.
+
+검사 함수는 던지지 않고 문제를 모아 돌려준다. 문제가 여러 개일 때 하나씩
+고치며 빌드를 반복하는 것은 낭비다.
+
+테스트는 Node 내장 러너를 쓴다. node:test는 설치할 것이 없어서 이 저장소의
+의존성 정책을 건드리지 않는다.
 
 원본 문서를 docs/sources/로 들여와 콘텐츠의 출처를 저장소 안에 고정했다.
 
@@ -445,15 +628,15 @@ export const CURRICULA: Curriculum[] = [BUFFETT, GRAHAM, LYNCH];
 
 Run: `cd apps/web && npm run build`
 
-Expected: FAIL — `Error: graham N장 M번 문항: 체크 포인트가 비어 있습니다.`
+Expected: FAIL — 메시지에 `graham N장 M번 문항: 체크 포인트가 비어 있습니다.`가 들어 있어야 한다. `buffett`이 아니라 `graham`으로 나오는지 본다. 세 커리큘럼이 모두 `CURRICULA`에 등록됐는지를 이 한 줄이 말해준다.
 
 확인했으면 되돌린다.
 
-- [ ] **Step 5: 빌드가 통과하는지 확인한다**
+- [ ] **Step 5: 테스트와 빌드가 모두 통과하는지 확인한다**
 
-Run: `cd apps/web && npm run build`
+Run: `cd apps/web && npm test && npm run build`
 
-Expected: PASS
+Expected: 둘 다 PASS
 
 - [ ] **Step 6: 커밋**
 
@@ -554,7 +737,7 @@ import { CURRICULUM_BY_MASTER } from "@/content/curriculum";
 
 - [ ] **Step 4: 빌드가 통과하는지 확인한다**
 
-Run: `cd apps/web && npm run build`
+Run: `cd apps/web && npm test && npm run build`
 
 Expected: PASS
 
@@ -643,7 +826,7 @@ export async function dueJournalEntries(afterDays = 90): Promise<JournalEntry[]>
 
 - [ ] **Step 3: 빌드가 통과하는지 확인한다**
 
-Run: `cd apps/web && npm run build`
+Run: `cd apps/web && npm test && npm run build`
 
 Expected: PASS
 
@@ -672,14 +855,75 @@ EOF
 ## Task 5: ChapterExercises 컴포넌트
 
 **Files:**
+- Create: `apps/web/content/curriculum/grading.ts`
 - Create: `apps/web/components/ChapterExercises.tsx`
 - Modify: `apps/web/app/globals.css` (`.checkpoints` 추가)
+- Test: `apps/web/content/curriculum/grading.test.ts`
 
 **Interfaces:**
 - Consumes: `Exercise` (Task 1), `markLessonDone` · `recordQuiz` · `saveJournalEntry` (Task 4 및 기존 store)
-- Produces: `<ChapterExercises chapterId={string} exercises={Exercise[]} />`
+- Produces: `isCorrect(answers: number[], picked: number[]): boolean`, `<ChapterExercises chapterId={string} exercises={Exercise[]} />`
 
-- [ ] **Step 1: 컴포넌트를 만든다**
+- [ ] **Step 1: 채점 함수의 실패하는 테스트를 먼저 쓴다**
+
+복수정답 비교는 순서에 흔들리기 쉽고 틀리면 조용히 오답 처리한다. 컴포넌트 밖으로 빼서 테스트한다.
+
+`apps/web/content/curriculum/grading.test.ts`:
+
+```ts
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import { isCorrect } from "./grading.ts";
+
+test("단일 정답을 맞히면 참", () => {
+  assert.equal(isCorrect([1], [1]), true);
+});
+
+test("단일 정답을 틀리면 거짓", () => {
+  assert.equal(isCorrect([1], [2]), false);
+});
+
+test("복수 정답은 고른 순서와 무관하다", () => {
+  assert.equal(isCorrect([1, 3], [3, 1]), true);
+});
+
+test("복수 정답 중 일부만 고르면 거짓", () => {
+  assert.equal(isCorrect([1, 3], [1]), false);
+});
+
+test("정답에 오답을 더해 고르면 거짓", () => {
+  assert.equal(isCorrect([1, 3], [1, 3, 0]), false);
+});
+
+test("아무것도 고르지 않으면 거짓", () => {
+  assert.equal(isCorrect([1], []), false);
+});
+```
+
+- [ ] **Step 2: 테스트가 실패하는지 확인한다**
+
+Run: `cd apps/web && npm test`
+
+Expected: FAIL — `Cannot find module '.../content/curriculum/grading.ts'`
+
+- [ ] **Step 3: 채점 함수를 구현한다**
+
+`apps/web/content/curriculum/grading.ts`:
+
+```ts
+/** 고른 것과 정답이 집합으로 같은지 본다. 고른 순서는 보지 않는다. */
+export function isCorrect(answers: number[], picked: number[]): boolean {
+  return answers.length === picked.length && answers.every((a) => picked.includes(a));
+}
+```
+
+- [ ] **Step 4: 테스트가 통과하는지 확인한다**
+
+Run: `cd apps/web && npm test`
+
+Expected: PASS — 검사 8문항 + 채점 6문항
+
+- [ ] **Step 5: 컴포넌트를 만든다**
 
 `apps/web/components/ChapterExercises.tsx`:
 
@@ -687,6 +931,7 @@ EOF
 "use client";
 
 import { useState } from "react";
+import { isCorrect } from "@/content/curriculum/grading";
 import type { Exercise } from "@/content/curriculum/types";
 import { markLessonDone, recordQuiz, saveJournalEntry } from "@/lib/store";
 
@@ -777,12 +1022,6 @@ export default function ChapterExercises({
         </div>
       ))}
     </section>
-  );
-}
-
-function isCorrect(answers: number[], picked: number[]): boolean {
-  return (
-    answers.length === picked.length && answers.every((a) => picked.includes(a))
   );
 }
 
@@ -935,7 +1174,7 @@ function Journal({
 
 `guided`와 `journal` 모두 입력이 비면 버튼이 비활성이다. 먼저 써보지 않고 체크 포인트를 보면 배우는 것이 없고, 빈 기록을 90일 뒤 다시 보여줄 이유도 없다.
 
-- [ ] **Step 2: CSS를 추가한다**
+- [ ] **Step 6: CSS를 추가한다**
 
 `apps/web/app/globals.css` 끝에 붙인다.
 
@@ -958,16 +1197,16 @@ function Journal({
 }
 ```
 
-- [ ] **Step 3: 빌드가 통과하는지 확인한다**
+- [ ] **Step 7: 빌드가 통과하는지 확인한다**
 
-Run: `cd apps/web && npm run build`
+Run: `cd apps/web && npm test && npm run build`
 
-Expected: PASS. 아직 이 컴포넌트를 쓰는 페이지가 없으므로 페이지 수는 그대로다.
+Expected: 둘 다 PASS. 아직 이 컴포넌트를 쓰는 페이지가 없으므로 페이지 수는 그대로다.
 
-- [ ] **Step 4: 커밋**
+- [ ] **Step 8: 커밋**
 
 ```bash
-git add apps/web/components/ChapterExercises.tsx apps/web/app/globals.css
+git add apps/web/content/curriculum/grading.ts apps/web/content/curriculum/grading.test.ts apps/web/components/ChapterExercises.tsx apps/web/app/globals.css
 git commit -F - <<'EOF'
 챕터 문항 컴포넌트 추가
 
@@ -977,6 +1216,9 @@ markLessonDone을 부르고, 채점형이 있는 장만 추가로 점수를 남�
 
 첨삭형과 기록형은 입력이 비면 버튼이 잠긴다. 먼저 써보지 않고 답을 보면
 배우는 것이 없다.
+
+복수정답 비교는 컴포넌트 밖으로 뺐다. 순서에 흔들리기 쉽고 틀리면 조용히
+오답 처리하는데, 렌더링 안에 있으면 확인할 방법이 없다.
 
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 EOF
@@ -1282,7 +1524,7 @@ import { CHAPTER_SLOTS, CURRICULUM_BY_MASTER } from "@/content/curriculum";
 
 - [ ] **Step 4: 빌드에서 15개 챕터 경로가 생기는지 확인한다**
 
-Run: `cd apps/web && npm run build`
+Run: `cd apps/web && npm test && npm run build`
 
 Expected: PASS. 라우트 목록에 다음이 나와야 한다.
 
@@ -1453,7 +1695,7 @@ setDue(await dueJournalEntries());
 
 - [ ] **Step 4: 빌드가 통과하는지 확인한다**
 
-Run: `cd apps/web && npm run build`
+Run: `cd apps/web && npm test && npm run build`
 
 Expected: PASS
 
@@ -1507,6 +1749,9 @@ EOF
 | 챕터 라우트 15경로 | Task 6 |
 | 목차 페이지 + 매도 조건 노출 | Task 6 |
 | 로드 시점 검사 (인덱스 범위·빈 배열·권유형 표현) | Task 1 |
+| 검사 함수 단위 테스트 8문항 | Task 1 |
+| 복수정답 채점 단위 테스트 6문항 | Task 5 |
+| Node 내장 테스트 실행 환경 (`npm test` · `engines` · `allowImportingTsExtensions`) | Task 1 |
 | 클라이언트 번들 경계 확인 | Task 6 Step 5 |
 | `/me` 챕터 진도 + 되돌아볼 기록 | Task 7 |
 | 375px·키보드 확인 | Task 6 Step 6 |
@@ -1523,5 +1768,7 @@ EOF
 
 **3. 남은 위험**
 
-- Task 1 Step 5의 red 확인은 `index.ts`를 import하는 페이지가 있어야 성립한다. Task 6까지는 그런 페이지가 없으므로 임시 import로 확인하는 방법을 단계 안에 적어 두었다
-- 콘텐츠 전사(Task 1 Step 6, Task 2 Step 1·2)는 분량이 가장 큰 단계다. 문서의 사실관계 문장(프리시전 캐스트파츠, 2023~24년 애플 매도, 버크셔의 보험 플로트)은 확인 없이 고치지 않는다. 틀린 사실이 문항의 정답이 되면 잘못된 지식을 가르치게 된다
+- 테스트는 순수 함수만 덮는다. `ChapterExercises`의 렌더링과 상태 전이(모든 문항을 처리한 뒤 `markLessonDone`이 불리는가)는 DOM 환경이 필요해 자동 검증하지 않는다. Task 6 Step 6의 손 확인이 그 자리를 메운다
+- `npm test`는 Node 23+의 `.ts` 타입 스트리핑에 기댄다. `engines`에 적어 두었지만 강제되지는 않는다. 낮은 버전에서는 테스트만 실패하고 빌드는 정상 동작한다
+- Task 1 Step 10의 red 확인은 `index.ts`를 import하는 페이지가 있어야 성립한다. Task 6까지는 그런 페이지가 없으므로 임시 import로 확인하는 방법을 단계 안에 적어 두었다
+- 콘텐츠 전사(Task 1 Step 11, Task 2 Step 1·2)는 분량이 가장 큰 단계다. 문서의 사실관계 문장(프리시전 캐스트파츠, 2023~24년 애플 매도, 버크셔의 보험 플로트)은 확인 없이 고치지 않는다. 틀린 사실이 문항의 정답이 되면 잘못된 지식을 가르치게 된다
