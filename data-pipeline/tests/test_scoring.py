@@ -79,6 +79,36 @@ def interest_cover(coverage: float):
     return criterion.evaluate(metrics.Metrics(interest_coverage=coverage))
 
 
+def negative_equity_company():
+    """자사주를 오래 사들여 자기자본이 마이너스인 기업(알트리아·HP·오토존)."""
+    f = sample("ADBE")
+    f.equity = [100.0, 50.0, 10.0, -20.0, -50.0]
+    f.total_debt = 1000.0
+    return metrics.compute(f)
+
+
+def test_negative_equity_makes_pbr_unknown_not_a_negative_ratio():
+    """PBR = 시총 / 자기자본이라 자본이 마이너스면 음수가 나온다.
+
+    그 값은 '싸다'는 뜻이 아닌데 `pbr <= 1.5` 판정을 그대로 통과한다. 실제로
+    알트리아가 PBR -32.6배로 '장부가치 대비 가격이 낮습니다' 판정을 받았다.
+    """
+    assert negative_equity_company().pbr is None
+
+
+def test_negative_equity_makes_debt_to_equity_unknown():
+    """부채비율도 마찬가지다. 음수가 되면 부채가 많은 기업이 기준을 통과한다."""
+    assert negative_equity_company().debt_to_equity is None
+
+
+def test_graham_does_not_pass_a_company_with_negative_equity_on_book_value():
+    m = negative_equity_company()
+    codes = {c.code: c.status for c in graham.STYLE.score(m).criteria}
+
+    assert codes["GRA_PBR"] == "unknown"
+    assert codes["GRA_DEBT_EQUITY"] == "unknown"
+
+
 def test_zero_interest_expense_is_unknown_not_infinite_coverage():
     """이자비용이 0이면 배수를 만들 수 없다. 0으로 나눈 결과를 '무한히 안전함'으로 바꾸지 않는다."""
     f = Fundamentals(
@@ -134,6 +164,31 @@ def test_quality_flags_short_series():
     broken.revenue = broken.revenue[:3]
     issues = quality.check(broken)
     assert any(i.code == "SHORT_SERIES" and i.fatal for i in issues)
+
+
+def test_quality_rejects_financials_that_are_years_behind_the_price():
+    """5년 교집합이 옛날에 걸린 종목은 탈락이 아니라 '옛 재무로 자신 있게 채점'으로 나타난다.
+
+    실제로 KLA는 FY2014, TJX는 FY2018 숫자로 점수가 나갔다. 회사가 도중에 태그를
+    바꾸면 필수 항목의 공통 연도가 과거에 멈추는데, 그 사실이 화면에 보이지 않는다.
+    """
+    stale = sample("ADBE")
+    stale.price_as_of, stale.financial_as_of = "2026-08-05", "2024-12-31"
+
+    issues = quality.check(stale)
+
+    assert any(i.code == "STALE_FINANCIALS" and i.fatal for i in issues)
+
+
+def test_quality_allows_a_late_fiscal_year_filer():
+    """6월 결산 기업의 최신 연간보고서는 8월 기준으로 1년 전 것이 맞다.
+
+    FY2026 10-K 제출 기한이 아직 지나지 않았다. 여기를 막으면 멀쩡한 기업이 빠진다.
+    """
+    june = sample("ADBE")
+    june.price_as_of, june.financial_as_of = "2026-08-05", "2025-06-30"
+
+    assert not any(i.code == "STALE_FINANCIALS" for i in quality.check(june))
 
 
 def test_quality_partition_drops_fatal_only():

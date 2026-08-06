@@ -93,7 +93,9 @@ class StyleScore:
     passed: int
     total_judged: int
     total: int
-    data_confidence: Literal["높음", "보통", "낮음", "정보 부족"]
+    # "정보 부족"은 데이터가 모자란 것이고, "판정 대상 아님"은 모델이 그 업종을
+    # 다루지 않는 것이다(coverage.py). 사용자에게 전혀 다른 정보라 뭉개지 않는다.
+    data_confidence: Literal["높음", "보통", "낮음", "정보 부족", "판정 대상 아님"]
     criteria: list[CriterionResult] = field(default_factory=list)
     rank: Optional[int] = None
     rank_components: dict[str, int] = field(default_factory=dict)

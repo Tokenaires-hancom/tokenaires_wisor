@@ -7,10 +7,21 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import date
 
 from .metrics import Fundamentals
 
 REQUIRED_YEARS = 5
+
+# 재무 기준일이 가격 기준일보다 이만큼 뒤처지면 내보내지 않는다.
+#
+# 회사가 도중에 공시 태그를 바꾸면 필수 항목의 공통 연도가 과거에 멈춘다. 그러면
+# 종목이 탈락하는 대신 '옛 재무로 자신 있게 채점된' 상태가 되는데, 화면에서는
+# 구분되지 않는다. 실제로 KLA가 FY2014, TJX가 FY2018 숫자로 점수를 받았다.
+#
+# 400일로 조이면 안 된다. 6월 결산 기업의 최신 연간보고서는 8월 기준으로 1년 전
+# 것이 맞다(FY2026 10-K 제출 기한이 아직 지나지 않았다). 18개월이 두 경우를 가른다.
+MAX_FINANCIAL_AGE_DAYS = 550
 
 
 @dataclass
@@ -56,6 +67,11 @@ def check(f: Fundamentals) -> list[Issue]:
 
     if not f.price_as_of or not f.financial_as_of:
         add("MISSING_AS_OF", "기준일이 없습니다.")
+    else:
+        age = (date.fromisoformat(f.price_as_of) - date.fromisoformat(f.financial_as_of)).days
+        if age > MAX_FINANCIAL_AGE_DAYS:
+            add("STALE_FINANCIALS",
+                f"가장 최근 재무가 {f.financial_as_of}로 가격 기준일보다 {age}일 뒤처집니다.")
 
     return issues
 

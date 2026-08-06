@@ -49,6 +49,8 @@ class Fundamentals:
     shares_out: float
     price_as_of: str
     financial_as_of: str
+    #: SEC submissions의 SIC 코드. 업종 판정에 쓴다(coverage.py). 예시 데이터에는 없다.
+    sic: Optional[str] = None
     revenue: list[float] = field(default_factory=list)
     ebit: list[float] = field(default_factory=list)
     net_income: list[float] = field(default_factory=list)
@@ -167,14 +169,18 @@ def compute(f: Fundamentals) -> Metrics:
         m.ev_ebit_vs_median = m.ev_ebit / f.ev_ebit_median_5y
 
     m.pe = _safe_div(m.market_cap, f.net_income[-1] if f.net_income else None)
-    m.pbr = _safe_div(m.market_cap, f.equity[-1] if f.equity else None)
+    # 자사주를 오래 사들이면 자기자본이 마이너스가 된다(알트리아·HP·오토존).
+    # 그때 PBR과 부채비율은 음수가 되는데, 그 값은 '싸다'거나 '부채가 적다'는
+    # 뜻이 아니면서 `<= 1.5`, `<= 1.0` 판정을 그대로 통과한다. 판정 불가로 둔다.
+    equity = f.equity[-1] if f.equity and f.equity[-1] > 0 else None
+    m.pbr = _safe_div(m.market_cap, equity)
 
     growth = f.eps_growth_forward if f.eps_growth_forward is not None else m.eps_cagr_5y
     if m.pe is not None and growth is not None and growth > 0:
         m.peg = m.pe / (growth * 100)
 
     m.current_ratio = _safe_div(f.current_assets, f.current_liabilities)
-    m.debt_to_equity = _safe_div(f.total_debt, f.equity[-1] if f.equity else None)
+    m.debt_to_equity = _safe_div(f.total_debt, equity)
     m.profitable_years = sum(1 for v in f.net_income if v > 0)
 
     return m

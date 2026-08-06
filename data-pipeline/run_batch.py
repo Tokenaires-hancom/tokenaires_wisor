@@ -16,15 +16,33 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from wisor_data import metrics, quality
+from wisor_data.coverage import UNSCORABLE_REASON, is_scorable
 from wisor_data.providers.base import SampleProvider
 from wisor_data.providers.sec_toss import SecTossProvider
 from wisor_data.styles import buffett, graham, greenblatt, lynch
+from wisor_data.styles.base import StyleScore
 
 THRESHOLD_STYLES = [buffett.STYLE, graham.STYLE, lynch.STYLE]
 STYLES = [*THRESHOLD_STYLES, greenblatt.STYLE]
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_OUT = ROOT.parent / "apps" / "web" / "lib" / "generated" / "scores.json"
+
+
+def _unscorable(style) -> StyleScore:
+    """판정 대상이 아닌 업종의 자리. 화면이 스타일 항목을 찾으므로 비워 두지 않는다.
+
+    '정보 부족'과 구분해야 한다. 데이터는 다 있고, 맞지 않는 것은 모델 쪽이다.
+    """
+    return StyleScore(
+        style_id=style.id,
+        model_version=style.model_version,
+        score=None,
+        passed=0,
+        total_judged=0,
+        total=len(style.criteria),
+        data_confidence="판정 대상 아님",
+    )
 
 
 def build(provider) -> dict:
@@ -39,14 +57,23 @@ def build(provider) -> dict:
         print(f"  {'✗' if i.fatal else '!'} {i.ticker} {i.code}: {i.message}")
 
     prepared = [(fundamentals, metrics.compute(fundamentals)) for fundamentals in passed]
+
+    # 판정 대상이 아닌 업종은 상대 순위의 모수에서도 뺀다. 넣으면 사업회사의 순위가 밀린다.
+    scorable = [(f, m) for f, m in prepared if is_scorable(f)]
     greenblatt_scores = greenblatt.score_universe(
-        {fundamentals.ticker: computed for fundamentals, computed in prepared}
+        {fundamentals.ticker: computed for fundamentals, computed in scorable}
     )
+    skipped = len(prepared) - len(scorable)
+    if skipped:
+        print(f"[업종] {skipped}종목은 판정 대상이 아닙니다(은행·보험·부동산). 지표는 그대로 내보냅니다.")
 
     rows = []
     for f, m in prepared:
-        scores = {s.id: s.score(m).to_dict() for s in THRESHOLD_STYLES}
-        scores[greenblatt.STYLE.id] = greenblatt_scores[f.ticker].to_dict()
+        if is_scorable(f):
+            scores = {s.id: s.score(m).to_dict() for s in THRESHOLD_STYLES}
+            scores[greenblatt.STYLE.id] = greenblatt_scores[f.ticker].to_dict()
+        else:
+            scores = {s.id: _unscorable(s).to_dict() for s in STYLES}
         rows.append({
             "ticker": f.ticker,
             "name": f.name,
@@ -71,12 +98,20 @@ def build(provider) -> dict:
                 "earningsYield": m.earnings_yield,
             },
             "scores": scores,
+            **({} if is_scorable(f) else {"scorable": False, "unscorableReason": UNSCORABLE_REASON}),
         })
+
+    # 기준일은 실제로 내보낸 종목만 설명해야 한다. 공급자는 품질 게이트에서
+    # 탈락한 종목까지 넣어 계산하므로, 화면에 아무 종목도 해당하지 않는 날짜가 찍혔다.
+    as_of = {
+        "price": min(f.price_as_of for f, _ in prepared),
+        "financial": min(f.financial_as_of for f, _ in prepared),
+    } if prepared else provider.as_of()
 
     return {
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "dataSource": provider.source_name,
-        "asOf": provider.as_of(),
+        "asOf": as_of,
         "styles": [
             {
                 "id": s.id,
@@ -99,6 +134,12 @@ def main() -> None:
     parser.add_argument("--provider", choices=("sample", "sec-toss"), default="sample")
     parser.add_argument("--universe", default=str(ROOT / "data" / "universe_sample.json"))
     parser.add_argument("--out", default=str(DEFAULT_OUT))
+    parser.add_argument(
+        "--checkpoint",
+        default=str(ROOT / ".cache" / "sec-toss.jsonl"),
+        help="중간에 끊겼을 때 이어받을 파일. 같은 날 종가에 대해서만 재사용한다",
+    )
+    parser.add_argument("--limit", type=int, help="유니버스 앞에서 N종목만 (시험 실행용)")
     args = parser.parse_args()
 
     universe_path = Path(args.universe)
@@ -106,11 +147,13 @@ def main() -> None:
         provider = SampleProvider(universe_path)
     else:
         raw_universe = json.loads(universe_path.read_text(encoding="utf-8"))
+        tickers = [company["ticker"] for company in raw_universe["companies"]]
         provider = SecTossProvider(
             toss_client_id=os.environ.get("TOSS_INVEST_CLIENT_ID", ""),
             toss_client_secret=os.environ.get("TOSS_INVEST_CLIENT_SECRET", ""),
             sec_user_agent=os.environ.get("WISOR_SEC_USER_AGENT", ""),
-            universe=[company["ticker"] for company in raw_universe["companies"]],
+            universe=tickers[: args.limit] if args.limit else tickers,
+            checkpoint=Path(args.checkpoint),
         )
     payload = build(provider)
 
