@@ -105,6 +105,13 @@ def test_sector_is_unclassified_when_submissions_omits_it():
     assert build(submissions={}).sector == "분류 없음"
 
 
+def test_sic_code_comes_from_submissions_for_the_coverage_gate():
+    """업종 판정은 SIC 코드로 한다. 재무 숫자와 같은 출처라 어긋나지 않는다."""
+    result = build(submissions={"sicDescription": "State Commercial Banks", "sic": "6022"})
+
+    assert result.sic == "6022"
+
+
 def test_depreciation_falls_back_to_plain_depreciation_tag():
     """MSFT·TXN·GILD는 감가상각을 Depreciation 하나로만 공시한다."""
     result = build(Depreciation=(20, True))

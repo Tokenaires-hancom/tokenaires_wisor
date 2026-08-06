@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import json
 import time
+from dataclasses import asdict
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Callable
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
@@ -21,20 +23,68 @@ SEC_FACTS_URL = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json"
 SEC_SUBMISSIONS_URL = "https://data.sec.gov/submissions/CIK{cik}.json"
 TOSS_BASE = "https://openapi.tossinvest.com"
 
+# SEC는 초당 10회를 넘기지 말라고 요구한다. 종목당 companyfacts와 submissions
+# 두 번을 부르므로 호출 사이마다 쉰다. 500종목 규모에서는 이걸 지키지 않으면
+# 429가 쏟아지고, 재시도가 그걸 '느림'으로 덮어 버린다.
+SEC_REQUEST_INTERVAL = 0.15
+# 500종목을 URL 하나에 담지 않는다.
+STOCKS_PER_REQUEST = 50
+
 
 class ProviderDataError(RuntimeError):
-    pass
+    def __init__(self, message: str, retryable: bool = False):
+        super().__init__(message)
+        #: 다시 걸면 될 수 있는 실패인지. 없는 종목의 404를 세 번 두드리지 않는다.
+        self.retryable = retryable
 
 
 def _get_json(url: str, headers: dict[str, str] | None = None) -> dict:
     request = Request(url, headers=headers or {})
     try:
-        with urlopen(request, timeout=30) as response:
+        with urlopen(request, timeout=60) as response:
             return json.load(response)
     except HTTPError as error:
-        raise ProviderDataError(f"HTTP {error.code}: {url}") from error
+        # 429는 속도 초과, 5xx는 상대 쪽 문제다. 둘 다 잠시 뒤 다시 걸면 된다.
+        retryable = error.code == 429 or 500 <= error.code < 600
+        raise ProviderDataError(f"HTTP {error.code}: {url}", retryable) from error
     except (URLError, TimeoutError) as error:
-        raise ProviderDataError(f"요청 실패: {url} ({error})") from error
+        raise ProviderDataError(f"요청 실패: {url} ({error})", retryable=True) from error
+
+
+def with_retry(call, attempts: int = 3, sleep=time.sleep):
+    """일시적인 실패만 다시 건다. 기다리는 시간은 회차마다 늘린다."""
+    for attempt in range(1, attempts + 1):
+        try:
+            return call()
+        except ProviderDataError as error:
+            if not error.retryable or attempt == attempts:
+                raise
+            sleep(2 ** attempt)
+
+
+def read_checkpoint(path: Path, price_date: str) -> dict[str, Fundamentals]:
+    """이전 실행에서 이미 받아 둔 종목. 가격 기준일이 다르면 쓰지 않는다.
+
+    어제 종가로 만든 결과를 오늘 배치가 조용히 재사용하면, 오래된 값이 최신인
+    것처럼 화면에 나간다. 이 파이프라인에서 이미 한 번 겪은 종류의 사고다.
+    """
+    if not path.exists():
+        return {}
+    found: dict[str, Fundamentals] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        row = json.loads(line)
+        if row.get("priceDate") == price_date:
+            found[row["company"]["ticker"]] = Fundamentals(**row["company"])
+    return found
+
+
+def append_checkpoint(path: Path, price_date: str, company: Fundamentals) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    row = {"priceDate": price_date, "company": asdict(company)}
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
 def _annual_values(
@@ -194,6 +244,7 @@ def fundamentals_from_sec(
         ticker=ticker,
         name=stock["name"],
         sector=submissions.get("sicDescription") or "분류 없음",
+        sic=submissions.get("sic") or None,
         price=float(price["closePrice"]),
         shares_out=float(stock["sharesOutstanding"]) / million,
         price_as_of=price["timestamp"][:10],
@@ -224,6 +275,7 @@ class SecTossProvider:
         sec_user_agent: str,
         universe: list[str],
         get_json: JsonGetter = _get_json,
+        checkpoint: Path | None = None,
     ):
         if not toss_client_id or not toss_client_secret:
             raise ValueError("토스증권 client_id와 client_secret이 필요합니다.")
@@ -234,6 +286,7 @@ class SecTossProvider:
         self.sec_headers = {"User-Agent": sec_user_agent}
         self.universe = [ticker.upper() for ticker in universe]
         self.get_json = get_json
+        self.checkpoint = checkpoint
         self._as_of: dict[str, str] | None = None
 
     def _token(self) -> str:
@@ -257,39 +310,63 @@ class SecTossProvider:
     def _toss_get(self, path: str, token: str) -> dict:
         return self.get_json(f"{TOSS_BASE}{path}", {"Authorization": f"Bearer {token}"})
 
+    def _stocks(self, token: str) -> dict[str, dict]:
+        """토스 종목 정보. 500종목을 URL 하나에 담지 않고 나눠 부른다."""
+        found: dict[str, dict] = {}
+        for start in range(0, len(self.universe), STOCKS_PER_REQUEST):
+            batch = self.universe[start : start + STOCKS_PER_REQUEST]
+            path = f"/api/v1/stocks?{urlencode({'symbols': ','.join(batch)})}"
+            rows = with_retry(lambda p=path: self._toss_get(p, token))["result"]
+            found.update({row["symbol"].upper(): row for row in rows})
+            time.sleep(SEC_REQUEST_INTERVAL)
+        return found
+
     def load(self) -> list[Fundamentals]:
         token = self._token()
-        symbols = ",".join(self.universe)
-        stock_rows = self._toss_get(f"/api/v1/stocks?{urlencode({'symbols': symbols})}", token)["result"]
-        stocks = {row["symbol"].upper(): row for row in stock_rows}
+        stocks = self._stocks(token)
 
-        ticker_rows = self.get_json(SEC_TICKERS_URL, self.sec_headers)
+        ticker_rows = with_retry(lambda: self.get_json(SEC_TICKERS_URL, self.sec_headers))
         cik_by_ticker = {
             row["ticker"].upper(): str(row["cik_str"]).zfill(10)
             for row in ticker_rows.values()
         }
         new_york = ZoneInfo("America/New_York")
         before = datetime.now(new_york).date() - timedelta(days=1)
+        price_date = before.isoformat()
         before_iso = datetime(
             before.year, before.month, before.day, 23, 59, 59, tzinfo=new_york
         ).isoformat()
 
-        companies: list[Fundamentals] = []
-        for ticker in self.universe:
+        done = read_checkpoint(self.checkpoint, price_date) if self.checkpoint else {}
+        if done:
+            print(f"[공급자] 이전 실행에서 {len(done)}종목을 이어받습니다({price_date} 종가).")
+
+        companies: list[Fundamentals] = list(done.values())
+        total = len(self.universe)
+        for index, ticker in enumerate(self.universe, 1):
+            if ticker in done:
+                continue
             try:
                 stock = stocks[ticker]
                 candle_path = "/api/v1/candles?" + urlencode({
                     "symbol": ticker, "interval": "1d", "count": 1,
                     "before": before_iso, "adjusted": "true",
                 })
-                candle = self._toss_get(candle_path, token)["result"]["candles"][0]
+                candle = with_retry(lambda: self._toss_get(candle_path, token))["result"]["candles"][0]
                 cik = cik_by_ticker[ticker]
-                facts = self.get_json(SEC_FACTS_URL.format(cik=cik), self.sec_headers)
-                submissions = self.get_json(SEC_SUBMISSIONS_URL.format(cik=cik), self.sec_headers)
-                companies.append(fundamentals_from_sec(ticker, stock, candle, facts, submissions))
+                facts = with_retry(lambda: self.get_json(SEC_FACTS_URL.format(cik=cik), self.sec_headers))
+                time.sleep(SEC_REQUEST_INTERVAL)
+                subs = with_retry(lambda: self.get_json(SEC_SUBMISSIONS_URL.format(cik=cik), self.sec_headers))
+                company = fundamentals_from_sec(ticker, stock, candle, facts, subs)
             except (KeyError, IndexError, ProviderDataError) as error:
                 print(f"[공급자] {ticker} 제외: {error}")
-            time.sleep(0.22)
+            else:
+                companies.append(company)
+                if self.checkpoint:
+                    append_checkpoint(self.checkpoint, price_date, company)
+            time.sleep(SEC_REQUEST_INTERVAL)
+            if index % 25 == 0:
+                print(f"[공급자] {index}/{total} 진행 · 구성 {len(companies)}종목")
 
         if not companies:
             raise ProviderDataError("실데이터로 구성할 수 있는 종목이 없습니다.")

@@ -7,6 +7,7 @@ __pycache__/
 .env
 .env.local
 .dev-server.*.log
+.cache/
 .DS_Store
 next-env.d.ts
 tsconfig.tsbuildinfo
