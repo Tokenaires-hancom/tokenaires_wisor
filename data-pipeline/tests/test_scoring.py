@@ -64,6 +64,39 @@ def test_criteria_count_is_eight_for_buffett():
     assert len(buffett.STYLE.criteria) == 8
 
 
+def interest_cover(coverage: float):
+    criterion = next(c for c in buffett.CRITERIA if c.code == "BUF_INTEREST_COVER")
+    return criterion.evaluate(metrics.Metrics(interest_coverage=coverage))
+
+
+def test_zero_interest_expense_is_unknown_not_infinite_coverage():
+    """이자비용이 0이면 배수를 만들 수 없다. 0으로 나눈 결과를 '무한히 안전함'으로 바꾸지 않는다."""
+    f = Fundamentals(
+        ticker="TEST", name="Test", sector="테스트", price=10.0, shares_out=100.0,
+        price_as_of="2026-07-29", financial_as_of="2026-06-30",
+        ebit=[100.0], interest_expense=0.0,
+    )
+
+    assert metrics.compute(f).interest_coverage is None
+
+
+def test_interest_cover_message_caps_absurd_ratio():
+    """이자 부담이 거의 없는 회사는 배수가 무의미하게 커진다(실측 ULTA 8286배).
+
+    판정은 그대로 통과시킨다. 8배 기준을 진짜로 넘은 것이 맞기 때문이다.
+    다만 사용자에게 '8286배'라고 말하지는 않는다.
+    """
+    result = interest_cover(8286.4)
+
+    assert result.status == "pass"
+    assert "8286" not in result.message
+    assert "100배를 넘습니다" in result.message
+
+
+def test_interest_cover_message_keeps_ordinary_ratio():
+    assert "53배입니다" in interest_cover(52.9).message
+
+
 @pytest.mark.parametrize("style", ALL_STYLES, ids=lambda s: s.id)
 @pytest.mark.parametrize("ticker", [c["ticker"] for c in UNIVERSE["companies"]])
 def test_no_banned_phrase_in_user_facing_text(style, ticker):

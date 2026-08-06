@@ -11,11 +11,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 
 from wisor_data import metrics, quality
 from wisor_data.providers.base import SampleProvider
+from wisor_data.providers.sec_toss import SecTossProvider
 from wisor_data.styles import buffett, graham, greenblatt, lynch
 
 THRESHOLD_STYLES = [buffett.STYLE, graham.STYLE, lynch.STYLE]
@@ -94,11 +96,22 @@ def build(provider) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--provider", choices=("sample", "sec-toss"), default="sample")
     parser.add_argument("--universe", default=str(ROOT / "data" / "universe_sample.json"))
     parser.add_argument("--out", default=str(DEFAULT_OUT))
     args = parser.parse_args()
 
-    provider = SampleProvider(Path(args.universe))
+    universe_path = Path(args.universe)
+    if args.provider == "sample":
+        provider = SampleProvider(universe_path)
+    else:
+        raw_universe = json.loads(universe_path.read_text(encoding="utf-8"))
+        provider = SecTossProvider(
+            toss_client_id=os.environ.get("TOSS_INVEST_CLIENT_ID", ""),
+            toss_client_secret=os.environ.get("TOSS_INVEST_CLIENT_SECRET", ""),
+            sec_user_agent=os.environ.get("WISOR_SEC_USER_AGENT", ""),
+            universe=[company["ticker"] for company in raw_universe["companies"]],
+        )
     payload = build(provider)
 
     out = Path(args.out)

@@ -56,10 +56,10 @@ class Fundamentals:
     invested_capital: list[float] = field(default_factory=list)
     equity: list[float] = field(default_factory=list)
     eps: list[float] = field(default_factory=list)
-    total_debt: float = 0.0
-    cash: float = 0.0
-    interest_expense: float = 0.0
-    depreciation: float = 0.0
+    total_debt: Optional[float] = None
+    cash: Optional[float] = None
+    interest_expense: Optional[float] = None
+    depreciation: Optional[float] = None
     current_assets: Optional[float] = None
     current_liabilities: Optional[float] = None
     ev_ebit_median_5y: Optional[float] = None
@@ -83,10 +83,10 @@ class Fundamentals:
             invested_capital=s.get("investedCapital", []),
             equity=s.get("equity", []),
             eps=s.get("eps", []),
-            total_debt=raw.get("totalDebt", 0.0),
-            cash=raw.get("cash", 0.0),
-            interest_expense=raw.get("interestExpense", 0.0),
-            depreciation=raw.get("depreciation", 0.0),
+            total_debt=raw.get("totalDebt"),
+            cash=raw.get("cash"),
+            interest_expense=raw.get("interestExpense"),
+            depreciation=raw.get("depreciation"),
             current_assets=raw.get("currentAssets"),
             current_liabilities=raw.get("currentLiabilities"),
             ev_ebit_median_5y=raw.get("evEbitMedian5y"),
@@ -131,8 +131,10 @@ def compute(f: Fundamentals) -> Metrics:
     m.data_years = len(f.revenue)
 
     m.market_cap = f.price * f.shares_out
-    m.net_debt = f.total_debt - f.cash
-    m.enterprise_value = m.market_cap + m.net_debt
+    if f.total_debt is not None and f.cash is not None:
+        m.net_debt = f.total_debt - f.cash
+    if m.net_debt is not None:
+        m.enterprise_value = m.market_cap + m.net_debt
 
     m.roic_series = [
         _safe_div(ebit * 0.79, ic)  # 세후영업이익 근사: 실효세율 21% 가정
@@ -146,9 +148,14 @@ def compute(f: Fundamentals) -> Metrics:
     if f.fcf and f.revenue:
         m.fcf_margin = _safe_div(f.fcf[-1], f.revenue[-1])
 
-    ebitda = (f.ebit[-1] + f.depreciation) if f.ebit else None
+    ebitda = (
+        f.ebit[-1] + f.depreciation
+        if f.ebit and f.depreciation is not None
+        else None
+    )
     m.net_debt_to_ebitda = _safe_div(m.net_debt, ebitda)
-    m.interest_coverage = _safe_div(f.ebit[-1] if f.ebit else None, f.interest_expense or None)
+    # 이자비용 0은 _safe_div가 이미 None으로 돌려준다. 여기서 따로 거르지 않는다.
+    m.interest_coverage = _safe_div(f.ebit[-1] if f.ebit else None, f.interest_expense)
 
     m.revenue_cagr_5y = cagr(f.revenue)
     m.eps_cagr_5y = cagr(f.eps)

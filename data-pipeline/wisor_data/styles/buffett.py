@@ -7,6 +7,17 @@
 
 from .base import Criterion, Style, num, pct
 
+# 이자 부담이 거의 없는 회사는 분모가 0에 가까워 배수가 무의미하게 커진다(실측 8286배).
+# 판정은 그대로 두고 문장에만 상한을 둔다. 숫자가 커질수록 정보량이 늘지는 않는다.
+INTEREST_COVER_DISPLAY_CAP = 100
+
+
+def _interest_cover_pass(m) -> str:
+    if m.interest_coverage > INTEREST_COVER_DISPLAY_CAP:
+        return f"영업이익이 이자비용의 {INTEREST_COVER_DISPLAY_CAP}배를 넘습니다."
+    return f"영업이익이 이자비용의 {num(m.interest_coverage, 0)}배입니다."
+
+
 CRITERIA = [
     Criterion(
         code="BUF_ROIC_LEVEL",
@@ -59,7 +70,7 @@ CRITERIA = [
         weight=1,
         detail="영업이익 / 이자비용 ≥ 8배",
         test=lambda m: None if m.interest_coverage is None else m.interest_coverage >= 8,
-        on_pass=lambda m: f"영업이익이 이자비용의 {num(m.interest_coverage, 0)}배입니다.",
+        on_pass=_interest_cover_pass,
         on_fail=lambda m: f"영업이익이 이자비용의 {num(m.interest_coverage, 1)}배로 여유가 크지 않습니다.",
     ),
     Criterion(

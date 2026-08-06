@@ -69,6 +69,7 @@ Criterion(
 
 ```bash
 python run_batch.py     # 품질 리포트와 스타일별 상위 3종목이 출력된다
+python run_batch.py --provider sec-toss  # TOSS_INVEST_*와 WISOR_SEC_USER_AGENT 필요
 pytest -q
 ```
 

@@ -38,6 +38,9 @@ def check(f: Fundamentals) -> list[Issue]:
         add("BAD_PRICE", "가격이 0 이하입니다.")
     if f.shares_out <= 0:
         add("BAD_SHARES", "발행주식수가 0 이하입니다.")
+    for field_name in ("total_debt", "cash", "interest_expense", "depreciation"):
+        if getattr(f, field_name) is None:
+            add("MISSING_SCALAR", f"{field_name} 값이 없습니다.", fatal=False)
     if f.revenue and any(v <= 0 for v in f.revenue):
         add("NON_POSITIVE_REVENUE", "매출에 0 이하 값이 있습니다.")
     if f.invested_capital and any(v <= 0 for v in f.invested_capital):
