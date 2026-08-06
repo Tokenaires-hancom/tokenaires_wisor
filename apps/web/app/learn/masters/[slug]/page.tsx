@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { MASTERS, MASTER_BY_ID } from "@/content/masters";
+import { CHAPTER_SLOTS, CURRICULUM_BY_MASTER } from "@/content/curriculum";
+import { MASTERS, MASTER_BY_ID, type Master } from "@/content/masters";
 import { ranked, styleMeta } from "@/lib/scores";
 
 export function generateStaticParams() {
@@ -9,11 +10,12 @@ export function generateStaticParams() {
 
 export default async function MasterLesson({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const master = MASTER_BY_ID[slug as keyof typeof MASTER_BY_ID];
+  const master = MASTER_BY_ID[slug as Master["id"]];
   if (!master) notFound();
 
   const meta = styleMeta(master.id);
   const { scored } = ranked(master.id);
+  const curriculum = CURRICULUM_BY_MASTER[master.id];
 
   return (
     <div className="wrap wrap-narrow" style={{ paddingBlock: "3.5rem 5rem" }}>
@@ -22,6 +24,38 @@ export default async function MasterLesson({ params }: { params: Promise<{ slug:
         {master.oneLine}
       </h1>
       <p className="lede">{master.intro}</p>
+
+      <hr className="rule" />
+
+      <h2 className="section">목차</h2>
+      <p className="lede">
+        한 장은 3~5분이면 읽고 문항까지 끝납니다. 순서대로 보거나 관심 있는 장부터 골라 볼 수
+        있습니다.
+      </p>
+
+      <div className="toc">
+        {curriculum.chapters.map((chapter, index) => {
+          const slot = CHAPTER_SLOTS[index];
+          return (
+            <Link
+              key={slot.no}
+              href={`/learn/masters/${master.id}/${slot.no}`}
+              className="toc-item"
+            >
+              <span className="toc-no">{String(slot.no).padStart(2, "0")}</span>
+              <span>
+                <span className="toc-title">{chapter.title}</span>
+                <span className="toc-question">{slot.asks}</span>
+              </span>
+              <span className="toc-slot">{slot.label}</span>
+            </Link>
+          );
+        })}
+      </div>
+
+      <p className="disclaimer">
+        이 스타일의 매도 조건 — {curriculum.sellType} · {curriculum.sellTrigger}
+      </p>
 
       <hr className="rule" />
 
