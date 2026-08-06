@@ -5,6 +5,8 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .env
+.env.local
+.dev-server.*.log
 .DS_Store
 next-env.d.ts
 tsconfig.tsbuildinfo
