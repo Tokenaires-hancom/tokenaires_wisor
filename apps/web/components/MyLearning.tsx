@@ -3,13 +3,17 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CHART_LESSONS, LESSON_BY_ID } from "@/content/chartLessons";
+import { CHAPTER_SLOTS } from "@/content/curriculum/types";
 import { MASTERS, MASTER_BY_ID } from "@/content/masters";
 import {
   NOTE_STATUS_LABEL,
   deleteNote,
+  dueJournalEntries,
   getNotes,
   getProgress,
   getWatchlist,
+  saveJournalEntry,
+  type JournalEntry,
   type Progress,
   type StudyNote,
 } from "@/lib/store";
@@ -18,16 +22,24 @@ export default function MyLearning({ names }: { names: Record<string, string> })
   const [progress, setProgress] = useState<Progress>({ lessonsDone: [], quizResults: {} });
   const [watchlist, setWatchlist] = useState<string[]>([]);
   const [notes, setNotes] = useState<StudyNote[]>([]);
+  const [due, setDue] = useState<JournalEntry[]>([]);
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     let alive = true;
     async function refresh() {
-      const [p, w, n] = await Promise.all([getProgress(), getWatchlist(), getNotes()]);
+      const [p, w, n, j] = await Promise.all([
+        getProgress(),
+        getWatchlist(),
+        getNotes(),
+        dueJournalEntries(),
+      ]);
       if (!alive) return;
       setProgress(p);
       setWatchlist(w);
       setNotes(n);
+      setDue(j);
       setReady(true);
     }
     void refresh();
@@ -39,7 +51,18 @@ export default function MyLearning({ names }: { names: Record<string, string> })
     };
   }, []);
 
-  const masterDone = MASTERS.filter((m) => progress.lessonsDone.includes(`master:${m.id}`));
+  const totalChapters = MASTERS.length * CHAPTER_SLOTS.length;
+  const chaptersDone = progress.lessonsDone.filter((id) => {
+    const [kind, masterId, chapter] = id.split(":");
+    const no = Number(chapter);
+    return (
+      kind === "master" &&
+      masterId in MASTER_BY_ID &&
+      Number.isInteger(no) &&
+      no >= 1 &&
+      no <= CHAPTER_SLOTS.length
+    );
+  }).length;
   const chartDone = CHART_LESSONS.filter((l) => progress.lessonsDone.includes(`chart:${l.id}`));
   const bothLenses = notes.filter((n) => n.chartObservations.length > 0 && n.strengths.length > 0);
 
@@ -60,10 +83,10 @@ export default function MyLearning({ names }: { names: Record<string, string> })
 
       <div className="grid" style={{ marginTop: "2rem" }}>
         <div className="card">
-          <p className="eyebrow">투자 대가 학습</p>
+          <p className="eyebrow">투자 대가 챕터</p>
           <p className="score-value">
-            {masterDone.length}
-            <span className="score-of"> / {MASTERS.length}</span>
+            {chaptersDone}
+            <span className="score-of"> / {totalChapters}</span>
           </p>
         </div>
         <div className="card">
@@ -87,17 +110,21 @@ export default function MyLearning({ names }: { names: Record<string, string> })
       <h2 className="section">퀴즈 결과</h2>
       {Object.keys(progress.quizResults).length === 0 ? (
         <p className="lede">
-          아직 푼 퀴즈가 없습니다. <Link href="/learn" style={{ color: "var(--plum)" }}>배우기</Link>에서
-          한 스타일을 먼저 끝까지 봐보세요.
+          아직 푼 확인 문항이 없습니다. <Link href="/learn" style={{ color: "var(--plum)" }}>배우기</Link>에서
+          한 챕터를 끝까지 살펴보세요.
         </p>
       ) : (
         <ul className="reason-list">
           {Object.entries(progress.quizResults).map(([id, r]) => {
-            const [kind, key] = id.split(":");
-            const label =
-              kind === "master"
-                ? MASTER_BY_ID[key as keyof typeof MASTER_BY_ID]?.name
-                : LESSON_BY_ID[key]?.title;
+            const [kind, key, no] = id.split(":");
+            let label: string | undefined;
+            if (kind === "master") {
+              const name = MASTER_BY_ID[key as keyof typeof MASTER_BY_ID]?.name.split(" · ")[0];
+              const slot = no ? CHAPTER_SLOTS[Number(no) - 1] : undefined;
+              label = name && slot ? `${name} ${slot.no}장 · ${slot.label}` : name;
+            } else {
+              label = LESSON_BY_ID[key]?.title;
+            }
             return (
               <li key={id} data-kind={r.correct === r.total ? "pass" : "fail"}>
                 {label ?? id} — {r.total}문항 중 {r.correct}문항
@@ -108,6 +135,50 @@ export default function MyLearning({ names }: { names: Record<string, string> })
       )}
 
       <hr className="rule" />
+
+      {due.length > 0 && (
+        <>
+          <p className="eyebrow">되돌아볼 기록</p>
+          <h2 className="section">90일 전에 쓴 답입니다</h2>
+          <p className="lede">
+            그때의 답과 지금의 생각이 다르면, 무엇이 바뀌었는지가 배운 것입니다.
+          </p>
+          <div className="stack">
+            {due.map((entry) => (
+              <div key={entry.id} className="card">
+                <h3 className="sub">{entry.prompt}</h3>
+                <p style={{ fontSize: "0.9rem", color: "var(--ink-soft)" }}>
+                  {entry.at.slice(0, 10)}에 쓴 답 — {entry.text}
+                </p>
+                <label className="field">
+                  <span>지금의 답</span>
+                  <textarea
+                    rows={3}
+                    value={drafts[entry.id] ?? ""}
+                    onChange={(event) =>
+                      setDrafts((prev) => ({ ...prev, [entry.id]: event.target.value }))
+                    }
+                  />
+                </label>
+                <button
+                  type="button"
+                  className="btn"
+                  disabled={(drafts[entry.id] ?? "").trim() === ""}
+                  onClick={() => {
+                    void saveJournalEntry(entry.id, entry.prompt, drafts[entry.id]).then(async () =>
+                      setDue(await dueJournalEntries()),
+                    );
+                  }}
+                >
+                  기록하기
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <hr className="rule" />
+        </>
+      )}
 
       <h2 className="section">관심종목 ({watchlist.length})</h2>
       {watchlist.length === 0 ? (
