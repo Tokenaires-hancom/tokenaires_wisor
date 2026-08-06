@@ -40,6 +40,9 @@ export type Company = {
   asOf: { price: string; financial: string };
   metrics: Record<string, number | null>;
   scores: Record<string, StyleScore>;
+  /** 업종이 현재 점수 모델의 전제와 달라 판정하지 않은 종목. 데이터 부족과 다르다. */
+  scorable?: boolean;
+  unscorableReason?: string;
 };
 
 export type StyleMeta = {

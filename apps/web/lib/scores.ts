@@ -10,6 +10,7 @@
  */
 
 import raw from "./generated/scores.json";
+import { rank, type Ranking } from "./ranking";
 import type { Company, ScoresPayload, StyleMeta } from "./scores.types";
 
 export type {
@@ -60,24 +61,7 @@ export function companyNames(): Record<string, string> {
   return Object.fromEntries(DATA.companies.map((c) => [c.ticker, c.name]));
 }
 
-/** 점수를 매길 수 없는 종목은 순위에서 빼되 '정보 부족'으로 따로 돌려준다. */
-export function ranked(styleId: string): { scored: Company[]; unscored: Company[] } {
-  const scored: Company[] = [];
-  const unscored: Company[] = [];
-
-  for (const c of DATA.companies) {
-    const s = c.scores[styleId];
-    if (!s || s.score === null) unscored.push(c);
-    else scored.push(c);
-  }
-
-  scored.sort((a, b) => {
-    const aScore = a.scores[styleId];
-    const bScore = b.scores[styleId];
-    if (aScore.rank !== undefined && bScore.rank !== undefined) {
-      return aScore.rank - bScore.rank || a.ticker.localeCompare(b.ticker);
-    }
-    return (bScore.score ?? 0) - (aScore.score ?? 0);
-  });
-  return { scored, unscored };
+/** 점수를 매길 수 없는 종목은 순위에서 빼되, 이유를 나눠 따로 돌려준다. */
+export function ranked(styleId: string): Ranking {
+  return rank(DATA.companies, styleId);
 }

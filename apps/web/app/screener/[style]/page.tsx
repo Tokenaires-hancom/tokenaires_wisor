@@ -16,7 +16,7 @@ export default async function Screener({ params }: { params: Promise<{ style: st
   const meta = styleMeta(style);
   if (!master || !meta) notFound();
 
-  const { scored, unscored } = ranked(style);
+  const { scored, unscored, unscorable } = ranked(style);
   const isRankModel = meta.method === "rank";
 
   return (
@@ -124,6 +124,28 @@ export default async function Screener({ params }: { params: Promise<{ style: st
             {unscored.map((c) => (
               <li key={c.ticker} data-kind="unknown">
                 {c.name} ({c.ticker})
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+
+      {unscorable.length > 0 && (
+        <>
+          <h2 className="section" style={{ marginTop: "3rem" }}>
+            판정하지 않은 업종 ({unscorable.length})
+          </h2>
+          <p className="lede">
+            {unscorable[0].unscorableReason} 데이터가 모자란 것이 아니라 모델이 맞지 않는 쪽입니다.
+            종목을 눌러 지표는 그대로 볼 수 있습니다.
+          </p>
+          <ul className="reason-list">
+            {unscorable.map((c) => (
+              <li key={c.ticker} data-kind="unknown">
+                <Link href={`/stocks/${c.ticker}`}>
+                  {c.name} ({c.ticker})
+                </Link>{" "}
+                · {c.sector}
               </li>
             ))}
           </ul>
