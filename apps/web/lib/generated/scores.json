@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-06T07:29:00+00:00",
+  "generatedAt": "2026-08-06T07:47:32+00:00",
   "dataSource": "sec-toss",
   "asOf": {
     "price": "2026-08-05",
@@ -65,7 +65,7 @@
     {
       "id": "graham",
       "name": "벤저민 그레이엄",
-      "modelVersion": "Graham 0.9",
+      "modelVersion": "Graham 1.0",
       "method": "threshold",
       "criteria": [
         {
@@ -109,7 +109,7 @@
     {
       "id": "lynch",
       "name": "피터 린치",
-      "modelVersion": "Lynch 0.9",
+      "modelVersion": "Lynch 1.0",
       "method": "threshold",
       "criteria": [
         {
@@ -181,7 +181,7 @@
         "fcfMargin": 0.41448946106272877,
         "fcfYield": 0.09557652961737374,
         "netDebtToEbitda": 0.08179336413271734,
-        "interestCoverage": 77.04424778761062,
+        "interestCoverage": 33.10266159695818,
         "revenueCagr5y": 0.10774954699996808,
         "epsCagr5y": 0.13621936646749933,
         "pe": 14.457180925666199,
@@ -247,7 +247,7 @@
               "label": "이자 감당력",
               "weight": 1,
               "status": "pass",
-              "message": "영업이익이 이자비용의 77배입니다.",
+              "message": "영업이익이 이자비용의 33배입니다.",
               "detail": "영업이익 / 이자비용 ≥ 8배"
             },
             {
@@ -273,7 +273,7 @@
             "최근 5년 동안 잉여현금흐름이 매년 플러스였습니다.",
             "매출의 41%가 실제 현금으로 남습니다.",
             "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 0.1배).",
-            "영업이익이 이자비용의 77배입니다.",
+            "영업이익이 이자비용의 33배입니다.",
             "매출이 5년 동안 연평균 10.8% 성장했습니다.",
             "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 9.6%)."
           ],
@@ -281,7 +281,7 @@
         },
         "graham": {
           "styleId": "graham",
-          "modelVersion": "Graham 0.9",
+          "modelVersion": "Graham 1.0",
           "score": 71,
           "passed": 4,
           "totalJudged": 6,
@@ -350,7 +350,7 @@
         },
         "lynch": {
           "styleId": "lynch",
-          "modelVersion": "Lynch 0.9",
+          "modelVersion": "Lynch 1.0",
           "score": 75,
           "passed": 4,
           "totalJudged": 5,
@@ -461,8 +461,8 @@
         "roicAvg5y": 0.2381316425287257,
         "fcfMargin": 0.20186596512164032,
         "fcfYield": 0.018506452686137435,
-        "netDebtToEbitda": 0.10213836876177211,
-        "interestCoverage": 52.891652470187395,
+        "netDebtToEbitda": 0.09966690177463614,
+        "interestCoverage": 50.880694854146185,
         "revenueCagr5y": 0.1374114735301586,
         "epsCagr5y": 0.16784252390894605,
         "pe": 27.063053967079078,
@@ -528,7 +528,7 @@
               "label": "이자 감당력",
               "weight": 1,
               "status": "pass",
-              "message": "영업이익이 이자비용의 53배입니다.",
+              "message": "영업이익이 이자비용의 51배입니다.",
               "detail": "영업이익 / 이자비용 ≥ 8배"
             },
             {
@@ -554,7 +554,7 @@
             "최근 5년 동안 잉여현금흐름이 매년 플러스였습니다.",
             "매출의 20%가 실제 현금으로 남습니다.",
             "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 0.1배).",
-            "영업이익이 이자비용의 53배입니다.",
+            "영업이익이 이자비용의 51배입니다.",
             "매출이 5년 동안 연평균 13.7% 성장했습니다."
           ],
           "risks": [
@@ -563,7 +563,7 @@
         },
         "graham": {
           "styleId": "graham",
-          "modelVersion": "Graham 0.9",
+          "modelVersion": "Graham 1.0",
           "score": 50,
           "passed": 3,
           "totalJudged": 6,
@@ -632,7 +632,7 @@
         },
         "lynch": {
           "styleId": "lynch",
-          "modelVersion": "Lynch 0.9",
+          "modelVersion": "Lynch 1.0",
           "score": 75,
           "passed": 4,
           "totalJudged": 5,
@@ -846,7 +846,7 @@
         },
         "graham": {
           "styleId": "graham",
-          "modelVersion": "Graham 0.9",
+          "modelVersion": "Graham 1.0",
           "score": 50,
           "passed": 3,
           "totalJudged": 6,
@@ -915,7 +915,7 @@
         },
         "lynch": {
           "styleId": "lynch",
-          "modelVersion": "Lynch 0.9",
+          "modelVersion": "Lynch 1.0",
           "score": 44,
           "passed": 2,
           "totalJudged": 4,
@@ -1027,7 +1027,7 @@
         "roicAvg5y": 0.14940689849761726,
         "fcfMargin": 0.035916410280471975,
         "fcfYield": 0.04288535292984301,
-        "netDebtToEbitda": 2.0559485530546624,
+        "netDebtToEbitda": 2.285787781350482,
         "interestCoverage": 4.738630684657672,
         "revenueCagr5y": 0.11691063580951955,
         "epsCagr5y": -0.07510942356143002,
@@ -1035,9 +1035,9 @@
         "pbr": 3.7449955315316217,
         "peg": null,
         "currentRatio": 0.7883756756051071,
-        "debtToEquity": 0.7225497052652613,
-        "evEbit": 22.294431699588696,
-        "earningsYield": 0.04485424941414626
+        "debtToEquity": 0.7761114996503147,
+        "evEbit": 22.57712522416157,
+        "earningsYield": 0.04429261874890169
       },
       "scores": {
         "buffett": {
@@ -1086,7 +1086,7 @@
               "label": "부채 부담",
               "weight": 2,
               "status": "pass",
-              "message": "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 2.1배).",
+              "message": "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 2.3배).",
               "detail": "순부채 / EBITDA ≤ 2.5배"
             },
             {
@@ -1118,7 +1118,7 @@
             "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 15%).",
             "5년 중 4년 동안 두 자릿수 자본수익률을 유지했습니다.",
             "최근 5년 동안 잉여현금흐름이 매년 플러스였습니다.",
-            "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 2.1배).",
+            "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 2.3배).",
             "매출이 5년 동안 연평균 11.7% 성장했습니다.",
             "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 4.3%)."
           ],
@@ -1129,7 +1129,7 @@
         },
         "graham": {
           "styleId": "graham",
-          "modelVersion": "Graham 0.9",
+          "modelVersion": "Graham 1.0",
           "score": 50,
           "passed": 3,
           "totalJudged": 6,
@@ -1165,7 +1165,7 @@
               "label": "자본 대비 부채",
               "weight": 2,
               "status": "pass",
-              "message": "자기자본보다 부채가 적습니다(부채비율 0.72).",
+              "message": "자기자본보다 부채가 적습니다(부채비율 0.78).",
               "detail": "부채 / 자기자본 ≤ 1.0"
             },
             {
@@ -1186,7 +1186,7 @@
             }
           ],
           "reasons": [
-            "자기자본보다 부채가 적습니다(부채비율 0.72).",
+            "자기자본보다 부채가 적습니다(부채비율 0.78).",
             "최근 5년 동안 매년 흑자를 냈습니다.",
             "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 11.7%)."
           ],
@@ -1198,7 +1198,7 @@
         },
         "lynch": {
           "styleId": "lynch",
-          "modelVersion": "Lynch 0.9",
+          "modelVersion": "Lynch 1.0",
           "score": 44,
           "passed": 2,
           "totalJudged": 4,
@@ -1234,7 +1234,7 @@
               "label": "부채 부담",
               "weight": 2,
               "status": "fail",
-              "message": "성장에 비해 부채 부담이 있습니다(순부채/EBITDA 2.1배).",
+              "message": "성장에 비해 부채 부담이 있습니다(순부채/EBITDA 2.3배).",
               "detail": "순부채 / EBITDA ≤ 2.0"
             },
             {
@@ -1253,7 +1253,7 @@
           "risks": [
             "주당순이익 성장률이 연평균 -7.5%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
             "이 기준을 판정할 데이터가 부족합니다.",
-            "성장에 비해 부채 부담이 있습니다(순부채/EBITDA 2.1배)."
+            "성장에 비해 부채 부담이 있습니다(순부채/EBITDA 2.3배)."
           ]
         },
         "greenblatt": {
@@ -1278,14 +1278,14 @@
               "label": "가격 순위",
               "weight": 1,
               "status": "fail",
-              "message": "이익수익률 상대 순위 5위/7개입니다(4.5%).",
+              "message": "이익수익률 상대 순위 5위/7개입니다(4.4%).",
               "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
             }
           ],
           "reasons": [],
           "risks": [
             "자본수익률 상대 순위 5위/7개입니다(5년 평균 14.9%).",
-            "이익수익률 상대 순위 5위/7개입니다(4.5%)."
+            "이익수익률 상대 순위 5위/7개입니다(4.4%)."
           ],
           "rank": 7,
           "rankComponents": {
@@ -1309,8 +1309,8 @@
         "roicAvg5y": 0.12950113750261896,
         "fcfMargin": 0.32116292497367793,
         "fcfYield": 0.05780331040476676,
-        "netDebtToEbitda": 1.6717667436489607,
-        "interestCoverage": 10.616525423728813,
+        "netDebtToEbitda": 1.3581144465290806,
+        "interestCoverage": 9.787109375,
         "revenueCagr5y": 0.01902530674016445,
         "epsCagr5y": 0.0829183020550519,
         "pe": 19.223178213659224,
@@ -1368,7 +1368,7 @@
               "label": "부채 부담",
               "weight": 2,
               "status": "pass",
-              "message": "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 1.7배).",
+              "message": "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 1.4배).",
               "detail": "순부채 / EBITDA ≤ 2.5배"
             },
             {
@@ -1376,7 +1376,7 @@
               "label": "이자 감당력",
               "weight": 1,
               "status": "pass",
-              "message": "영업이익이 이자비용의 11배입니다.",
+              "message": "영업이익이 이자비용의 10배입니다.",
               "detail": "영업이익 / 이자비용 ≥ 8배"
             },
             {
@@ -1401,8 +1401,8 @@
             "5년 중 4년 동안 두 자릿수 자본수익률을 유지했습니다.",
             "최근 5년 동안 잉여현금흐름이 매년 플러스였습니다.",
             "매출의 32%가 실제 현금으로 남습니다.",
-            "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 1.7배).",
-            "영업이익이 이자비용의 11배입니다.",
+            "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 1.4배).",
+            "영업이익이 이자비용의 10배입니다.",
             "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 5.8%)."
           ],
           "risks": [
@@ -1411,7 +1411,7 @@
         },
         "graham": {
           "styleId": "graham",
-          "modelVersion": "Graham 0.9",
+          "modelVersion": "Graham 1.0",
           "score": 50,
           "passed": 3,
           "totalJudged": 6,
@@ -1480,7 +1480,7 @@
         },
         "lynch": {
           "styleId": "lynch",
-          "modelVersion": "Lynch 0.9",
+          "modelVersion": "Lynch 1.0",
           "score": 33,
           "passed": 2,
           "totalJudged": 5,
@@ -1516,7 +1516,7 @@
               "label": "부채 부담",
               "weight": 2,
               "status": "pass",
-              "message": "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 1.7배).",
+              "message": "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 1.4배).",
               "detail": "순부채 / EBITDA ≤ 2.0"
             },
             {
@@ -1529,7 +1529,7 @@
             }
           ],
           "reasons": [
-            "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 1.7배).",
+            "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 1.4배).",
             "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 13%)."
           ],
           "risks": [
@@ -1593,7 +1593,7 @@
         "fcfMargin": 0.08617497873768844,
         "fcfYield": 0.04604935415757925,
         "netDebtToEbitda": null,
-        "interestCoverage": 8286.443243243242,
+        "interestCoverage": null,
         "revenueCagr5y": 0.09465849731601517,
         "epsCagr5y": 0.09277835284944347,
         "pe": 20.105648741910343,
@@ -1608,9 +1608,9 @@
         "buffett": {
           "styleId": "buffett",
           "modelVersion": "Buffett 1.0",
-          "score": 88,
-          "passed": 6,
-          "totalJudged": 7,
+          "score": 87,
+          "passed": 5,
+          "totalJudged": 6,
           "total": 8,
           "dataConfidence": "보통",
           "criteria": [
@@ -1658,8 +1658,8 @@
               "code": "BUF_INTEREST_COVER",
               "label": "이자 감당력",
               "weight": 1,
-              "status": "pass",
-              "message": "영업이익이 이자비용의 100배를 넘습니다.",
+              "status": "unknown",
+              "message": "이 기준을 판정할 데이터가 부족합니다.",
               "detail": "영업이익 / 이자비용 ≥ 8배"
             },
             {
@@ -1683,18 +1683,18 @@
             "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 37%).",
             "5년 중 5년 동안 두 자릿수 자본수익률을 유지했습니다.",
             "최근 5년 동안 잉여현금흐름이 매년 플러스였습니다.",
-            "영업이익이 이자비용의 100배를 넘습니다.",
             "매출이 5년 동안 연평균 9.5% 성장했습니다.",
             "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 4.6%)."
           ],
           "risks": [
             "매출 대비 남는 현금이 9%로 기준(10%)보다 낮습니다.",
+            "이 기준을 판정할 데이터가 부족합니다.",
             "이 기준을 판정할 데이터가 부족합니다."
           ]
         },
         "graham": {
           "styleId": "graham",
-          "modelVersion": "Graham 0.9",
+          "modelVersion": "Graham 1.0",
           "score": 42,
           "passed": 2,
           "totalJudged": 5,
@@ -1763,7 +1763,7 @@
         },
         "lynch": {
           "styleId": "lynch",
-          "modelVersion": "Lynch 0.9",
+          "modelVersion": "Lynch 1.0",
           "score": 40,
           "passed": 2,
           "totalJudged": 4,
@@ -1869,24 +1869,24 @@
         "roicAvg5y": 0.07071993752570882,
         "fcfMargin": 0.14563900688177955,
         "fcfYield": 0.10423504728669583,
-        "netDebtToEbitda": 1.5563770794824399,
-        "interestCoverage": 5.29670528602462,
+        "netDebtToEbitda": 2.9218198622080322,
+        "interestCoverage": 4.370929190319689,
         "revenueCagr5y": 0.008457873514414072,
         "epsCagr5y": -0.06534012173586479,
         "pe": 11.24274193548387,
         "pbr": 1.8259979572729594,
         "peg": null,
         "currentRatio": 0.9126503126503126,
-        "debtToEquity": 0.8808692938406105,
-        "evEbit": 9.131509962746504,
-        "earningsYield": 0.10951091375683368
+        "debtToEquity": 1.4956355623646458,
+        "evEbit": 11.353253699716326,
+        "earningsYield": 0.08808047687906298
       },
       "scores": {
         "buffett": {
           "styleId": "buffett",
           "modelVersion": "Buffett 1.0",
-          "score": 56,
-          "passed": 4,
+          "score": 44,
+          "passed": 3,
           "totalJudged": 8,
           "total": 8,
           "dataConfidence": "높음",
@@ -1927,8 +1927,8 @@
               "code": "BUF_LEVERAGE",
               "label": "부채 부담",
               "weight": 2,
-              "status": "pass",
-              "message": "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 1.6배).",
+              "status": "fail",
+              "message": "현금창출력 대비 부채가 많습니다(순부채/EBITDA 2.9배).",
               "detail": "순부채 / EBITDA ≤ 2.5배"
             },
             {
@@ -1936,7 +1936,7 @@
               "label": "이자 감당력",
               "weight": 1,
               "status": "fail",
-              "message": "영업이익이 이자비용의 5.3배로 여유가 크지 않습니다.",
+              "message": "영업이익이 이자비용의 4.4배로 여유가 크지 않습니다.",
               "detail": "영업이익 / 이자비용 ≥ 8배"
             },
             {
@@ -1959,21 +1959,21 @@
           "reasons": [
             "최근 5년 동안 잉여현금흐름이 매년 플러스였습니다.",
             "매출의 15%가 실제 현금으로 남습니다.",
-            "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 1.6배).",
             "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 10.4%)."
           ],
           "risks": [
             "투자한 자본 대비 이익이 기준(12%)에 못 미칩니다(5년 평균 7%).",
             "두 자릿수 자본수익률을 유지한 해가 5년 중 0년에 그쳤습니다.",
-            "영업이익이 이자비용의 5.3배로 여유가 크지 않습니다.",
+            "현금창출력 대비 부채가 많습니다(순부채/EBITDA 2.9배).",
+            "영업이익이 이자비용의 4.4배로 여유가 크지 않습니다.",
             "매출 성장이 연평균 0.8%로 둔화돼 있습니다."
           ]
         },
         "graham": {
           "styleId": "graham",
-          "modelVersion": "Graham 0.9",
-          "score": 71,
-          "passed": 4,
+          "modelVersion": "Graham 1.0",
+          "score": 57,
+          "passed": 3,
           "totalJudged": 6,
           "total": 6,
           "dataConfidence": "높음",
@@ -2006,8 +2006,8 @@
               "code": "GRA_DEBT_EQUITY",
               "label": "자본 대비 부채",
               "weight": 2,
-              "status": "pass",
-              "message": "자기자본보다 부채가 적습니다(부채비율 0.88).",
+              "status": "fail",
+              "message": "자기자본 대비 부채가 많습니다(부채비율 1.50).",
               "detail": "부채 / 자기자본 ≤ 1.0"
             },
             {
@@ -2029,20 +2029,20 @@
           ],
           "reasons": [
             "이익 대비 가격이 낮은 편입니다(PER 11.2배).",
-            "자기자본보다 부채가 적습니다(부채비율 0.88).",
             "최근 5년 동안 매년 흑자를 냈습니다.",
             "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 0.8%)."
           ],
           "risks": [
             "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 1.8배).",
-            "유동비율이 0.9로 기준(1.5)에 못 미칩니다."
+            "유동비율이 0.9로 기준(1.5)에 못 미칩니다.",
+            "자기자본 대비 부채가 많습니다(부채비율 1.50)."
           ]
         },
         "lynch": {
           "styleId": "lynch",
-          "modelVersion": "Lynch 0.9",
-          "score": 22,
-          "passed": 1,
+          "modelVersion": "Lynch 1.0",
+          "score": 0,
+          "passed": 0,
           "totalJudged": 4,
           "total": 5,
           "dataConfidence": "보통",
@@ -2075,8 +2075,8 @@
               "code": "LYN_DEBT",
               "label": "부채 부담",
               "weight": 2,
-              "status": "pass",
-              "message": "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 1.6배).",
+              "status": "fail",
+              "message": "성장에 비해 부채 부담이 있습니다(순부채/EBITDA 2.9배).",
               "detail": "순부채 / EBITDA ≤ 2.0"
             },
             {
@@ -2088,13 +2088,12 @@
               "detail": "5년 평균 ROIC ≥ 10%"
             }
           ],
-          "reasons": [
-            "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 1.6배)."
-          ],
+          "reasons": [],
           "risks": [
             "주당순이익 성장률이 연평균 -6.5%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
             "이 기준을 판정할 데이터가 부족합니다.",
             "매출 성장은 연평균 0.8%에 그쳤습니다.",
+            "성장에 비해 부채 부담이 있습니다(순부채/EBITDA 2.9배).",
             "성장에 비해 자본 대비 이익이 낮습니다(5년 평균 ROIC 7%)."
           ]
         },
@@ -2120,12 +2119,12 @@
               "label": "가격 순위",
               "weight": 1,
               "status": "pass",
-              "message": "이익수익률 상대 순위 1위/7개입니다(11.0%).",
+              "message": "이익수익률 상대 순위 1위/7개입니다(8.8%).",
               "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
             }
           ],
           "reasons": [
-            "이익수익률 상대 순위 1위/7개입니다(11.0%)."
+            "이익수익률 상대 순위 1위/7개입니다(8.8%)."
           ],
           "risks": [
             "자본수익률 상대 순위 7위/7개입니다(5년 평균 7.1%)."
@@ -2254,7 +2253,7 @@
         },
         "graham": {
           "styleId": "graham",
-          "modelVersion": "Graham 0.9",
+          "modelVersion": "Graham 1.0",
           "score": 36,
           "passed": 2,
           "totalJudged": 6,
@@ -2323,7 +2322,7 @@
         },
         "lynch": {
           "styleId": "lynch",
-          "modelVersion": "Lynch 0.9",
+          "modelVersion": "Lynch 1.0",
           "score": 17,
           "passed": 1,
           "totalJudged": 5,
@@ -2536,7 +2535,7 @@
         },
         "graham": {
           "styleId": "graham",
-          "modelVersion": "Graham 0.9",
+          "modelVersion": "Graham 1.0",
           "score": 83,
           "passed": 4,
           "totalJudged": 5,
@@ -2605,7 +2604,7 @@
         },
         "lynch": {
           "styleId": "lynch",
-          "modelVersion": "Lynch 0.9",
+          "modelVersion": "Lynch 1.0",
           "score": 100,
           "passed": 4,
           "totalJudged": 4,
