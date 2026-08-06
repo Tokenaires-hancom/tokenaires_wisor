@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import CriteriaBar from "@/components/CriteriaBar";
 import DataStamp, { SampleDataFlag } from "@/components/DataStamp";
+import StockLookup from "@/components/StockLookup";
 import { MASTER_BY_ID, SCORABLE_MASTERS } from "@/content/masters";
 import { DATA, ranked, styleMeta } from "@/lib/scores";
 
@@ -43,6 +44,10 @@ export default async function Screener({ params }: { params: Promise<{ style: st
       </div>
 
       <SampleDataFlag />
+
+      <div style={{ marginTop: "1.5rem" }}>
+        <StockLookup />
+      </div>
 
       <div className="card" style={{ marginTop: "1.5rem" }}>
         <p className="eyebrow">{isRankModel ? "순위를 만드는 방식" : "점수를 매기는 방식"}</p>

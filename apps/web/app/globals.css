@@ -372,6 +372,73 @@ h3.sub {
   min-width: 6.5rem;
 }
 
+.live-stock-lookup .sub {
+  margin-bottom: 0.35rem;
+}
+
+.live-stock-help,
+.live-stock-english {
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+}
+
+.live-stock-help {
+  margin: 0 0 1rem;
+}
+
+.stock-lookup-form {
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-end;
+}
+
+.stock-lookup-field {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.stock-lookup-error {
+  margin: 1rem 0 0;
+  color: var(--plum-deep);
+  font-size: 0.88rem;
+}
+
+.live-stock-result {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.live-stock-english {
+  margin: 0.25rem 0 0;
+}
+
+.live-stock-price {
+  text-align: right;
+}
+
+.live-stock-price strong,
+.live-stock-price span {
+  display: block;
+}
+
+.live-stock-price strong {
+  font-family: var(--mono);
+  font-size: 1.2rem;
+  color: var(--plum-deep);
+}
+
+.live-stock-price span {
+  margin-top: 0.25rem;
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+}
+
 .score-value {
   font-family: var(--mono);
   font-size: 1.5rem;
@@ -749,6 +816,20 @@ h3.sub {
 
   .stock-score {
     grid-column: 2;
+    text-align: left;
+  }
+
+  .stock-lookup-form,
+  .live-stock-result {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .stock-lookup-form .btn {
+    width: 100%;
+  }
+
+  .live-stock-price {
     text-align: left;
   }
 }
