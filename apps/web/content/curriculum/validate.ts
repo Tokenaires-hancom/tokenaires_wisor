@@ -26,6 +26,19 @@ export function curriculumProblems(curricula: Curriculum[]): string[] {
       chapter.exercises.forEach((exercise, position) => {
         const at = `${where} ${position + 1}번 문항`;
 
+        const exerciseText =
+          exercise.kind === "graded"
+            ? [exercise.prompt, ...exercise.choices, exercise.explain].join(" ")
+            : exercise.kind === "guided"
+              ? [exercise.prompt, ...exercise.checkpoints].join(" ")
+              : exercise.prompt;
+
+        for (const banned of BANNED) {
+          if (exerciseText.includes(banned)) {
+            problems.push(`${at}: 권유형 표현 '${banned}'가 있습니다.`);
+          }
+        }
+
         if (exercise.kind === "graded") {
           if (exercise.answers.length === 0) {
             problems.push(`${at}: 정답이 지정되지 않았습니다.`);

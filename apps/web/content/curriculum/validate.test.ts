@@ -83,6 +83,42 @@ test("권유형 표현을 잡는다", () => {
   assert.match(problems[0], /권유형/);
 });
 
+test("채점형 문항의 해설에 권유형 표현이 있으면 잡는다", () => {
+  const problems = curriculumProblems([
+    curriculum(
+      chapter({
+        exercises: [
+          {
+            kind: "graded",
+            prompt: "질문",
+            choices: ["가", "나"],
+            answers: [0],
+            explain: "지금 사야 합니다.",
+          },
+        ],
+      }),
+    ),
+  ]);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /권유형/);
+  assert.match(problems[0], /1번 문항/);
+});
+
+test("첨삭형 문항의 체크 포인트에 권유형 표현이 있으면 잡는다", () => {
+  const problems = curriculumProblems([
+    curriculum(
+      chapter({
+        exercises: [
+          { kind: "guided", prompt: "질문", checkpoints: ["지금 파세요."] },
+        ],
+      }),
+    ),
+  ]);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /권유형/);
+  assert.match(problems[0], /1번 문항/);
+});
+
 test("문제를 전부 모아서 돌려준다 — 첫 개에서 멈추지 않는다", () => {
   const problems = curriculumProblems([
     curriculum(chapter({ body: [], exercises: [{ kind: "guided", prompt: "질문", checkpoints: [] }] })),
