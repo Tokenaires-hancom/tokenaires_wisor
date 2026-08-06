@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CHART_LESSONS } from "@/content/chartLessons";
 import { MASTERS } from "@/content/masters";
+import { CURRICULUM_BY_MASTER } from "@/content/curriculum";
 
 export default function LearnIndex() {
   return (
@@ -15,7 +16,10 @@ export default function LearnIndex() {
       <h2 className="section" style={{ marginTop: "3rem" }}>
         투자 대가에게 배우기
       </h2>
-      <p className="lede">어떤 기업을 관심 있게 볼 것인가.</p>
+      <p className="lede">
+        어떤 기업을 관심 있게 볼 것인가. 순서대로 볼 것을 권합니다. 버핏에서 시작해 그레이엄으로
+        뿌리를 보고, 린치에서 분산과 집중의 대조를 봅니다. 관심 있는 장만 골라 봐도 됩니다.
+      </p>
       <div className="grid">
         {MASTERS.map((m) => (
           <Link key={m.id} href={`/learn/masters/${m.id}`} className="card card-link">
@@ -24,6 +28,9 @@ export default function LearnIndex() {
               {m.name}
             </h3>
             <p style={{ fontSize: "0.9rem", color: "var(--ink-soft)", margin: 0 }}>{m.oneLine}</p>
+            <p className="mono" style={{ color: "var(--ink-faint)", margin: 0 }}>
+              {CURRICULUM_BY_MASTER[m.id].chapters.length}장
+            </p>
           </Link>
         ))}
       </div>

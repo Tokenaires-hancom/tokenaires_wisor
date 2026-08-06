@@ -2,6 +2,7 @@ import Link from "next/link";
 import CriteriaBar from "@/components/CriteriaBar";
 import DataStamp, { SampleDataFlag } from "@/components/DataStamp";
 import { MASTERS } from "@/content/masters";
+import { CURRICULUM_BY_MASTER } from "@/content/curriculum";
 import { ranked, styleMeta } from "@/lib/scores";
 
 export default function Home() {
@@ -52,7 +53,7 @@ export default function Home() {
               {master.oneLine}
             </p>
             <p className="mono" style={{ color: "var(--ink-faint)", margin: 0 }}>
-              {master.minutes}분 학습 · 기준 {master.principles.length}개 · 퀴즈 {master.quiz.length}문항
+              기준 {master.principles.length}개 · {CURRICULUM_BY_MASTER[master.id].chapters.length}장
             </p>
           </Link>
         ))}

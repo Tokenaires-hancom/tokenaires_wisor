@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import Quiz from "@/components/Quiz";
 import { MASTERS, MASTER_BY_ID } from "@/content/masters";
 import { ranked, styleMeta } from "@/lib/scores";
 
@@ -64,14 +63,6 @@ export default async function MasterLesson({ params }: { params: Promise<{ slug:
           </li>
         ))}
       </ul>
-
-      <hr className="rule" />
-
-      <p className="eyebrow">확인해보기</p>
-      <h2 className="section" style={{ marginBottom: "1.5rem" }}>
-        세 문항으로 짚고 넘어갑니다
-      </h2>
-      <Quiz id={`master:${master.id}`} items={master.quiz} completedEvent="master_quiz_completed" />
 
       <hr className="rule" />
 
