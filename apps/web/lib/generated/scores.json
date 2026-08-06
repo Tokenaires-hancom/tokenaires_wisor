@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-06T05:39:39+00:00",
-  "dataSource": "sample",
+  "generatedAt": "2026-08-06T07:29:00+00:00",
+  "dataSource": "sec-toss",
   "asOf": {
-    "price": "2026-07-29",
-    "financial": "2026-06-30"
+    "price": "2026-08-05",
+    "financial": "2025-11-28"
   },
   "styles": [
     {
@@ -168,35 +168,316 @@
   "companies": [
     {
       "ticker": "ADBE",
-      "name": "Adobe",
-      "sector": "소프트웨어",
-      "price": 434.0,
-      "marketCap": 189224.0,
+      "name": "어도비",
+      "sector": "Services-Prepackaged Software",
+      "price": 259.32,
+      "marketCap": 103079.7,
       "asOf": {
-        "price": "2026-07-29",
-        "financial": "2026-06-30"
+        "price": "2026-08-05",
+        "financial": "2025-11-28"
       },
       "metrics": {
-        "roicAvg5y": 0.24086684926280647,
-        "fcfMargin": 0.34345114345114347,
-        "fcfYield": 0.04365196803788103,
-        "netDebtToEbitda": -0.23939064200217627,
-        "interestCoverage": 69.32203389830508,
-        "revenueCagr5y": 0.028356999555644746,
-        "epsCagr5y": 0.08135845595597613,
-        "pe": 32.07186440677966,
-        "pbr": 11.001395348837208,
-        "peg": 3.5635404896421843,
-        "currentRatio": 0.9612403100775194,
-        "debtToEquity": 0.32558139534883723,
-        "evEbit": 22.86356968215159,
-        "earningsYield": 0.043737702113097784
+        "roicAvg5y": 0.381065908765407,
+        "fcfMargin": 0.41448946106272877,
+        "fcfYield": 0.09557652961737374,
+        "netDebtToEbitda": 0.08179336413271734,
+        "interestCoverage": 77.04424778761062,
+        "revenueCagr5y": 0.10774954699996808,
+        "epsCagr5y": 0.13621936646749933,
+        "pe": 14.457180925666199,
+        "pbr": 8.868596747827583,
+        "peg": 1.0613161183006636,
+        "currentRatio": 0.9963725490196078,
+        "debtToEquity": 0.5342854684676933,
+        "evEbit": 11.929554330346887,
+        "earningsYield": 0.08382542820197056
       },
       "scores": {
         "buffett": {
           "styleId": "buffett",
           "modelVersion": "Buffett 1.0",
-          "score": 89,
+          "score": 100,
+          "passed": 8,
+          "totalJudged": 8,
+          "total": 8,
+          "dataConfidence": "높음",
+          "criteria": [
+            {
+              "code": "BUF_ROIC_LEVEL",
+              "label": "자본 효율성",
+              "weight": 3,
+              "status": "pass",
+              "message": "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 38%).",
+              "detail": "5년 평균 ROIC ≥ 12%"
+            },
+            {
+              "code": "BUF_ROIC_STABILITY",
+              "label": "수익성 지속성",
+              "weight": 2,
+              "status": "pass",
+              "message": "5년 중 5년 동안 두 자릿수 자본수익률을 유지했습니다.",
+              "detail": "최근 5년 중 4년 이상 ROIC ≥ 10%"
+            },
+            {
+              "code": "BUF_FCF_CONSISTENCY",
+              "label": "현금흐름 지속성",
+              "weight": 3,
+              "status": "pass",
+              "message": "최근 5년 동안 잉여현금흐름이 매년 플러스였습니다.",
+              "detail": "최근 5년 연속 잉여현금흐름 양(+)"
+            },
+            {
+              "code": "BUF_FCF_MARGIN",
+              "label": "현금 창출력",
+              "weight": 2,
+              "status": "pass",
+              "message": "매출의 41%가 실제 현금으로 남습니다.",
+              "detail": "잉여현금흐름 마진 ≥ 10%"
+            },
+            {
+              "code": "BUF_LEVERAGE",
+              "label": "부채 부담",
+              "weight": 2,
+              "status": "pass",
+              "message": "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 0.1배).",
+              "detail": "순부채 / EBITDA ≤ 2.5배"
+            },
+            {
+              "code": "BUF_INTEREST_COVER",
+              "label": "이자 감당력",
+              "weight": 1,
+              "status": "pass",
+              "message": "영업이익이 이자비용의 77배입니다.",
+              "detail": "영업이익 / 이자비용 ≥ 8배"
+            },
+            {
+              "code": "BUF_GROWTH",
+              "label": "사업의 성장",
+              "weight": 2,
+              "status": "pass",
+              "message": "매출이 5년 동안 연평균 10.8% 성장했습니다.",
+              "detail": "매출 5년 연평균 성장률 ≥ 3%"
+            },
+            {
+              "code": "BUF_VALUATION",
+              "label": "현재 가격",
+              "weight": 3,
+              "status": "pass",
+              "message": "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 9.6%).",
+              "detail": "잉여현금흐름 수익률 ≥ 4% 또는 EV/EBIT가 자기 5년 중앙값 이하"
+            }
+          ],
+          "reasons": [
+            "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 38%).",
+            "5년 중 5년 동안 두 자릿수 자본수익률을 유지했습니다.",
+            "최근 5년 동안 잉여현금흐름이 매년 플러스였습니다.",
+            "매출의 41%가 실제 현금으로 남습니다.",
+            "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 0.1배).",
+            "영업이익이 이자비용의 77배입니다.",
+            "매출이 5년 동안 연평균 10.8% 성장했습니다.",
+            "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 9.6%)."
+          ],
+          "risks": []
+        },
+        "graham": {
+          "styleId": "graham",
+          "modelVersion": "Graham 0.9",
+          "score": 71,
+          "passed": 4,
+          "totalJudged": 6,
+          "total": 6,
+          "dataConfidence": "높음",
+          "criteria": [
+            {
+              "code": "GRA_PE",
+              "label": "이익 대비 가격",
+              "weight": 3,
+              "status": "pass",
+              "message": "이익 대비 가격이 낮은 편입니다(PER 14.5배).",
+              "detail": "PER ≤ 15배"
+            },
+            {
+              "code": "GRA_PBR",
+              "label": "자산 대비 가격",
+              "weight": 2,
+              "status": "fail",
+              "message": "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 8.9배).",
+              "detail": "PBR ≤ 1.5배"
+            },
+            {
+              "code": "GRA_CURRENT_RATIO",
+              "label": "단기 지급 능력",
+              "weight": 2,
+              "status": "fail",
+              "message": "유동비율이 1.0로 기준(1.5)에 못 미칩니다.",
+              "detail": "유동비율 ≥ 1.5"
+            },
+            {
+              "code": "GRA_DEBT_EQUITY",
+              "label": "자본 대비 부채",
+              "weight": 2,
+              "status": "pass",
+              "message": "자기자본보다 부채가 적습니다(부채비율 0.53).",
+              "detail": "부채 / 자기자본 ≤ 1.0"
+            },
+            {
+              "code": "GRA_EARNINGS_STABILITY",
+              "label": "이익의 지속성",
+              "weight": 3,
+              "status": "pass",
+              "message": "최근 5년 동안 매년 흑자를 냈습니다.",
+              "detail": "최근 5년 연속 순이익 흑자"
+            },
+            {
+              "code": "GRA_VALUE_TRAP",
+              "label": "가치함정 점검",
+              "weight": 2,
+              "status": "pass",
+              "message": "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 10.8%).",
+              "detail": "매출 5년 성장률 ≥ 0% (싼 데는 이유가 있는지 확인)"
+            }
+          ],
+          "reasons": [
+            "이익 대비 가격이 낮은 편입니다(PER 14.5배).",
+            "자기자본보다 부채가 적습니다(부채비율 0.53).",
+            "최근 5년 동안 매년 흑자를 냈습니다.",
+            "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 10.8%)."
+          ],
+          "risks": [
+            "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 8.9배).",
+            "유동비율이 1.0로 기준(1.5)에 못 미칩니다."
+          ]
+        },
+        "lynch": {
+          "styleId": "lynch",
+          "modelVersion": "Lynch 0.9",
+          "score": 75,
+          "passed": 4,
+          "totalJudged": 5,
+          "total": 5,
+          "dataConfidence": "높음",
+          "criteria": [
+            {
+              "code": "LYN_EPS_GROWTH",
+              "label": "이익 성장",
+              "weight": 3,
+              "status": "fail",
+              "message": "주당순이익 성장률이 연평균 13.6%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
+              "detail": "주당순이익 5년 연평균 성장률 15~40%"
+            },
+            {
+              "code": "LYN_PEG",
+              "label": "성장률 대비 가격",
+              "weight": 3,
+              "status": "pass",
+              "message": "성장률에 비해 가격이 무겁지 않습니다(PEG 1.06).",
+              "detail": "PEG ≤ 1.2"
+            },
+            {
+              "code": "LYN_REVENUE_GROWTH",
+              "label": "매출 성장의 뒷받침",
+              "weight": 2,
+              "status": "pass",
+              "message": "이익뿐 아니라 매출도 연평균 10.8% 늘었습니다.",
+              "detail": "매출 5년 연평균 성장률 ≥ 8%"
+            },
+            {
+              "code": "LYN_DEBT",
+              "label": "부채 부담",
+              "weight": 2,
+              "status": "pass",
+              "message": "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 0.1배).",
+              "detail": "순부채 / EBITDA ≤ 2.0"
+            },
+            {
+              "code": "LYN_PROFITABILITY",
+              "label": "성장의 질",
+              "weight": 2,
+              "status": "pass",
+              "message": "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 38%).",
+              "detail": "5년 평균 ROIC ≥ 10%"
+            }
+          ],
+          "reasons": [
+            "성장률에 비해 가격이 무겁지 않습니다(PEG 1.06).",
+            "이익뿐 아니라 매출도 연평균 10.8% 늘었습니다.",
+            "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 0.1배).",
+            "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 38%)."
+          ],
+          "risks": [
+            "주당순이익 성장률이 연평균 13.6%로 이 스타일이 보는 구간(15~40%) 밖입니다."
+          ]
+        },
+        "greenblatt": {
+          "styleId": "greenblatt",
+          "modelVersion": "Greenblatt 1.0",
+          "score": 100,
+          "passed": 2,
+          "totalJudged": 2,
+          "total": 2,
+          "dataConfidence": "높음",
+          "criteria": [
+            {
+              "code": "GRB_QUALITY_RANK",
+              "label": "사업의 질 순위",
+              "weight": 1,
+              "status": "pass",
+              "message": "자본수익률 상대 순위 1위/7개입니다(5년 평균 38.1%).",
+              "detail": "5년 평균 자본수익률의 유니버스 내 내림차순 순위"
+            },
+            {
+              "code": "GRB_VALUE_RANK",
+              "label": "가격 순위",
+              "weight": 1,
+              "status": "pass",
+              "message": "이익수익률 상대 순위 2위/7개입니다(8.4%).",
+              "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
+            }
+          ],
+          "reasons": [
+            "자본수익률 상대 순위 1위/7개입니다(5년 평균 38.1%).",
+            "이익수익률 상대 순위 2위/7개입니다(8.4%)."
+          ],
+          "risks": [],
+          "rank": 1,
+          "rankComponents": {
+            "quality": 1,
+            "value": 2
+          }
+        }
+      }
+    },
+    {
+      "ticker": "MSFT",
+      "name": "마이크로소프트",
+      "sector": "Services-Prepackaged Software",
+      "price": 487.46,
+      "marketCap": 3619656.4050428597,
+      "asOf": {
+        "price": "2026-08-05",
+        "financial": "2026-06-30"
+      },
+      "metrics": {
+        "roicAvg5y": 0.2381316425287257,
+        "fcfMargin": 0.20186596512164032,
+        "fcfYield": 0.018506452686137435,
+        "netDebtToEbitda": 0.10213836876177211,
+        "interestCoverage": 52.891652470187395,
+        "revenueCagr5y": 0.1374114735301586,
+        "epsCagr5y": 0.16784252390894605,
+        "pe": 27.063053967079078,
+        "pbr": 8.182103915899111,
+        "peg": 1.6124074720039772,
+        "currentRatio": 1.2303272619576484,
+        "debtToEquity": 0.09108314665666034,
+        "evEbit": 23.44167566393875,
+        "earningsYield": 0.04265906645651357
+      },
+      "scores": {
+        "buffett": {
+          "styleId": "buffett",
+          "modelVersion": "Buffett 1.0",
+          "score": 83,
           "passed": 7,
           "totalJudged": 8,
           "total": 8,
@@ -231,7 +512,7 @@
               "label": "현금 창출력",
               "weight": 2,
               "status": "pass",
-              "message": "매출의 34%가 실제 현금으로 남습니다.",
+              "message": "매출의 20%가 실제 현금으로 남습니다.",
               "detail": "잉여현금흐름 마진 ≥ 10%"
             },
             {
@@ -239,7 +520,7 @@
               "label": "부채 부담",
               "weight": 2,
               "status": "pass",
-              "message": "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA -0.2배).",
+              "message": "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 0.1배).",
               "detail": "순부채 / EBITDA ≤ 2.5배"
             },
             {
@@ -247,23 +528,23 @@
               "label": "이자 감당력",
               "weight": 1,
               "status": "pass",
-              "message": "영업이익이 이자비용의 69배입니다.",
+              "message": "영업이익이 이자비용의 53배입니다.",
               "detail": "영업이익 / 이자비용 ≥ 8배"
             },
             {
               "code": "BUF_GROWTH",
               "label": "사업의 성장",
               "weight": 2,
-              "status": "fail",
-              "message": "매출 성장이 연평균 2.8%로 둔화돼 있습니다.",
+              "status": "pass",
+              "message": "매출이 5년 동안 연평균 13.7% 성장했습니다.",
               "detail": "매출 5년 연평균 성장률 ≥ 3%"
             },
             {
               "code": "BUF_VALUATION",
               "label": "현재 가격",
               "weight": 3,
-              "status": "pass",
-              "message": "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 4.4%).",
+              "status": "fail",
+              "message": "현재 가치평가가 과거 평균보다 높은 편입니다(FCF 수익률 1.9%).",
               "detail": "잉여현금흐름 수익률 ≥ 4% 또는 EV/EBIT가 자기 5년 중앙값 이하"
             }
           ],
@@ -271,13 +552,13 @@
             "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 24%).",
             "5년 중 5년 동안 두 자릿수 자본수익률을 유지했습니다.",
             "최근 5년 동안 잉여현금흐름이 매년 플러스였습니다.",
-            "매출의 34%가 실제 현금으로 남습니다.",
-            "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA -0.2배).",
-            "영업이익이 이자비용의 69배입니다.",
-            "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 4.4%)."
+            "매출의 20%가 실제 현금으로 남습니다.",
+            "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 0.1배).",
+            "영업이익이 이자비용의 53배입니다.",
+            "매출이 5년 동안 연평균 13.7% 성장했습니다."
           ],
           "risks": [
-            "매출 성장이 연평균 2.8%로 둔화돼 있습니다."
+            "현재 가치평가가 과거 평균보다 높은 편입니다(FCF 수익률 1.9%)."
           ]
         },
         "graham": {
@@ -294,7 +575,7 @@
               "label": "이익 대비 가격",
               "weight": 3,
               "status": "fail",
-              "message": "이익 대비 가격이 기준(15배)보다 높습니다(PER 32.1배).",
+              "message": "이익 대비 가격이 기준(15배)보다 높습니다(PER 27.1배).",
               "detail": "PER ≤ 15배"
             },
             {
@@ -302,7 +583,7 @@
               "label": "자산 대비 가격",
               "weight": 2,
               "status": "fail",
-              "message": "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 11.0배).",
+              "message": "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 8.2배).",
               "detail": "PBR ≤ 1.5배"
             },
             {
@@ -310,7 +591,7 @@
               "label": "단기 지급 능력",
               "weight": 2,
               "status": "fail",
-              "message": "유동비율이 1.0로 기준(1.5)에 못 미칩니다.",
+              "message": "유동비율이 1.2로 기준(1.5)에 못 미칩니다.",
               "detail": "유동비율 ≥ 1.5"
             },
             {
@@ -318,7 +599,7 @@
               "label": "자본 대비 부채",
               "weight": 2,
               "status": "pass",
-              "message": "자기자본보다 부채가 적습니다(부채비율 0.33).",
+              "message": "자기자본보다 부채가 적습니다(부채비율 0.09).",
               "detail": "부채 / 자기자본 ≤ 1.0"
             },
             {
@@ -334,26 +615,26 @@
               "label": "가치함정 점검",
               "weight": 2,
               "status": "pass",
-              "message": "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 2.8%).",
+              "message": "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 13.7%).",
               "detail": "매출 5년 성장률 ≥ 0% (싼 데는 이유가 있는지 확인)"
             }
           ],
           "reasons": [
-            "자기자본보다 부채가 적습니다(부채비율 0.33).",
+            "자기자본보다 부채가 적습니다(부채비율 0.09).",
             "최근 5년 동안 매년 흑자를 냈습니다.",
-            "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 2.8%)."
+            "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 13.7%)."
           ],
           "risks": [
-            "이익 대비 가격이 기준(15배)보다 높습니다(PER 32.1배).",
-            "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 11.0배).",
-            "유동비율이 1.0로 기준(1.5)에 못 미칩니다."
+            "이익 대비 가격이 기준(15배)보다 높습니다(PER 27.1배).",
+            "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 8.2배).",
+            "유동비율이 1.2로 기준(1.5)에 못 미칩니다."
           ]
         },
         "lynch": {
           "styleId": "lynch",
           "modelVersion": "Lynch 0.9",
-          "score": 33,
-          "passed": 2,
+          "score": 75,
+          "passed": 4,
           "totalJudged": 5,
           "total": 5,
           "dataConfidence": "높음",
@@ -362,8 +643,8 @@
               "code": "LYN_EPS_GROWTH",
               "label": "이익 성장",
               "weight": 3,
-              "status": "fail",
-              "message": "주당순이익 성장률이 연평균 8.1%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
+              "status": "pass",
+              "message": "주당순이익이 5년 동안 연평균 16.8% 늘었습니다.",
               "detail": "주당순이익 5년 연평균 성장률 15~40%"
             },
             {
@@ -371,15 +652,15 @@
               "label": "성장률 대비 가격",
               "weight": 3,
               "status": "fail",
-              "message": "성장률에 비해 가격이 앞서 있습니다(PEG 3.56).",
+              "message": "성장률에 비해 가격이 앞서 있습니다(PEG 1.61).",
               "detail": "PEG ≤ 1.2"
             },
             {
               "code": "LYN_REVENUE_GROWTH",
               "label": "매출 성장의 뒷받침",
               "weight": 2,
-              "status": "fail",
-              "message": "매출 성장은 연평균 2.8%에 그쳤습니다.",
+              "status": "pass",
+              "message": "이익뿐 아니라 매출도 연평균 13.7% 늘었습니다.",
               "detail": "매출 5년 연평균 성장률 ≥ 8%"
             },
             {
@@ -387,7 +668,7 @@
               "label": "부채 부담",
               "weight": 2,
               "status": "pass",
-              "message": "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA -0.2배).",
+              "message": "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 0.1배).",
               "detail": "순부채 / EBITDA ≤ 2.0"
             },
             {
@@ -400,19 +681,19 @@
             }
           ],
           "reasons": [
-            "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA -0.2배).",
+            "주당순이익이 5년 동안 연평균 16.8% 늘었습니다.",
+            "이익뿐 아니라 매출도 연평균 13.7% 늘었습니다.",
+            "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 0.1배).",
             "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 24%)."
           ],
           "risks": [
-            "주당순이익 성장률이 연평균 8.1%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
-            "성장률에 비해 가격이 앞서 있습니다(PEG 3.56).",
-            "매출 성장은 연평균 2.8%에 그쳤습니다."
+            "성장률에 비해 가격이 앞서 있습니다(PEG 1.61)."
           ]
         },
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 50,
+          "score": 57,
           "passed": 1,
           "totalJudged": 2,
           "total": 2,
@@ -423,7 +704,7 @@
               "label": "사업의 질 순위",
               "weight": 1,
               "status": "pass",
-              "message": "자본수익률 상대 순위 5위/12개입니다(5년 평균 24.1%).",
+              "message": "자본수익률 상대 순위 3위/7개입니다(5년 평균 23.8%).",
               "detail": "5년 평균 자본수익률의 유니버스 내 내림차순 순위"
             },
             {
@@ -431,332 +712,49 @@
               "label": "가격 순위",
               "weight": 1,
               "status": "fail",
-              "message": "이익수익률 상대 순위 8위/12개입니다(4.4%).",
+              "message": "이익수익률 상대 순위 6위/7개입니다(4.3%).",
               "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
             }
           ],
           "reasons": [
-            "자본수익률 상대 순위 5위/12개입니다(5년 평균 24.1%)."
+            "자본수익률 상대 순위 3위/7개입니다(5년 평균 23.8%)."
           ],
           "risks": [
-            "이익수익률 상대 순위 8위/12개입니다(4.4%)."
-          ],
-          "rank": 7,
-          "rankComponents": {
-            "quality": 5,
-            "value": 8
-          }
-        }
-      }
-    },
-    {
-      "ticker": "MSFT",
-      "name": "Microsoft",
-      "sector": "소프트웨어",
-      "price": 498.0,
-      "marketCap": 3705120.0,
-      "asOf": {
-        "price": "2026-07-29",
-        "financial": "2026-06-30"
-      },
-      "metrics": {
-        "roicAvg5y": 0.33949378509726347,
-        "fcfMargin": 0.2949176807444524,
-        "fcfYield": 0.022239495616876107,
-        "netDebtToEbitda": -0.08689839572192513,
-        "interestCoverage": 67.15789473684211,
-        "revenueCagr5y": 0.13546152559188296,
-        "epsCagr5y": 0.14008112861712707,
-        "pe": 36.611857707509884,
-        "pbr": 11.875384615384615,
-        "peg": 2.615132693393563,
-        "currentRatio": 1.3559322033898304,
-        "debtToEquity": 0.21474358974358973,
-        "evEbit": 28.93510971786834,
-        "earningsYield": 0.03456009013791535
-      },
-      "scores": {
-        "buffett": {
-          "styleId": "buffett",
-          "modelVersion": "Buffett 1.0",
-          "score": 83,
-          "passed": 7,
-          "totalJudged": 8,
-          "total": 8,
-          "dataConfidence": "높음",
-          "criteria": [
-            {
-              "code": "BUF_ROIC_LEVEL",
-              "label": "자본 효율성",
-              "weight": 3,
-              "status": "pass",
-              "message": "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 34%).",
-              "detail": "5년 평균 ROIC ≥ 12%"
-            },
-            {
-              "code": "BUF_ROIC_STABILITY",
-              "label": "수익성 지속성",
-              "weight": 2,
-              "status": "pass",
-              "message": "5년 중 5년 동안 두 자릿수 자본수익률을 유지했습니다.",
-              "detail": "최근 5년 중 4년 이상 ROIC ≥ 10%"
-            },
-            {
-              "code": "BUF_FCF_CONSISTENCY",
-              "label": "현금흐름 지속성",
-              "weight": 3,
-              "status": "pass",
-              "message": "최근 5년 동안 잉여현금흐름이 매년 플러스였습니다.",
-              "detail": "최근 5년 연속 잉여현금흐름 양(+)"
-            },
-            {
-              "code": "BUF_FCF_MARGIN",
-              "label": "현금 창출력",
-              "weight": 2,
-              "status": "pass",
-              "message": "매출의 29%가 실제 현금으로 남습니다.",
-              "detail": "잉여현금흐름 마진 ≥ 10%"
-            },
-            {
-              "code": "BUF_LEVERAGE",
-              "label": "부채 부담",
-              "weight": 2,
-              "status": "pass",
-              "message": "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA -0.1배).",
-              "detail": "순부채 / EBITDA ≤ 2.5배"
-            },
-            {
-              "code": "BUF_INTEREST_COVER",
-              "label": "이자 감당력",
-              "weight": 1,
-              "status": "pass",
-              "message": "영업이익이 이자비용의 67배입니다.",
-              "detail": "영업이익 / 이자비용 ≥ 8배"
-            },
-            {
-              "code": "BUF_GROWTH",
-              "label": "사업의 성장",
-              "weight": 2,
-              "status": "pass",
-              "message": "매출이 5년 동안 연평균 13.5% 성장했습니다.",
-              "detail": "매출 5년 연평균 성장률 ≥ 3%"
-            },
-            {
-              "code": "BUF_VALUATION",
-              "label": "현재 가격",
-              "weight": 3,
-              "status": "fail",
-              "message": "현재 가치평가가 과거 평균보다 높은 편입니다(FCF 수익률 2.2%).",
-              "detail": "잉여현금흐름 수익률 ≥ 4% 또는 EV/EBIT가 자기 5년 중앙값 이하"
-            }
-          ],
-          "reasons": [
-            "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 34%).",
-            "5년 중 5년 동안 두 자릿수 자본수익률을 유지했습니다.",
-            "최근 5년 동안 잉여현금흐름이 매년 플러스였습니다.",
-            "매출의 29%가 실제 현금으로 남습니다.",
-            "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA -0.1배).",
-            "영업이익이 이자비용의 67배입니다.",
-            "매출이 5년 동안 연평균 13.5% 성장했습니다."
-          ],
-          "risks": [
-            "현재 가치평가가 과거 평균보다 높은 편입니다(FCF 수익률 2.2%)."
-          ]
-        },
-        "graham": {
-          "styleId": "graham",
-          "modelVersion": "Graham 0.9",
-          "score": 50,
-          "passed": 3,
-          "totalJudged": 6,
-          "total": 6,
-          "dataConfidence": "높음",
-          "criteria": [
-            {
-              "code": "GRA_PE",
-              "label": "이익 대비 가격",
-              "weight": 3,
-              "status": "fail",
-              "message": "이익 대비 가격이 기준(15배)보다 높습니다(PER 36.6배).",
-              "detail": "PER ≤ 15배"
-            },
-            {
-              "code": "GRA_PBR",
-              "label": "자산 대비 가격",
-              "weight": 2,
-              "status": "fail",
-              "message": "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 11.9배).",
-              "detail": "PBR ≤ 1.5배"
-            },
-            {
-              "code": "GRA_CURRENT_RATIO",
-              "label": "단기 지급 능력",
-              "weight": 2,
-              "status": "fail",
-              "message": "유동비율이 1.4로 기준(1.5)에 못 미칩니다.",
-              "detail": "유동비율 ≥ 1.5"
-            },
-            {
-              "code": "GRA_DEBT_EQUITY",
-              "label": "자본 대비 부채",
-              "weight": 2,
-              "status": "pass",
-              "message": "자기자본보다 부채가 적습니다(부채비율 0.21).",
-              "detail": "부채 / 자기자본 ≤ 1.0"
-            },
-            {
-              "code": "GRA_EARNINGS_STABILITY",
-              "label": "이익의 지속성",
-              "weight": 3,
-              "status": "pass",
-              "message": "최근 5년 동안 매년 흑자를 냈습니다.",
-              "detail": "최근 5년 연속 순이익 흑자"
-            },
-            {
-              "code": "GRA_VALUE_TRAP",
-              "label": "가치함정 점검",
-              "weight": 2,
-              "status": "pass",
-              "message": "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 13.5%).",
-              "detail": "매출 5년 성장률 ≥ 0% (싼 데는 이유가 있는지 확인)"
-            }
-          ],
-          "reasons": [
-            "자기자본보다 부채가 적습니다(부채비율 0.21).",
-            "최근 5년 동안 매년 흑자를 냈습니다.",
-            "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 13.5%)."
-          ],
-          "risks": [
-            "이익 대비 가격이 기준(15배)보다 높습니다(PER 36.6배).",
-            "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 11.9배).",
-            "유동비율이 1.4로 기준(1.5)에 못 미칩니다."
-          ]
-        },
-        "lynch": {
-          "styleId": "lynch",
-          "modelVersion": "Lynch 0.9",
-          "score": 50,
-          "passed": 3,
-          "totalJudged": 5,
-          "total": 5,
-          "dataConfidence": "높음",
-          "criteria": [
-            {
-              "code": "LYN_EPS_GROWTH",
-              "label": "이익 성장",
-              "weight": 3,
-              "status": "fail",
-              "message": "주당순이익 성장률이 연평균 14.0%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
-              "detail": "주당순이익 5년 연평균 성장률 15~40%"
-            },
-            {
-              "code": "LYN_PEG",
-              "label": "성장률 대비 가격",
-              "weight": 3,
-              "status": "fail",
-              "message": "성장률에 비해 가격이 앞서 있습니다(PEG 2.62).",
-              "detail": "PEG ≤ 1.2"
-            },
-            {
-              "code": "LYN_REVENUE_GROWTH",
-              "label": "매출 성장의 뒷받침",
-              "weight": 2,
-              "status": "pass",
-              "message": "이익뿐 아니라 매출도 연평균 13.5% 늘었습니다.",
-              "detail": "매출 5년 연평균 성장률 ≥ 8%"
-            },
-            {
-              "code": "LYN_DEBT",
-              "label": "부채 부담",
-              "weight": 2,
-              "status": "pass",
-              "message": "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA -0.1배).",
-              "detail": "순부채 / EBITDA ≤ 2.0"
-            },
-            {
-              "code": "LYN_PROFITABILITY",
-              "label": "성장의 질",
-              "weight": 2,
-              "status": "pass",
-              "message": "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 34%).",
-              "detail": "5년 평균 ROIC ≥ 10%"
-            }
-          ],
-          "reasons": [
-            "이익뿐 아니라 매출도 연평균 13.5% 늘었습니다.",
-            "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA -0.1배).",
-            "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 34%)."
-          ],
-          "risks": [
-            "주당순이익 성장률이 연평균 14.0%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
-            "성장률에 비해 가격이 앞서 있습니다(PEG 2.62)."
-          ]
-        },
-        "greenblatt": {
-          "styleId": "greenblatt",
-          "modelVersion": "Greenblatt 1.0",
-          "score": 75,
-          "passed": 1,
-          "totalJudged": 2,
-          "total": 2,
-          "dataConfidence": "높음",
-          "criteria": [
-            {
-              "code": "GRB_QUALITY_RANK",
-              "label": "사업의 질 순위",
-              "weight": 1,
-              "status": "pass",
-              "message": "자본수익률 상대 순위 1위/12개입니다(5년 평균 33.9%).",
-              "detail": "5년 평균 자본수익률의 유니버스 내 내림차순 순위"
-            },
-            {
-              "code": "GRB_VALUE_RANK",
-              "label": "가격 순위",
-              "weight": 1,
-              "status": "fail",
-              "message": "이익수익률 상대 순위 11위/12개입니다(3.5%).",
-              "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
-            }
-          ],
-          "reasons": [
-            "자본수익률 상대 순위 1위/12개입니다(5년 평균 33.9%)."
-          ],
-          "risks": [
-            "이익수익률 상대 순위 11위/12개입니다(3.5%)."
+            "이익수익률 상대 순위 6위/7개입니다(4.3%)."
           ],
           "rank": 4,
           "rankComponents": {
-            "quality": 1,
-            "value": 11
+            "quality": 3,
+            "value": 6
           }
         }
       }
     },
     {
       "ticker": "TXN",
-      "name": "Texas Instruments",
-      "sector": "반도체",
-      "price": 168.0,
-      "marketCap": 152880.0,
+      "name": "텍사스 인스트루먼츠",
+      "sector": "Semiconductors & Related Devices",
+      "price": 277.72,
+      "marketCap": 253627.14735592002,
       "asOf": {
-        "price": "2026-07-29",
-        "financial": "2026-06-30"
+        "price": "2026-08-05",
+        "financial": "2025-12-31"
       },
       "metrics": {
-        "roicAvg5y": 0.2737211013042483,
-        "fcfMargin": 0.12883435582822086,
-        "fcfYield": 0.013736263736263736,
-        "netDebtToEbitda": 0.6067415730337079,
-        "interestCoverage": 13.75,
-        "revenueCagr5y": -0.029102482422766474,
-        "epsCagr5y": -0.09259327223531222,
-        "pe": 29.976470588235294,
-        "pbr": 7.760406091370559,
-        "peg": 3.7470588235294118,
-        "currentRatio": 3.183673469387755,
-        "debtToEquity": 0.6852791878172588,
-        "evEbit": 23.98181818181818,
-        "earningsYield": 0.04169825625473844
+        "roicAvg5y": 0.2649857051588264,
+        "fcfMargin": 0.1472118538626852,
+        "fcfYield": 0.010263096940278079,
+        "netDebtToEbitda": 1.3629265835537085,
+        "interestCoverage": 11.09208103130755,
+        "revenueCagr5y": -0.00914675473708515,
+        "epsCagr5y": -0.0987316632796883,
+        "pe": 50.715286413901225,
+        "pbr": 15.585764601236406,
+        "peg": null,
+        "currentRatio": 4.352643241532131,
+        "debtToEquity": 0.8632704479813188,
+        "evEbit": 43.90671548330069,
+        "earningsYield": 0.022775559250847087
       },
       "scores": {
         "buffett": {
@@ -773,7 +771,7 @@
               "label": "자본 효율성",
               "weight": 3,
               "status": "pass",
-              "message": "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 27%).",
+              "message": "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 26%).",
               "detail": "5년 평균 ROIC ≥ 12%"
             },
             {
@@ -797,290 +795,7 @@
               "label": "현금 창출력",
               "weight": 2,
               "status": "pass",
-              "message": "매출의 13%가 실제 현금으로 남습니다.",
-              "detail": "잉여현금흐름 마진 ≥ 10%"
-            },
-            {
-              "code": "BUF_LEVERAGE",
-              "label": "부채 부담",
-              "weight": 2,
-              "status": "pass",
-              "message": "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 0.6배).",
-              "detail": "순부채 / EBITDA ≤ 2.5배"
-            },
-            {
-              "code": "BUF_INTEREST_COVER",
-              "label": "이자 감당력",
-              "weight": 1,
-              "status": "pass",
-              "message": "영업이익이 이자비용의 14배입니다.",
-              "detail": "영업이익 / 이자비용 ≥ 8배"
-            },
-            {
-              "code": "BUF_GROWTH",
-              "label": "사업의 성장",
-              "weight": 2,
-              "status": "fail",
-              "message": "매출 성장이 연평균 -2.9%로 둔화돼 있습니다.",
-              "detail": "매출 5년 연평균 성장률 ≥ 3%"
-            },
-            {
-              "code": "BUF_VALUATION",
-              "label": "현재 가격",
-              "weight": 3,
-              "status": "fail",
-              "message": "현재 가치평가가 과거 평균보다 높은 편입니다(FCF 수익률 1.4%).",
-              "detail": "잉여현금흐름 수익률 ≥ 4% 또는 EV/EBIT가 자기 5년 중앙값 이하"
-            }
-          ],
-          "reasons": [
-            "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 27%).",
-            "5년 중 5년 동안 두 자릿수 자본수익률을 유지했습니다.",
-            "최근 5년 동안 잉여현금흐름이 매년 플러스였습니다.",
-            "매출의 13%가 실제 현금으로 남습니다.",
-            "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 0.6배).",
-            "영업이익이 이자비용의 14배입니다."
-          ],
-          "risks": [
-            "매출 성장이 연평균 -2.9%로 둔화돼 있습니다.",
-            "현재 가치평가가 과거 평균보다 높은 편입니다(FCF 수익률 1.4%)."
-          ]
-        },
-        "graham": {
-          "styleId": "graham",
-          "modelVersion": "Graham 0.9",
-          "score": 50,
-          "passed": 3,
-          "totalJudged": 6,
-          "total": 6,
-          "dataConfidence": "높음",
-          "criteria": [
-            {
-              "code": "GRA_PE",
-              "label": "이익 대비 가격",
-              "weight": 3,
-              "status": "fail",
-              "message": "이익 대비 가격이 기준(15배)보다 높습니다(PER 30.0배).",
-              "detail": "PER ≤ 15배"
-            },
-            {
-              "code": "GRA_PBR",
-              "label": "자산 대비 가격",
-              "weight": 2,
-              "status": "fail",
-              "message": "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 7.8배).",
-              "detail": "PBR ≤ 1.5배"
-            },
-            {
-              "code": "GRA_CURRENT_RATIO",
-              "label": "단기 지급 능력",
-              "weight": 2,
-              "status": "pass",
-              "message": "1년 안에 갚을 빚보다 유동자산이 3.2배 많습니다.",
-              "detail": "유동비율 ≥ 1.5"
-            },
-            {
-              "code": "GRA_DEBT_EQUITY",
-              "label": "자본 대비 부채",
-              "weight": 2,
-              "status": "pass",
-              "message": "자기자본보다 부채가 적습니다(부채비율 0.69).",
-              "detail": "부채 / 자기자본 ≤ 1.0"
-            },
-            {
-              "code": "GRA_EARNINGS_STABILITY",
-              "label": "이익의 지속성",
-              "weight": 3,
-              "status": "pass",
-              "message": "최근 5년 동안 매년 흑자를 냈습니다.",
-              "detail": "최근 5년 연속 순이익 흑자"
-            },
-            {
-              "code": "GRA_VALUE_TRAP",
-              "label": "가치함정 점검",
-              "weight": 2,
-              "status": "fail",
-              "message": "매출이 5년 동안 연평균 -2.9%로 뒷걸음쳤습니다. 가격이 낮은 이유를 따로 봐야 합니다.",
-              "detail": "매출 5년 성장률 ≥ 0% (싼 데는 이유가 있는지 확인)"
-            }
-          ],
-          "reasons": [
-            "1년 안에 갚을 빚보다 유동자산이 3.2배 많습니다.",
-            "자기자본보다 부채가 적습니다(부채비율 0.69).",
-            "최근 5년 동안 매년 흑자를 냈습니다."
-          ],
-          "risks": [
-            "이익 대비 가격이 기준(15배)보다 높습니다(PER 30.0배).",
-            "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 7.8배).",
-            "매출이 5년 동안 연평균 -2.9%로 뒷걸음쳤습니다. 가격이 낮은 이유를 따로 봐야 합니다."
-          ]
-        },
-        "lynch": {
-          "styleId": "lynch",
-          "modelVersion": "Lynch 0.9",
-          "score": 33,
-          "passed": 2,
-          "totalJudged": 5,
-          "total": 5,
-          "dataConfidence": "높음",
-          "criteria": [
-            {
-              "code": "LYN_EPS_GROWTH",
-              "label": "이익 성장",
-              "weight": 3,
-              "status": "fail",
-              "message": "주당순이익 성장률이 연평균 -9.3%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
-              "detail": "주당순이익 5년 연평균 성장률 15~40%"
-            },
-            {
-              "code": "LYN_PEG",
-              "label": "성장률 대비 가격",
-              "weight": 3,
-              "status": "fail",
-              "message": "성장률에 비해 가격이 앞서 있습니다(PEG 3.75).",
-              "detail": "PEG ≤ 1.2"
-            },
-            {
-              "code": "LYN_REVENUE_GROWTH",
-              "label": "매출 성장의 뒷받침",
-              "weight": 2,
-              "status": "fail",
-              "message": "매출 성장은 연평균 -2.9%에 그쳤습니다.",
-              "detail": "매출 5년 연평균 성장률 ≥ 8%"
-            },
-            {
-              "code": "LYN_DEBT",
-              "label": "부채 부담",
-              "weight": 2,
-              "status": "pass",
-              "message": "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 0.6배).",
-              "detail": "순부채 / EBITDA ≤ 2.0"
-            },
-            {
-              "code": "LYN_PROFITABILITY",
-              "label": "성장의 질",
-              "weight": 2,
-              "status": "pass",
-              "message": "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 27%).",
-              "detail": "5년 평균 ROIC ≥ 10%"
-            }
-          ],
-          "reasons": [
-            "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 0.6배).",
-            "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 27%)."
-          ],
-          "risks": [
-            "주당순이익 성장률이 연평균 -9.3%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
-            "성장률에 비해 가격이 앞서 있습니다(PEG 3.75).",
-            "매출 성장은 연평균 -2.9%에 그쳤습니다."
-          ]
-        },
-        "greenblatt": {
-          "styleId": "greenblatt",
-          "modelVersion": "Greenblatt 1.0",
-          "score": 75,
-          "passed": 1,
-          "totalJudged": 2,
-          "total": 2,
-          "dataConfidence": "높음",
-          "criteria": [
-            {
-              "code": "GRB_QUALITY_RANK",
-              "label": "사업의 질 순위",
-              "weight": 1,
-              "status": "pass",
-              "message": "자본수익률 상대 순위 3위/12개입니다(5년 평균 27.4%).",
-              "detail": "5년 평균 자본수익률의 유니버스 내 내림차순 순위"
-            },
-            {
-              "code": "GRB_VALUE_RANK",
-              "label": "가격 순위",
-              "weight": 1,
-              "status": "fail",
-              "message": "이익수익률 상대 순위 9위/12개입니다(4.2%).",
-              "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
-            }
-          ],
-          "reasons": [
-            "자본수익률 상대 순위 3위/12개입니다(5년 평균 27.4%)."
-          ],
-          "risks": [
-            "이익수익률 상대 순위 9위/12개입니다(4.2%)."
-          ],
-          "rank": 4,
-          "rankComponents": {
-            "quality": 3,
-            "value": 9
-          }
-        }
-      }
-    },
-    {
-      "ticker": "UNH",
-      "name": "UnitedHealth Group",
-      "sector": "헬스케어",
-      "price": 296.0,
-      "marketCap": 272320.0,
-      "asOf": {
-        "price": "2026-07-29",
-        "financial": "2026-06-30"
-      },
-      "metrics": {
-        "roicAvg5y": 0.15190712905772336,
-        "fcfMargin": 0.04532710280373832,
-        "fcfYield": 0.07123971797884841,
-        "netDebtToEbitda": 1.4121037463976944,
-        "interestCoverage": 8.852941176470589,
-        "revenueCagr5y": 0.10449779802448234,
-        "epsCagr5y": 0.029530206462553776,
-        "pe": 16.20952380952381,
-        "pbr": 2.824896265560166,
-        "peg": 2.315646258503401,
-        "currentRatio": 1.0454545454545454,
-        "debtToEquity": 0.8091286307053942,
-        "evEbit": 10.675083056478405,
-        "earningsYield": 0.09367608614465331
-      },
-      "scores": {
-        "buffett": {
-          "styleId": "buffett",
-          "modelVersion": "Buffett 1.0",
-          "score": 89,
-          "passed": 7,
-          "totalJudged": 8,
-          "total": 8,
-          "dataConfidence": "높음",
-          "criteria": [
-            {
-              "code": "BUF_ROIC_LEVEL",
-              "label": "자본 효율성",
-              "weight": 3,
-              "status": "pass",
-              "message": "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 15%).",
-              "detail": "5년 평균 ROIC ≥ 12%"
-            },
-            {
-              "code": "BUF_ROIC_STABILITY",
-              "label": "수익성 지속성",
-              "weight": 2,
-              "status": "pass",
-              "message": "5년 중 5년 동안 두 자릿수 자본수익률을 유지했습니다.",
-              "detail": "최근 5년 중 4년 이상 ROIC ≥ 10%"
-            },
-            {
-              "code": "BUF_FCF_CONSISTENCY",
-              "label": "현금흐름 지속성",
-              "weight": 3,
-              "status": "pass",
-              "message": "최근 5년 동안 잉여현금흐름이 매년 플러스였습니다.",
-              "detail": "최근 5년 연속 잉여현금흐름 양(+)"
-            },
-            {
-              "code": "BUF_FCF_MARGIN",
-              "label": "현금 창출력",
-              "weight": 2,
-              "status": "fail",
-              "message": "매출 대비 남는 현금이 5%로 기준(10%)보다 낮습니다.",
+              "message": "매출의 15%가 실제 현금으로 남습니다.",
               "detail": "잉여현금흐름 마진 ≥ 10%"
             },
             {
@@ -1096,37 +811,37 @@
               "label": "이자 감당력",
               "weight": 1,
               "status": "pass",
-              "message": "영업이익이 이자비용의 9배입니다.",
+              "message": "영업이익이 이자비용의 11배입니다.",
               "detail": "영업이익 / 이자비용 ≥ 8배"
             },
             {
               "code": "BUF_GROWTH",
               "label": "사업의 성장",
               "weight": 2,
-              "status": "pass",
-              "message": "매출이 5년 동안 연평균 10.4% 성장했습니다.",
+              "status": "fail",
+              "message": "매출 성장이 연평균 -0.9%로 둔화돼 있습니다.",
               "detail": "매출 5년 연평균 성장률 ≥ 3%"
             },
             {
               "code": "BUF_VALUATION",
               "label": "현재 가격",
               "weight": 3,
-              "status": "pass",
-              "message": "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 7.1%).",
+              "status": "fail",
+              "message": "현재 가치평가가 과거 평균보다 높은 편입니다(FCF 수익률 1.0%).",
               "detail": "잉여현금흐름 수익률 ≥ 4% 또는 EV/EBIT가 자기 5년 중앙값 이하"
             }
           ],
           "reasons": [
-            "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 15%).",
+            "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 26%).",
             "5년 중 5년 동안 두 자릿수 자본수익률을 유지했습니다.",
             "최근 5년 동안 잉여현금흐름이 매년 플러스였습니다.",
+            "매출의 15%가 실제 현금으로 남습니다.",
             "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 1.4배).",
-            "영업이익이 이자비용의 9배입니다.",
-            "매출이 5년 동안 연평균 10.4% 성장했습니다.",
-            "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 7.1%)."
+            "영업이익이 이자비용의 11배입니다."
           ],
           "risks": [
-            "매출 대비 남는 현금이 5%로 기준(10%)보다 낮습니다."
+            "매출 성장이 연평균 -0.9%로 둔화돼 있습니다.",
+            "현재 가치평가가 과거 평균보다 높은 편입니다(FCF 수익률 1.0%)."
           ]
         },
         "graham": {
@@ -1143,7 +858,7 @@
               "label": "이익 대비 가격",
               "weight": 3,
               "status": "fail",
-              "message": "이익 대비 가격이 기준(15배)보다 높습니다(PER 16.2배).",
+              "message": "이익 대비 가격이 기준(15배)보다 높습니다(PER 50.7배).",
               "detail": "PER ≤ 15배"
             },
             {
@@ -1151,15 +866,15 @@
               "label": "자산 대비 가격",
               "weight": 2,
               "status": "fail",
-              "message": "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 2.8배).",
+              "message": "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 15.6배).",
               "detail": "PBR ≤ 1.5배"
             },
             {
               "code": "GRA_CURRENT_RATIO",
               "label": "단기 지급 능력",
               "weight": 2,
-              "status": "fail",
-              "message": "유동비율이 1.0로 기준(1.5)에 못 미칩니다.",
+              "status": "pass",
+              "message": "1년 안에 갚을 빚보다 유동자산이 4.4배 많습니다.",
               "detail": "유동비율 ≥ 1.5"
             },
             {
@@ -1167,7 +882,7 @@
               "label": "자본 대비 부채",
               "weight": 2,
               "status": "pass",
-              "message": "자기자본보다 부채가 적습니다(부채비율 0.81).",
+              "message": "자기자본보다 부채가 적습니다(부채비율 0.86).",
               "detail": "부채 / 자기자본 ≤ 1.0"
             },
             {
@@ -1182,53 +897,53 @@
               "code": "GRA_VALUE_TRAP",
               "label": "가치함정 점검",
               "weight": 2,
-              "status": "pass",
-              "message": "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 10.4%).",
+              "status": "fail",
+              "message": "매출이 5년 동안 연평균 -0.9%로 뒷걸음쳤습니다. 가격이 낮은 이유를 따로 봐야 합니다.",
               "detail": "매출 5년 성장률 ≥ 0% (싼 데는 이유가 있는지 확인)"
             }
           ],
           "reasons": [
-            "자기자본보다 부채가 적습니다(부채비율 0.81).",
-            "최근 5년 동안 매년 흑자를 냈습니다.",
-            "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 10.4%)."
+            "1년 안에 갚을 빚보다 유동자산이 4.4배 많습니다.",
+            "자기자본보다 부채가 적습니다(부채비율 0.86).",
+            "최근 5년 동안 매년 흑자를 냈습니다."
           ],
           "risks": [
-            "이익 대비 가격이 기준(15배)보다 높습니다(PER 16.2배).",
-            "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 2.8배).",
-            "유동비율이 1.0로 기준(1.5)에 못 미칩니다."
+            "이익 대비 가격이 기준(15배)보다 높습니다(PER 50.7배).",
+            "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 15.6배).",
+            "매출이 5년 동안 연평균 -0.9%로 뒷걸음쳤습니다. 가격이 낮은 이유를 따로 봐야 합니다."
           ]
         },
         "lynch": {
           "styleId": "lynch",
           "modelVersion": "Lynch 0.9",
-          "score": 50,
-          "passed": 3,
-          "totalJudged": 5,
+          "score": 44,
+          "passed": 2,
+          "totalJudged": 4,
           "total": 5,
-          "dataConfidence": "높음",
+          "dataConfidence": "보통",
           "criteria": [
             {
               "code": "LYN_EPS_GROWTH",
               "label": "이익 성장",
               "weight": 3,
               "status": "fail",
-              "message": "주당순이익 성장률이 연평균 3.0%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
+              "message": "주당순이익 성장률이 연평균 -9.9%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
               "detail": "주당순이익 5년 연평균 성장률 15~40%"
             },
             {
               "code": "LYN_PEG",
               "label": "성장률 대비 가격",
               "weight": 3,
-              "status": "fail",
-              "message": "성장률에 비해 가격이 앞서 있습니다(PEG 2.32).",
+              "status": "unknown",
+              "message": "이 기준을 판정할 데이터가 부족합니다.",
               "detail": "PEG ≤ 1.2"
             },
             {
               "code": "LYN_REVENUE_GROWTH",
               "label": "매출 성장의 뒷받침",
               "weight": 2,
-              "status": "pass",
-              "message": "이익뿐 아니라 매출도 연평균 10.4% 늘었습니다.",
+              "status": "fail",
+              "message": "매출 성장은 연평균 -0.9%에 그쳤습니다.",
               "detail": "매출 5년 연평균 성장률 ≥ 8%"
             },
             {
@@ -1244,24 +959,24 @@
               "label": "성장의 질",
               "weight": 2,
               "status": "pass",
-              "message": "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 15%).",
+              "message": "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 26%).",
               "detail": "5년 평균 ROIC ≥ 10%"
             }
           ],
           "reasons": [
-            "이익뿐 아니라 매출도 연평균 10.4% 늘었습니다.",
             "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 1.4배).",
-            "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 15%)."
+            "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 26%)."
           ],
           "risks": [
-            "주당순이익 성장률이 연평균 3.0%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
-            "성장률에 비해 가격이 앞서 있습니다(PEG 2.32)."
+            "주당순이익 성장률이 연평균 -9.9%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
+            "이 기준을 판정할 데이터가 부족합니다.",
+            "매출 성장은 연평균 -0.9%에 그쳤습니다."
           ]
         },
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 83,
+          "score": 57,
           "passed": 1,
           "totalJudged": 2,
           "total": 2,
@@ -1271,65 +986,65 @@
               "code": "GRB_QUALITY_RANK",
               "label": "사업의 질 순위",
               "weight": 1,
-              "status": "fail",
-              "message": "자본수익률 상대 순위 7위/12개입니다(5년 평균 15.2%).",
+              "status": "pass",
+              "message": "자본수익률 상대 순위 2위/7개입니다(5년 평균 26.5%).",
               "detail": "5년 평균 자본수익률의 유니버스 내 내림차순 순위"
             },
             {
               "code": "GRB_VALUE_RANK",
               "label": "가격 순위",
               "weight": 1,
-              "status": "pass",
-              "message": "이익수익률 상대 순위 2위/12개입니다(9.4%).",
+              "status": "fail",
+              "message": "이익수익률 상대 순위 7위/7개입니다(2.3%).",
               "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
             }
           ],
           "reasons": [
-            "이익수익률 상대 순위 2위/12개입니다(9.4%)."
+            "자본수익률 상대 순위 2위/7개입니다(5년 평균 26.5%)."
           ],
           "risks": [
-            "자본수익률 상대 순위 7위/12개입니다(5년 평균 15.2%)."
+            "이익수익률 상대 순위 7위/7개입니다(2.3%)."
           ],
-          "rank": 3,
+          "rank": 4,
           "rankComponents": {
-            "quality": 7,
-            "value": 2
+            "quality": 2,
+            "value": 7
           }
         }
       }
     },
     {
-      "ticker": "NKE",
-      "name": "Nike",
-      "sector": "소비재",
-      "price": 71.0,
-      "marketCap": 105080.0,
+      "ticker": "UNH",
+      "name": "유나이티드헬스 그룹",
+      "sector": "Hospital & Medical Service Plans",
+      "price": 412.75,
+      "marketCap": 374836.602751,
       "asOf": {
-        "price": "2026-07-29",
-        "financial": "2026-05-31"
+        "price": "2026-08-05",
+        "financial": "2025-12-31"
       },
       "metrics": {
-        "roicAvg5y": 0.17660390901496165,
-        "fcfMargin": 0.049107142857142856,
-        "fcfYield": 0.020936429387133613,
-        "netDebtToEbitda": 0.6470588235294118,
-        "interestCoverage": 8.125,
-        "revenueCagr5y": -0.010383251738644073,
-        "epsCagr5y": -0.1794512024113749,
-        "pe": 42.032,
-        "pbr": 7.452482269503546,
-        "peg": 10.508,
-        "currentRatio": 2.290909090909091,
-        "debtToEquity": 0.851063829787234,
-        "evEbit": 41.261538461538464,
-        "earningsYield": 0.024235645041014168
+        "roicAvg5y": 0.14940689849761726,
+        "fcfMargin": 0.035916410280471975,
+        "fcfYield": 0.04288535292984301,
+        "netDebtToEbitda": 2.0559485530546624,
+        "interestCoverage": 4.738630684657672,
+        "revenueCagr5y": 0.11691063580951955,
+        "epsCagr5y": -0.07510942356143002,
+        "pe": 31.091290871848045,
+        "pbr": 3.7449955315316217,
+        "peg": null,
+        "currentRatio": 0.7883756756051071,
+        "debtToEquity": 0.7225497052652613,
+        "evEbit": 22.294431699588696,
+        "earningsYield": 0.04485424941414626
       },
       "scores": {
         "buffett": {
           "styleId": "buffett",
           "modelVersion": "Buffett 1.0",
-          "score": 61,
-          "passed": 5,
+          "score": 83,
+          "passed": 6,
           "totalJudged": 8,
           "total": 8,
           "dataConfidence": "높음",
@@ -1339,7 +1054,7 @@
               "label": "자본 효율성",
               "weight": 3,
               "status": "pass",
-              "message": "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 18%).",
+              "message": "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 15%).",
               "detail": "5년 평균 ROIC ≥ 12%"
             },
             {
@@ -1363,7 +1078,7 @@
               "label": "현금 창출력",
               "weight": 2,
               "status": "fail",
-              "message": "매출 대비 남는 현금이 5%로 기준(10%)보다 낮습니다.",
+              "message": "매출 대비 남는 현금이 4%로 기준(10%)보다 낮습니다.",
               "detail": "잉여현금흐름 마진 ≥ 10%"
             },
             {
@@ -1371,45 +1086,45 @@
               "label": "부채 부담",
               "weight": 2,
               "status": "pass",
-              "message": "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 0.6배).",
+              "message": "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 2.1배).",
               "detail": "순부채 / EBITDA ≤ 2.5배"
             },
             {
               "code": "BUF_INTEREST_COVER",
               "label": "이자 감당력",
               "weight": 1,
-              "status": "pass",
-              "message": "영업이익이 이자비용의 8배입니다.",
+              "status": "fail",
+              "message": "영업이익이 이자비용의 4.7배로 여유가 크지 않습니다.",
               "detail": "영업이익 / 이자비용 ≥ 8배"
             },
             {
               "code": "BUF_GROWTH",
               "label": "사업의 성장",
               "weight": 2,
-              "status": "fail",
-              "message": "매출 성장이 연평균 -1.0%로 둔화돼 있습니다.",
+              "status": "pass",
+              "message": "매출이 5년 동안 연평균 11.7% 성장했습니다.",
               "detail": "매출 5년 연평균 성장률 ≥ 3%"
             },
             {
               "code": "BUF_VALUATION",
               "label": "현재 가격",
               "weight": 3,
-              "status": "fail",
-              "message": "현재 가치평가가 과거 평균보다 높은 편입니다(FCF 수익률 2.1%).",
+              "status": "pass",
+              "message": "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 4.3%).",
               "detail": "잉여현금흐름 수익률 ≥ 4% 또는 EV/EBIT가 자기 5년 중앙값 이하"
             }
           ],
           "reasons": [
-            "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 18%).",
+            "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 15%).",
             "5년 중 4년 동안 두 자릿수 자본수익률을 유지했습니다.",
             "최근 5년 동안 잉여현금흐름이 매년 플러스였습니다.",
-            "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 0.6배).",
-            "영업이익이 이자비용의 8배입니다."
+            "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 2.1배).",
+            "매출이 5년 동안 연평균 11.7% 성장했습니다.",
+            "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 4.3%)."
           ],
           "risks": [
-            "매출 대비 남는 현금이 5%로 기준(10%)보다 낮습니다.",
-            "매출 성장이 연평균 -1.0%로 둔화돼 있습니다.",
-            "현재 가치평가가 과거 평균보다 높은 편입니다(FCF 수익률 2.1%)."
+            "매출 대비 남는 현금이 4%로 기준(10%)보다 낮습니다.",
+            "영업이익이 이자비용의 4.7배로 여유가 크지 않습니다."
           ]
         },
         "graham": {
@@ -1426,7 +1141,7 @@
               "label": "이익 대비 가격",
               "weight": 3,
               "status": "fail",
-              "message": "이익 대비 가격이 기준(15배)보다 높습니다(PER 42.0배).",
+              "message": "이익 대비 가격이 기준(15배)보다 높습니다(PER 31.1배).",
               "detail": "PER ≤ 15배"
             },
             {
@@ -1434,15 +1149,15 @@
               "label": "자산 대비 가격",
               "weight": 2,
               "status": "fail",
-              "message": "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 7.5배).",
+              "message": "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 3.7배).",
               "detail": "PBR ≤ 1.5배"
             },
             {
               "code": "GRA_CURRENT_RATIO",
               "label": "단기 지급 능력",
               "weight": 2,
-              "status": "pass",
-              "message": "1년 안에 갚을 빚보다 유동자산이 2.3배 많습니다.",
+              "status": "fail",
+              "message": "유동비율이 0.8로 기준(1.5)에 못 미칩니다.",
               "detail": "유동비율 ≥ 1.5"
             },
             {
@@ -1450,7 +1165,7 @@
               "label": "자본 대비 부채",
               "weight": 2,
               "status": "pass",
-              "message": "자기자본보다 부채가 적습니다(부채비율 0.85).",
+              "message": "자기자본보다 부채가 적습니다(부채비율 0.72).",
               "detail": "부채 / 자기자본 ≤ 1.0"
             },
             {
@@ -1465,61 +1180,61 @@
               "code": "GRA_VALUE_TRAP",
               "label": "가치함정 점검",
               "weight": 2,
-              "status": "fail",
-              "message": "매출이 5년 동안 연평균 -1.0%로 뒷걸음쳤습니다. 가격이 낮은 이유를 따로 봐야 합니다.",
+              "status": "pass",
+              "message": "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 11.7%).",
               "detail": "매출 5년 성장률 ≥ 0% (싼 데는 이유가 있는지 확인)"
             }
           ],
           "reasons": [
-            "1년 안에 갚을 빚보다 유동자산이 2.3배 많습니다.",
-            "자기자본보다 부채가 적습니다(부채비율 0.85).",
-            "최근 5년 동안 매년 흑자를 냈습니다."
+            "자기자본보다 부채가 적습니다(부채비율 0.72).",
+            "최근 5년 동안 매년 흑자를 냈습니다.",
+            "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 11.7%)."
           ],
           "risks": [
-            "이익 대비 가격이 기준(15배)보다 높습니다(PER 42.0배).",
-            "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 7.5배).",
-            "매출이 5년 동안 연평균 -1.0%로 뒷걸음쳤습니다. 가격이 낮은 이유를 따로 봐야 합니다."
+            "이익 대비 가격이 기준(15배)보다 높습니다(PER 31.1배).",
+            "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 3.7배).",
+            "유동비율이 0.8로 기준(1.5)에 못 미칩니다."
           ]
         },
         "lynch": {
           "styleId": "lynch",
           "modelVersion": "Lynch 0.9",
-          "score": 33,
+          "score": 44,
           "passed": 2,
-          "totalJudged": 5,
+          "totalJudged": 4,
           "total": 5,
-          "dataConfidence": "높음",
+          "dataConfidence": "보통",
           "criteria": [
             {
               "code": "LYN_EPS_GROWTH",
               "label": "이익 성장",
               "weight": 3,
               "status": "fail",
-              "message": "주당순이익 성장률이 연평균 -17.9%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
+              "message": "주당순이익 성장률이 연평균 -7.5%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
               "detail": "주당순이익 5년 연평균 성장률 15~40%"
             },
             {
               "code": "LYN_PEG",
               "label": "성장률 대비 가격",
               "weight": 3,
-              "status": "fail",
-              "message": "성장률에 비해 가격이 앞서 있습니다(PEG 10.51).",
+              "status": "unknown",
+              "message": "이 기준을 판정할 데이터가 부족합니다.",
               "detail": "PEG ≤ 1.2"
             },
             {
               "code": "LYN_REVENUE_GROWTH",
               "label": "매출 성장의 뒷받침",
               "weight": 2,
-              "status": "fail",
-              "message": "매출 성장은 연평균 -1.0%에 그쳤습니다.",
+              "status": "pass",
+              "message": "이익뿐 아니라 매출도 연평균 11.7% 늘었습니다.",
               "detail": "매출 5년 연평균 성장률 ≥ 8%"
             },
             {
               "code": "LYN_DEBT",
               "label": "부채 부담",
               "weight": 2,
-              "status": "pass",
-              "message": "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 0.6배).",
+              "status": "fail",
+              "message": "성장에 비해 부채 부담이 있습니다(순부채/EBITDA 2.1배).",
               "detail": "순부채 / EBITDA ≤ 2.0"
             },
             {
@@ -1527,25 +1242,25 @@
               "label": "성장의 질",
               "weight": 2,
               "status": "pass",
-              "message": "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 18%).",
+              "message": "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 15%).",
               "detail": "5년 평균 ROIC ≥ 10%"
             }
           ],
           "reasons": [
-            "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 0.6배).",
-            "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 18%)."
+            "이익뿐 아니라 매출도 연평균 11.7% 늘었습니다.",
+            "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 15%)."
           ],
           "risks": [
-            "주당순이익 성장률이 연평균 -17.9%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
-            "성장률에 비해 가격이 앞서 있습니다(PEG 10.51).",
-            "매출 성장은 연평균 -1.0%에 그쳤습니다."
+            "주당순이익 성장률이 연평균 -7.5%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
+            "이 기준을 판정할 데이터가 부족합니다.",
+            "성장에 비해 부채 부담이 있습니다(순부채/EBITDA 2.1배)."
           ]
         },
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 17,
-          "passed": 1,
+          "score": 14,
+          "passed": 0,
           "totalJudged": 2,
           "total": 2,
           "dataConfidence": "높음",
@@ -1554,8 +1269,8 @@
               "code": "GRB_QUALITY_RANK",
               "label": "사업의 질 순위",
               "weight": 1,
-              "status": "pass",
-              "message": "자본수익률 상대 순위 6위/12개입니다(5년 평균 17.7%).",
+              "status": "fail",
+              "message": "자본수익률 상대 순위 5위/7개입니다(5년 평균 14.9%).",
               "detail": "5년 평균 자본수익률의 유니버스 내 내림차순 순위"
             },
             {
@@ -1563,49 +1278,48 @@
               "label": "가격 순위",
               "weight": 1,
               "status": "fail",
-              "message": "이익수익률 상대 순위 12위/12개입니다(2.4%).",
+              "message": "이익수익률 상대 순위 5위/7개입니다(4.5%).",
               "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
             }
           ],
-          "reasons": [
-            "자본수익률 상대 순위 6위/12개입니다(5년 평균 17.7%)."
-          ],
+          "reasons": [],
           "risks": [
-            "이익수익률 상대 순위 12위/12개입니다(2.4%)."
+            "자본수익률 상대 순위 5위/7개입니다(5년 평균 14.9%).",
+            "이익수익률 상대 순위 5위/7개입니다(4.5%)."
           ],
-          "rank": 11,
+          "rank": 7,
           "rankComponents": {
-            "quality": 6,
-            "value": 12
+            "quality": 5,
+            "value": 5
           }
         }
       }
     },
     {
       "ticker": "GILD",
-      "name": "Gilead Sciences",
-      "sector": "제약",
-      "price": 118.0,
-      "marketCap": 146910.0,
+      "name": "길리어드 사이언스",
+      "sector": "Biological Products, (No Diagnostic Substances)",
+      "price": 131.76,
+      "marketCap": 163589.24659824,
       "asOf": {
-        "price": "2026-07-29",
-        "financial": "2026-06-30"
+        "price": "2026-08-05",
+        "financial": "2025-12-31"
       },
       "metrics": {
-        "roicAvg5y": 0.1320006912966492,
-        "fcfMargin": 0.2972972972972973,
-        "fcfYield": 0.05990061942685998,
-        "netDebtToEbitda": 1.6122448979591837,
-        "interestCoverage": 9.052631578947368,
-        "revenueCagr5y": 0.046398366083671094,
-        "epsCagr5y": -0.0364250465660394,
-        "pe": 24.08360655737705,
-        "pbr": 7.201470588235294,
-        "peg": 4.81672131147541,
-        "currentRatio": 1.4710743801652892,
-        "debtToEquity": 1.2254901960784315,
-        "evEbit": 18.919767441860465,
-        "earningsYield": 0.05285477229426587
+        "roicAvg5y": 0.12950113750261896,
+        "fcfMargin": 0.32116292497367793,
+        "fcfYield": 0.05780331040476676,
+        "netDebtToEbitda": 1.6717667436489607,
+        "interestCoverage": 10.616525423728813,
+        "revenueCagr5y": 0.01902530674016445,
+        "epsCagr5y": 0.0829183020550519,
+        "pe": 19.223178213659224,
+        "pbr": 7.205622455104611,
+        "peg": 2.3183275268825922,
+        "currentRatio": 1.5526961821721832,
+        "debtToEquity": 1.0984010923666476,
+        "evEbit": 18.056500359034125,
+        "earningsYield": 0.05538171739351888
       },
       "scores": {
         "buffett": {
@@ -1629,8 +1343,8 @@
               "code": "BUF_ROIC_STABILITY",
               "label": "수익성 지속성",
               "weight": 2,
-              "status": "fail",
-              "message": "두 자릿수 자본수익률을 유지한 해가 5년 중 3년에 그쳤습니다.",
+              "status": "pass",
+              "message": "5년 중 4년 동안 두 자릿수 자본수익률을 유지했습니다.",
               "detail": "최근 5년 중 4년 이상 ROIC ≥ 10%"
             },
             {
@@ -1646,7 +1360,7 @@
               "label": "현금 창출력",
               "weight": 2,
               "status": "pass",
-              "message": "매출의 30%가 실제 현금으로 남습니다.",
+              "message": "매출의 32%가 실제 현금으로 남습니다.",
               "detail": "잉여현금흐름 마진 ≥ 10%"
             },
             {
@@ -1654,7 +1368,7 @@
               "label": "부채 부담",
               "weight": 2,
               "status": "pass",
-              "message": "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 1.6배).",
+              "message": "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 1.7배).",
               "detail": "순부채 / EBITDA ≤ 2.5배"
             },
             {
@@ -1662,15 +1376,15 @@
               "label": "이자 감당력",
               "weight": 1,
               "status": "pass",
-              "message": "영업이익이 이자비용의 9배입니다.",
+              "message": "영업이익이 이자비용의 11배입니다.",
               "detail": "영업이익 / 이자비용 ≥ 8배"
             },
             {
               "code": "BUF_GROWTH",
               "label": "사업의 성장",
               "weight": 2,
-              "status": "pass",
-              "message": "매출이 5년 동안 연평균 4.6% 성장했습니다.",
+              "status": "fail",
+              "message": "매출 성장이 연평균 1.9%로 둔화돼 있습니다.",
               "detail": "매출 5년 연평균 성장률 ≥ 3%"
             },
             {
@@ -1678,28 +1392,28 @@
               "label": "현재 가격",
               "weight": 3,
               "status": "pass",
-              "message": "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 6.0%).",
+              "message": "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 5.8%).",
               "detail": "잉여현금흐름 수익률 ≥ 4% 또는 EV/EBIT가 자기 5년 중앙값 이하"
             }
           ],
           "reasons": [
             "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 13%).",
+            "5년 중 4년 동안 두 자릿수 자본수익률을 유지했습니다.",
             "최근 5년 동안 잉여현금흐름이 매년 플러스였습니다.",
-            "매출의 30%가 실제 현금으로 남습니다.",
-            "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 1.6배).",
-            "영업이익이 이자비용의 9배입니다.",
-            "매출이 5년 동안 연평균 4.6% 성장했습니다.",
-            "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 6.0%)."
+            "매출의 32%가 실제 현금으로 남습니다.",
+            "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 1.7배).",
+            "영업이익이 이자비용의 11배입니다.",
+            "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 5.8%)."
           ],
           "risks": [
-            "두 자릿수 자본수익률을 유지한 해가 5년 중 3년에 그쳤습니다."
+            "매출 성장이 연평균 1.9%로 둔화돼 있습니다."
           ]
         },
         "graham": {
           "styleId": "graham",
           "modelVersion": "Graham 0.9",
-          "score": 36,
-          "passed": 2,
+          "score": 50,
+          "passed": 3,
           "totalJudged": 6,
           "total": 6,
           "dataConfidence": "높음",
@@ -1709,7 +1423,7 @@
               "label": "이익 대비 가격",
               "weight": 3,
               "status": "fail",
-              "message": "이익 대비 가격이 기준(15배)보다 높습니다(PER 24.1배).",
+              "message": "이익 대비 가격이 기준(15배)보다 높습니다(PER 19.2배).",
               "detail": "PER ≤ 15배"
             },
             {
@@ -1724,8 +1438,8 @@
               "code": "GRA_CURRENT_RATIO",
               "label": "단기 지급 능력",
               "weight": 2,
-              "status": "fail",
-              "message": "유동비율이 1.5로 기준(1.5)에 못 미칩니다.",
+              "status": "pass",
+              "message": "1년 안에 갚을 빚보다 유동자산이 1.6배 많습니다.",
               "detail": "유동비율 ≥ 1.5"
             },
             {
@@ -1733,7 +1447,7 @@
               "label": "자본 대비 부채",
               "weight": 2,
               "status": "fail",
-              "message": "자기자본 대비 부채가 많습니다(부채비율 1.23).",
+              "message": "자기자본 대비 부채가 많습니다(부채비율 1.10).",
               "detail": "부채 / 자기자본 ≤ 1.0"
             },
             {
@@ -1749,19 +1463,19 @@
               "label": "가치함정 점검",
               "weight": 2,
               "status": "pass",
-              "message": "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 4.6%).",
+              "message": "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 1.9%).",
               "detail": "매출 5년 성장률 ≥ 0% (싼 데는 이유가 있는지 확인)"
             }
           ],
           "reasons": [
+            "1년 안에 갚을 빚보다 유동자산이 1.6배 많습니다.",
             "최근 5년 동안 매년 흑자를 냈습니다.",
-            "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 4.6%)."
+            "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 1.9%)."
           ],
           "risks": [
-            "이익 대비 가격이 기준(15배)보다 높습니다(PER 24.1배).",
+            "이익 대비 가격이 기준(15배)보다 높습니다(PER 19.2배).",
             "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 7.2배).",
-            "유동비율이 1.5로 기준(1.5)에 못 미칩니다.",
-            "자기자본 대비 부채가 많습니다(부채비율 1.23)."
+            "자기자본 대비 부채가 많습니다(부채비율 1.10)."
           ]
         },
         "lynch": {
@@ -1778,7 +1492,7 @@
               "label": "이익 성장",
               "weight": 3,
               "status": "fail",
-              "message": "주당순이익 성장률이 연평균 -3.6%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
+              "message": "주당순이익 성장률이 연평균 8.3%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
               "detail": "주당순이익 5년 연평균 성장률 15~40%"
             },
             {
@@ -1786,7 +1500,7 @@
               "label": "성장률 대비 가격",
               "weight": 3,
               "status": "fail",
-              "message": "성장률에 비해 가격이 앞서 있습니다(PEG 4.82).",
+              "message": "성장률에 비해 가격이 앞서 있습니다(PEG 2.32).",
               "detail": "PEG ≤ 1.2"
             },
             {
@@ -1794,7 +1508,7 @@
               "label": "매출 성장의 뒷받침",
               "weight": 2,
               "status": "fail",
-              "message": "매출 성장은 연평균 4.6%에 그쳤습니다.",
+              "message": "매출 성장은 연평균 1.9%에 그쳤습니다.",
               "detail": "매출 5년 연평균 성장률 ≥ 8%"
             },
             {
@@ -1802,7 +1516,7 @@
               "label": "부채 부담",
               "weight": 2,
               "status": "pass",
-              "message": "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 1.6배).",
+              "message": "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 1.7배).",
               "detail": "순부채 / EBITDA ≤ 2.0"
             },
             {
@@ -1815,20 +1529,20 @@
             }
           ],
           "reasons": [
-            "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 1.6배).",
+            "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 1.7배).",
             "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 13%)."
           ],
           "risks": [
-            "주당순이익 성장률이 연평균 -3.6%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
-            "성장률에 비해 가격이 앞서 있습니다(PEG 4.82).",
-            "매출 성장은 연평균 4.6%에 그쳤습니다."
+            "주당순이익 성장률이 연평균 8.3%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
+            "성장률에 비해 가격이 앞서 있습니다(PEG 2.32).",
+            "매출 성장은 연평균 1.9%에 그쳤습니다."
           ]
         },
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 25,
-          "passed": 0,
+          "score": 57,
+          "passed": 1,
           "totalJudged": 2,
           "total": 2,
           "dataConfidence": "높음",
@@ -1838,73 +1552,74 @@
               "label": "사업의 질 순위",
               "weight": 1,
               "status": "fail",
-              "message": "자본수익률 상대 순위 10위/12개입니다(5년 평균 13.2%).",
+              "message": "자본수익률 상대 순위 6위/7개입니다(5년 평균 13.0%).",
               "detail": "5년 평균 자본수익률의 유니버스 내 내림차순 순위"
             },
             {
               "code": "GRB_VALUE_RANK",
               "label": "가격 순위",
               "weight": 1,
-              "status": "fail",
-              "message": "이익수익률 상대 순위 7위/12개입니다(5.3%).",
+              "status": "pass",
+              "message": "이익수익률 상대 순위 3위/7개입니다(5.5%).",
               "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
             }
           ],
-          "reasons": [],
-          "risks": [
-            "자본수익률 상대 순위 10위/12개입니다(5년 평균 13.2%).",
-            "이익수익률 상대 순위 7위/12개입니다(5.3%)."
+          "reasons": [
+            "이익수익률 상대 순위 3위/7개입니다(5.5%)."
           ],
-          "rank": 10,
+          "risks": [
+            "자본수익률 상대 순위 6위/7개입니다(5년 평균 13.0%)."
+          ],
+          "rank": 4,
           "rankComponents": {
-            "quality": 10,
-            "value": 7
+            "quality": 6,
+            "value": 3
           }
         }
       }
     },
     {
       "ticker": "ULTA",
-      "name": "Ulta Beauty",
-      "sector": "소매",
-      "price": 402.0,
-      "marketCap": 18090.0,
+      "name": "울타 뷰티",
+      "sector": "Retail-Retail Stores, NEC",
+      "price": 539.47,
+      "marketCap": 23191.443605170003,
       "asOf": {
-        "price": "2026-07-29",
-        "financial": "2026-05-31"
+        "price": "2026-08-05",
+        "financial": "2026-01-31"
       },
       "metrics": {
-        "roicAvg5y": 0.24871561395509056,
-        "fcfMargin": 0.08780487804878048,
-        "fcfYield": 0.05970149253731343,
-        "netDebtToEbitda": 0.525,
-        "interestCoverage": 28.0,
-        "revenueCagr5y": 0.0925995032011564,
-        "epsCagr5y": 0.13522136869614454,
-        "pe": 14.023255813953488,
-        "pbr": 7.697872340425532,
-        "peg": 1.4023255813953488,
-        "currentRatio": 1.5897435897435896,
-        "debtToEquity": 0.7446808510638298,
-        "evEbit": 11.392857142857142,
-        "earningsYield": 0.0877742946708464
+        "roicAvg5y": 0.3683352355933775,
+        "fcfMargin": 0.08617497873768844,
+        "fcfYield": 0.04604935415757925,
+        "netDebtToEbitda": null,
+        "interestCoverage": 8286.443243243242,
+        "revenueCagr5y": 0.09465849731601517,
+        "epsCagr5y": 0.09277835284944347,
+        "pe": 20.105648741910343,
+        "pbr": 8.272462620238414,
+        "peg": 2.1670624800309706,
+        "currentRatio": 1.4135173458038377,
+        "debtToEquity": null,
+        "evEbit": null,
+        "earningsYield": null
       },
       "scores": {
         "buffett": {
           "styleId": "buffett",
           "modelVersion": "Buffett 1.0",
-          "score": 89,
-          "passed": 7,
-          "totalJudged": 8,
+          "score": 88,
+          "passed": 6,
+          "totalJudged": 7,
           "total": 8,
-          "dataConfidence": "높음",
+          "dataConfidence": "보통",
           "criteria": [
             {
               "code": "BUF_ROIC_LEVEL",
               "label": "자본 효율성",
               "weight": 3,
               "status": "pass",
-              "message": "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 25%).",
+              "message": "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 37%).",
               "detail": "5년 평균 ROIC ≥ 12%"
             },
             {
@@ -1935,8 +1650,8 @@
               "code": "BUF_LEVERAGE",
               "label": "부채 부담",
               "weight": 2,
-              "status": "pass",
-              "message": "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 0.5배).",
+              "status": "unknown",
+              "message": "이 기준을 판정할 데이터가 부족합니다.",
               "detail": "순부채 / EBITDA ≤ 2.5배"
             },
             {
@@ -1944,7 +1659,7 @@
               "label": "이자 감당력",
               "weight": 1,
               "status": "pass",
-              "message": "영업이익이 이자비용의 28배입니다.",
+              "message": "영업이익이 이자비용의 100배를 넘습니다.",
               "detail": "영업이익 / 이자비용 ≥ 8배"
             },
             {
@@ -1952,7 +1667,7 @@
               "label": "사업의 성장",
               "weight": 2,
               "status": "pass",
-              "message": "매출이 5년 동안 연평균 9.3% 성장했습니다.",
+              "message": "매출이 5년 동안 연평균 9.5% 성장했습니다.",
               "detail": "매출 5년 연평균 성장률 ≥ 3%"
             },
             {
@@ -1960,38 +1675,38 @@
               "label": "현재 가격",
               "weight": 3,
               "status": "pass",
-              "message": "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 6.0%).",
+              "message": "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 4.6%).",
               "detail": "잉여현금흐름 수익률 ≥ 4% 또는 EV/EBIT가 자기 5년 중앙값 이하"
             }
           ],
           "reasons": [
-            "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 25%).",
+            "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 37%).",
             "5년 중 5년 동안 두 자릿수 자본수익률을 유지했습니다.",
             "최근 5년 동안 잉여현금흐름이 매년 플러스였습니다.",
-            "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 0.5배).",
-            "영업이익이 이자비용의 28배입니다.",
-            "매출이 5년 동안 연평균 9.3% 성장했습니다.",
-            "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 6.0%)."
+            "영업이익이 이자비용의 100배를 넘습니다.",
+            "매출이 5년 동안 연평균 9.5% 성장했습니다.",
+            "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 4.6%)."
           ],
           "risks": [
-            "매출 대비 남는 현금이 9%로 기준(10%)보다 낮습니다."
+            "매출 대비 남는 현금이 9%로 기준(10%)보다 낮습니다.",
+            "이 기준을 판정할 데이터가 부족합니다."
           ]
         },
         "graham": {
           "styleId": "graham",
           "modelVersion": "Graham 0.9",
-          "score": 86,
-          "passed": 5,
-          "totalJudged": 6,
+          "score": 42,
+          "passed": 2,
+          "totalJudged": 5,
           "total": 6,
-          "dataConfidence": "높음",
+          "dataConfidence": "보통",
           "criteria": [
             {
               "code": "GRA_PE",
               "label": "이익 대비 가격",
               "weight": 3,
-              "status": "pass",
-              "message": "이익 대비 가격이 낮은 편입니다(PER 14.0배).",
+              "status": "fail",
+              "message": "이익 대비 가격이 기준(15배)보다 높습니다(PER 20.1배).",
               "detail": "PER ≤ 15배"
             },
             {
@@ -1999,23 +1714,23 @@
               "label": "자산 대비 가격",
               "weight": 2,
               "status": "fail",
-              "message": "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 7.7배).",
+              "message": "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 8.3배).",
               "detail": "PBR ≤ 1.5배"
             },
             {
               "code": "GRA_CURRENT_RATIO",
               "label": "단기 지급 능력",
               "weight": 2,
-              "status": "pass",
-              "message": "1년 안에 갚을 빚보다 유동자산이 1.6배 많습니다.",
+              "status": "fail",
+              "message": "유동비율이 1.4로 기준(1.5)에 못 미칩니다.",
               "detail": "유동비율 ≥ 1.5"
             },
             {
               "code": "GRA_DEBT_EQUITY",
               "label": "자본 대비 부채",
               "weight": 2,
-              "status": "pass",
-              "message": "자기자본보다 부채가 적습니다(부채비율 0.74).",
+              "status": "unknown",
+              "message": "이 기준을 판정할 데이터가 부족합니다.",
               "detail": "부채 / 자기자본 ≤ 1.0"
             },
             {
@@ -2031,36 +1746,36 @@
               "label": "가치함정 점검",
               "weight": 2,
               "status": "pass",
-              "message": "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 9.3%).",
+              "message": "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 9.5%).",
               "detail": "매출 5년 성장률 ≥ 0% (싼 데는 이유가 있는지 확인)"
             }
           ],
           "reasons": [
-            "이익 대비 가격이 낮은 편입니다(PER 14.0배).",
-            "1년 안에 갚을 빚보다 유동자산이 1.6배 많습니다.",
-            "자기자본보다 부채가 적습니다(부채비율 0.74).",
             "최근 5년 동안 매년 흑자를 냈습니다.",
-            "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 9.3%)."
+            "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 9.5%)."
           ],
           "risks": [
-            "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 7.7배)."
+            "이익 대비 가격이 기준(15배)보다 높습니다(PER 20.1배).",
+            "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 8.3배).",
+            "유동비율이 1.4로 기준(1.5)에 못 미칩니다.",
+            "이 기준을 판정할 데이터가 부족합니다."
           ]
         },
         "lynch": {
           "styleId": "lynch",
           "modelVersion": "Lynch 0.9",
-          "score": 50,
-          "passed": 3,
-          "totalJudged": 5,
+          "score": 40,
+          "passed": 2,
+          "totalJudged": 4,
           "total": 5,
-          "dataConfidence": "높음",
+          "dataConfidence": "보통",
           "criteria": [
             {
               "code": "LYN_EPS_GROWTH",
               "label": "이익 성장",
               "weight": 3,
               "status": "fail",
-              "message": "주당순이익 성장률이 연평균 13.5%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
+              "message": "주당순이익 성장률이 연평균 9.3%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
               "detail": "주당순이익 5년 연평균 성장률 15~40%"
             },
             {
@@ -2068,7 +1783,7 @@
               "label": "성장률 대비 가격",
               "weight": 3,
               "status": "fail",
-              "message": "성장률에 비해 가격이 앞서 있습니다(PEG 1.40).",
+              "message": "성장률에 비해 가격이 앞서 있습니다(PEG 2.17).",
               "detail": "PEG ≤ 1.2"
             },
             {
@@ -2076,15 +1791,15 @@
               "label": "매출 성장의 뒷받침",
               "weight": 2,
               "status": "pass",
-              "message": "이익뿐 아니라 매출도 연평균 9.3% 늘었습니다.",
+              "message": "이익뿐 아니라 매출도 연평균 9.5% 늘었습니다.",
               "detail": "매출 5년 연평균 성장률 ≥ 8%"
             },
             {
               "code": "LYN_DEBT",
               "label": "부채 부담",
               "weight": 2,
-              "status": "pass",
-              "message": "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 0.5배).",
+              "status": "unknown",
+              "message": "이 기준을 판정할 데이터가 부족합니다.",
               "detail": "순부채 / EBITDA ≤ 2.0"
             },
             {
@@ -2092,373 +1807,86 @@
               "label": "성장의 질",
               "weight": 2,
               "status": "pass",
-              "message": "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 25%).",
+              "message": "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 37%).",
               "detail": "5년 평균 ROIC ≥ 10%"
             }
           ],
           "reasons": [
-            "이익뿐 아니라 매출도 연평균 9.3% 늘었습니다.",
-            "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 0.5배).",
-            "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 25%)."
+            "이익뿐 아니라 매출도 연평균 9.5% 늘었습니다.",
+            "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 37%)."
           ],
           "risks": [
-            "주당순이익 성장률이 연평균 13.5%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
-            "성장률에 비해 가격이 앞서 있습니다(PEG 1.40)."
+            "주당순이익 성장률이 연평균 9.3%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
+            "성장률에 비해 가격이 앞서 있습니다(PEG 2.17).",
+            "이 기준을 판정할 데이터가 부족합니다."
           ]
         },
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 100,
-          "passed": 2,
-          "totalJudged": 2,
-          "total": 2,
-          "dataConfidence": "높음",
-          "criteria": [
-            {
-              "code": "GRB_QUALITY_RANK",
-              "label": "사업의 질 순위",
-              "weight": 1,
-              "status": "pass",
-              "message": "자본수익률 상대 순위 4위/12개입니다(5년 평균 24.9%).",
-              "detail": "5년 평균 자본수익률의 유니버스 내 내림차순 순위"
-            },
-            {
-              "code": "GRB_VALUE_RANK",
-              "label": "가격 순위",
-              "weight": 1,
-              "status": "pass",
-              "message": "이익수익률 상대 순위 3위/12개입니다(8.8%).",
-              "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
-            }
-          ],
-          "reasons": [
-            "자본수익률 상대 순위 4위/12개입니다(5년 평균 24.9%).",
-            "이익수익률 상대 순위 3위/12개입니다(8.8%)."
-          ],
-          "risks": [],
-          "rank": 1,
-          "rankComponents": {
-            "quality": 4,
-            "value": 3
-          }
-        }
-      }
-    },
-    {
-      "ticker": "DE",
-      "name": "Deere & Company",
-      "sector": "산업재",
-      "price": 468.0,
-      "marketCap": 127296.0,
-      "asOf": {
-        "price": "2026-07-29",
-        "financial": "2026-04-30"
-      },
-      "metrics": {
-        "roicAvg5y": 0.14282937340611868,
-        "fcfMargin": 0.06485355648535565,
-        "fcfYield": 0.024352689793866265,
-        "netDebtToEbitda": 5.757894736842105,
-        "interestCoverage": 2.3548387096774195,
-        "revenueCagr5y": 0.02078575108564129,
-        "epsCagr5y": 0.020553000508076735,
-        "pe": 22.731428571428573,
-        "pbr": 5.44,
-        "peg": 7.577142857142857,
-        "currentRatio": 1.5,
-        "debtToEquity": 2.6495726495726495,
-        "evEbit": 24.930958904109588,
-        "earningsYield": 0.04011077166531132
-      },
-      "scores": {
-        "buffett": {
-          "styleId": "buffett",
-          "modelVersion": "Buffett 1.0",
-          "score": 28,
-          "passed": 2,
-          "totalJudged": 8,
-          "total": 8,
-          "dataConfidence": "높음",
-          "criteria": [
-            {
-              "code": "BUF_ROIC_LEVEL",
-              "label": "자본 효율성",
-              "weight": 3,
-              "status": "pass",
-              "message": "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 14%).",
-              "detail": "5년 평균 ROIC ≥ 12%"
-            },
-            {
-              "code": "BUF_ROIC_STABILITY",
-              "label": "수익성 지속성",
-              "weight": 2,
-              "status": "pass",
-              "message": "5년 중 5년 동안 두 자릿수 자본수익률을 유지했습니다.",
-              "detail": "최근 5년 중 4년 이상 ROIC ≥ 10%"
-            },
-            {
-              "code": "BUF_FCF_CONSISTENCY",
-              "label": "현금흐름 지속성",
-              "weight": 3,
-              "status": "fail",
-              "message": "잉여현금흐름이 플러스였던 해가 5년 중 4년입니다.",
-              "detail": "최근 5년 연속 잉여현금흐름 양(+)"
-            },
-            {
-              "code": "BUF_FCF_MARGIN",
-              "label": "현금 창출력",
-              "weight": 2,
-              "status": "fail",
-              "message": "매출 대비 남는 현금이 6%로 기준(10%)보다 낮습니다.",
-              "detail": "잉여현금흐름 마진 ≥ 10%"
-            },
-            {
-              "code": "BUF_LEVERAGE",
-              "label": "부채 부담",
-              "weight": 2,
-              "status": "fail",
-              "message": "현금창출력 대비 부채가 많습니다(순부채/EBITDA 5.8배).",
-              "detail": "순부채 / EBITDA ≤ 2.5배"
-            },
-            {
-              "code": "BUF_INTEREST_COVER",
-              "label": "이자 감당력",
-              "weight": 1,
-              "status": "fail",
-              "message": "영업이익이 이자비용의 2.4배로 여유가 크지 않습니다.",
-              "detail": "영업이익 / 이자비용 ≥ 8배"
-            },
-            {
-              "code": "BUF_GROWTH",
-              "label": "사업의 성장",
-              "weight": 2,
-              "status": "fail",
-              "message": "매출 성장이 연평균 2.1%로 둔화돼 있습니다.",
-              "detail": "매출 5년 연평균 성장률 ≥ 3%"
-            },
-            {
-              "code": "BUF_VALUATION",
-              "label": "현재 가격",
-              "weight": 3,
-              "status": "fail",
-              "message": "현재 가치평가가 과거 평균보다 높은 편입니다(FCF 수익률 2.4%).",
-              "detail": "잉여현금흐름 수익률 ≥ 4% 또는 EV/EBIT가 자기 5년 중앙값 이하"
-            }
-          ],
-          "reasons": [
-            "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 14%).",
-            "5년 중 5년 동안 두 자릿수 자본수익률을 유지했습니다."
-          ],
-          "risks": [
-            "잉여현금흐름이 플러스였던 해가 5년 중 4년입니다.",
-            "매출 대비 남는 현금이 6%로 기준(10%)보다 낮습니다.",
-            "현금창출력 대비 부채가 많습니다(순부채/EBITDA 5.8배).",
-            "영업이익이 이자비용의 2.4배로 여유가 크지 않습니다.",
-            "매출 성장이 연평균 2.1%로 둔화돼 있습니다.",
-            "현재 가치평가가 과거 평균보다 높은 편입니다(FCF 수익률 2.4%)."
-          ]
-        },
-        "graham": {
-          "styleId": "graham",
-          "modelVersion": "Graham 0.9",
-          "score": 50,
-          "passed": 3,
-          "totalJudged": 6,
-          "total": 6,
-          "dataConfidence": "높음",
-          "criteria": [
-            {
-              "code": "GRA_PE",
-              "label": "이익 대비 가격",
-              "weight": 3,
-              "status": "fail",
-              "message": "이익 대비 가격이 기준(15배)보다 높습니다(PER 22.7배).",
-              "detail": "PER ≤ 15배"
-            },
-            {
-              "code": "GRA_PBR",
-              "label": "자산 대비 가격",
-              "weight": 2,
-              "status": "fail",
-              "message": "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 5.4배).",
-              "detail": "PBR ≤ 1.5배"
-            },
-            {
-              "code": "GRA_CURRENT_RATIO",
-              "label": "단기 지급 능력",
-              "weight": 2,
-              "status": "pass",
-              "message": "1년 안에 갚을 빚보다 유동자산이 1.5배 많습니다.",
-              "detail": "유동비율 ≥ 1.5"
-            },
-            {
-              "code": "GRA_DEBT_EQUITY",
-              "label": "자본 대비 부채",
-              "weight": 2,
-              "status": "fail",
-              "message": "자기자본 대비 부채가 많습니다(부채비율 2.65).",
-              "detail": "부채 / 자기자본 ≤ 1.0"
-            },
-            {
-              "code": "GRA_EARNINGS_STABILITY",
-              "label": "이익의 지속성",
-              "weight": 3,
-              "status": "pass",
-              "message": "최근 5년 동안 매년 흑자를 냈습니다.",
-              "detail": "최근 5년 연속 순이익 흑자"
-            },
-            {
-              "code": "GRA_VALUE_TRAP",
-              "label": "가치함정 점검",
-              "weight": 2,
-              "status": "pass",
-              "message": "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 2.1%).",
-              "detail": "매출 5년 성장률 ≥ 0% (싼 데는 이유가 있는지 확인)"
-            }
-          ],
-          "reasons": [
-            "1년 안에 갚을 빚보다 유동자산이 1.5배 많습니다.",
-            "최근 5년 동안 매년 흑자를 냈습니다.",
-            "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 2.1%)."
-          ],
-          "risks": [
-            "이익 대비 가격이 기준(15배)보다 높습니다(PER 22.7배).",
-            "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 5.4배).",
-            "자기자본 대비 부채가 많습니다(부채비율 2.65)."
-          ]
-        },
-        "lynch": {
-          "styleId": "lynch",
-          "modelVersion": "Lynch 0.9",
-          "score": 17,
-          "passed": 1,
-          "totalJudged": 5,
-          "total": 5,
-          "dataConfidence": "높음",
-          "criteria": [
-            {
-              "code": "LYN_EPS_GROWTH",
-              "label": "이익 성장",
-              "weight": 3,
-              "status": "fail",
-              "message": "주당순이익 성장률이 연평균 2.1%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
-              "detail": "주당순이익 5년 연평균 성장률 15~40%"
-            },
-            {
-              "code": "LYN_PEG",
-              "label": "성장률 대비 가격",
-              "weight": 3,
-              "status": "fail",
-              "message": "성장률에 비해 가격이 앞서 있습니다(PEG 7.58).",
-              "detail": "PEG ≤ 1.2"
-            },
-            {
-              "code": "LYN_REVENUE_GROWTH",
-              "label": "매출 성장의 뒷받침",
-              "weight": 2,
-              "status": "fail",
-              "message": "매출 성장은 연평균 2.1%에 그쳤습니다.",
-              "detail": "매출 5년 연평균 성장률 ≥ 8%"
-            },
-            {
-              "code": "LYN_DEBT",
-              "label": "부채 부담",
-              "weight": 2,
-              "status": "fail",
-              "message": "성장에 비해 부채 부담이 있습니다(순부채/EBITDA 5.8배).",
-              "detail": "순부채 / EBITDA ≤ 2.0"
-            },
-            {
-              "code": "LYN_PROFITABILITY",
-              "label": "성장의 질",
-              "weight": 2,
-              "status": "pass",
-              "message": "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 14%).",
-              "detail": "5년 평균 ROIC ≥ 10%"
-            }
-          ],
-          "reasons": [
-            "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 14%)."
-          ],
-          "risks": [
-            "주당순이익 성장률이 연평균 2.1%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
-            "성장률에 비해 가격이 앞서 있습니다(PEG 7.58).",
-            "매출 성장은 연평균 2.1%에 그쳤습니다.",
-            "성장에 비해 부채 부담이 있습니다(순부채/EBITDA 5.8배)."
-          ]
-        },
-        "greenblatt": {
-          "styleId": "greenblatt",
-          "modelVersion": "Greenblatt 1.0",
-          "score": 8,
+          "score": null,
           "passed": 0,
-          "totalJudged": 2,
+          "totalJudged": 0,
           "total": 2,
-          "dataConfidence": "높음",
+          "dataConfidence": "정보 부족",
           "criteria": [
             {
               "code": "GRB_QUALITY_RANK",
               "label": "사업의 질 순위",
               "weight": 1,
-              "status": "fail",
-              "message": "자본수익률 상대 순위 9위/12개입니다(5년 평균 14.3%).",
+              "status": "unknown",
+              "message": "상대 순위를 계산할 데이터가 부족합니다.",
               "detail": "5년 평균 자본수익률의 유니버스 내 내림차순 순위"
             },
             {
               "code": "GRB_VALUE_RANK",
               "label": "가격 순위",
               "weight": 1,
-              "status": "fail",
-              "message": "이익수익률 상대 순위 10위/12개입니다(4.0%).",
+              "status": "unknown",
+              "message": "상대 순위를 계산할 데이터가 부족합니다.",
               "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
             }
           ],
           "reasons": [],
           "risks": [
-            "자본수익률 상대 순위 9위/12개입니다(5년 평균 14.3%).",
-            "이익수익률 상대 순위 10위/12개입니다(4.0%)."
-          ],
-          "rank": 12,
-          "rankComponents": {
-            "quality": 9,
-            "value": 10
-          }
+            "상대 순위를 계산할 데이터가 부족합니다.",
+            "상대 순위를 계산할 데이터가 부족합니다."
+          ]
         }
       }
     },
     {
       "ticker": "VZ",
-      "name": "Verizon Communications",
-      "sector": "통신",
-      "price": 43.5,
-      "marketCap": 183135.0,
+      "name": "버라이즌",
+      "sector": "Telephone Communications (No Radiotelephone)",
+      "price": 46.47,
+      "marketCap": 193082.85,
       "asOf": {
-        "price": "2026-07-29",
-        "financial": "2026-06-30"
+        "price": "2026-08-05",
+        "financial": "2025-12-31"
       },
       "metrics": {
-        "roicAvg5y": 0.09196501125834843,
-        "fcfMargin": 0.14180206794682423,
-        "fcfYield": 0.10484069129330821,
-        "netDebtToEbitda": 3.1691648822269807,
-        "interestCoverage": 4.661290322580645,
-        "revenueCagr5y": 0.01357239106743302,
-        "epsCagr5y": -0.008837390775430332,
-        "pe": 10.464857142857143,
-        "pbr": 1.9277368421052632,
-        "peg": 5.232428571428572,
-        "currentRatio": 0.8,
-        "debtToEquity": 1.6,
-        "evEbit": 11.457958477508651,
-        "earningsYield": 0.08727558246636569
+        "roicAvg5y": 0.07071993752570882,
+        "fcfMargin": 0.14563900688177955,
+        "fcfYield": 0.10423504728669583,
+        "netDebtToEbitda": 1.5563770794824399,
+        "interestCoverage": 5.29670528602462,
+        "revenueCagr5y": 0.008457873514414072,
+        "epsCagr5y": -0.06534012173586479,
+        "pe": 11.24274193548387,
+        "pbr": 1.8259979572729594,
+        "peg": null,
+        "currentRatio": 0.9126503126503126,
+        "debtToEquity": 0.8808692938406105,
+        "evEbit": 9.131509962746504,
+        "earningsYield": 0.10951091375683368
       },
       "scores": {
         "buffett": {
           "styleId": "buffett",
           "modelVersion": "Buffett 1.0",
-          "score": 44,
-          "passed": 3,
+          "score": 56,
+          "passed": 4,
           "totalJudged": 8,
           "total": 8,
           "dataConfidence": "높음",
@@ -2468,7 +1896,7 @@
               "label": "자본 효율성",
               "weight": 3,
               "status": "fail",
-              "message": "투자한 자본 대비 이익이 기준(12%)에 못 미칩니다(5년 평균 9%).",
+              "message": "투자한 자본 대비 이익이 기준(12%)에 못 미칩니다(5년 평균 7%).",
               "detail": "5년 평균 ROIC ≥ 12%"
             },
             {
@@ -2476,7 +1904,7 @@
               "label": "수익성 지속성",
               "weight": 2,
               "status": "fail",
-              "message": "두 자릿수 자본수익률을 유지한 해가 5년 중 2년에 그쳤습니다.",
+              "message": "두 자릿수 자본수익률을 유지한 해가 5년 중 0년에 그쳤습니다.",
               "detail": "최근 5년 중 4년 이상 ROIC ≥ 10%"
             },
             {
@@ -2492,15 +1920,15 @@
               "label": "현금 창출력",
               "weight": 2,
               "status": "pass",
-              "message": "매출의 14%가 실제 현금으로 남습니다.",
+              "message": "매출의 15%가 실제 현금으로 남습니다.",
               "detail": "잉여현금흐름 마진 ≥ 10%"
             },
             {
               "code": "BUF_LEVERAGE",
               "label": "부채 부담",
               "weight": 2,
-              "status": "fail",
-              "message": "현금창출력 대비 부채가 많습니다(순부채/EBITDA 3.2배).",
+              "status": "pass",
+              "message": "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 1.6배).",
               "detail": "순부채 / EBITDA ≤ 2.5배"
             },
             {
@@ -2508,7 +1936,7 @@
               "label": "이자 감당력",
               "weight": 1,
               "status": "fail",
-              "message": "영업이익이 이자비용의 4.7배로 여유가 크지 않습니다.",
+              "message": "영업이익이 이자비용의 5.3배로 여유가 크지 않습니다.",
               "detail": "영업이익 / 이자비용 ≥ 8배"
             },
             {
@@ -2516,7 +1944,7 @@
               "label": "사업의 성장",
               "weight": 2,
               "status": "fail",
-              "message": "매출 성장이 연평균 1.4%로 둔화돼 있습니다.",
+              "message": "매출 성장이 연평균 0.8%로 둔화돼 있습니다.",
               "detail": "매출 5년 연평균 성장률 ≥ 3%"
             },
             {
@@ -2524,28 +1952,28 @@
               "label": "현재 가격",
               "weight": 3,
               "status": "pass",
-              "message": "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 10.5%).",
+              "message": "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 10.4%).",
               "detail": "잉여현금흐름 수익률 ≥ 4% 또는 EV/EBIT가 자기 5년 중앙값 이하"
             }
           ],
           "reasons": [
             "최근 5년 동안 잉여현금흐름이 매년 플러스였습니다.",
-            "매출의 14%가 실제 현금으로 남습니다.",
-            "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 10.5%)."
+            "매출의 15%가 실제 현금으로 남습니다.",
+            "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 1.6배).",
+            "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 10.4%)."
           ],
           "risks": [
-            "투자한 자본 대비 이익이 기준(12%)에 못 미칩니다(5년 평균 9%).",
-            "두 자릿수 자본수익률을 유지한 해가 5년 중 2년에 그쳤습니다.",
-            "현금창출력 대비 부채가 많습니다(순부채/EBITDA 3.2배).",
-            "영업이익이 이자비용의 4.7배로 여유가 크지 않습니다.",
-            "매출 성장이 연평균 1.4%로 둔화돼 있습니다."
+            "투자한 자본 대비 이익이 기준(12%)에 못 미칩니다(5년 평균 7%).",
+            "두 자릿수 자본수익률을 유지한 해가 5년 중 0년에 그쳤습니다.",
+            "영업이익이 이자비용의 5.3배로 여유가 크지 않습니다.",
+            "매출 성장이 연평균 0.8%로 둔화돼 있습니다."
           ]
         },
         "graham": {
           "styleId": "graham",
           "modelVersion": "Graham 0.9",
-          "score": 57,
-          "passed": 3,
+          "score": 71,
+          "passed": 4,
           "totalJudged": 6,
           "total": 6,
           "dataConfidence": "높음",
@@ -2555,7 +1983,7 @@
               "label": "이익 대비 가격",
               "weight": 3,
               "status": "pass",
-              "message": "이익 대비 가격이 낮은 편입니다(PER 10.5배).",
+              "message": "이익 대비 가격이 낮은 편입니다(PER 11.2배).",
               "detail": "PER ≤ 15배"
             },
             {
@@ -2563,7 +1991,7 @@
               "label": "자산 대비 가격",
               "weight": 2,
               "status": "fail",
-              "message": "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 1.9배).",
+              "message": "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 1.8배).",
               "detail": "PBR ≤ 1.5배"
             },
             {
@@ -2571,15 +1999,15 @@
               "label": "단기 지급 능력",
               "weight": 2,
               "status": "fail",
-              "message": "유동비율이 0.8로 기준(1.5)에 못 미칩니다.",
+              "message": "유동비율이 0.9로 기준(1.5)에 못 미칩니다.",
               "detail": "유동비율 ≥ 1.5"
             },
             {
               "code": "GRA_DEBT_EQUITY",
               "label": "자본 대비 부채",
               "weight": 2,
-              "status": "fail",
-              "message": "자기자본 대비 부채가 많습니다(부채비율 1.60).",
+              "status": "pass",
+              "message": "자기자본보다 부채가 적습니다(부채비율 0.88).",
               "detail": "부채 / 자기자본 ≤ 1.0"
             },
             {
@@ -2595,44 +2023,44 @@
               "label": "가치함정 점검",
               "weight": 2,
               "status": "pass",
-              "message": "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 1.4%).",
+              "message": "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 0.8%).",
               "detail": "매출 5년 성장률 ≥ 0% (싼 데는 이유가 있는지 확인)"
             }
           ],
           "reasons": [
-            "이익 대비 가격이 낮은 편입니다(PER 10.5배).",
+            "이익 대비 가격이 낮은 편입니다(PER 11.2배).",
+            "자기자본보다 부채가 적습니다(부채비율 0.88).",
             "최근 5년 동안 매년 흑자를 냈습니다.",
-            "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 1.4%)."
+            "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 0.8%)."
           ],
           "risks": [
-            "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 1.9배).",
-            "유동비율이 0.8로 기준(1.5)에 못 미칩니다.",
-            "자기자본 대비 부채가 많습니다(부채비율 1.60)."
+            "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 1.8배).",
+            "유동비율이 0.9로 기준(1.5)에 못 미칩니다."
           ]
         },
         "lynch": {
           "styleId": "lynch",
           "modelVersion": "Lynch 0.9",
-          "score": 0,
-          "passed": 0,
-          "totalJudged": 5,
+          "score": 22,
+          "passed": 1,
+          "totalJudged": 4,
           "total": 5,
-          "dataConfidence": "높음",
+          "dataConfidence": "보통",
           "criteria": [
             {
               "code": "LYN_EPS_GROWTH",
               "label": "이익 성장",
               "weight": 3,
               "status": "fail",
-              "message": "주당순이익 성장률이 연평균 -0.9%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
+              "message": "주당순이익 성장률이 연평균 -6.5%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
               "detail": "주당순이익 5년 연평균 성장률 15~40%"
             },
             {
               "code": "LYN_PEG",
               "label": "성장률 대비 가격",
               "weight": 3,
-              "status": "fail",
-              "message": "성장률에 비해 가격이 앞서 있습니다(PEG 5.23).",
+              "status": "unknown",
+              "message": "이 기준을 판정할 데이터가 부족합니다.",
               "detail": "PEG ≤ 1.2"
             },
             {
@@ -2640,15 +2068,15 @@
               "label": "매출 성장의 뒷받침",
               "weight": 2,
               "status": "fail",
-              "message": "매출 성장은 연평균 1.4%에 그쳤습니다.",
+              "message": "매출 성장은 연평균 0.8%에 그쳤습니다.",
               "detail": "매출 5년 연평균 성장률 ≥ 8%"
             },
             {
               "code": "LYN_DEBT",
               "label": "부채 부담",
               "weight": 2,
-              "status": "fail",
-              "message": "성장에 비해 부채 부담이 있습니다(순부채/EBITDA 3.2배).",
+              "status": "pass",
+              "message": "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 1.6배).",
               "detail": "순부채 / EBITDA ≤ 2.0"
             },
             {
@@ -2656,23 +2084,24 @@
               "label": "성장의 질",
               "weight": 2,
               "status": "fail",
-              "message": "성장에 비해 자본 대비 이익이 낮습니다(5년 평균 ROIC 9%).",
+              "message": "성장에 비해 자본 대비 이익이 낮습니다(5년 평균 ROIC 7%).",
               "detail": "5년 평균 ROIC ≥ 10%"
             }
           ],
-          "reasons": [],
+          "reasons": [
+            "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 1.6배)."
+          ],
           "risks": [
-            "주당순이익 성장률이 연평균 -0.9%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
-            "성장률에 비해 가격이 앞서 있습니다(PEG 5.23).",
-            "매출 성장은 연평균 1.4%에 그쳤습니다.",
-            "성장에 비해 부채 부담이 있습니다(순부채/EBITDA 3.2배).",
-            "성장에 비해 자본 대비 이익이 낮습니다(5년 평균 ROIC 9%)."
+            "주당순이익 성장률이 연평균 -6.5%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
+            "이 기준을 판정할 데이터가 부족합니다.",
+            "매출 성장은 연평균 0.8%에 그쳤습니다.",
+            "성장에 비해 자본 대비 이익이 낮습니다(5년 평균 ROIC 7%)."
           ]
         },
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 33,
+          "score": 86,
           "passed": 1,
           "totalJudged": 2,
           "total": 2,
@@ -2683,7 +2112,7 @@
               "label": "사업의 질 순위",
               "weight": 1,
               "status": "fail",
-              "message": "자본수익률 상대 순위 12위/12개입니다(5년 평균 9.2%).",
+              "message": "자본수익률 상대 순위 7위/7개입니다(5년 평균 7.1%).",
               "detail": "5년 평균 자본수익률의 유니버스 내 내림차순 순위"
             },
             {
@@ -2691,49 +2120,49 @@
               "label": "가격 순위",
               "weight": 1,
               "status": "pass",
-              "message": "이익수익률 상대 순위 4위/12개입니다(8.7%).",
+              "message": "이익수익률 상대 순위 1위/7개입니다(11.0%).",
               "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
             }
           ],
           "reasons": [
-            "이익수익률 상대 순위 4위/12개입니다(8.7%)."
+            "이익수익률 상대 순위 1위/7개입니다(11.0%)."
           ],
           "risks": [
-            "자본수익률 상대 순위 12위/12개입니다(5년 평균 9.2%)."
+            "자본수익률 상대 순위 7위/7개입니다(5년 평균 7.1%)."
           ],
-          "rank": 9,
+          "rank": 2,
           "rankComponents": {
-            "quality": 12,
-            "value": 4
+            "quality": 7,
+            "value": 1
           }
         }
       }
     },
     {
       "ticker": "PEP",
-      "name": "PepsiCo",
-      "sector": "필수소비재",
-      "price": 141.0,
-      "marketCap": 193452.0,
+      "name": "펩시코",
+      "sector": "Beverages",
+      "price": 138.78,
+      "marketCap": 189419.65041924,
       "asOf": {
-        "price": "2026-07-29",
-        "financial": "2026-06-30"
+        "price": "2026-08-05",
+        "financial": "2025-12-27"
       },
       "metrics": {
-        "roicAvg5y": 0.14509678304496723,
-        "fcfMargin": 0.0815450643776824,
-        "fcfYield": 0.039286231209809154,
-        "netDebtToEbitda": 2.128834355828221,
-        "interestCoverage": 10.48,
-        "revenueCagr5y": 0.07276353962705939,
-        "epsCagr5y": 0.07272878211136069,
-        "pe": 20.801290322580645,
-        "pbr": 10.235555555555555,
-        "peg": 4.160258064516129,
-        "currentRatio": 0.8709677419354839,
-        "debtToEquity": 2.328042328042328,
-        "evEbit": 17.41618320610687,
-        "earningsYield": 0.05741786177635962
+        "roicAvg5y": 0.153244340991655,
+        "fcfMargin": 0.08168219323928666,
+        "fcfYield": 0.04050266159302725,
+        "netDebtToEbitda": 2.4879256137534282,
+        "interestCoverage": 10.256913470115968,
+        "revenueCagr5y": 0.04265116526253587,
+        "epsCagr5y": 0.02245623230465621,
+        "pe": 22.98782165282039,
+        "pbr": 9.282546820505734,
+        "peg": 10.236722412269469,
+        "currentRatio": 0.8530399218654621,
+        "debtToEquity": 2.2714397726158975,
+        "evEbit": 19.708788521415897,
+        "earningsYield": 0.050738785842335425
       },
       "scores": {
         "buffett": {
@@ -2782,7 +2211,7 @@
               "label": "부채 부담",
               "weight": 2,
               "status": "pass",
-              "message": "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 2.1배).",
+              "message": "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 2.5배).",
               "detail": "순부채 / EBITDA ≤ 2.5배"
             },
             {
@@ -2798,7 +2227,7 @@
               "label": "사업의 성장",
               "weight": 2,
               "status": "pass",
-              "message": "매출이 5년 동안 연평균 7.3% 성장했습니다.",
+              "message": "매출이 5년 동안 연평균 4.3% 성장했습니다.",
               "detail": "매출 5년 연평균 성장률 ≥ 3%"
             },
             {
@@ -2806,7 +2235,7 @@
               "label": "현재 가격",
               "weight": 3,
               "status": "pass",
-              "message": "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 3.9%).",
+              "message": "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 4.1%).",
               "detail": "잉여현금흐름 수익률 ≥ 4% 또는 EV/EBIT가 자기 5년 중앙값 이하"
             }
           ],
@@ -2814,10 +2243,10 @@
             "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 15%).",
             "5년 중 5년 동안 두 자릿수 자본수익률을 유지했습니다.",
             "최근 5년 동안 잉여현금흐름이 매년 플러스였습니다.",
-            "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 2.1배).",
+            "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 2.5배).",
             "영업이익이 이자비용의 10배입니다.",
-            "매출이 5년 동안 연평균 7.3% 성장했습니다.",
-            "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 3.9%)."
+            "매출이 5년 동안 연평균 4.3% 성장했습니다.",
+            "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 4.1%)."
           ],
           "risks": [
             "매출 대비 남는 현금이 8%로 기준(10%)보다 낮습니다."
@@ -2837,7 +2266,7 @@
               "label": "이익 대비 가격",
               "weight": 3,
               "status": "fail",
-              "message": "이익 대비 가격이 기준(15배)보다 높습니다(PER 20.8배).",
+              "message": "이익 대비 가격이 기준(15배)보다 높습니다(PER 23.0배).",
               "detail": "PER ≤ 15배"
             },
             {
@@ -2845,7 +2274,7 @@
               "label": "자산 대비 가격",
               "weight": 2,
               "status": "fail",
-              "message": "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 10.2배).",
+              "message": "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 9.3배).",
               "detail": "PBR ≤ 1.5배"
             },
             {
@@ -2861,7 +2290,7 @@
               "label": "자본 대비 부채",
               "weight": 2,
               "status": "fail",
-              "message": "자기자본 대비 부채가 많습니다(부채비율 2.33).",
+              "message": "자기자본 대비 부채가 많습니다(부채비율 2.27).",
               "detail": "부채 / 자기자본 ≤ 1.0"
             },
             {
@@ -2877,19 +2306,19 @@
               "label": "가치함정 점검",
               "weight": 2,
               "status": "pass",
-              "message": "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 7.3%).",
+              "message": "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 4.3%).",
               "detail": "매출 5년 성장률 ≥ 0% (싼 데는 이유가 있는지 확인)"
             }
           ],
           "reasons": [
             "최근 5년 동안 매년 흑자를 냈습니다.",
-            "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 7.3%)."
+            "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 4.3%)."
           ],
           "risks": [
-            "이익 대비 가격이 기준(15배)보다 높습니다(PER 20.8배).",
-            "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 10.2배).",
+            "이익 대비 가격이 기준(15배)보다 높습니다(PER 23.0배).",
+            "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 9.3배).",
             "유동비율이 0.9로 기준(1.5)에 못 미칩니다.",
-            "자기자본 대비 부채가 많습니다(부채비율 2.33)."
+            "자기자본 대비 부채가 많습니다(부채비율 2.27)."
           ]
         },
         "lynch": {
@@ -2906,7 +2335,7 @@
               "label": "이익 성장",
               "weight": 3,
               "status": "fail",
-              "message": "주당순이익 성장률이 연평균 7.3%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
+              "message": "주당순이익 성장률이 연평균 2.2%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
               "detail": "주당순이익 5년 연평균 성장률 15~40%"
             },
             {
@@ -2914,7 +2343,7 @@
               "label": "성장률 대비 가격",
               "weight": 3,
               "status": "fail",
-              "message": "성장률에 비해 가격이 앞서 있습니다(PEG 4.16).",
+              "message": "성장률에 비해 가격이 앞서 있습니다(PEG 10.24).",
               "detail": "PEG ≤ 1.2"
             },
             {
@@ -2922,7 +2351,7 @@
               "label": "매출 성장의 뒷받침",
               "weight": 2,
               "status": "fail",
-              "message": "매출 성장은 연평균 7.3%에 그쳤습니다.",
+              "message": "매출 성장은 연평균 4.3%에 그쳤습니다.",
               "detail": "매출 5년 연평균 성장률 ≥ 8%"
             },
             {
@@ -2930,7 +2359,7 @@
               "label": "부채 부담",
               "weight": 2,
               "status": "fail",
-              "message": "성장에 비해 부채 부담이 있습니다(순부채/EBITDA 2.1배).",
+              "message": "성장에 비해 부채 부담이 있습니다(순부채/EBITDA 2.5배).",
               "detail": "순부채 / EBITDA ≤ 2.0"
             },
             {
@@ -2946,17 +2375,17 @@
             "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 15%)."
           ],
           "risks": [
-            "주당순이익 성장률이 연평균 7.3%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
-            "성장률에 비해 가격이 앞서 있습니다(PEG 4.16).",
-            "매출 성장은 연평균 7.3%에 그쳤습니다.",
-            "성장에 비해 부채 부담이 있습니다(순부채/EBITDA 2.1배)."
+            "주당순이익 성장률이 연평균 2.2%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
+            "성장률에 비해 가격이 앞서 있습니다(PEG 10.24).",
+            "매출 성장은 연평균 4.3%에 그쳤습니다.",
+            "성장에 비해 부채 부담이 있습니다(순부채/EBITDA 2.5배)."
           ]
         },
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 42,
-          "passed": 1,
+          "score": 86,
+          "passed": 2,
           "totalJudged": 2,
           "total": 2,
           "dataConfidence": "높음",
@@ -2965,8 +2394,8 @@
               "code": "GRB_QUALITY_RANK",
               "label": "사업의 질 순위",
               "weight": 1,
-              "status": "fail",
-              "message": "자본수익률 상대 순위 8위/12개입니다(5년 평균 14.5%).",
+              "status": "pass",
+              "message": "자본수익률 상대 순위 4위/7개입니다(5년 평균 15.3%).",
               "detail": "5년 평균 자본수익률의 유니버스 내 내림차순 순위"
             },
             {
@@ -2974,74 +2403,73 @@
               "label": "가격 순위",
               "weight": 1,
               "status": "pass",
-              "message": "이익수익률 상대 순위 6위/12개입니다(5.7%).",
+              "message": "이익수익률 상대 순위 4위/7개입니다(5.1%).",
               "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
             }
           ],
           "reasons": [
-            "이익수익률 상대 순위 6위/12개입니다(5.7%)."
+            "자본수익률 상대 순위 4위/7개입니다(5년 평균 15.3%).",
+            "이익수익률 상대 순위 4위/7개입니다(5.1%)."
           ],
-          "risks": [
-            "자본수익률 상대 순위 8위/12개입니다(5년 평균 14.5%)."
-          ],
-          "rank": 8,
+          "risks": [],
+          "rank": 2,
           "rankComponents": {
-            "quality": 8,
-            "value": 6
+            "quality": 4,
+            "value": 4
           }
         }
       }
     },
     {
-      "ticker": "CI",
-      "name": "The Cigna Group",
-      "sector": "헬스케어",
-      "price": 292.0,
-      "marketCap": 78256.0,
+      "ticker": "LULU",
+      "name": "룰루레몬",
+      "sector": "Apparel & Other Finishd Prods of  Fabrics & Similar Matl",
+      "price": 123.51,
+      "marketCap": 14025.04441218,
       "asOf": {
-        "price": "2026-07-29",
-        "financial": "2026-06-30"
+        "price": "2026-08-05",
+        "financial": "2026-02-01"
       },
       "metrics": {
-        "roicAvg5y": 0.09807701046519357,
-        "fcfMargin": 0.038221528861154444,
-        "fcfYield": 0.12523001431200165,
-        "netDebtToEbitda": 1.7259259259259259,
-        "interestCoverage": 6.9655172413793105,
-        "revenueCagr5y": 0.10164973194195004,
-        "epsCagr5y": 0.020938104536261992,
-        "pe": 10.86888888888889,
-        "pbr": 1.7866666666666666,
-        "peg": 1.2076543209876545,
-        "currentRatio": 1.6153846153846154,
-        "debtToEquity": 0.7191780821917808,
-        "evEbit": 10.055049504950494,
-        "earningsYield": 0.09945251880735752
+        "roicAvg5y": 0.4462736270614321,
+        "fcfMargin": 0.08301433898366148,
+        "fcfYield": 0.0657163694397698,
+        "netDebtToEbitda": null,
+        "interestCoverage": null,
+        "revenueCagr5y": 0.15417398411894645,
+        "epsCagr5y": 0.15349423040984056,
+        "pe": 8.88120275622268,
+        "pbr": 2.8265813513091915,
+        "peg": 0.5786017319679856,
+        "currentRatio": 2.258327205453848,
+        "debtToEquity": null,
+        "evEbit": null,
+        "earningsYield": null
       },
       "scores": {
         "buffett": {
           "styleId": "buffett",
           "modelVersion": "Buffett 1.0",
-          "score": 56,
-          "passed": 4,
-          "totalJudged": 8,
+          "score": 87,
+          "passed": 5,
+          "totalJudged": 6,
           "total": 8,
-          "dataConfidence": "높음",
+          "dataConfidence": "보통",
           "criteria": [
             {
               "code": "BUF_ROIC_LEVEL",
               "label": "자본 효율성",
               "weight": 3,
-              "status": "fail",
-              "message": "투자한 자본 대비 이익이 기준(12%)에 못 미칩니다(5년 평균 10%).",
+              "status": "pass",
+              "message": "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 45%).",
               "detail": "5년 평균 ROIC ≥ 12%"
             },
             {
               "code": "BUF_ROIC_STABILITY",
               "label": "수익성 지속성",
               "weight": 2,
-              "status": "fail",
-              "message": "두 자릿수 자본수익률을 유지한 해가 5년 중 2년에 그쳤습니다.",
+              "status": "pass",
+              "message": "5년 중 5년 동안 두 자릿수 자본수익률을 유지했습니다.",
               "detail": "최근 5년 중 4년 이상 ROIC ≥ 10%"
             },
             {
@@ -3057,23 +2485,23 @@
               "label": "현금 창출력",
               "weight": 2,
               "status": "fail",
-              "message": "매출 대비 남는 현금이 4%로 기준(10%)보다 낮습니다.",
+              "message": "매출 대비 남는 현금이 8%로 기준(10%)보다 낮습니다.",
               "detail": "잉여현금흐름 마진 ≥ 10%"
             },
             {
               "code": "BUF_LEVERAGE",
               "label": "부채 부담",
               "weight": 2,
-              "status": "pass",
-              "message": "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 1.7배).",
+              "status": "unknown",
+              "message": "이 기준을 판정할 데이터가 부족합니다.",
               "detail": "순부채 / EBITDA ≤ 2.5배"
             },
             {
               "code": "BUF_INTEREST_COVER",
               "label": "이자 감당력",
               "weight": 1,
-              "status": "fail",
-              "message": "영업이익이 이자비용의 7.0배로 여유가 크지 않습니다.",
+              "status": "unknown",
+              "message": "이 기준을 판정할 데이터가 부족합니다.",
               "detail": "영업이익 / 이자비용 ≥ 8배"
             },
             {
@@ -3081,7 +2509,7 @@
               "label": "사업의 성장",
               "weight": 2,
               "status": "pass",
-              "message": "매출이 5년 동안 연평균 10.2% 성장했습니다.",
+              "message": "매출이 5년 동안 연평균 15.4% 성장했습니다.",
               "detail": "매출 5년 연평균 성장률 ≥ 3%"
             },
             {
@@ -3089,321 +2517,38 @@
               "label": "현재 가격",
               "weight": 3,
               "status": "pass",
-              "message": "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 12.5%).",
+              "message": "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 6.6%).",
               "detail": "잉여현금흐름 수익률 ≥ 4% 또는 EV/EBIT가 자기 5년 중앙값 이하"
             }
           ],
           "reasons": [
-            "최근 5년 동안 잉여현금흐름이 매년 플러스였습니다.",
-            "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 1.7배).",
-            "매출이 5년 동안 연평균 10.2% 성장했습니다.",
-            "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 12.5%)."
-          ],
-          "risks": [
-            "투자한 자본 대비 이익이 기준(12%)에 못 미칩니다(5년 평균 10%).",
-            "두 자릿수 자본수익률을 유지한 해가 5년 중 2년에 그쳤습니다.",
-            "매출 대비 남는 현금이 4%로 기준(10%)보다 낮습니다.",
-            "영업이익이 이자비용의 7.0배로 여유가 크지 않습니다."
-          ]
-        },
-        "graham": {
-          "styleId": "graham",
-          "modelVersion": "Graham 0.9",
-          "score": 86,
-          "passed": 5,
-          "totalJudged": 6,
-          "total": 6,
-          "dataConfidence": "높음",
-          "criteria": [
-            {
-              "code": "GRA_PE",
-              "label": "이익 대비 가격",
-              "weight": 3,
-              "status": "pass",
-              "message": "이익 대비 가격이 낮은 편입니다(PER 10.9배).",
-              "detail": "PER ≤ 15배"
-            },
-            {
-              "code": "GRA_PBR",
-              "label": "자산 대비 가격",
-              "weight": 2,
-              "status": "fail",
-              "message": "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 1.8배).",
-              "detail": "PBR ≤ 1.5배"
-            },
-            {
-              "code": "GRA_CURRENT_RATIO",
-              "label": "단기 지급 능력",
-              "weight": 2,
-              "status": "pass",
-              "message": "1년 안에 갚을 빚보다 유동자산이 1.6배 많습니다.",
-              "detail": "유동비율 ≥ 1.5"
-            },
-            {
-              "code": "GRA_DEBT_EQUITY",
-              "label": "자본 대비 부채",
-              "weight": 2,
-              "status": "pass",
-              "message": "자기자본보다 부채가 적습니다(부채비율 0.72).",
-              "detail": "부채 / 자기자본 ≤ 1.0"
-            },
-            {
-              "code": "GRA_EARNINGS_STABILITY",
-              "label": "이익의 지속성",
-              "weight": 3,
-              "status": "pass",
-              "message": "최근 5년 동안 매년 흑자를 냈습니다.",
-              "detail": "최근 5년 연속 순이익 흑자"
-            },
-            {
-              "code": "GRA_VALUE_TRAP",
-              "label": "가치함정 점검",
-              "weight": 2,
-              "status": "pass",
-              "message": "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 10.2%).",
-              "detail": "매출 5년 성장률 ≥ 0% (싼 데는 이유가 있는지 확인)"
-            }
-          ],
-          "reasons": [
-            "이익 대비 가격이 낮은 편입니다(PER 10.9배).",
-            "1년 안에 갚을 빚보다 유동자산이 1.6배 많습니다.",
-            "자기자본보다 부채가 적습니다(부채비율 0.72).",
-            "최근 5년 동안 매년 흑자를 냈습니다.",
-            "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 10.2%)."
-          ],
-          "risks": [
-            "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 1.8배)."
-          ]
-        },
-        "lynch": {
-          "styleId": "lynch",
-          "modelVersion": "Lynch 0.9",
-          "score": 33,
-          "passed": 2,
-          "totalJudged": 5,
-          "total": 5,
-          "dataConfidence": "높음",
-          "criteria": [
-            {
-              "code": "LYN_EPS_GROWTH",
-              "label": "이익 성장",
-              "weight": 3,
-              "status": "fail",
-              "message": "주당순이익 성장률이 연평균 2.1%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
-              "detail": "주당순이익 5년 연평균 성장률 15~40%"
-            },
-            {
-              "code": "LYN_PEG",
-              "label": "성장률 대비 가격",
-              "weight": 3,
-              "status": "fail",
-              "message": "성장률에 비해 가격이 앞서 있습니다(PEG 1.21).",
-              "detail": "PEG ≤ 1.2"
-            },
-            {
-              "code": "LYN_REVENUE_GROWTH",
-              "label": "매출 성장의 뒷받침",
-              "weight": 2,
-              "status": "pass",
-              "message": "이익뿐 아니라 매출도 연평균 10.2% 늘었습니다.",
-              "detail": "매출 5년 연평균 성장률 ≥ 8%"
-            },
-            {
-              "code": "LYN_DEBT",
-              "label": "부채 부담",
-              "weight": 2,
-              "status": "pass",
-              "message": "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 1.7배).",
-              "detail": "순부채 / EBITDA ≤ 2.0"
-            },
-            {
-              "code": "LYN_PROFITABILITY",
-              "label": "성장의 질",
-              "weight": 2,
-              "status": "fail",
-              "message": "성장에 비해 자본 대비 이익이 낮습니다(5년 평균 ROIC 10%).",
-              "detail": "5년 평균 ROIC ≥ 10%"
-            }
-          ],
-          "reasons": [
-            "이익뿐 아니라 매출도 연평균 10.2% 늘었습니다.",
-            "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 1.7배)."
-          ],
-          "risks": [
-            "주당순이익 성장률이 연평균 2.1%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
-            "성장률에 비해 가격이 앞서 있습니다(PEG 1.21).",
-            "성장에 비해 자본 대비 이익이 낮습니다(5년 평균 ROIC 10%)."
-          ]
-        },
-        "greenblatt": {
-          "styleId": "greenblatt",
-          "modelVersion": "Greenblatt 1.0",
-          "score": 75,
-          "passed": 1,
-          "totalJudged": 2,
-          "total": 2,
-          "dataConfidence": "높음",
-          "criteria": [
-            {
-              "code": "GRB_QUALITY_RANK",
-              "label": "사업의 질 순위",
-              "weight": 1,
-              "status": "fail",
-              "message": "자본수익률 상대 순위 11위/12개입니다(5년 평균 9.8%).",
-              "detail": "5년 평균 자본수익률의 유니버스 내 내림차순 순위"
-            },
-            {
-              "code": "GRB_VALUE_RANK",
-              "label": "가격 순위",
-              "weight": 1,
-              "status": "pass",
-              "message": "이익수익률 상대 순위 1위/12개입니다(9.9%).",
-              "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
-            }
-          ],
-          "reasons": [
-            "이익수익률 상대 순위 1위/12개입니다(9.9%)."
-          ],
-          "risks": [
-            "자본수익률 상대 순위 11위/12개입니다(5년 평균 9.8%)."
-          ],
-          "rank": 4,
-          "rankComponents": {
-            "quality": 11,
-            "value": 1
-          }
-        }
-      }
-    },
-    {
-      "ticker": "LULU",
-      "name": "Lululemon Athletica",
-      "sector": "소비재",
-      "price": 320.0,
-      "marketCap": 37760.0,
-      "asOf": {
-        "price": "2026-07-29",
-        "financial": "2026-04-30"
-      },
-      "metrics": {
-        "roicAvg5y": 0.3124213850769225,
-        "fcfMargin": 0.14615384615384616,
-        "fcfYield": 0.04025423728813559,
-        "netDebtToEbitda": -0.3191489361702128,
-        "interestCoverage": 53.333333333333336,
-        "revenueCagr5y": 0.07456993182354199,
-        "epsCagr5y": 0.17844395270153912,
-        "pe": 20.085106382978722,
-        "pbr": 6.742857142857143,
-        "peg": 1.181476846057572,
-        "currentRatio": 2.090909090909091,
-        "debtToEquity": 0.21428571428571427,
-        "evEbit": 15.358333333333333,
-        "earningsYield": 0.06511123168746609
-      },
-      "scores": {
-        "buffett": {
-          "styleId": "buffett",
-          "modelVersion": "Buffett 1.0",
-          "score": 83,
-          "passed": 7,
-          "totalJudged": 8,
-          "total": 8,
-          "dataConfidence": "높음",
-          "criteria": [
-            {
-              "code": "BUF_ROIC_LEVEL",
-              "label": "자본 효율성",
-              "weight": 3,
-              "status": "pass",
-              "message": "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 31%).",
-              "detail": "5년 평균 ROIC ≥ 12%"
-            },
-            {
-              "code": "BUF_ROIC_STABILITY",
-              "label": "수익성 지속성",
-              "weight": 2,
-              "status": "pass",
-              "message": "5년 중 5년 동안 두 자릿수 자본수익률을 유지했습니다.",
-              "detail": "최근 5년 중 4년 이상 ROIC ≥ 10%"
-            },
-            {
-              "code": "BUF_FCF_CONSISTENCY",
-              "label": "현금흐름 지속성",
-              "weight": 3,
-              "status": "fail",
-              "message": "잉여현금흐름이 플러스였던 해가 5년 중 4년입니다.",
-              "detail": "최근 5년 연속 잉여현금흐름 양(+)"
-            },
-            {
-              "code": "BUF_FCF_MARGIN",
-              "label": "현금 창출력",
-              "weight": 2,
-              "status": "pass",
-              "message": "매출의 15%가 실제 현금으로 남습니다.",
-              "detail": "잉여현금흐름 마진 ≥ 10%"
-            },
-            {
-              "code": "BUF_LEVERAGE",
-              "label": "부채 부담",
-              "weight": 2,
-              "status": "pass",
-              "message": "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA -0.3배).",
-              "detail": "순부채 / EBITDA ≤ 2.5배"
-            },
-            {
-              "code": "BUF_INTEREST_COVER",
-              "label": "이자 감당력",
-              "weight": 1,
-              "status": "pass",
-              "message": "영업이익이 이자비용의 53배입니다.",
-              "detail": "영업이익 / 이자비용 ≥ 8배"
-            },
-            {
-              "code": "BUF_GROWTH",
-              "label": "사업의 성장",
-              "weight": 2,
-              "status": "pass",
-              "message": "매출이 5년 동안 연평균 7.5% 성장했습니다.",
-              "detail": "매출 5년 연평균 성장률 ≥ 3%"
-            },
-            {
-              "code": "BUF_VALUATION",
-              "label": "현재 가격",
-              "weight": 3,
-              "status": "pass",
-              "message": "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 4.0%).",
-              "detail": "잉여현금흐름 수익률 ≥ 4% 또는 EV/EBIT가 자기 5년 중앙값 이하"
-            }
-          ],
-          "reasons": [
-            "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 31%).",
+            "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 45%).",
             "5년 중 5년 동안 두 자릿수 자본수익률을 유지했습니다.",
-            "매출의 15%가 실제 현금으로 남습니다.",
-            "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA -0.3배).",
-            "영업이익이 이자비용의 53배입니다.",
-            "매출이 5년 동안 연평균 7.5% 성장했습니다.",
-            "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 4.0%)."
+            "최근 5년 동안 잉여현금흐름이 매년 플러스였습니다.",
+            "매출이 5년 동안 연평균 15.4% 성장했습니다.",
+            "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 6.6%)."
           ],
           "risks": [
-            "잉여현금흐름이 플러스였던 해가 5년 중 4년입니다."
+            "매출 대비 남는 현금이 8%로 기준(10%)보다 낮습니다.",
+            "이 기준을 판정할 데이터가 부족합니다.",
+            "이 기준을 판정할 데이터가 부족합니다."
           ]
         },
         "graham": {
           "styleId": "graham",
           "modelVersion": "Graham 0.9",
-          "score": 64,
+          "score": 83,
           "passed": 4,
-          "totalJudged": 6,
+          "totalJudged": 5,
           "total": 6,
-          "dataConfidence": "높음",
+          "dataConfidence": "보통",
           "criteria": [
             {
               "code": "GRA_PE",
               "label": "이익 대비 가격",
               "weight": 3,
-              "status": "fail",
-              "message": "이익 대비 가격이 기준(15배)보다 높습니다(PER 20.1배).",
+              "status": "pass",
+              "message": "이익 대비 가격이 낮은 편입니다(PER 8.9배).",
               "detail": "PER ≤ 15배"
             },
             {
@@ -3411,7 +2556,7 @@
               "label": "자산 대비 가격",
               "weight": 2,
               "status": "fail",
-              "message": "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 6.7배).",
+              "message": "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 2.8배).",
               "detail": "PBR ≤ 1.5배"
             },
             {
@@ -3419,15 +2564,15 @@
               "label": "단기 지급 능력",
               "weight": 2,
               "status": "pass",
-              "message": "1년 안에 갚을 빚보다 유동자산이 2.1배 많습니다.",
+              "message": "1년 안에 갚을 빚보다 유동자산이 2.3배 많습니다.",
               "detail": "유동비율 ≥ 1.5"
             },
             {
               "code": "GRA_DEBT_EQUITY",
               "label": "자본 대비 부채",
               "weight": 2,
-              "status": "pass",
-              "message": "자기자본보다 부채가 적습니다(부채비율 0.21).",
+              "status": "unknown",
+              "message": "이 기준을 판정할 데이터가 부족합니다.",
               "detail": "부채 / 자기자본 ≤ 1.0"
             },
             {
@@ -3443,36 +2588,36 @@
               "label": "가치함정 점검",
               "weight": 2,
               "status": "pass",
-              "message": "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 7.5%).",
+              "message": "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 15.4%).",
               "detail": "매출 5년 성장률 ≥ 0% (싼 데는 이유가 있는지 확인)"
             }
           ],
           "reasons": [
-            "1년 안에 갚을 빚보다 유동자산이 2.1배 많습니다.",
-            "자기자본보다 부채가 적습니다(부채비율 0.21).",
+            "이익 대비 가격이 낮은 편입니다(PER 8.9배).",
+            "1년 안에 갚을 빚보다 유동자산이 2.3배 많습니다.",
             "최근 5년 동안 매년 흑자를 냈습니다.",
-            "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 7.5%)."
+            "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 15.4%)."
           ],
           "risks": [
-            "이익 대비 가격이 기준(15배)보다 높습니다(PER 20.1배).",
-            "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 6.7배)."
+            "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 2.8배).",
+            "이 기준을 판정할 데이터가 부족합니다."
           ]
         },
         "lynch": {
           "styleId": "lynch",
           "modelVersion": "Lynch 0.9",
-          "score": 83,
+          "score": 100,
           "passed": 4,
-          "totalJudged": 5,
+          "totalJudged": 4,
           "total": 5,
-          "dataConfidence": "높음",
+          "dataConfidence": "보통",
           "criteria": [
             {
               "code": "LYN_EPS_GROWTH",
               "label": "이익 성장",
               "weight": 3,
               "status": "pass",
-              "message": "주당순이익이 5년 동안 연평균 17.8% 늘었습니다.",
+              "message": "주당순이익이 5년 동안 연평균 15.3% 늘었습니다.",
               "detail": "주당순이익 5년 연평균 성장률 15~40%"
             },
             {
@@ -3480,23 +2625,23 @@
               "label": "성장률 대비 가격",
               "weight": 3,
               "status": "pass",
-              "message": "성장률에 비해 가격이 무겁지 않습니다(PEG 1.18).",
+              "message": "성장률에 비해 가격이 무겁지 않습니다(PEG 0.58).",
               "detail": "PEG ≤ 1.2"
             },
             {
               "code": "LYN_REVENUE_GROWTH",
               "label": "매출 성장의 뒷받침",
               "weight": 2,
-              "status": "fail",
-              "message": "매출 성장은 연평균 7.5%에 그쳤습니다.",
+              "status": "pass",
+              "message": "이익뿐 아니라 매출도 연평균 15.4% 늘었습니다.",
               "detail": "매출 5년 연평균 성장률 ≥ 8%"
             },
             {
               "code": "LYN_DEBT",
               "label": "부채 부담",
               "weight": 2,
-              "status": "pass",
-              "message": "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA -0.3배).",
+              "status": "unknown",
+              "message": "이 기준을 판정할 데이터가 부족합니다.",
               "detail": "순부채 / EBITDA ≤ 2.0"
             },
             {
@@ -3504,56 +2649,51 @@
               "label": "성장의 질",
               "weight": 2,
               "status": "pass",
-              "message": "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 31%).",
+              "message": "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 45%).",
               "detail": "5년 평균 ROIC ≥ 10%"
             }
           ],
           "reasons": [
-            "주당순이익이 5년 동안 연평균 17.8% 늘었습니다.",
-            "성장률에 비해 가격이 무겁지 않습니다(PEG 1.18).",
-            "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA -0.3배).",
-            "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 31%)."
+            "주당순이익이 5년 동안 연평균 15.3% 늘었습니다.",
+            "성장률에 비해 가격이 무겁지 않습니다(PEG 0.58).",
+            "이익뿐 아니라 매출도 연평균 15.4% 늘었습니다.",
+            "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 45%)."
           ],
           "risks": [
-            "매출 성장은 연평균 7.5%에 그쳤습니다."
+            "이 기준을 판정할 데이터가 부족합니다."
           ]
         },
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 100,
-          "passed": 2,
-          "totalJudged": 2,
+          "score": null,
+          "passed": 0,
+          "totalJudged": 0,
           "total": 2,
-          "dataConfidence": "높음",
+          "dataConfidence": "정보 부족",
           "criteria": [
             {
               "code": "GRB_QUALITY_RANK",
               "label": "사업의 질 순위",
               "weight": 1,
-              "status": "pass",
-              "message": "자본수익률 상대 순위 2위/12개입니다(5년 평균 31.2%).",
+              "status": "unknown",
+              "message": "상대 순위를 계산할 데이터가 부족합니다.",
               "detail": "5년 평균 자본수익률의 유니버스 내 내림차순 순위"
             },
             {
               "code": "GRB_VALUE_RANK",
               "label": "가격 순위",
               "weight": 1,
-              "status": "pass",
-              "message": "이익수익률 상대 순위 5위/12개입니다(6.5%).",
+              "status": "unknown",
+              "message": "상대 순위를 계산할 데이터가 부족합니다.",
               "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
             }
           ],
-          "reasons": [
-            "자본수익률 상대 순위 2위/12개입니다(5년 평균 31.2%).",
-            "이익수익률 상대 순위 5위/12개입니다(6.5%)."
-          ],
-          "risks": [],
-          "rank": 1,
-          "rankComponents": {
-            "quality": 2,
-            "value": 5
-          }
+          "reasons": [],
+          "risks": [
+            "상대 순위를 계산할 데이터가 부족합니다.",
+            "상대 순위를 계산할 데이터가 부족합니다."
+          ]
         }
       }
     }
