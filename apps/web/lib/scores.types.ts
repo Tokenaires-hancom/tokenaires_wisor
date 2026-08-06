@@ -27,6 +27,8 @@ export type StyleScore = {
   criteria: CriterionResult[];
   reasons: string[];
   risks: string[];
+  rank?: number;
+  rankComponents?: { quality: number; value: number };
 };
 
 export type Company = {
@@ -44,6 +46,7 @@ export type StyleMeta = {
   id: string;
   name: string;
   modelVersion: string;
+  method?: "threshold" | "rank";
   criteria: { code: string; label: string; weight: number; detail: string }[];
 };
 
@@ -69,4 +72,5 @@ export const METRIC_LABELS: Record<string, { label: string; format: "pct" | "x" 
   currentRatio: { label: "유동비율", format: "raw" },
   debtToEquity: { label: "부채 / 자기자본", format: "raw" },
   evEbit: { label: "EV / EBIT", format: "x" },
+  earningsYield: { label: "이익수익률(EBIT / 기업가치)", format: "pct" },
 };

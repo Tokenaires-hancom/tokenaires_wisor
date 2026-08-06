@@ -1,8 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { BUFFETT } from "./buffett.ts";
+import { FISHER } from "./fisher.ts";
 import { GRAHAM } from "./graham.ts";
+import { GREENBLATT } from "./greenblatt.ts";
 import { LYNCH } from "./lynch.ts";
+import { MARKS } from "./marks.ts";
+import { SOROS } from "./soros.ts";
 import type { Chapter, Curriculum } from "./types.ts";
 import { curriculumProblems } from "./validate.ts";
 
@@ -186,8 +190,11 @@ test("기록형 문항의 prompt에 권유형 표현이 있으면 잡는다", ()
   assert.match(problems[0], /권유형/);
 });
 
-test("실제 세 커리큘럼(버핏·그레이엄·린치)은 문제를 내지 않는다", () => {
-  assert.deepEqual(curriculumProblems([BUFFETT, GRAHAM, LYNCH]), []);
+test("실제 일곱 커리큘럼은 문제를 내지 않는다", () => {
+  assert.deepEqual(
+    curriculumProblems([BUFFETT, GRAHAM, LYNCH, MARKS, FISHER, GREENBLATT, SOROS]),
+    [],
+  );
 });
 
 test("문제를 전부 모아서 돌려준다 — 첫 개에서 멈추지 않는다", () => {

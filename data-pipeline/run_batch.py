@@ -16,9 +16,10 @@ from pathlib import Path
 
 from wisor_data import metrics, quality
 from wisor_data.providers.base import SampleProvider
-from wisor_data.styles import buffett, graham, lynch
+from wisor_data.styles import buffett, graham, greenblatt, lynch
 
-STYLES = [buffett.STYLE, graham.STYLE, lynch.STYLE]
+THRESHOLD_STYLES = [buffett.STYLE, graham.STYLE, lynch.STYLE]
+STYLES = [*THRESHOLD_STYLES, greenblatt.STYLE]
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_OUT = ROOT.parent / "apps" / "web" / "lib" / "generated" / "scores.json"
@@ -35,10 +36,15 @@ def build(provider) -> dict:
     for i in issues:
         print(f"  {'✗' if i.fatal else '!'} {i.ticker} {i.code}: {i.message}")
 
+    prepared = [(fundamentals, metrics.compute(fundamentals)) for fundamentals in passed]
+    greenblatt_scores = greenblatt.score_universe(
+        {fundamentals.ticker: computed for fundamentals, computed in prepared}
+    )
+
     rows = []
-    for f in passed:
-        m = metrics.compute(f)
-        scores = {s.id: s.score(m).to_dict() for s in STYLES}
+    for f, m in prepared:
+        scores = {s.id: s.score(m).to_dict() for s in THRESHOLD_STYLES}
+        scores[greenblatt.STYLE.id] = greenblatt_scores[f.ticker].to_dict()
         rows.append({
             "ticker": f.ticker,
             "name": f.name,
@@ -60,6 +66,7 @@ def build(provider) -> dict:
                 "currentRatio": m.current_ratio,
                 "debtToEquity": m.debt_to_equity,
                 "evEbit": m.ev_ebit,
+                "earningsYield": m.earnings_yield,
             },
             "scores": scores,
         })
@@ -73,6 +80,7 @@ def build(provider) -> dict:
                 "id": s.id,
                 "name": s.name,
                 "modelVersion": s.model_version,
+                "method": getattr(s, "method", "threshold"),
                 "criteria": [
                     {"code": c.code, "label": c.label, "weight": c.weight, "detail": c.detail}
                     for c in s.criteria

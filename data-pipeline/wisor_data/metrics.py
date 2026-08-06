@@ -112,6 +112,7 @@ class Metrics:
     eps_cagr_5y: Optional[float] = None
     fcf_yield: Optional[float] = None
     ev_ebit: Optional[float] = None
+    earnings_yield: Optional[float] = None
     ev_ebit_vs_median: Optional[float] = None
     pe: Optional[float] = None
     pbr: Optional[float] = None
@@ -154,6 +155,7 @@ def compute(f: Fundamentals) -> Metrics:
 
     m.fcf_yield = _safe_div(f.fcf[-1] if f.fcf else None, m.market_cap)
     m.ev_ebit = _safe_div(m.enterprise_value, f.ebit[-1] if f.ebit else None)
+    m.earnings_yield = _safe_div(f.ebit[-1] if f.ebit else None, m.enterprise_value)
     if m.ev_ebit is not None and f.ev_ebit_median_5y:
         m.ev_ebit_vs_median = m.ev_ebit / f.ev_ebit_median_5y
 

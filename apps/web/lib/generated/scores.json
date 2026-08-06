@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-31T01:07:42+00:00",
+  "generatedAt": "2026-08-06T05:39:39+00:00",
   "dataSource": "sample",
   "asOf": {
     "price": "2026-07-29",
@@ -10,6 +10,7 @@
       "id": "buffett",
       "name": "워런 버핏·찰리 멍거",
       "modelVersion": "Buffett 1.0",
+      "method": "threshold",
       "criteria": [
         {
           "code": "BUF_ROIC_LEVEL",
@@ -65,6 +66,7 @@
       "id": "graham",
       "name": "벤저민 그레이엄",
       "modelVersion": "Graham 0.9",
+      "method": "threshold",
       "criteria": [
         {
           "code": "GRA_PE",
@@ -108,6 +110,7 @@
       "id": "lynch",
       "name": "피터 린치",
       "modelVersion": "Lynch 0.9",
+      "method": "threshold",
       "criteria": [
         {
           "code": "LYN_EPS_GROWTH",
@@ -140,6 +143,26 @@
           "detail": "5년 평균 ROIC ≥ 10%"
         }
       ]
+    },
+    {
+      "id": "greenblatt",
+      "name": "조엘 그린블랫",
+      "modelVersion": "Greenblatt 1.0",
+      "method": "rank",
+      "criteria": [
+        {
+          "code": "GRB_QUALITY_RANK",
+          "label": "사업의 질 순위",
+          "weight": 1,
+          "detail": "5년 평균 자본수익률의 유니버스 내 내림차순 순위"
+        },
+        {
+          "code": "GRB_VALUE_RANK",
+          "label": "가격 순위",
+          "weight": 1,
+          "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
+        }
+      ]
     }
   ],
   "companies": [
@@ -166,7 +189,8 @@
         "peg": 3.5635404896421843,
         "currentRatio": 0.9612403100775194,
         "debtToEquity": 0.32558139534883723,
-        "evEbit": 22.86356968215159
+        "evEbit": 22.86356968215159,
+        "earningsYield": 0.043737702113097784
       },
       "scores": {
         "buffett": {
@@ -384,6 +408,44 @@
             "성장률에 비해 가격이 앞서 있습니다(PEG 3.56).",
             "매출 성장은 연평균 2.8%에 그쳤습니다."
           ]
+        },
+        "greenblatt": {
+          "styleId": "greenblatt",
+          "modelVersion": "Greenblatt 1.0",
+          "score": 50,
+          "passed": 1,
+          "totalJudged": 2,
+          "total": 2,
+          "dataConfidence": "높음",
+          "criteria": [
+            {
+              "code": "GRB_QUALITY_RANK",
+              "label": "사업의 질 순위",
+              "weight": 1,
+              "status": "pass",
+              "message": "자본수익률 상대 순위 5위/12개입니다(5년 평균 24.1%).",
+              "detail": "5년 평균 자본수익률의 유니버스 내 내림차순 순위"
+            },
+            {
+              "code": "GRB_VALUE_RANK",
+              "label": "가격 순위",
+              "weight": 1,
+              "status": "fail",
+              "message": "이익수익률 상대 순위 8위/12개입니다(4.4%).",
+              "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
+            }
+          ],
+          "reasons": [
+            "자본수익률 상대 순위 5위/12개입니다(5년 평균 24.1%)."
+          ],
+          "risks": [
+            "이익수익률 상대 순위 8위/12개입니다(4.4%)."
+          ],
+          "rank": 7,
+          "rankComponents": {
+            "quality": 5,
+            "value": 8
+          }
         }
       }
     },
@@ -410,7 +472,8 @@
         "peg": 2.615132693393563,
         "currentRatio": 1.3559322033898304,
         "debtToEquity": 0.21474358974358973,
-        "evEbit": 28.93510971786834
+        "evEbit": 28.93510971786834,
+        "earningsYield": 0.03456009013791535
       },
       "scores": {
         "buffett": {
@@ -628,6 +691,44 @@
             "주당순이익 성장률이 연평균 14.0%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
             "성장률에 비해 가격이 앞서 있습니다(PEG 2.62)."
           ]
+        },
+        "greenblatt": {
+          "styleId": "greenblatt",
+          "modelVersion": "Greenblatt 1.0",
+          "score": 75,
+          "passed": 1,
+          "totalJudged": 2,
+          "total": 2,
+          "dataConfidence": "높음",
+          "criteria": [
+            {
+              "code": "GRB_QUALITY_RANK",
+              "label": "사업의 질 순위",
+              "weight": 1,
+              "status": "pass",
+              "message": "자본수익률 상대 순위 1위/12개입니다(5년 평균 33.9%).",
+              "detail": "5년 평균 자본수익률의 유니버스 내 내림차순 순위"
+            },
+            {
+              "code": "GRB_VALUE_RANK",
+              "label": "가격 순위",
+              "weight": 1,
+              "status": "fail",
+              "message": "이익수익률 상대 순위 11위/12개입니다(3.5%).",
+              "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
+            }
+          ],
+          "reasons": [
+            "자본수익률 상대 순위 1위/12개입니다(5년 평균 33.9%)."
+          ],
+          "risks": [
+            "이익수익률 상대 순위 11위/12개입니다(3.5%)."
+          ],
+          "rank": 4,
+          "rankComponents": {
+            "quality": 1,
+            "value": 11
+          }
         }
       }
     },
@@ -654,7 +755,8 @@
         "peg": 3.7470588235294118,
         "currentRatio": 3.183673469387755,
         "debtToEquity": 0.6852791878172588,
-        "evEbit": 23.98181818181818
+        "evEbit": 23.98181818181818,
+        "earningsYield": 0.04169825625473844
       },
       "scores": {
         "buffett": {
@@ -872,6 +974,44 @@
             "성장률에 비해 가격이 앞서 있습니다(PEG 3.75).",
             "매출 성장은 연평균 -2.9%에 그쳤습니다."
           ]
+        },
+        "greenblatt": {
+          "styleId": "greenblatt",
+          "modelVersion": "Greenblatt 1.0",
+          "score": 75,
+          "passed": 1,
+          "totalJudged": 2,
+          "total": 2,
+          "dataConfidence": "높음",
+          "criteria": [
+            {
+              "code": "GRB_QUALITY_RANK",
+              "label": "사업의 질 순위",
+              "weight": 1,
+              "status": "pass",
+              "message": "자본수익률 상대 순위 3위/12개입니다(5년 평균 27.4%).",
+              "detail": "5년 평균 자본수익률의 유니버스 내 내림차순 순위"
+            },
+            {
+              "code": "GRB_VALUE_RANK",
+              "label": "가격 순위",
+              "weight": 1,
+              "status": "fail",
+              "message": "이익수익률 상대 순위 9위/12개입니다(4.2%).",
+              "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
+            }
+          ],
+          "reasons": [
+            "자본수익률 상대 순위 3위/12개입니다(5년 평균 27.4%)."
+          ],
+          "risks": [
+            "이익수익률 상대 순위 9위/12개입니다(4.2%)."
+          ],
+          "rank": 4,
+          "rankComponents": {
+            "quality": 3,
+            "value": 9
+          }
         }
       }
     },
@@ -898,7 +1038,8 @@
         "peg": 2.315646258503401,
         "currentRatio": 1.0454545454545454,
         "debtToEquity": 0.8091286307053942,
-        "evEbit": 10.675083056478405
+        "evEbit": 10.675083056478405,
+        "earningsYield": 0.09367608614465331
       },
       "scores": {
         "buffett": {
@@ -1116,6 +1257,44 @@
             "주당순이익 성장률이 연평균 3.0%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
             "성장률에 비해 가격이 앞서 있습니다(PEG 2.32)."
           ]
+        },
+        "greenblatt": {
+          "styleId": "greenblatt",
+          "modelVersion": "Greenblatt 1.0",
+          "score": 83,
+          "passed": 1,
+          "totalJudged": 2,
+          "total": 2,
+          "dataConfidence": "높음",
+          "criteria": [
+            {
+              "code": "GRB_QUALITY_RANK",
+              "label": "사업의 질 순위",
+              "weight": 1,
+              "status": "fail",
+              "message": "자본수익률 상대 순위 7위/12개입니다(5년 평균 15.2%).",
+              "detail": "5년 평균 자본수익률의 유니버스 내 내림차순 순위"
+            },
+            {
+              "code": "GRB_VALUE_RANK",
+              "label": "가격 순위",
+              "weight": 1,
+              "status": "pass",
+              "message": "이익수익률 상대 순위 2위/12개입니다(9.4%).",
+              "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
+            }
+          ],
+          "reasons": [
+            "이익수익률 상대 순위 2위/12개입니다(9.4%)."
+          ],
+          "risks": [
+            "자본수익률 상대 순위 7위/12개입니다(5년 평균 15.2%)."
+          ],
+          "rank": 3,
+          "rankComponents": {
+            "quality": 7,
+            "value": 2
+          }
         }
       }
     },
@@ -1142,7 +1321,8 @@
         "peg": 10.508,
         "currentRatio": 2.290909090909091,
         "debtToEquity": 0.851063829787234,
-        "evEbit": 41.261538461538464
+        "evEbit": 41.261538461538464,
+        "earningsYield": 0.024235645041014168
       },
       "scores": {
         "buffett": {
@@ -1360,6 +1540,44 @@
             "성장률에 비해 가격이 앞서 있습니다(PEG 10.51).",
             "매출 성장은 연평균 -1.0%에 그쳤습니다."
           ]
+        },
+        "greenblatt": {
+          "styleId": "greenblatt",
+          "modelVersion": "Greenblatt 1.0",
+          "score": 17,
+          "passed": 1,
+          "totalJudged": 2,
+          "total": 2,
+          "dataConfidence": "높음",
+          "criteria": [
+            {
+              "code": "GRB_QUALITY_RANK",
+              "label": "사업의 질 순위",
+              "weight": 1,
+              "status": "pass",
+              "message": "자본수익률 상대 순위 6위/12개입니다(5년 평균 17.7%).",
+              "detail": "5년 평균 자본수익률의 유니버스 내 내림차순 순위"
+            },
+            {
+              "code": "GRB_VALUE_RANK",
+              "label": "가격 순위",
+              "weight": 1,
+              "status": "fail",
+              "message": "이익수익률 상대 순위 12위/12개입니다(2.4%).",
+              "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
+            }
+          ],
+          "reasons": [
+            "자본수익률 상대 순위 6위/12개입니다(5년 평균 17.7%)."
+          ],
+          "risks": [
+            "이익수익률 상대 순위 12위/12개입니다(2.4%)."
+          ],
+          "rank": 11,
+          "rankComponents": {
+            "quality": 6,
+            "value": 12
+          }
         }
       }
     },
@@ -1386,7 +1604,8 @@
         "peg": 4.81672131147541,
         "currentRatio": 1.4710743801652892,
         "debtToEquity": 1.2254901960784315,
-        "evEbit": 18.919767441860465
+        "evEbit": 18.919767441860465,
+        "earningsYield": 0.05285477229426587
       },
       "scores": {
         "buffett": {
@@ -1604,6 +1823,43 @@
             "성장률에 비해 가격이 앞서 있습니다(PEG 4.82).",
             "매출 성장은 연평균 4.6%에 그쳤습니다."
           ]
+        },
+        "greenblatt": {
+          "styleId": "greenblatt",
+          "modelVersion": "Greenblatt 1.0",
+          "score": 25,
+          "passed": 0,
+          "totalJudged": 2,
+          "total": 2,
+          "dataConfidence": "높음",
+          "criteria": [
+            {
+              "code": "GRB_QUALITY_RANK",
+              "label": "사업의 질 순위",
+              "weight": 1,
+              "status": "fail",
+              "message": "자본수익률 상대 순위 10위/12개입니다(5년 평균 13.2%).",
+              "detail": "5년 평균 자본수익률의 유니버스 내 내림차순 순위"
+            },
+            {
+              "code": "GRB_VALUE_RANK",
+              "label": "가격 순위",
+              "weight": 1,
+              "status": "fail",
+              "message": "이익수익률 상대 순위 7위/12개입니다(5.3%).",
+              "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
+            }
+          ],
+          "reasons": [],
+          "risks": [
+            "자본수익률 상대 순위 10위/12개입니다(5년 평균 13.2%).",
+            "이익수익률 상대 순위 7위/12개입니다(5.3%)."
+          ],
+          "rank": 10,
+          "rankComponents": {
+            "quality": 10,
+            "value": 7
+          }
         }
       }
     },
@@ -1630,7 +1886,8 @@
         "peg": 1.4023255813953488,
         "currentRatio": 1.5897435897435896,
         "debtToEquity": 0.7446808510638298,
-        "evEbit": 11.392857142857142
+        "evEbit": 11.392857142857142,
+        "earningsYield": 0.0877742946708464
       },
       "scores": {
         "buffett": {
@@ -1848,6 +2105,43 @@
             "주당순이익 성장률이 연평균 13.5%로 이 스타일이 보는 구간(15~40%) 밖입니다.",
             "성장률에 비해 가격이 앞서 있습니다(PEG 1.40)."
           ]
+        },
+        "greenblatt": {
+          "styleId": "greenblatt",
+          "modelVersion": "Greenblatt 1.0",
+          "score": 100,
+          "passed": 2,
+          "totalJudged": 2,
+          "total": 2,
+          "dataConfidence": "높음",
+          "criteria": [
+            {
+              "code": "GRB_QUALITY_RANK",
+              "label": "사업의 질 순위",
+              "weight": 1,
+              "status": "pass",
+              "message": "자본수익률 상대 순위 4위/12개입니다(5년 평균 24.9%).",
+              "detail": "5년 평균 자본수익률의 유니버스 내 내림차순 순위"
+            },
+            {
+              "code": "GRB_VALUE_RANK",
+              "label": "가격 순위",
+              "weight": 1,
+              "status": "pass",
+              "message": "이익수익률 상대 순위 3위/12개입니다(8.8%).",
+              "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
+            }
+          ],
+          "reasons": [
+            "자본수익률 상대 순위 4위/12개입니다(5년 평균 24.9%).",
+            "이익수익률 상대 순위 3위/12개입니다(8.8%)."
+          ],
+          "risks": [],
+          "rank": 1,
+          "rankComponents": {
+            "quality": 4,
+            "value": 3
+          }
         }
       }
     },
@@ -1874,7 +2168,8 @@
         "peg": 7.577142857142857,
         "currentRatio": 1.5,
         "debtToEquity": 2.6495726495726495,
-        "evEbit": 24.930958904109588
+        "evEbit": 24.930958904109588,
+        "earningsYield": 0.04011077166531132
       },
       "scores": {
         "buffett": {
@@ -2092,6 +2387,43 @@
             "매출 성장은 연평균 2.1%에 그쳤습니다.",
             "성장에 비해 부채 부담이 있습니다(순부채/EBITDA 5.8배)."
           ]
+        },
+        "greenblatt": {
+          "styleId": "greenblatt",
+          "modelVersion": "Greenblatt 1.0",
+          "score": 8,
+          "passed": 0,
+          "totalJudged": 2,
+          "total": 2,
+          "dataConfidence": "높음",
+          "criteria": [
+            {
+              "code": "GRB_QUALITY_RANK",
+              "label": "사업의 질 순위",
+              "weight": 1,
+              "status": "fail",
+              "message": "자본수익률 상대 순위 9위/12개입니다(5년 평균 14.3%).",
+              "detail": "5년 평균 자본수익률의 유니버스 내 내림차순 순위"
+            },
+            {
+              "code": "GRB_VALUE_RANK",
+              "label": "가격 순위",
+              "weight": 1,
+              "status": "fail",
+              "message": "이익수익률 상대 순위 10위/12개입니다(4.0%).",
+              "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
+            }
+          ],
+          "reasons": [],
+          "risks": [
+            "자본수익률 상대 순위 9위/12개입니다(5년 평균 14.3%).",
+            "이익수익률 상대 순위 10위/12개입니다(4.0%)."
+          ],
+          "rank": 12,
+          "rankComponents": {
+            "quality": 9,
+            "value": 10
+          }
         }
       }
     },
@@ -2118,7 +2450,8 @@
         "peg": 5.232428571428572,
         "currentRatio": 0.8,
         "debtToEquity": 1.6,
-        "evEbit": 11.457958477508651
+        "evEbit": 11.457958477508651,
+        "earningsYield": 0.08727558246636569
       },
       "scores": {
         "buffett": {
@@ -2335,6 +2668,44 @@
             "성장에 비해 부채 부담이 있습니다(순부채/EBITDA 3.2배).",
             "성장에 비해 자본 대비 이익이 낮습니다(5년 평균 ROIC 9%)."
           ]
+        },
+        "greenblatt": {
+          "styleId": "greenblatt",
+          "modelVersion": "Greenblatt 1.0",
+          "score": 33,
+          "passed": 1,
+          "totalJudged": 2,
+          "total": 2,
+          "dataConfidence": "높음",
+          "criteria": [
+            {
+              "code": "GRB_QUALITY_RANK",
+              "label": "사업의 질 순위",
+              "weight": 1,
+              "status": "fail",
+              "message": "자본수익률 상대 순위 12위/12개입니다(5년 평균 9.2%).",
+              "detail": "5년 평균 자본수익률의 유니버스 내 내림차순 순위"
+            },
+            {
+              "code": "GRB_VALUE_RANK",
+              "label": "가격 순위",
+              "weight": 1,
+              "status": "pass",
+              "message": "이익수익률 상대 순위 4위/12개입니다(8.7%).",
+              "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
+            }
+          ],
+          "reasons": [
+            "이익수익률 상대 순위 4위/12개입니다(8.7%)."
+          ],
+          "risks": [
+            "자본수익률 상대 순위 12위/12개입니다(5년 평균 9.2%)."
+          ],
+          "rank": 9,
+          "rankComponents": {
+            "quality": 12,
+            "value": 4
+          }
         }
       }
     },
@@ -2361,7 +2732,8 @@
         "peg": 4.160258064516129,
         "currentRatio": 0.8709677419354839,
         "debtToEquity": 2.328042328042328,
-        "evEbit": 17.41618320610687
+        "evEbit": 17.41618320610687,
+        "earningsYield": 0.05741786177635962
       },
       "scores": {
         "buffett": {
@@ -2579,6 +2951,44 @@
             "매출 성장은 연평균 7.3%에 그쳤습니다.",
             "성장에 비해 부채 부담이 있습니다(순부채/EBITDA 2.1배)."
           ]
+        },
+        "greenblatt": {
+          "styleId": "greenblatt",
+          "modelVersion": "Greenblatt 1.0",
+          "score": 42,
+          "passed": 1,
+          "totalJudged": 2,
+          "total": 2,
+          "dataConfidence": "높음",
+          "criteria": [
+            {
+              "code": "GRB_QUALITY_RANK",
+              "label": "사업의 질 순위",
+              "weight": 1,
+              "status": "fail",
+              "message": "자본수익률 상대 순위 8위/12개입니다(5년 평균 14.5%).",
+              "detail": "5년 평균 자본수익률의 유니버스 내 내림차순 순위"
+            },
+            {
+              "code": "GRB_VALUE_RANK",
+              "label": "가격 순위",
+              "weight": 1,
+              "status": "pass",
+              "message": "이익수익률 상대 순위 6위/12개입니다(5.7%).",
+              "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
+            }
+          ],
+          "reasons": [
+            "이익수익률 상대 순위 6위/12개입니다(5.7%)."
+          ],
+          "risks": [
+            "자본수익률 상대 순위 8위/12개입니다(5년 평균 14.5%)."
+          ],
+          "rank": 8,
+          "rankComponents": {
+            "quality": 8,
+            "value": 6
+          }
         }
       }
     },
@@ -2605,7 +3015,8 @@
         "peg": 1.2076543209876545,
         "currentRatio": 1.6153846153846154,
         "debtToEquity": 0.7191780821917808,
-        "evEbit": 10.055049504950494
+        "evEbit": 10.055049504950494,
+        "earningsYield": 0.09945251880735752
       },
       "scores": {
         "buffett": {
@@ -2823,6 +3234,44 @@
             "성장률에 비해 가격이 앞서 있습니다(PEG 1.21).",
             "성장에 비해 자본 대비 이익이 낮습니다(5년 평균 ROIC 10%)."
           ]
+        },
+        "greenblatt": {
+          "styleId": "greenblatt",
+          "modelVersion": "Greenblatt 1.0",
+          "score": 75,
+          "passed": 1,
+          "totalJudged": 2,
+          "total": 2,
+          "dataConfidence": "높음",
+          "criteria": [
+            {
+              "code": "GRB_QUALITY_RANK",
+              "label": "사업의 질 순위",
+              "weight": 1,
+              "status": "fail",
+              "message": "자본수익률 상대 순위 11위/12개입니다(5년 평균 9.8%).",
+              "detail": "5년 평균 자본수익률의 유니버스 내 내림차순 순위"
+            },
+            {
+              "code": "GRB_VALUE_RANK",
+              "label": "가격 순위",
+              "weight": 1,
+              "status": "pass",
+              "message": "이익수익률 상대 순위 1위/12개입니다(9.9%).",
+              "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
+            }
+          ],
+          "reasons": [
+            "이익수익률 상대 순위 1위/12개입니다(9.9%)."
+          ],
+          "risks": [
+            "자본수익률 상대 순위 11위/12개입니다(5년 평균 9.8%)."
+          ],
+          "rank": 4,
+          "rankComponents": {
+            "quality": 11,
+            "value": 1
+          }
         }
       }
     },
@@ -2849,7 +3298,8 @@
         "peg": 1.181476846057572,
         "currentRatio": 2.090909090909091,
         "debtToEquity": 0.21428571428571427,
-        "evEbit": 15.358333333333333
+        "evEbit": 15.358333333333333,
+        "earningsYield": 0.06511123168746609
       },
       "scores": {
         "buffett": {
@@ -3067,6 +3517,43 @@
           "risks": [
             "매출 성장은 연평균 7.5%에 그쳤습니다."
           ]
+        },
+        "greenblatt": {
+          "styleId": "greenblatt",
+          "modelVersion": "Greenblatt 1.0",
+          "score": 100,
+          "passed": 2,
+          "totalJudged": 2,
+          "total": 2,
+          "dataConfidence": "높음",
+          "criteria": [
+            {
+              "code": "GRB_QUALITY_RANK",
+              "label": "사업의 질 순위",
+              "weight": 1,
+              "status": "pass",
+              "message": "자본수익률 상대 순위 2위/12개입니다(5년 평균 31.2%).",
+              "detail": "5년 평균 자본수익률의 유니버스 내 내림차순 순위"
+            },
+            {
+              "code": "GRB_VALUE_RANK",
+              "label": "가격 순위",
+              "weight": 1,
+              "status": "pass",
+              "message": "이익수익률 상대 순위 5위/12개입니다(6.5%).",
+              "detail": "EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위"
+            }
+          ],
+          "reasons": [
+            "자본수익률 상대 순위 2위/12개입니다(5년 평균 31.2%).",
+            "이익수익률 상대 순위 5위/12개입니다(6.5%)."
+          ],
+          "risks": [],
+          "rank": 1,
+          "rankComponents": {
+            "quality": 2,
+            "value": 5
+          }
         }
       }
     }

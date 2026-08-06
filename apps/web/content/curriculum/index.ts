@@ -1,14 +1,26 @@
 import type { Master } from "../masters";
 import { BUFFETT } from "./buffett";
+import { FISHER } from "./fisher";
 import { GRAHAM } from "./graham";
+import { GREENBLATT } from "./greenblatt";
 import { LYNCH } from "./lynch";
+import { MARKS } from "./marks";
+import { SOROS } from "./soros";
 import type { Chapter, Curriculum } from "./types";
 import { curriculumProblems } from "./validate";
 
 export * from "./types";
 
 // MASTERS와 같은 순서. 목차 페이지와 스크리너가 이미 이 순서다
-export const CURRICULA: Curriculum[] = [BUFFETT, GRAHAM, LYNCH];
+export const CURRICULA: Curriculum[] = [
+  BUFFETT,
+  GRAHAM,
+  LYNCH,
+  MARKS,
+  FISHER,
+  GREENBLATT,
+  SOROS,
+];
 
 // 페이지가 전부 정적 생성이라 이 검사는 빌드에서 돈다. 건너뛸 수 없다.
 const problems = curriculumProblems(CURRICULA);

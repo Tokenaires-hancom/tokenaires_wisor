@@ -12,7 +12,7 @@ import pytest
 
 from wisor_data import metrics, quality
 from wisor_data.metrics import Fundamentals
-from wisor_data.styles import buffett, graham, lynch
+from wisor_data.styles import buffett, graham, greenblatt, lynch
 from wisor_data.styles.base import BANNED_PHRASES
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -107,3 +107,41 @@ def test_every_company_has_at_least_one_style_score():
         m = metrics.compute(Fundamentals.from_dict(company))
         scores = [s.score(m).score for s in ALL_STYLES]
         assert any(v is not None for v in scores), company["ticker"]
+
+
+def test_greenblatt_combines_quality_and_value_ranks():
+    universe = {
+        "AAA": metrics.Metrics(roic_avg_5y=0.30, earnings_yield=0.05),
+        "BBB": metrics.Metrics(roic_avg_5y=0.20, earnings_yield=0.10),
+        "CCC": metrics.Metrics(roic_avg_5y=0.10, earnings_yield=0.03),
+    }
+    scores = greenblatt.score_universe(universe)
+
+    assert scores["AAA"].rank == 1
+    assert scores["BBB"].rank == 1
+    assert scores["CCC"].rank == 3
+    assert scores["BBB"].rank_components == {"quality": 2, "value": 1}
+
+
+def test_greenblatt_missing_metric_is_unscored():
+    scores = greenblatt.score_universe(
+        {
+            "KNOWN": metrics.Metrics(roic_avg_5y=0.20, earnings_yield=0.08),
+            "MISSING": metrics.Metrics(roic_avg_5y=0.20, earnings_yield=None),
+        }
+    )
+
+    assert scores["MISSING"].score is None
+    assert scores["MISSING"].data_confidence == "정보 부족"
+    assert all(criterion.status == "unknown" for criterion in scores["MISSING"].criteria)
+
+
+def test_greenblatt_rank_messages_are_safe_for_sample_universe():
+    universe = {
+        company["ticker"]: metrics.compute(Fundamentals.from_dict(company))
+        for company in UNIVERSE["companies"]
+    }
+    for score in greenblatt.score_universe(universe).values():
+        for criterion in score.criteria:
+            for banned in BANNED_PHRASES:
+                assert banned not in criterion.message

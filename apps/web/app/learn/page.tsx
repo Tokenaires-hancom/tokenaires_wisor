@@ -17,9 +17,13 @@ export default function LearnIndex() {
         투자 대가에게 배우기
       </h2>
       <p className="lede">
-        어떤 기업을 관심 있게 볼 것인가. 순서대로 볼 것을 권합니다. 버핏에서 시작해 그레이엄으로
-        뿌리를 보고, 린치에서 분산과 집중의 대조를 봅니다. 관심 있는 장만 골라 봐도 됩니다.
+        버핏에서 시작해 그레이엄과 린치를 본 뒤 막스에서 시장 단위로 시야를 넓힐 수 있습니다.
+        피셔·그린블랫·소로스는 관심과 실행 방식에 따라 골라 보세요. 일곱 스타일은 모두 같은 다섯
+        질문을 공유합니다.
       </p>
+      <Link href="/learn/compare" className="btn" data-variant="quiet" style={{ marginBottom: "1.5rem" }}>
+        다섯 질문으로 일곱 스타일 비교하기
+      </Link>
       <div className="grid">
         {MASTERS.map((m) => (
           <Link key={m.id} href={`/learn/masters/${m.id}`} className="card card-link">
@@ -29,7 +33,8 @@ export default function LearnIndex() {
             </h3>
             <p style={{ fontSize: "0.9rem", color: "var(--ink-soft)", margin: 0 }}>{m.oneLine}</p>
             <p className="mono" style={{ color: "var(--ink-faint)", margin: 0 }}>
-              {CURRICULUM_BY_MASTER[m.id].chapters.length}장
+              {CURRICULUM_BY_MASTER[m.id].chapters.length}장 ·{" "}
+              {m.evaluation === "score" ? "점수 모델" : "자가진단"}
             </p>
           </Link>
         ))}

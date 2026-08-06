@@ -95,6 +95,8 @@ class StyleScore:
     total: int
     data_confidence: Literal["높음", "보통", "낮음", "정보 부족"]
     criteria: list[CriterionResult] = field(default_factory=list)
+    rank: Optional[int] = None
+    rank_components: dict[str, int] = field(default_factory=dict)
 
     @property
     def reasons(self) -> list[str]:
@@ -105,7 +107,7 @@ class StyleScore:
         return [c.message for c in self.criteria if c.status in ("fail", "unknown")]
 
     def to_dict(self) -> dict:
-        return {
+        result = {
             "styleId": self.style_id,
             "modelVersion": self.model_version,
             "score": self.score,
@@ -117,6 +119,10 @@ class StyleScore:
             "reasons": self.reasons,
             "risks": self.risks,
         }
+        if self.rank is not None:
+            result["rank"] = self.rank
+            result["rankComponents"] = self.rank_components
+        return result
 
 
 @dataclass

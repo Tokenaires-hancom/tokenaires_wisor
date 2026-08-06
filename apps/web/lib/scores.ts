@@ -61,6 +61,13 @@ export function ranked(styleId: string): { scored: Company[]; unscored: Company[
     else scored.push(c);
   }
 
-  scored.sort((a, b) => (b.scores[styleId].score ?? 0) - (a.scores[styleId].score ?? 0));
+  scored.sort((a, b) => {
+    const aScore = a.scores[styleId];
+    const bScore = b.scores[styleId];
+    if (aScore.rank !== undefined && bScore.rank !== undefined) {
+      return aScore.rank - bScore.rank || a.ticker.localeCompare(b.ticker);
+    }
+    return (bScore.score ?? 0) - (aScore.score ?? 0);
+  });
   return { scored, unscored };
 }

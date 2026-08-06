@@ -64,7 +64,7 @@ export default function StockLenses({
 
       {lens === "business" && score && (
         <p className="disclaimer">
-          이 점수는 {score.modelVersion} 모델이 공개된 재무데이터에 같은 기준을 적용한 결과입니다.
+          이 결과는 {score.modelVersion} 모델이 공개된 재무데이터에 같은 규칙을 적용한 것입니다.
           기업을 좁히는 출발점이며, 매수·매도 판단이 아닙니다.
         </p>
       )}
@@ -87,6 +87,7 @@ function BusinessLens({
   const passed = score.criteria.filter((c) => c.status === "pass");
   const failed = score.criteria.filter((c) => c.status === "fail");
   const unknown = score.criteria.filter((c) => c.status === "unknown");
+  const rankModel = score.rankComponents !== undefined;
 
   return (
     <>
@@ -100,26 +101,34 @@ function BusinessLens({
             onClick={() => onStyleChange(id)}
           >
             {MASTER_BY_ID[id as keyof typeof MASTER_BY_ID]?.name.split(" · ")[0] ?? id}{" "}
-            {score && company.scores[id].score !== null ? `${company.scores[id].score}점` : "정보 부족"}
+            {company.scores[id].rank !== undefined
+              ? `#${company.scores[id].rank}`
+              : company.scores[id].score !== null
+                ? `${company.scores[id].score}점`
+                : "정보 부족"}
           </button>
         ))}
       </div>
 
       <div className="card">
         <p className="eyebrow">
-          {score.modelVersion} · 판정한 {score.totalJudged}개 기준 중 {score.passed}개 충족
+          {rankModel
+            ? `${score.modelVersion} · 질 ${score.rankComponents?.quality}위 · 가격 ${score.rankComponents?.value}위`
+            : `${score.modelVersion} · 판정한 ${score.totalJudged}개 기준 중 ${score.passed}개 충족`}
         </p>
         <div style={{ display: "flex", alignItems: "baseline", gap: "0.6rem", marginBottom: "1rem" }}>
           <span className="score-value" style={{ fontSize: "2.2rem" }}>
-            {score.score ?? "—"}
+            {score.rank !== undefined ? `#${score.rank}` : (score.score ?? "—")}
           </span>
-          <span className="score-of">{score.score !== null ? "점" : "정보 부족"}</span>
+          <span className="score-of">
+            {score.rank !== undefined ? "종합 순위" : score.score !== null ? "점" : "정보 부족"}
+          </span>
         </div>
         <CriteriaBar criteria={score.criteria} showLegend />
       </div>
 
       <h3 className="sub" style={{ marginTop: "2rem" }}>
-        이 스타일에 맞는 점 ({passed.length})
+        {rankModel ? "상위 절반인 지표" : "이 스타일에 맞는 점"} ({passed.length})
       </h3>
       <ul className="reason-list">
         {passed.map((c) => (
@@ -131,7 +140,7 @@ function BusinessLens({
       </ul>
 
       <h3 className="sub" style={{ marginTop: "2rem" }}>
-        확인이 필요한 점 ({failed.length + unknown.length})
+        {rankModel ? "하위 절반이거나 정보가 부족한 지표" : "확인이 필요한 점"} ({failed.length + unknown.length})
       </h3>
       <ul className="reason-list">
         {failed.map((c) => (
@@ -265,7 +274,7 @@ function NoteLens({ company, styleId }: { company: Company; styleId: string }) {
           {Object.entries(company.scores).map(([id, s]) => (
             <li key={id} data-kind={s.score === null ? "unknown" : "pass"}>
               {MASTER_BY_ID[id as keyof typeof MASTER_BY_ID]?.name ?? id} —{" "}
-              {s.score === null ? "정보 부족" : `${s.score}점`}
+              {s.rank !== undefined ? `종합 ${s.rank}위` : s.score === null ? "정보 부족" : `${s.score}점`}
             </li>
           ))}
         </ul>

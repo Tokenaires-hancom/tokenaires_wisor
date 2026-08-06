@@ -574,6 +574,113 @@ h3.sub {
   margin-bottom: 0;
 }
 
+.qualitative-check {
+  padding: 1.5rem;
+  border: 1px dashed var(--plum-line);
+  border-radius: var(--radius);
+  background: var(--plum-soft);
+}
+
+.qualitative-check .reason-list {
+  margin-bottom: 1.25rem;
+}
+
+/* ---------- 일곱 스타일 비교 ---------- */
+
+.comparison-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.comparison-matrix {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.comparison-matrix th,
+.comparison-matrix td {
+  padding: 1rem;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.comparison-matrix tr:last-child th,
+.comparison-matrix tr:last-child td {
+  border-bottom: 0;
+}
+
+.comparison-matrix th:last-child,
+.comparison-matrix td:last-child {
+  border-right: 0;
+}
+
+.comparison-matrix thead th {
+  background: var(--surface-sunk);
+  color: var(--plum-deep);
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.comparison-matrix thead th:first-child,
+.comparison-matrix tbody th {
+  width: 10rem;
+}
+
+.comparison-matrix thead span {
+  display: block;
+}
+
+.comparison-matrix thead .mono {
+  margin-bottom: 0.25rem;
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+}
+
+.comparison-matrix small {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--ink-faint);
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+.comparison-matrix tbody th {
+  background: var(--plum-soft);
+  color: var(--plum-deep);
+}
+
+.comparison-matrix td a,
+.comparison-matrix tbody th a {
+  text-decoration-color: var(--plum-line);
+  text-decoration-line: underline;
+  text-underline-offset: 0.18em;
+}
+
+.comparison-matrix td {
+  color: var(--ink-soft);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.comparison-sell {
+  min-width: 620px;
+}
+
+.comparison-sell thead th:first-child,
+.comparison-sell tbody th {
+  width: auto;
+}
+
 .notice {
   border: 1px solid var(--ochre-line);
   background: var(--ochre-soft);

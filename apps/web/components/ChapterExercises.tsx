@@ -62,11 +62,13 @@ export default function ChapterExercises({
       await recordQuiz(chapterId, correct, graded.length);
     }
 
-    track("master_lesson_completed", {
-      id: chapterId,
-      correct,
-      total: graded.length,
-    });
+    if (chapterId.startsWith("master:")) {
+      track("master_lesson_completed", {
+        id: chapterId,
+        correct,
+        total: graded.length,
+      });
+    }
   }
 
   return (

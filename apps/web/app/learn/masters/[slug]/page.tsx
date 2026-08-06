@@ -14,7 +14,7 @@ export default async function MasterLesson({ params }: { params: Promise<{ slug:
   if (!master) notFound();
 
   const meta = styleMeta(master.id);
-  const { scored } = ranked(master.id);
+  const { scored } = master.evaluation === "score" ? ranked(master.id) : { scored: [] };
   const curriculum = CURRICULUM_BY_MASTER[master.id];
 
   return (
@@ -61,7 +61,9 @@ export default async function MasterLesson({ params }: { params: Promise<{ slug:
 
       <h2 className="section">이 스타일이 던지는 질문</h2>
       <p className="lede">
-        {meta ? `점수 모델 ${meta.modelVersion}은 아래 생각을 ${meta.criteria.length}개의 판정 기준으로 옮긴 것입니다.` : ""}
+        {meta
+          ? `점수 모델 ${meta.modelVersion}은 아래 생각을 ${meta.criteria.length}개의 판정 기준으로 옮긴 것입니다.`
+          : "이 스타일은 공개 재무지표만으로 점수를 만들지 않습니다. 아래 질문을 직접 확인하는 자가진단으로 다룹니다."}
       </p>
       <div className="stack">
         {master.principles.map((p, i) => (
@@ -100,14 +102,37 @@ export default async function MasterLesson({ params }: { params: Promise<{ slug:
 
       <hr className="rule" />
 
-      <h2 className="section">이 기준으로 정리된 종목</h2>
-      <p className="lede">
-        {meta?.modelVersion} 모델이 {scored.length}개 종목에 같은 기준을 적용했습니다. 순위가 아니라
-        기준을 몇 개 충족했는지를 봅니다.
-      </p>
-      <Link href={`/screener/${master.id}`} className="btn">
-        {master.name.split(" · ")[0]} 스타일 종목 보기
-      </Link>
+      {meta ? (
+        <>
+          <h2 className="section">이 기준으로 정리된 종목</h2>
+          <p className="lede">
+            {meta.modelVersion} 모델이 {scored.length}개 종목에 같은 기준을 적용했습니다. 모델 방식과
+            데이터 범위를 함께 확인할 수 있습니다.
+          </p>
+          <Link href={`/screener/${master.id}`} className="btn">
+            {master.name.split(" · ")[0]} 스타일 종목 보기
+          </Link>
+        </>
+      ) : (
+        <section className="qualitative-check">
+          <p className="eyebrow">자가진단 · 점수 없음</p>
+          <h2 className="section">숫자 대신 직접 확인할 항목</h2>
+          <p className="lede">
+            이 항목들은 공시 숫자만으로 판정할 수 없습니다. 답을 알고 있는지보다 근거를 직접
+            구할 수 있는지가 중요합니다.
+          </p>
+          <ul className="reason-list">
+            {master.principles.map((principle) => (
+              <li key={principle.title} data-kind="unknown">
+                {principle.title}
+              </li>
+            ))}
+          </ul>
+          <Link href={`/learn/masters/${master.id}/1`} className="btn">
+            첫 장에서 확인하기
+          </Link>
+        </section>
+      )}
     </div>
   );
 }

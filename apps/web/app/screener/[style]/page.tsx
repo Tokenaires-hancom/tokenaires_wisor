@@ -2,11 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import CriteriaBar from "@/components/CriteriaBar";
 import DataStamp, { SampleDataFlag } from "@/components/DataStamp";
-import { MASTERS, MASTER_BY_ID } from "@/content/masters";
+import { MASTER_BY_ID, SCORABLE_MASTERS } from "@/content/masters";
 import { DATA, ranked, styleMeta } from "@/lib/scores";
 
 export function generateStaticParams() {
-  return MASTERS.map((m) => ({ style: m.id }));
+  return SCORABLE_MASTERS.map((master) => ({ style: master.id }));
 }
 
 export default async function Screener({ params }: { params: Promise<{ style: string }> }) {
@@ -16,6 +16,7 @@ export default async function Screener({ params }: { params: Promise<{ style: st
   if (!master || !meta) notFound();
 
   const { scored, unscored } = ranked(style);
+  const isRankModel = meta.method === "rank";
 
   return (
     <div className="wrap" style={{ paddingBlock: "3.5rem 5rem" }}>
@@ -26,7 +27,7 @@ export default async function Screener({ params }: { params: Promise<{ style: st
       <p className="lede">{master.oneLine}</p>
 
       <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "1.5rem" }}>
-        {MASTERS.map((m) => (
+        {SCORABLE_MASTERS.map((m) => (
           <Link
             key={m.id}
             href={`/screener/${m.id}`}
@@ -44,10 +45,11 @@ export default async function Screener({ params }: { params: Promise<{ style: st
       <SampleDataFlag />
 
       <div className="card" style={{ marginTop: "1.5rem" }}>
-        <p className="eyebrow">점수를 매기는 방식</p>
+        <p className="eyebrow">{isRankModel ? "순위를 만드는 방식" : "점수를 매기는 방식"}</p>
         <p style={{ margin: "0 0 1rem", fontSize: "0.92rem", color: "var(--ink-soft)" }}>
-          {meta.criteria.length}개 기준을 같은 방식으로 모든 종목에 적용하고, 충족한 기준의 비중
-          합을 점수로 씁니다. 판정할 데이터가 없는 기준은 감점하지 않고 따로 표시합니다.
+          {isRankModel
+            ? "자본수익률과 이익수익률을 각각 전체 종목 안에서 순위 매긴 뒤 두 순위를 합산합니다. 절대 문턱이나 개별 예외를 사용하지 않습니다."
+            : `${meta.criteria.length}개 기준을 같은 방식으로 모든 종목에 적용하고, 충족한 기준의 비중 합을 점수로 씁니다. 판정할 데이터가 없는 기준은 감점하지 않고 따로 표시합니다.`}
         </p>
         <ol style={{ margin: 0, paddingLeft: "1.2rem", fontSize: "0.88rem", color: "var(--ink-soft)" }}>
           {meta.criteria.map((c) => (
@@ -93,9 +95,11 @@ export default async function Screener({ params }: { params: Promise<{ style: st
                 </ul>
               </span>
               <span className="stock-score">
-                <span className="score-value">{s.score}</span>
+                <span className="score-value">{s.rank !== undefined ? `#${s.rank}` : s.score}</span>
                 <div className="score-of">
-                  {s.passed}/{s.total} 기준
+                  {s.rankComponents
+                    ? `질 ${s.rankComponents.quality}위 · 가격 ${s.rankComponents.value}위`
+                    : `${s.passed}/${s.total} 기준`}
                 </div>
               </span>
             </Link>
