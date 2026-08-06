@@ -1,0 +1,265 @@
+"use client";
+
+import { useState } from "react";
+import { isCorrect } from "@/content/curriculum/grading";
+import type { Exercise } from "@/content/curriculum/types";
+import { track } from "@/lib/analytics";
+import { markLessonDone, recordQuiz, saveJournalEntry } from "@/lib/store";
+
+/** 챕터의 유일한 클라이언트 경계.
+ *
+ * 진도와 점수를 나눠 기록한다. 채점형 문항이 없는 장도 있으므로 모든 문항을
+ * 처리하면 진도를 남기고, 채점형 문항이 있는 장만 점수를 추가로 남긴다.
+ */
+export default function ChapterExercises({
+  chapterId,
+  exercises,
+}: {
+  chapterId: string;
+  exercises: Exercise[];
+}) {
+  const [done, setDone] = useState<boolean[]>(exercises.map(() => false));
+  const [picks, setPicks] = useState<number[][]>(exercises.map(() => []));
+  const [texts, setTexts] = useState<string[]>(exercises.map(() => ""));
+
+  function toggle(index: number, choice: number, multiple: boolean) {
+    if (done[index]) return;
+    setPicks((prev) =>
+      prev.map((picked, i) => {
+        if (i !== index) return picked;
+        if (!multiple) return [choice];
+        return picked.includes(choice)
+          ? picked.filter((candidate) => candidate !== choice)
+          : [...picked, choice];
+      }),
+    );
+  }
+
+  async function finish(index: number) {
+    const next = done.map((complete, i) => (i === index ? true : complete));
+    setDone(next);
+
+    const exercise = exercises[index];
+    if (exercise.kind === "journal") {
+      await saveJournalEntry(`${chapterId}#${index}`, exercise.prompt, texts[index]);
+    }
+
+    if (!next.every(Boolean)) return;
+
+    await markLessonDone(chapterId);
+
+    const graded = exercises
+      .map((item, i) => ({ item, i }))
+      .filter(
+        (candidate): candidate is {
+          item: Extract<Exercise, { kind: "graded" }>;
+          i: number;
+        } => candidate.item.kind === "graded",
+      );
+    const correct = graded.filter(({ item, i }) => isCorrect(item.answers, picks[i])).length;
+
+    if (graded.length > 0) {
+      await recordQuiz(chapterId, correct, graded.length);
+    }
+
+    track("master_lesson_completed", {
+      id: chapterId,
+      correct,
+      total: graded.length,
+    });
+  }
+
+  return (
+    <section className="stack" aria-label="챕터 문항">
+      {exercises.map((exercise, index) => (
+        <div key={index} className="card">
+          {exercise.kind === "graded" && (
+            <Graded
+              exercise={exercise}
+              picked={picks[index]}
+              submitted={done[index]}
+              onPick={(choice) => toggle(index, choice, exercise.answers.length > 1)}
+              onSubmit={() => void finish(index)}
+            />
+          )}
+          {exercise.kind === "guided" && (
+            <Guided
+              exercise={exercise}
+              text={texts[index]}
+              revealed={done[index]}
+              onChange={(value) =>
+                setTexts((prev) => prev.map((text, i) => (i === index ? value : text)))
+              }
+              onSubmit={() => void finish(index)}
+            />
+          )}
+          {exercise.kind === "journal" && (
+            <Journal
+              exercise={exercise}
+              text={texts[index]}
+              saved={done[index]}
+              onChange={(value) =>
+                setTexts((prev) => prev.map((text, i) => (i === index ? value : text)))
+              }
+              onSubmit={() => void finish(index)}
+            />
+          )}
+        </div>
+      ))}
+    </section>
+  );
+}
+
+function Graded({
+  exercise,
+  picked,
+  submitted,
+  onPick,
+  onSubmit,
+}: {
+  exercise: Extract<Exercise, { kind: "graded" }>;
+  picked: number[];
+  submitted: boolean;
+  onPick: (choice: number) => void;
+  onSubmit: () => void;
+}) {
+  const multiple = exercise.answers.length > 1;
+
+  return (
+    <>
+      <p className="eyebrow">확인 문항{multiple ? " · 복수 정답" : ""}</p>
+      <h3 className="sub">{exercise.prompt}</h3>
+      <div role="group" aria-label={exercise.prompt}>
+        {exercise.choices.map((choice, choiceIndex) => {
+          let state: string | undefined;
+          if (submitted) {
+            if (exercise.answers.includes(choiceIndex) && picked.includes(choiceIndex)) {
+              state = "correct";
+            } else if (picked.includes(choiceIndex)) {
+              state = "wrong";
+            } else if (exercise.answers.includes(choiceIndex)) {
+              state = "missed";
+            }
+          } else if (picked.includes(choiceIndex)) {
+            state = "correct";
+          }
+
+          return (
+            <button
+              key={choiceIndex}
+              type="button"
+              className="choice"
+              data-state={state}
+              aria-pressed={picked.includes(choiceIndex)}
+              disabled={submitted}
+              onClick={() => onPick(choiceIndex)}
+            >
+              <span className="mono">{String.fromCharCode(65 + choiceIndex)}</span>
+              <span>{choice}</span>
+            </button>
+          );
+        })}
+      </div>
+      {submitted ? (
+        <p
+          role="status"
+          style={{ fontSize: "0.88rem", color: "var(--ink-soft)", marginBottom: 0 }}
+        >
+          {exercise.explain}
+        </p>
+      ) : (
+        <button type="button" className="btn" disabled={picked.length === 0} onClick={onSubmit}>
+          답 확인하기
+        </button>
+      )}
+    </>
+  );
+}
+
+function Guided({
+  exercise,
+  text,
+  revealed,
+  onChange,
+  onSubmit,
+}: {
+  exercise: Extract<Exercise, { kind: "guided" }>;
+  text: string;
+  revealed: boolean;
+  onChange: (value: string) => void;
+  onSubmit: () => void;
+}) {
+  return (
+    <>
+      <p className="eyebrow">써보기 · 점수 없음</p>
+      <h3 className="sub">{exercise.prompt}</h3>
+      <label className="field">
+        <span>내 답</span>
+        <textarea
+          rows={4}
+          value={text}
+          onChange={(event) => onChange(event.target.value)}
+          disabled={revealed}
+        />
+      </label>
+      {revealed ? (
+        <div className="checkpoints" role="status">
+          <p className="eyebrow">체크 포인트</p>
+          <ul className="reason-list">
+            {exercise.checkpoints.map((point, index) => (
+              <li key={index} data-kind="pass">
+                {point}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <button type="button" className="btn" disabled={text.trim() === ""} onClick={onSubmit}>
+          체크 포인트 보기
+        </button>
+      )}
+    </>
+  );
+}
+
+function Journal({
+  exercise,
+  text,
+  saved,
+  onChange,
+  onSubmit,
+}: {
+  exercise: Extract<Exercise, { kind: "journal" }>;
+  text: string;
+  saved: boolean;
+  onChange: (value: string) => void;
+  onSubmit: () => void;
+}) {
+  return (
+    <>
+      <p className="eyebrow">기록 · 90일 뒤 다시 묻습니다</p>
+      <h3 className="sub">{exercise.prompt}</h3>
+      <label className="field">
+        <span>내 기록</span>
+        <textarea
+          rows={4}
+          value={text}
+          onChange={(event) => onChange(event.target.value)}
+          disabled={saved}
+        />
+      </label>
+      {saved ? (
+        <p
+          role="status"
+          style={{ fontSize: "0.88rem", color: "var(--ink-soft)", marginBottom: 0 }}
+        >
+          기록했습니다. 90일 뒤 내 학습에서 다시 묻습니다.
+        </p>
+      ) : (
+        <button type="button" className="btn" disabled={text.trim() === ""} onClick={onSubmit}>
+          기록하기
+        </button>
+      )}
+    </>
+  );
+}

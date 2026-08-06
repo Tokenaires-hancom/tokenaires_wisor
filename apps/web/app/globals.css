@@ -557,6 +557,23 @@ h3.sub {
   background: var(--plum-soft);
 }
 
+/* ---------- 커리큘럼 문항 ---------- */
+
+.checkpoints {
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+  background: var(--plum-soft);
+  border-radius: var(--radius);
+}
+
+.checkpoints .eyebrow {
+  color: var(--plum-deep);
+}
+
+.checkpoints .reason-list {
+  margin-bottom: 0;
+}
+
 .notice {
   border: 1px solid var(--ochre-line);
   background: var(--ochre-soft);

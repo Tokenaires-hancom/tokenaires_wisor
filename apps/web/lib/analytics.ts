@@ -4,7 +4,6 @@
 export type WisorEvent =
   | "master_lesson_started"
   | "master_lesson_completed"
-  | "master_quiz_completed"
   | "style_screener_opened"
   | "stock_detail_opened"
   | "chart_lesson_started"
