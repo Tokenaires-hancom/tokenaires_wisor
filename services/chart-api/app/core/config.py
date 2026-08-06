@@ -24,7 +24,7 @@ class Settings:
     max_image_bytes: int = 5 * MEGABYTE
     allowed_media_types: tuple[str, ...] = ("image/jpeg", "image/png", "image/webp")
     min_edge_px: int = 400  # 이보다 작으면 캔들 구분이 어렵다
-    daily_limit_per_user: int = 10
+    daily_limit_per_ip: int = 10  # 인증이 붙기 전까지의 하한선. services/rate_limit.py
 
     def build_provider(self):
         from ..services.llm_adapter import AnthropicVisionProvider, MockVisionProvider

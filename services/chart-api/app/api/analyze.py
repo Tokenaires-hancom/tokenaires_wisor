@@ -10,21 +10,29 @@
 from __future__ import annotations
 
 import logging
+from datetime import date
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 
 from ..core.config import Settings, settings
 from ..schemas.analysis import AnalysisResponse
 from ..services import vision_analyzer
 from ..services.image import ImageRejected, normalize
 from ..services.prompt import LESSON_IDS
+from ..services.rate_limit import DailyIpLimiter
 
 log = logging.getLogger("wisor.chart")
 router = APIRouter(prefix="/api/chart", tags=["chart"])
 
+limiter = DailyIpLimiter(settings.daily_limit_per_ip)
+
 
 def get_settings() -> Settings:
     return settings
+
+
+def get_limiter() -> DailyIpLimiter:
+    return limiter
 
 
 def _validate(upload: UploadFile, data: bytes, cfg: Settings) -> None:
@@ -41,9 +49,11 @@ def _validate(upload: UploadFile, data: bytes, cfg: Settings) -> None:
 
 @router.post("/analyze", response_model=AnalysisResponse)
 async def analyze_chart(
+    request: Request,
     image: UploadFile = File(...),
     lesson_id: str | None = Form(default=None),
     cfg: Settings = Depends(get_settings),
+    quota: DailyIpLimiter = Depends(get_limiter),
 ) -> AnalysisResponse:
     raw = await image.read()
     _validate(image, raw, cfg)
@@ -57,6 +67,14 @@ async def analyze_chart(
 
     if lesson_id and lesson_id not in LESSON_IDS:
         lesson_id = None
+
+    # 여기서부터가 유료 호출이다. 돌려보낸 이미지는 한도를 쓰지 않는다.
+    address = request.client.host if request.client else "unknown"
+    if not quota.allow(address, date.today().isoformat()):
+        raise HTTPException(
+            status_code=429,
+            detail=f"하루에 분석할 수 있는 차트는 {quota.limit}장입니다. 내일 다시 올려주세요.",
+        )
 
     provider = cfg.build_provider()
 

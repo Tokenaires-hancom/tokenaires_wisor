@@ -12,6 +12,7 @@ app/services/prompt.py           1차 방어선 — 프롬프트 제약
 app/services/safety.py           2차 방어선 — 출력 필터
 app/services/llm_adapter.py      공급자 교체 지점 (anthropic · mock)
 app/services/vision_analyzer.py  흐름 조립 + 재생성·거절 정책
+app/services/rate_limit.py       IP 기준 일일 호출 제한
 app/schemas/analysis.py          응답 스키마 (extra="forbid")
 app/api/analyze.py               POST /api/chart/analyze
 ```
@@ -52,6 +53,14 @@ app/api/analyze.py               POST /api/chart/analyze
 이 두 목록이 필터의 기준선입니다. 규칙만 고치고 표본을 안 늘리면 같은 실수가 다시 통과합니다.
 
 과잉 차단도 실패입니다. "골든크로스는 단기선이 장기선을 위로 지나는 현상을 부르는 이름입니다" 같은 교육 문장은 반드시 살아야 합니다.
+
+## 호출 제한
+
+**요청 한 건이 유료 모델 호출 한 건입니다.** `settings.daily_limit_per_ip`(기본 10)를 IP 기준으로 셉니다. 이미지 검증에서 돌려보낸 요청은 한도를 쓰지 않습니다. 모델을 부르지 않았기 때문입니다.
+
+프로세스 메모리에만 있습니다. 재시작하면 초기화되고, 인스턴스를 여러 개 띄우면 인스턴스마다 따로 셉니다. NAT 뒤의 여러 사용자는 한 주소로 묶입니다. **정확한 과금 방어가 아니라 무제한 호출을 막는 하한선입니다.** 사용자 인증이 붙으면 사용자 기준으로 옮깁니다.
+
+**리버스 프록시 뒤에 두면 반드시 `--proxy-headers`를 켭니다.** 주소를 `request.client.host`에서 읽으므로, 프록시를 거치면 모든 요청이 프록시 IP 하나로 접히고 하루 10건이 **서비스 전체의 한도**가 됩니다. 배포할 때 `uvicorn --proxy-headers --forwarded-allow-ips=<프록시 주소>`로 띄웁니다. 테스트 클라이언트는 주소가 `testclient` 하나뿐이라 이 문제를 잡지 못합니다.
 
 ## 프롬프트를 고칠 때
 
