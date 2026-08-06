@@ -1,5 +1,7 @@
 "use client";
 
+import { isDue } from "./journalDue";
+
 /** 사용자 데이터 저장소.
  *
  * MVP는 브라우저에만 저장한다. 2번(백엔드·플랫폼) 담당이 Supabase를 붙일 때
@@ -43,6 +45,7 @@ const KEYS = {
   watchlist: "wisor.watchlist",
   notes: "wisor.notes",
   progress: "wisor.progress",
+  journal: "wisor.journal",
 } as const;
 
 function read<T>(key: string, fallback: T): T {
@@ -122,4 +125,38 @@ export async function recordQuiz(id: string, correct: number, total: number): Pr
   p.quizResults[id] = { correct, total, at: new Date().toISOString() };
   if (!p.lessonsDone.includes(id)) p.lessonsDone.push(id);
   write(KEYS.progress, p);
+}
+
+/* 기록형 답 */
+
+export type JournalEntry = {
+  /** "master:buffett:1#2" — 챕터 id + 문항 위치 */
+  id: string;
+  /** 질문을 답과 함께 저장한다. /me가 클라이언트 컴포넌트라서, 질문을
+   *  커리큘럼에서 찾아오게 하면 챕터 본문 전체가 브라우저 번들에 실린다. */
+  prompt: string;
+  text: string;
+  at: string;
+};
+
+export async function getJournal(): Promise<JournalEntry[]> {
+  return read<JournalEntry[]>(KEYS.journal, []);
+}
+
+/** 같은 문항에 다시 쓰면 덮어쓰고 시각을 갱신한다. 되돌아본 것도 기록이다. */
+export async function saveJournalEntry(
+  id: string,
+  prompt: string,
+  text: string,
+): Promise<JournalEntry> {
+  const saved: JournalEntry = { id, prompt, text, at: new Date().toISOString() };
+  const rest = (await getJournal()).filter((entry) => entry.id !== id);
+  write(KEYS.journal, [saved, ...rest]);
+  return saved;
+}
+
+/** 쓴 지 afterDays가 지난 기록. 문서의 '3개월 뒤 재노출'이 기본값이다. */
+export async function dueJournalEntries(afterDays = 90): Promise<JournalEntry[]> {
+  const now = Date.now();
+  return (await getJournal()).filter((entry) => isDue(entry.at, now, afterDays));
 }
