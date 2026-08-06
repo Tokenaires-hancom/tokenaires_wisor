@@ -123,7 +123,7 @@ def score_universe(metrics_by_ticker: dict[str, Metrics]) -> dict[str, StyleScor
                 CRITERIA[0].label,
                 CRITERIA[0].weight,
                 "pass" if quality_rank <= half else "fail",
-                f"자본수익률 상대 순위 {quality_rank}위/{total}개입니다"
+                f"두 지표를 모두 계산할 수 있는 {total}개 종목 중 자본수익률 {quality_rank}위입니다"
                 f"(5년 평균 {pct(metrics.roic_avg_5y, 1)}).",
                 CRITERIA[0].detail,
             ),
@@ -132,7 +132,7 @@ def score_universe(metrics_by_ticker: dict[str, Metrics]) -> dict[str, StyleScor
                 CRITERIA[1].label,
                 CRITERIA[1].weight,
                 "pass" if value_rank <= half else "fail",
-                f"이익수익률 상대 순위 {value_rank}위/{total}개입니다"
+                f"두 지표를 모두 계산할 수 있는 {total}개 종목 중 이익수익률 {value_rank}위입니다"
                 f"({pct(metrics.earnings_yield, 1)}).",
                 CRITERIA[1].detail,
             ),

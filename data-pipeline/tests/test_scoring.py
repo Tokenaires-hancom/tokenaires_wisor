@@ -166,6 +166,26 @@ def test_greenblatt_combines_quality_and_value_ranks():
     assert scores["BBB"].rank_components == {"quality": 2, "value": 1}
 
 
+def test_greenblatt_message_says_what_the_denominator_counts():
+    """'1위/7개'만 쓰면 7이 무엇의 7인지 알 수 없다.
+
+    종목 상세에는 스크리너의 '정보 부족' 목록이 함께 보이지 않으므로, 모수가
+    유니버스 전체가 아니라 두 지표를 계산할 수 있는 종목이라는 것을 문장이 밝혀야 한다.
+    """
+    scores = greenblatt.score_universe(
+        {
+            "AAA": metrics.Metrics(roic_avg_5y=0.30, earnings_yield=0.05),
+            "BBB": metrics.Metrics(roic_avg_5y=0.20, earnings_yield=0.10),
+            "NODEBT": metrics.Metrics(roic_avg_5y=0.40, earnings_yield=None),
+        }
+    )
+    message = scores["AAA"].criteria[0].message
+
+    assert "3개" not in message, "기업가치를 못 만드는 종목까지 모수에 넣으면 안 된다"
+    assert "2개" in message
+    assert "계산할 수 있는" in message
+
+
 def test_greenblatt_missing_metric_is_unscored():
     scores = greenblatt.score_universe(
         {
