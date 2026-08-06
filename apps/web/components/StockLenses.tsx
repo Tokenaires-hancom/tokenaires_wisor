@@ -179,7 +179,7 @@ function BusinessLens({
               <tr key={key} style={{ borderBottom: "1px solid var(--line)" }}>
                 <td style={{ padding: "0.5rem 0" }}>{meta.label}</td>
                 <td colSpan={2} style={{ padding: "0.5rem 0", textAlign: "right" }} className="mono">
-                  {formatMetric(company.metrics[key], meta.format)}
+                  {formatMetric(company.metrics[key], meta.format, meta.cap)}
                 </td>
               </tr>
             ))}
