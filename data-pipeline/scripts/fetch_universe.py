@@ -16,6 +16,7 @@ nasdaq.com으로 링크만 건다(2026-08-06 확인). S&P 500 문서에는 표�
 from __future__ import annotations
 
 import json
+import os
 import re
 import urllib.request
 from datetime import date
@@ -28,7 +29,9 @@ SP500_URL = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
 NASDAQ100_URL = "https://www.slickcharts.com/nasdaq100"
 SEC_TICKERS_URL = "https://www.sec.gov/files/company_tickers.json"
 
-UA = "Mozilla/5.0 (compatible; Wisor/0.1; baro@ivyflynet.top)"
+# SEC는 연락 가능한 주소를 요구한다. 배치와 같은 환경변수를 쓴다(.env.example 참고).
+# 개인 주소를 소스에 박아 두지 않는다. 공개 저장소에 그대로 남는다.
+UA = os.environ.get("WISOR_SEC_USER_AGENT", "")
 
 
 def fetch(url: str) -> str:
@@ -84,6 +87,11 @@ def sec_form(ticker: str) -> str:
 
 
 def main() -> None:
+    if "@" not in UA:
+        raise SystemExit(
+            "WISOR_SEC_USER_AGENT에 연락 가능한 이메일을 넣고 다시 실행하세요.\n"
+            "  예: WISOR_SEC_USER_AGENT='Wisor/0.1 you@example.com' python scripts/fetch_universe.py"
+        )
     sp, nq = sp500(), nasdaq100()
     print(f"[출처] S&P 500 {len(sp)}종목 · NASDAQ-100 {len(nq)}종목")
     if len(sp) < 450 or len(nq) < 90:
