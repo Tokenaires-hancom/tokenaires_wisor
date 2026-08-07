@@ -105,7 +105,7 @@ function BusinessLens({
               ? `#${company.scores[id].rank}`
               : company.scores[id].score !== null
                 ? `${company.scores[id].score}점`
-                : "정보 부족"}
+                : company.scores[id].dataConfidence}
           </button>
         ))}
       </div>
@@ -121,10 +121,17 @@ function BusinessLens({
             {score.rank !== undefined ? `#${score.rank}` : (score.score ?? "—")}
           </span>
           <span className="score-of">
-            {score.rank !== undefined ? "종합 순위" : score.score !== null ? "점" : "정보 부족"}
+            {score.rank !== undefined ? "종합 순위" : score.score !== null ? "점" : score.dataConfidence}
           </span>
         </div>
-        <CriteriaBar criteria={score.criteria} showLegend />
+        {/* 왜 점수가 없는지는 '데이터가 없다'와 '모델이 안 맞는다'가 전혀 다르다 */}
+        {company.unscorableReason ? (
+          <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--ink-soft)" }}>
+            {company.unscorableReason} 아래 지표는 그대로 확인할 수 있습니다.
+          </p>
+        ) : (
+          <CriteriaBar criteria={score.criteria} showLegend />
+        )}
       </div>
 
       <h3 className="sub" style={{ marginTop: "2rem" }}>
@@ -274,7 +281,7 @@ function NoteLens({ company, styleId }: { company: Company; styleId: string }) {
           {Object.entries(company.scores).map(([id, s]) => (
             <li key={id} data-kind={s.score === null ? "unknown" : "pass"}>
               {MASTER_BY_ID[id as keyof typeof MASTER_BY_ID]?.name ?? id} —{" "}
-              {s.rank !== undefined ? `종합 ${s.rank}위` : s.score === null ? "정보 부족" : `${s.score}점`}
+              {s.rank !== undefined ? `종합 ${s.rank}위` : s.score === null ? s.dataConfidence : `${s.score}점`}
             </li>
           ))}
         </ul>
