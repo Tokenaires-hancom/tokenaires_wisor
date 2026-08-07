@@ -7,7 +7,18 @@
 
 재무 원천 → 파생 지표 → 스타일 점수 → `apps/web/lib/generated/scores.json`.
 
-하루 한 번 돕니다. 화면은 이 JSON 하나만 읽으므로, 여기서 나가는 값이 곧 사용자가 보는 값입니다.
+화면은 이 JSON 하나만 읽으므로, 여기서 나가는 값이 곧 사용자가 보는 값입니다.
+
+**두 가지 주기로 돕니다.** 수명이 다른 두 값을 한 실행에 묶지 않습니다.
+
+| 모드 | 주기 | 하는 일 |
+|---|---|---|
+| `--mode full` | 하루 1회 | SEC 공시까지 다시 받아 재무를 새로 구성하고 `.cache/fundamentals.json`에 남깁니다 |
+| `--mode prices` | 3시간마다 | 그 캐시를 읽어 토스 체결가만 덮어씁니다. SEC를 부르지 않습니다 |
+
+재무는 분기에 한 번 바뀌고 가격은 3시간마다 바뀝니다. 가격 갱신에 SEC를 함께 부르면 종목당 두 번씩 380종목, 하루 여덟 번이면 6천 회가 넘습니다.
+
+**캐시가 없으면 `--mode prices`는 실패합니다.** 조용히 전체 수집으로 되돌아가지 않습니다. 3시간마다 도는 작업이 어느 날 갑자기 SEC를 760번 두드리는 쪽이 더 위험합니다.
 
 ```
 providers/base.py   공급자 (SampleProvider · VendorProvider)
@@ -62,14 +73,15 @@ Criterion(
 
 - 미국 중·대형주, ETF·우선주·SPAC 제외, 은행·보험·리츠는 별도 분류
 - 최근 5개 회계연도가 모두 있는 종목만 통과. 빠진 해를 채워 넣지 않습니다
-- 가격은 전 거래일 종가. 장중 시세를 쓰지 않습니다
+- 가격은 마지막 체결가. 받은 시각을 `asOf.priceAt`에 함께 남깁니다
 - 반환 전 `quality.partition()`을 통과해야 합니다
 
 ## 확인
 
 ```bash
 python run_batch.py     # 품질 리포트와 스타일별 상위 3종목이 출력된다
-python run_batch.py --provider sec-toss  # TOSS_INVEST_*와 WISOR_SEC_USER_AGENT 필요
+python run_batch.py --provider sec-toss                # 전체 수집. 캐시를 새로 만든다
+python run_batch.py --provider sec-toss --mode prices  # 체결가만 갱신. 3초면 끝난다
 pytest -q
 ```
 

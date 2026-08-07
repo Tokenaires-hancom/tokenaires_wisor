@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import time
 from dataclasses import asdict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Callable
 from urllib.error import HTTPError, URLError
@@ -30,6 +30,8 @@ TOSS_BASE = "https://openapi.tossinvest.com"
 SEC_REQUEST_INTERVAL = 0.15
 # 500종목을 URL 하나에 담지 않는다.
 STOCKS_PER_REQUEST = 50
+# /api/v1/prices는 100종목을 한 번에 받는다. 380종목이 여덟 번 호출로 끝난다.
+PRICES_PER_REQUEST = 100
 
 
 class ProviderDataError(RuntimeError):
@@ -91,6 +93,38 @@ def read_checkpoint(path: Path, price_date: str) -> dict[str, Fundamentals]:
         if row.get("priceDate") == price_date:
             found[row["company"]["ticker"]] = Fundamentals(**row["company"])
     return found
+
+
+def write_fundamentals_cache(path: Path, companies: list[Fundamentals]) -> None:
+    """SEC로 구성한 재무를 통째로 남긴다. 가격만 갱신하는 실행이 이걸 읽는다.
+
+    체크포인트(중단 이어받기)와 파일을 나눈 이유. 체크포인트는 같은 날 종가에
+    대해서만 유효하도록 price_date로 잠겨 있다. 장중 가격을 쓰면 그 키가 매 실행
+    바뀌므로 재무 재사용에는 쓸 수 없다. 재무는 분기에 한 번 바뀌고 가격은 3시간
+    마다 바뀐다. 수명이 다른 두 값을 한 파일에 묶지 않는다.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "builtAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "companies": [asdict(company) for company in companies],
+    }
+    path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+
+
+def read_fundamentals_cache(path: Path) -> tuple[list[Fundamentals], str]:
+    """재무 캐시를 읽는다. 없으면 예외를 낸다.
+
+    없을 때 조용히 SEC 전체 수집으로 되돌아가면, 3시간마다 도는 작업이 어느 날
+    갑자기 SEC를 760번 두드린다. 실패를 눈에 보이게 두는 쪽이 낫다.
+    """
+    if not path.exists():
+        raise FileNotFoundError(
+            f"재무 캐시가 없습니다: {path}\n"
+            "가격만 갱신하려면 먼저 --mode full로 한 번 돌려 캐시를 만들어야 합니다."
+        )
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    companies = [Fundamentals(**row) for row in payload["companies"]]
+    return companies, payload.get("builtAt", "")
 
 
 def append_checkpoint(path: Path, price_date: str, company: Fundamentals) -> None:
@@ -340,6 +374,7 @@ class SecTossProvider:
         universe: list[str],
         get_json: JsonGetter = _get_json,
         checkpoint: Path | None = None,
+        fundamentals_cache: Path | None = None,
     ):
         if not toss_client_id or not toss_client_secret:
             raise ValueError("토스증권 client_id와 client_secret이 필요합니다.")
@@ -351,6 +386,8 @@ class SecTossProvider:
         self.universe = [ticker.upper() for ticker in universe]
         self.get_json = get_json
         self.checkpoint = checkpoint
+        #: SEC로 구성한 재무를 남길 곳. 가격만 갱신하는 실행이 이걸 읽는다.
+        self.fundamentals_cache = fundamentals_cache
         self._access_token: str | None = None
         #: 빠진 종목과 그 사유. 화면의 '무엇을 배제했나'로 그대로 나간다.
         self._excluded: list[dict] = []
@@ -407,6 +444,20 @@ class SecTossProvider:
             time.sleep(SEC_REQUEST_INTERVAL)
         return found
 
+    def latest_prices(self) -> dict[str, float]:
+        """마지막 체결가를 배치로 받는다. 380종목이 3초면 끝난다."""
+        found: dict[str, float] = {}
+        for start in range(0, len(self.universe), PRICES_PER_REQUEST):
+            batch = self.universe[start : start + PRICES_PER_REQUEST]
+            path = f"/api/v1/prices?{urlencode({'symbols': ','.join(batch)})}"
+            rows = with_retry(lambda p=path: self._toss_get(p))["result"]
+            for row in rows:
+                if row.get("lastPrice") is None:
+                    continue
+                found[row["symbol"].upper()] = float(row["lastPrice"])
+            time.sleep(SEC_REQUEST_INTERVAL)
+        return found
+
     def load(self) -> list[Fundamentals]:
         stocks = self._stocks()
 
@@ -459,11 +510,71 @@ class SecTossProvider:
 
         if not companies:
             raise ProviderDataError("실데이터로 구성할 수 있는 종목이 없습니다.")
+        if self.fundamentals_cache:
+            write_fundamentals_cache(self.fundamentals_cache, companies)
+            print(f"[캐시] 재무 {len(companies)}종목을 {self.fundamentals_cache}에 남겼습니다.")
         self._as_of = {
             "price": min(company.price_as_of for company in companies),
             "financial": min(company.financial_as_of for company in companies),
         }
         return companies
+
+    def as_of(self) -> dict[str, str]:
+        if self._as_of is None:
+            raise RuntimeError("load()를 먼저 호출해야 합니다.")
+        return self._as_of
+
+
+class CachedPriceProvider:
+    """캐시에 담긴 재무는 그대로 두고 마지막 체결가만 덮어쓰는 공급자.
+
+    3시간마다 도는 실행이 쓴다. 재무는 분기에 한 번 바뀌므로 SEC를 다시 부르지
+    않는다. 종목당 companyfacts와 submissions 두 번씩, 380종목이면 760회다.
+    가격만 바뀌는데 그걸 하루 여덟 번 반복할 이유가 없다.
+
+    가격을 받지 못한 종목은 캐시의 값을 그대로 둔다. 빼 버리면 유니버스가 실행마다
+    출렁이고, 0으로 채우면 지표가 조용히 망가진다.
+    """
+
+    source_name = "sec-toss"
+
+    def __init__(self, prices: dict[str, float], companies: list[Fundamentals], price_at: str):
+        self.prices = prices
+        self.companies = companies
+        #: 조회 시각. 종목별 시각이 아니라 이 값 하나를 파일 전체 기준으로 쓴다.
+        self.price_at = price_at
+        self._as_of: dict[str, str] | None = None
+        self._stale: list[str] = []
+
+    def excluded(self) -> list[dict]:
+        # 가격 갱신은 종목을 배제하지 않는다. 유니버스는 전체 수집이 정한다.
+        return []
+
+    def stale(self) -> list[str]:
+        """가격을 받지 못해 캐시 값을 그대로 둔 종목."""
+        return self._stale
+
+    def load(self) -> list[Fundamentals]:
+        price_date = self.price_at[:10]
+        refreshed: list[Fundamentals] = []
+        for company in self.companies:
+            price = self.prices.get(company.ticker)
+            if price is None:
+                self._stale.append(company.ticker)
+            else:
+                company.price = price
+                company.price_as_of = price_date
+            refreshed.append(company)
+
+        if self._stale:
+            print(f"[가격] {len(self._stale)}종목은 체결가를 받지 못해 캐시 값을 유지합니다: "
+                  f"{', '.join(sorted(self._stale)[:5])}")
+
+        self._as_of = {
+            "price": min(company.price_as_of for company in refreshed),
+            "financial": min(company.financial_as_of for company in refreshed),
+        }
+        return refreshed
 
     def as_of(self) -> dict[str, str]:
         if self._as_of is None:

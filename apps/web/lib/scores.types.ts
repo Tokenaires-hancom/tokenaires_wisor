@@ -100,7 +100,14 @@ export const EXCLUSION_LABELS: Record<string, string> = {
 export type ScoresPayload = {
   generatedAt: string;
   dataSource: string;
-  asOf: { price: string; financial: string };
+  /**
+   * price는 날짜, priceAt은 체결가를 받은 시각이다.
+   *
+   * 장중 가격으로 만든 파일에만 priceAt이 있다. 전 거래일 종가로 만든 파일에는
+   * 없고, 그때 화면은 '종가'라고 쓴다. 같은 날짜인데 점수가 다른 파일이 하루에
+   * 여러 번 생기므로, 날짜만으로는 무엇이 최신인지 말할 수 없다.
+   */
+  asOf: { price: string; financial: string; priceAt?: string };
   universe?: UniverseReport;
   styles: StyleMeta[];
   companies: Company[];

@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
-"""하루 한 번 도는 배치. 재무데이터 → 지표 → 스타일 점수 → scores.json.
+"""재무데이터 → 지표 → 스타일 점수 → scores.json.
 
-    python run_batch.py                 # 예시 데이터로 실행
-    python run_batch.py --out ../apps/web/lib/generated/scores.json
+    python run_batch.py                                    # 예시 데이터로 실행
+    python run_batch.py --provider sec-toss                # 전체 수집(하루 1회)
+    python run_batch.py --provider sec-toss --mode prices  # 체결가만 갱신(3시간마다)
+
+두 모드로 나눈 이유. 재무는 분기에 한 번 바뀌고 가격은 3시간마다 바뀐다. 가격을
+갱신할 때마다 SEC를 다시 부르면 종목당 두 번씩 380종목, 하루 여덟 번이면 6천 회가
+넘는다. full이 재무를 data/fundamentals.json에 남기고 prices가 그것을 읽는다.
 
 웹 앱은 이 파일 하나만 읽는다. 화면 코드가 재무 원천을 직접 만지지 않게 하기 위해서다.
 """
@@ -14,11 +19,16 @@ import json
 import os
 from datetime import datetime, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from wisor_data import metrics, quality
 from wisor_data.coverage import UNSCORABLE_REASON, is_scorable
 from wisor_data.providers.base import SampleProvider
-from wisor_data.providers.sec_toss import SecTossProvider
+from wisor_data.providers.sec_toss import (
+    CachedPriceProvider,
+    SecTossProvider,
+    read_fundamentals_cache,
+)
 from wisor_data.styles import buffett, graham, greenblatt, lynch
 from wisor_data.styles.base import StyleScore
 
@@ -27,6 +37,8 @@ STYLES = [*THRESHOLD_STYLES, greenblatt.STYLE]
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_OUT = ROOT.parent / "apps" / "web" / "lib" / "generated" / "scores.json"
+# 기준 시각은 읽는 사람 기준으로 적는다. 화면도 이 값을 그대로 보여준다.
+SEOUL = ZoneInfo("Asia/Seoul")
 
 
 def _unscorable(style) -> StyleScore:
@@ -79,7 +91,7 @@ def _universe_report(provider, universe_meta: dict | None, passed, issues) -> di
     }
 
 
-def build(provider, universe_meta: dict | None = None) -> dict:
+def build(provider, universe_meta: dict | None = None, price_at: str | None = None) -> dict:
     companies = provider.load()
     passed, issues = quality.partition(companies)
 
@@ -142,6 +154,12 @@ def build(provider, universe_meta: dict | None = None) -> dict:
         "financial": min(f.financial_as_of for f, _ in prepared),
     } if prepared else provider.as_of()
 
+    # 장중 체결가로 만든 파일에는 조회 시각을 함께 남긴다. 날짜만 남기면 같은 날짜인데
+    # 점수가 다른 파일이 여럿 생기고, 화면은 무엇이 최신인지 말할 수 없게 된다.
+    # 전 거래일 종가로 만든 파일에는 이 값이 없고, 화면은 그때 '종가'라고 쓴다.
+    if price_at:
+        as_of["priceAt"] = price_at
+
     return {
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "dataSource": provider.source_name,
@@ -167,6 +185,17 @@ def build(provider, universe_meta: dict | None = None) -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--provider", choices=("sample", "sec-toss"), default="sample")
+    parser.add_argument(
+        "--mode",
+        choices=("full", "prices"),
+        default="full",
+        help="full은 SEC 공시까지 다시 받는다. prices는 캐시된 재무에 체결가만 덮어쓴다",
+    )
+    parser.add_argument(
+        "--fundamentals-cache",
+        default=str(ROOT / "data" / "fundamentals.json"),
+        help="full 실행이 남기고 prices 실행이 읽는 재무 캐시. 저장소에 커밋한다",
+    )
     parser.add_argument("--universe", default=str(ROOT / "data" / "universe_sample.json"))
     parser.add_argument("--out", default=str(DEFAULT_OUT))
     parser.add_argument(
@@ -183,18 +212,34 @@ def main() -> None:
         "indexes": sorted({name for c in raw_universe["companies"] for name in c.get("indexes", [])}),
         "fetchedAt": raw_universe.get("fetchedAt", ""),
     }
+    price_at = None
     if args.provider == "sample":
+        if args.mode == "prices":
+            parser.error("예시 데이터에는 갱신할 체결가가 없습니다. --provider sec-toss와 함께 쓰세요.")
         provider = SampleProvider(universe_path)
     else:
         tickers = [company["ticker"] for company in raw_universe["companies"]]
-        provider = SecTossProvider(
+        cache_path = Path(args.fundamentals_cache)
+        toss = SecTossProvider(
             toss_client_id=os.environ.get("TOSS_INVEST_CLIENT_ID", ""),
             toss_client_secret=os.environ.get("TOSS_INVEST_CLIENT_SECRET", ""),
             sec_user_agent=os.environ.get("WISOR_SEC_USER_AGENT", ""),
             universe=tickers[: args.limit] if args.limit else tickers,
             checkpoint=Path(args.checkpoint),
+            fundamentals_cache=cache_path,
         )
-    payload = build(provider, universe_meta)
+        if args.mode == "full":
+            provider = toss
+        else:
+            # 캐시가 없으면 여기서 멈춘다. 조용히 전체 수집으로 되돌아가면 3시간마다
+            # 도는 작업이 어느 날 SEC를 760번 두드리게 된다.
+            companies, built_at = read_fundamentals_cache(cache_path)
+            print(f"[캐시] 재무 {len(companies)}종목을 재사용합니다(수집 {built_at or '시각 미상'}).")
+            price_at = datetime.now(SEOUL).isoformat(timespec="seconds")
+            prices = toss.latest_prices()
+            print(f"[가격] 체결가 {len(prices)}종목 · 기준 {price_at}")
+            provider = CachedPriceProvider(prices, companies, price_at)
+    payload = build(provider, universe_meta, price_at)
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
