@@ -191,6 +191,23 @@ def test_quality_allows_a_late_fiscal_year_filer():
     assert not any(i.code == "STALE_FINANCIALS" for i in quality.check(june))
 
 
+def test_quality_lets_a_financial_company_through_without_operating_series():
+    """은행은 잉여현금흐름과 투하자본을 만들 수 없다. 점수를 내지 않을 뿐 종목은 보여준다."""
+    bank = sample("ADBE")
+    bank.sic = "6022"
+    bank.fcf, bank.invested_capital = [], []
+
+    assert not any(i.fatal for i in quality.check(bank))
+
+
+def test_quality_still_requires_operating_series_from_an_operating_company():
+    """사업회사에서 같은 항목이 비면 점수의 근거가 없다. 그건 통과시키지 않는다."""
+    operating = sample("ADBE")
+    operating.fcf, operating.invested_capital = [], []
+
+    assert any(i.fatal for i in quality.check(operating))
+
+
 def test_quality_partition_drops_fatal_only():
     good = sample("ADBE")
     bad = sample("MSFT")

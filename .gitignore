@@ -7,6 +7,9 @@ __pycache__/
 .env
 .env.local
 .dev-server.*.log
+*.stdout.log
+*.stderr.log
+.next-stale-*/
 .cache/
 .DS_Store
 next-env.d.ts

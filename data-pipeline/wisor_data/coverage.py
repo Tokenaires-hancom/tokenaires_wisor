@@ -25,8 +25,13 @@ FINANCE_SIC_RANGE = (6000, 6799)
 UNSCORABLE_REASON = "은행·보험·부동산은 현재 점수 모델이 전제하는 대차대조표와 달라 판정하지 않습니다."
 
 
+def is_finance_sic(sic: str | None) -> bool:
+    """금융·보험·부동산 업종인지. SIC를 모르면 아니라고 본다."""
+    if not sic or not sic.isdigit():
+        return False
+    return FINANCE_SIC_RANGE[0] <= int(sic) <= FINANCE_SIC_RANGE[1]
+
+
 def is_scorable(f: Fundamentals) -> bool:
     """업종 기준으로 점수를 낼 수 있는 종목인지. SIC를 모르면 막지 않는다."""
-    if not f.sic or not f.sic.isdigit():
-        return True
-    return not FINANCE_SIC_RANGE[0] <= int(f.sic) <= FINANCE_SIC_RANGE[1]
+    return not is_finance_sic(f.sic)

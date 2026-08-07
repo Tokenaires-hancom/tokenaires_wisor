@@ -13,6 +13,7 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 from zoneinfo import ZoneInfo
 
+from ..coverage import is_finance_sic
 from ..metrics import Fundamentals
 
 JsonGetter = Callable[[str, dict[str, str] | None], dict]
@@ -32,10 +33,12 @@ STOCKS_PER_REQUEST = 50
 
 
 class ProviderDataError(RuntimeError):
-    def __init__(self, message: str, retryable: bool = False):
+    def __init__(self, message: str, retryable: bool = False, status: int | None = None):
         super().__init__(message)
         #: 다시 걸면 될 수 있는 실패인지. 없는 종목의 404를 세 번 두드리지 않는다.
         self.retryable = retryable
+        #: HTTP 상태. 401(토큰 만료)을 다른 실패와 구분하는 데 쓴다.
+        self.status = status
 
 
 def _get_json(url: str, headers: dict[str, str] | None = None) -> dict:
@@ -46,7 +49,7 @@ def _get_json(url: str, headers: dict[str, str] | None = None) -> dict:
     except HTTPError as error:
         # 429는 속도 초과, 5xx는 상대 쪽 문제다. 둘 다 잠시 뒤 다시 걸면 된다.
         retryable = error.code == 429 or 500 <= error.code < 600
-        raise ProviderDataError(f"HTTP {error.code}: {url}", retryable) from error
+        raise ProviderDataError(f"HTTP {error.code}: {url}", retryable, error.code) from error
     except (URLError, TimeoutError) as error:
         raise ProviderDataError(f"요청 실패: {url} ({error})", retryable=True) from error
 
@@ -152,6 +155,37 @@ def _total_debt_at(company_facts: dict, end: str) -> float | None:
     return noncurrent + current
 
 
+INTEREST_TAGS = ("InterestExpenseNonoperating", "InterestExpense", "InterestAndDebtExpense")
+
+# 세전이익. 회사가 영업이익을 따로 태그하지 않을 때 EBIT의 재료가 된다.
+PRETAX_TAGS = (
+    "IncomeLossFromContinuingOperationsBeforeIncomeTaxesMinorityInterestAndIncomeLossFromEquityMethodInvestments",
+    "IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest",
+)
+
+
+def _ebit_series(company_facts: dict) -> dict[str, float]:
+    """영업이익 시계열.
+
+    CVX·COP·BMY·CLX 같은 대형주가 OperatingIncomeLoss 계열 태그를 아예 쓰지 않는다.
+    그 경우 세전이익에 이자비용을 더해 근사한다. 널리 쓰는 EBIT 정의다.
+
+    근사이므로 영업 외 손익(투자평가손익·환차손익)이 섞인다. 직접 공시한 값이
+    있으면 언제나 그쪽을 쓴다.
+    """
+    direct = _annual_values(company_facts, ("OperatingIncomeLoss",))
+    if direct:
+        return direct
+
+    pretax = _annual_values(company_facts, PRETAX_TAGS)
+    if not pretax:
+        return {}
+    interest = _annual_values(company_facts, INTEREST_TAGS)
+    # 그 해 이자비용이 없으면 세전이익만 쓴다. EBIT가 작게 잡혀 판정은
+    # 엄격해지는 쪽으로 틀린다. 반대 방향보다 안전하다.
+    return {end: value + interest.get(end, 0.0) for end, value in pretax.items()}
+
+
 def _depreciation_at(company_facts: dict, end: str) -> float | None:
     """EBITDA에 더할 감가상각비. 상각을 포함한 값이어야 한다."""
     inclusive = _value_at(company_facts, (
@@ -183,7 +217,7 @@ def fundamentals_from_sec(
     revenue = _annual_values(company_facts, (
         "RevenueFromContractWithCustomerExcludingAssessedTax", "Revenues", "SalesRevenueNet",
     ))
-    ebit = _annual_values(company_facts, ("OperatingIncomeLoss",))
+    ebit = _ebit_series(company_facts)
     net_income = _annual_values(company_facts, ("NetIncomeLoss", "ProfitLoss"))
     operating_cash = _annual_values(company_facts, ("NetCashProvidedByUsedInOperatingActivities",))
     capex = _annual_values(company_facts, (
@@ -206,13 +240,17 @@ def fundamentals_from_sec(
         "revenue": revenue,
         "ebit": ebit,
         "netIncome": net_income,
-        "operatingCash": operating_cash,
-        "capex": capex,
         "equity": equity,
         "assets": assets,
-        "currentLiabilities": current_liabilities,
         "cash": cash,
     }
+    # 은행·보험·리츠는 유동/비유동 구분 대차대조표를 쓰지 않아 LiabilitiesCurrent가 없고,
+    # 설비투자도 따로 공시하지 않는다. 이 항목을 요구하면 유니버스에 들어오지 못한다.
+    # 점수는 어차피 내지 않으므로(coverage.py) 종목을 보여주기 위해 요건을 줄인다.
+    if not is_finance_sic(submissions.get("sic")):
+        required_by_name["operatingCash"] = operating_cash
+        required_by_name["capex"] = capex
+        required_by_name["currentLiabilities"] = current_liabilities
     required = list(required_by_name.values())
     common_ends = sorted(set.intersection(*(set(values) for values in required)))[-5:]
     if len(common_ends) < 5:
@@ -222,10 +260,13 @@ def fundamentals_from_sec(
         )
 
     million = 1_000_000
-    fcf = [(operating_cash[end] - capex[end]) / million for end in common_ends]
+    # 재료가 한 해라도 빠지면 시계열을 만들지 않는다. 빈 해를 채워 넣지 않는다.
+    have_flow = all(end in operating_cash and end in capex for end in common_ends)
+    have_ic = all(end in current_liabilities for end in common_ends)
+    fcf = [(operating_cash[end] - capex[end]) / million for end in common_ends] if have_flow else []
     invested_capital = [
         (assets[end] - current_liabilities[end] - cash[end]) / million for end in common_ends
-    ]
+    ] if have_ic else []
     eps_series = [eps[end] for end in common_ends if end in eps]
 
     # 아래 값은 모두 시계열과 같은 회계연도에서만 가져온다. 해가 섞이면
@@ -261,7 +302,9 @@ def fundamentals_from_sec(
         interest_expense=None if interest is None else interest / million,
         depreciation=None if depreciation is None else depreciation / million,
         current_assets=None if current_assets is None else current_assets / million,
-        current_liabilities=current_liabilities[as_of] / million,
+        current_liabilities=(
+            current_liabilities[as_of] / million if as_of in current_liabilities else None
+        ),
     )
 
 
@@ -287,9 +330,29 @@ class SecTossProvider:
         self.universe = [ticker.upper() for ticker in universe]
         self.get_json = get_json
         self.checkpoint = checkpoint
+        self._access_token: str | None = None
         self._as_of: dict[str, str] | None = None
 
-    def _token(self) -> str:
+    def _toss_get(self, path: str) -> dict:
+        """토스 호출. 토큰이 만료됐으면 한 번 다시 받고 재시도한다.
+
+        500종목 배치는 토큰 수명보다 오래 걸린다. 시작할 때 받은 토큰 하나로 끝까지
+        가면 중간부터 전부 401이 되는데, 배치는 정상 종료하고 결과 파일도 써진다.
+        실패가 조용해서 더 위험하다.
+        """
+        if self._access_token is None:
+            self._access_token = self._fetch_token()
+        try:
+            return self.get_json(f"{TOSS_BASE}{path}", {"Authorization": f"Bearer {self._access_token}"})
+        except ProviderDataError as error:
+            if error.status != 401:
+                raise
+            self._access_token = self._fetch_token()
+            return self.get_json(
+                f"{TOSS_BASE}{path}", {"Authorization": f"Bearer {self._access_token}"}
+            )
+
+    def _fetch_token(self) -> str:
         body = urlencode({
             "grant_type": "client_credentials",
             "client_id": self.toss_client_id,
@@ -307,23 +370,19 @@ class SecTossProvider:
             raise ProviderDataError(f"토스 인증 실패(HTTP {error.code})") from error
         return payload["access_token"]
 
-    def _toss_get(self, path: str, token: str) -> dict:
-        return self.get_json(f"{TOSS_BASE}{path}", {"Authorization": f"Bearer {token}"})
-
-    def _stocks(self, token: str) -> dict[str, dict]:
+    def _stocks(self) -> dict[str, dict]:
         """토스 종목 정보. 500종목을 URL 하나에 담지 않고 나눠 부른다."""
         found: dict[str, dict] = {}
         for start in range(0, len(self.universe), STOCKS_PER_REQUEST):
             batch = self.universe[start : start + STOCKS_PER_REQUEST]
             path = f"/api/v1/stocks?{urlencode({'symbols': ','.join(batch)})}"
-            rows = with_retry(lambda p=path: self._toss_get(p, token))["result"]
+            rows = with_retry(lambda p=path: self._toss_get(p))["result"]
             found.update({row["symbol"].upper(): row for row in rows})
             time.sleep(SEC_REQUEST_INTERVAL)
         return found
 
     def load(self) -> list[Fundamentals]:
-        token = self._token()
-        stocks = self._stocks(token)
+        stocks = self._stocks()
 
         ticker_rows = with_retry(lambda: self.get_json(SEC_TICKERS_URL, self.sec_headers))
         cik_by_ticker = {
@@ -352,7 +411,7 @@ class SecTossProvider:
                     "symbol": ticker, "interval": "1d", "count": 1,
                     "before": before_iso, "adjusted": "true",
                 })
-                candle = with_retry(lambda: self._toss_get(candle_path, token))["result"]["candles"][0]
+                candle = with_retry(lambda: self._toss_get(candle_path))["result"]["candles"][0]
                 cik = cik_by_ticker[ticker]
                 facts = with_retry(lambda: self.get_json(SEC_FACTS_URL.format(cik=cik), self.sec_headers))
                 time.sleep(SEC_REQUEST_INTERVAL)

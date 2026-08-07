@@ -9,7 +9,13 @@
 - TXN은 이자비용을 InterestAndDebtExpense로만 공시한다
 """
 
-from wisor_data.providers.sec_toss import _annual_values, fundamentals_from_sec
+import pytest
+
+from wisor_data.providers.sec_toss import (
+    ProviderDataError,
+    _annual_values,
+    fundamentals_from_sec,
+)
 
 YEARS = range(2020, 2025)
 
@@ -151,6 +157,66 @@ def test_missing_optional_tags_stay_none_and_are_not_filled_with_zero():
     assert result.total_debt is None
     assert result.interest_expense is None
     assert result.depreciation is None
+
+
+PRETAX = "IncomeLossFromContinuingOperationsBeforeIncomeTaxesMinorityInterestAndIncomeLossFromEquityMethodInvestments"
+
+
+def test_operating_income_tag_is_used_when_the_company_reports_it():
+    """직접 공시한 값이 있으면 근사하지 않는다."""
+    result = build(OperatingIncomeLoss=(500, True), **{PRETAX: (400, True), "InterestExpense": (30, True)})
+
+    assert result.ebit[-1] == 500 / 1_000_000  # 세전이익+이자(430)가 아니라 공시값
+
+
+def test_ebit_falls_back_to_pretax_income_plus_interest():
+    """CVX·COP·BMY·CLX는 OperatingIncomeLoss 계열 태그가 아예 없다.
+
+    세전이익에 이자비용을 더하면 영업이익에 가까워진다. 널리 쓰는 근사다.
+    """
+    facts = company_facts(**{PRETAX: (400, True), "InterestExpense": (30, True)})
+    del facts["facts"]["us-gaap"]["OperatingIncomeLoss"]
+
+    result = fundamentals_from_sec("TEST", STOCK, PRICE, facts, SUBMISSIONS)
+
+    assert result.ebit[-1] == 430 / 1_000_000
+
+
+def test_ebit_fallback_uses_pretax_alone_when_interest_is_not_reported():
+    """이자비용이 없으면 세전이익만 쓴다. EBIT가 작게 잡혀 판정은 엄격해지는 쪽이다."""
+    facts = company_facts(**{PRETAX: (400, True)})
+    del facts["facts"]["us-gaap"]["OperatingIncomeLoss"]
+
+    assert fundamentals_from_sec("TEST", STOCK, PRICE, facts, SUBMISSIONS).ebit[-1] == 400 / 1_000_000
+
+
+def test_bank_is_built_without_the_tags_banks_do_not_file():
+    """은행은 유동/비유동 구분 대차대조표를 쓰지 않아 LiabilitiesCurrent가 없다.
+
+    설비투자도 따로 공시하지 않는다. 이 항목을 요구하면 은행은 유니버스에 들어오지
+    못한다. 점수를 내지 않을 뿐 종목 자체는 보여주기로 했으므로 요건을 줄인다.
+    """
+    facts = company_facts(**{PRETAX: (400, True)})
+    for tag in ("LiabilitiesCurrent", "PaymentsToAcquirePropertyPlantAndEquipment", "OperatingIncomeLoss"):
+        del facts["facts"]["us-gaap"][tag]
+
+    result = fundamentals_from_sec(
+        "BANK", STOCK, PRICE, facts, {"sicDescription": "State Commercial Banks", "sic": "6022"}
+    )
+
+    assert result.ticker == "BANK"
+    assert result.revenue and result.net_income and result.equity
+    assert result.invested_capital == []  # 유동부채가 없으면 투하자본을 만들 수 없다
+    assert result.fcf == []
+
+
+def test_operating_company_still_needs_the_full_set():
+    """사업회사는 요건을 줄이지 않는다. 줄이면 점수의 근거가 비어 버린다."""
+    facts = company_facts()
+    del facts["facts"]["us-gaap"]["LiabilitiesCurrent"]
+
+    with pytest.raises(ProviderDataError):
+        fundamentals_from_sec("TEST", STOCK, PRICE, facts, SUBMISSIONS)
 
 
 def test_stale_debt_tag_from_another_year_is_not_used_as_current_debt():

@@ -9,6 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
 
+from .coverage import is_scorable
 from .metrics import Fundamentals
 
 REQUIRED_YEARS = 5
@@ -38,7 +39,11 @@ def check(f: Fundamentals) -> list[Issue]:
     def add(code: str, message: str, fatal: bool = True) -> None:
         issues.append(Issue(f.ticker, code, message, fatal))
 
-    for field_name in ("revenue", "ebit", "net_income", "fcf", "invested_capital", "equity"):
+    # 점수를 내지 않는 업종은 잉여현금흐름·투하자본을 만들 수 없다(coverage.py).
+    # 설비투자와 유동부채를 공시하지 않기 때문이다. 그 항목까지 요구하면 종목이
+    # 유니버스에 들어오지 못한다. 사업회사에서 같은 항목이 비면 그대로 탈락이다.
+    operating_series = ("ebit", "fcf", "invested_capital") if is_scorable(f) else ()
+    for field_name in ("revenue", "net_income", "equity", *operating_series):
         series = getattr(f, field_name)
         if len(series) < REQUIRED_YEARS:
             add("SHORT_SERIES", f"{field_name} 시계열이 {len(series)}년치뿐입니다.")
