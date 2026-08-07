@@ -1,19 +1,22 @@
 # Netlify 배포 설정
 #
 # 저장소 루트에는 package.json이 없다. 웹 앱은 apps/web 안에만 있고 락파일도
-# 거기 하나뿐이다. base를 잡으면 빌드가 그 디렉터리에서 돌고, 아래 경로도 전부
-# base 기준 상대경로로 읽힌다. 그래서 publish는 apps/web/.next를 가리킨다.
+# 거기 하나뿐이다. base를 잡으면 빌드가 그 디렉터리에서 돈다.
 #
-# Next.js Runtime(@netlify/plugin-nextjs)은 Netlify가 Next.js를 감지해 자동으로
-# 붙인다. 여기에 plugins를 적지 않는 것이 맞다.
+# publish를 적지 않는다. Next.js Runtime이 빌드 산출물의 발행 위치를 직접 정하기
+# 때문이다. 여기에 .next를 못 박으면 어댑터가 변환할 자리를 잃고 그 폴더가 정적
+# 파일 그대로 발행된다. 실제로 그렇게 배포돼서 모든 경로가 404가 났었다.
+# .next 루트에는 index.html이 없고 페이지는 .next/server/app 아래에 있다.
 #
-# Netlify UI의 Base directory는 비워 둔다. 이 파일의 base가 UI 설정을 덮어쓰므로
+# Next.js Runtime은 Netlify가 Next.js를 감지해 자동으로 붙인다. plugins를 적는
+# 것은 버전을 고정할 때뿐이고, 고정은 권장되지 않는다.
+#
+# Netlify UI의 Build settings는 비워 둔다. 이 파일이 UI 설정을 덮어쓰므로
 # 양쪽에 적으면 나중에 값이 어긋났을 때 UI 쪽이 조용히 무시된다.
 
 [build]
   base = "apps/web"
   command = "npm run build"
-  publish = ".next"
 
 [build.environment]
   # package.json의 engines가 node >=23이다. Netlify는 engines 필드로 런타임을

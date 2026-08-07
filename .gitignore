@@ -15,3 +15,6 @@ __pycache__/
 next-env.d.ts
 tsconfig.tsbuildinfo
 .claude/settings.local.json
+
+# Local Netlify folder
+.netlify
