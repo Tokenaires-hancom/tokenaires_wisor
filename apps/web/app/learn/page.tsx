@@ -36,9 +36,18 @@ export default function LearnIndex() {
               <span className="style-name">{m.styleName}</span>
               <span>{m.subtitle}</span>
             </p>
-            <h3 className="sub" style={{ fontSize: "1.05rem" }}>
-              {m.name}
-            </h3>
+            <div className="master-card-head">
+              <img
+                className="investor-avatar"
+                src={`/investors/${m.id}.png`}
+                alt=""
+                width={52}
+                height={52}
+              />
+              <h3 className="sub" style={{ fontSize: "1.05rem" }}>
+                {m.name}
+              </h3>
+            </div>
             <p style={{ fontSize: "0.9rem", color: "var(--ink-soft)", margin: 0 }}>{m.oneLine}</p>
             <p className="mono" style={{ color: "var(--ink-faint)", margin: 0 }}>
               {CURRICULUM_BY_MASTER[m.id].chapters.length}장 ·{" "}

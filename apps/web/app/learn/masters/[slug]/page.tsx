@@ -19,11 +19,18 @@ export default async function MasterLesson({ params }: { params: Promise<{ slug:
 
   return (
     <div className="wrap wrap-narrow" style={{ paddingBlock: "3.5rem 5rem" }}>
+      <img
+        className="investor-avatar master-lesson-head"
+        src={`/investors/${master.id}.png`}
+        alt=""
+        width={80}
+        height={80}
+      />
       <p className="style-kicker">
         <span className="style-name">{master.styleName}</span>
         <span>{master.minutes}분 학습 · {master.subtitle}</span>
       </p>
-      <h1 className="thesis" style={{ maxWidth: "24ch" }}>
+      <h1 className="thesis">
         {master.oneLine}
       </h1>
       <p className="lede">{master.intro}</p>

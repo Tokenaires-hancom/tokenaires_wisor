@@ -8,7 +8,7 @@ export default function CompareStylesPage() {
   return (
     <div className="wrap" style={{ paddingBlock: "3.5rem 5rem" }}>
       <p className="eyebrow">일곱 투자 철학 횡단 비교</p>
-      <h1 className="thesis" style={{ maxWidth: "24ch" }}>
+      <h1 className="thesis">
         같은 다섯 질문에 서로 다른 답을 놓습니다.
       </h1>
       <p className="lede" style={{ maxWidth: "62ch" }}>

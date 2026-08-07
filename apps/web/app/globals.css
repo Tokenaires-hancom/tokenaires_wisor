@@ -179,7 +179,10 @@ button {
   font-weight: 400;
   letter-spacing: -0.01em;
   margin: 0 0 1.25rem;
-  max-width: 20ch;
+  /* 1ch은 명조 "0" 폭이라 0.54em이다. 26ch은 48px 기준 674px, 한글 약 15자 */
+  max-width: 26ch;
+  /* 한글 기본 줄바꿈은 글자 단위라 "배웁니다"가 "배 / 웁니다"로 쪼개진다. 어절에서만 끊는다 */
+  word-break: keep-all;
 }
 
 .thesis em {
@@ -516,8 +519,14 @@ h3.sub {
   display: flex;
   margin: 0 0 2.5rem;
   overflow-x: auto;
+  overflow-y: hidden;
   border-bottom: 1px solid var(--line-strong);
-  scrollbar-width: thin;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.screener-style-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .screener-style-tab {
@@ -1192,4 +1201,33 @@ h3.sub {
 
 .scoring-steps li:last-child {
   border-bottom: 1px solid var(--line);
+}
+
+/* ---------- 투자자 초상 ---------- */
+
+.investor-avatar {
+  display: block;
+  flex: none;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--surface-sunk);
+}
+
+/* 배우기 목록의 카드 머리. 초상 옆에 인물 이름을 놓는다 */
+.master-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+/* 초상만큼 이름 칸이 좁아졌다. 두 줄이 되더라도 어절 안에서 끊기지 않게 한다 */
+.master-card-head h3.sub {
+  margin-bottom: 0;
+  word-break: keep-all;
+}
+
+/* 대가 상세의 머리. 초상을 제목 위에 크게 놓는다 */
+.master-lesson-head {
+  margin-bottom: 1.25rem;
 }

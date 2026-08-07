@@ -77,7 +77,7 @@ export default function MyLearning({ names }: { names: Record<string, string> })
   return (
     <div className="wrap" style={{ paddingBlock: "3.5rem 5rem" }}>
       <p className="eyebrow">내 학습</p>
-      <h1 className="thesis" style={{ maxWidth: "22ch" }}>
+      <h1 className="thesis">
         지금까지 무엇을 확인했나요?
       </h1>
 

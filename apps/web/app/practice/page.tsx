@@ -6,7 +6,7 @@ export default function Practice() {
   return (
     <div className="wrap wrap-narrow" style={{ paddingBlock: "3.5rem 5rem" }}>
       <p className="eyebrow">차트 실습 · 베타</p>
-      <h1 className="thesis" style={{ maxWidth: "24ch" }}>
+      <h1 className="thesis">
         보이는 것과 보이지 않는 것을 나눠 읽습니다.
       </h1>
       <p className="lede">

@@ -39,7 +39,7 @@ export default function Scoring() {
   return (
     <div className="wrap" style={{ paddingBlock: "3.5rem 5rem" }}>
       <p className="eyebrow">배우기</p>
-      <h1 className="thesis" style={{ fontSize: "clamp(1.7rem, 3.6vw, 2.5rem)", maxWidth: "22ch" }}>
+      <h1 className="thesis" style={{ fontSize: "clamp(1.7rem, 3.6vw, 2.5rem)" }}>
         종목을 고르고 점수를 만드는 법
       </h1>
       <p className="lede">

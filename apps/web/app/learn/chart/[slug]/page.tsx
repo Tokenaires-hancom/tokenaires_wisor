@@ -18,7 +18,7 @@ export default async function ChartLessonPage({ params }: { params: Promise<{ sl
   return (
     <div className="wrap wrap-narrow" style={{ paddingBlock: "3.5rem 5rem" }}>
       <p className="eyebrow">차트 기초 {lesson.order}단원 / {CHART_LESSONS.length}</p>
-      <h1 className="thesis" style={{ maxWidth: "26ch", fontSize: "clamp(1.6rem, 3.6vw, 2.4rem)" }}>
+      <h1 className="thesis" style={{ fontSize: "clamp(1.6rem, 3.6vw, 2.4rem)" }}>
         {lesson.title}
       </h1>
       <p className="lede">{lesson.oneLine}</p>
