@@ -34,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 않으며 최종 결정은 사용자가 합니다.
               </p>
               <p>
-                투자 스타일은 각 투자자가 공개한 원칙을 참고해 Wisor가 재구성한 것입니다. 해당
+                투자 철학은 각 투자자가 공개한 원칙을 참고해 Wisor가 재구성한 것입니다. 해당
                 투자자가 이 서비스에 참여하거나 이를 보증하지 않습니다.
               </p>
             </div>

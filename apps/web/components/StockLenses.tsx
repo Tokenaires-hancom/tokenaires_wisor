@@ -82,7 +82,7 @@ function BusinessLens({
   onStyleChange: (id: string) => void;
 }) {
   const score = company.scores[styleId];
-  if (!score) return <p>이 스타일의 점수가 없습니다.</p>;
+  if (!score) return <p>이 철학의 점수가 없습니다.</p>;
 
   const passed = score.criteria.filter((c) => c.status === "pass");
   const failed = score.criteria.filter((c) => c.status === "fail");
@@ -135,7 +135,7 @@ function BusinessLens({
       </div>
 
       <h3 className="sub" style={{ marginTop: "2rem" }}>
-        {rankModel ? "상위 절반인 지표" : "이 스타일에 맞는 점"} ({passed.length})
+        {rankModel ? "상위 절반인 지표" : "이 철학에 맞는 점"} ({passed.length})
       </h3>
       <ul className="reason-list">
         {passed.map((c) => (
@@ -161,7 +161,7 @@ function BusinessLens({
           </li>
         ))}
         {failed.length + unknown.length === 0 && (
-          <li data-kind="pass">이 스타일의 기준은 모두 충족했습니다. 기준 밖의 위험은 직접 확인해야 합니다.</li>
+          <li data-kind="pass">이 철학의 기준은 모두 충족했습니다. 기준 밖의 위험은 직접 확인해야 합니다.</li>
         )}
       </ul>
 
@@ -276,7 +276,7 @@ function NoteLens({ company, styleId }: { company: Company; styleId: string }) {
       </label>
 
       <div className="card" style={{ marginBottom: "1.25rem" }}>
-        <p className="eyebrow">2. 스타일별 적합도</p>
+        <p className="eyebrow">2. 투자 철학별 적합도</p>
         <ul className="reason-list">
           {Object.entries(company.scores).map(([id, s]) => (
             <li key={id} data-kind={s.score === null ? "unknown" : "pass"}>

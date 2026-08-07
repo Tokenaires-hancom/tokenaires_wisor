@@ -18,7 +18,7 @@ CRITERIA = [
         test=lambda m: None if m.eps_cagr_5y is None else 0.15 <= m.eps_cagr_5y <= 0.40,
         on_pass=lambda m: f"주당순이익이 5년 동안 연평균 {pct(m.eps_cagr_5y, 1)} 늘었습니다.",
         on_fail=lambda m: (
-            f"주당순이익 성장률이 연평균 {pct(m.eps_cagr_5y, 1)}로 이 스타일이 보는 구간(15~40%) 밖입니다."
+            f"주당순이익 성장률이 연평균 {pct(m.eps_cagr_5y, 1)}로 이 철학이 보는 구간(15~40%) 밖입니다."
         ),
     ),
     Criterion(

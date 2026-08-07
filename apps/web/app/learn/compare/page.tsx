@@ -7,20 +7,20 @@ import { MASTER_BY_ID } from "@/content/masters";
 export default function CompareStylesPage() {
   return (
     <div className="wrap" style={{ paddingBlock: "3.5rem 5rem" }}>
-      <p className="eyebrow">일곱 스타일 횡단 비교</p>
+      <p className="eyebrow">일곱 투자 철학 횡단 비교</p>
       <h1 className="thesis" style={{ maxWidth: "24ch" }}>
         같은 다섯 질문에 서로 다른 답을 놓습니다.
       </h1>
       <p className="lede" style={{ maxWidth: "62ch" }}>
-        어느 스타일이 더 낫다는 표가 아닙니다. 전제·탐색·검증·처분·실패의 같은 칸을 맞춰 보면,
+        어느 투자 철학이 더 낫다는 표가 아닙니다. 전제·탐색·검증·처분·실패의 같은 칸을 맞춰 보면,
         서로 충돌하는 규율과 함께 쓸 수 있는 부분이 분명해집니다.
       </p>
 
-      <div className="comparison-scroll" tabIndex={0} aria-label="일곱 스타일의 다섯 장 비교표">
+      <div className="comparison-scroll" tabIndex={0} aria-label="일곱 투자 철학의 다섯 장 비교표">
         <table className="comparison-matrix">
           <thead>
             <tr>
-              <th scope="col">스타일</th>
+              <th scope="col">투자 철학</th>
               {CHAPTER_SLOTS.map((slot) => (
                 <th key={slot.no} scope="col">
                   <span className="mono">{String(slot.no).padStart(2, "0")}</span>
@@ -57,11 +57,11 @@ export default function CompareStylesPage() {
 
       <p className="eyebrow">처분 규율</p>
       <h2 className="section">떠나는 이유가 가장 선명한 차이입니다</h2>
-      <div className="comparison-scroll" tabIndex={0} aria-label="일곱 스타일의 처분 조건 비교표">
+      <div className="comparison-scroll" tabIndex={0} aria-label="일곱 투자 철학의 처분 조건 비교표">
         <table className="comparison-matrix comparison-sell">
           <thead>
             <tr>
-              <th scope="col">스타일</th>
+              <th scope="col">투자 철학</th>
               <th scope="col">유형</th>
               <th scope="col">방아쇠</th>
             </tr>

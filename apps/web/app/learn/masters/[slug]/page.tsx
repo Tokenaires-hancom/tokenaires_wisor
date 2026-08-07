@@ -19,7 +19,10 @@ export default async function MasterLesson({ params }: { params: Promise<{ slug:
 
   return (
     <div className="wrap wrap-narrow" style={{ paddingBlock: "3.5rem 5rem" }}>
-      <p className="eyebrow">{master.minutes}분 학습 · {master.subtitle}</p>
+      <p className="style-kicker">
+        <span className="style-name">{master.styleName}</span>
+        <span>{master.minutes}분 학습 · {master.subtitle}</span>
+      </p>
       <h1 className="thesis" style={{ maxWidth: "24ch" }}>
         {master.oneLine}
       </h1>
@@ -54,16 +57,16 @@ export default async function MasterLesson({ params }: { params: Promise<{ slug:
       </div>
 
       <p className="disclaimer">
-        이 스타일의 매도 조건 — {curriculum.sellType} · {curriculum.sellTrigger}
+        이 철학의 매도 조건 — {curriculum.sellType} · {curriculum.sellTrigger}
       </p>
 
       <hr className="rule" />
 
-      <h2 className="section">이 스타일이 던지는 질문</h2>
+      <h2 className="section">이 철학이 던지는 질문</h2>
       <p className="lede">
         {meta
           ? `점수 모델 ${meta.modelVersion}은 아래 생각을 ${meta.criteria.length}개의 판정 기준으로 옮긴 것입니다.`
-          : "이 스타일은 공개 재무지표만으로 점수를 만들지 않습니다. 아래 질문을 직접 확인하는 자가진단으로 다룹니다."}
+          : "이 철학은 공개 재무지표만으로 점수를 만들지 않습니다. 아래 질문을 직접 확인하는 자가진단으로 다룹니다."}
       </p>
       <div className="stack">
         {master.principles.map((p, i) => (
@@ -86,7 +89,7 @@ export default async function MasterLesson({ params }: { params: Promise<{ slug:
       </ul>
 
       <h2 className="section" style={{ marginTop: "2.5rem" }}>
-        이 스타일이 지는 상황
+        이 철학이 지는 상황
       </h2>
       <p className="lede">
         모든 기준에는 통하지 않는 자리가 있습니다. 어디서 틀리는지를 아는 것이 기준을 쓰는 일의
@@ -110,7 +113,7 @@ export default async function MasterLesson({ params }: { params: Promise<{ slug:
             데이터 범위를 함께 확인할 수 있습니다.
           </p>
           <Link href={`/screener/${master.id}`} className="btn">
-            {master.name.split(" · ")[0]} 스타일 종목 보기
+            이 철학의 기준으로 종목 보기
           </Link>
         </>
       ) : (

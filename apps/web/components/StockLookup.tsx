@@ -60,7 +60,7 @@ export default function StockLookup() {
       <h2 id="live-stock-title" className="sub">실제 종목 확인</h2>
       <p className="live-stock-help">
         국내 종목코드(예: 005930)나 미국 티커(예: AAPL)를 입력하면 현재 종목 정보와 가격을 확인합니다.
-        현재가만 실데이터이며 위 스타일 결과에는 반영되지 않습니다.
+        현재가만 실데이터이며 위 투자 철학 결과에는 반영되지 않습니다.
       </p>
       <form className="stock-lookup-form" onSubmit={submit}>
         <label className="field stock-lookup-field">

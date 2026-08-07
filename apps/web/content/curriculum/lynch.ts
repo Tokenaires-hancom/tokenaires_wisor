@@ -81,7 +81,7 @@ export const LYNCH: Curriculum = {
         },
         {
           kind: "graded",
-          prompt: "PER 24배인 두 회사 중 이 스타일이 더 눈여겨보는 쪽은?",
+          prompt: "PER 24배인 두 회사 중 이 철학이 더 눈여겨보는 쪽은?",
           choices: [
             "이익이 연 8% 늘어난 회사",
             "이익이 연 22% 늘어난 회사",
@@ -117,7 +117,7 @@ export const LYNCH: Curriculum = {
       exercises: [
         {
           kind: "graded",
-          prompt: "이 스타일의 매도 유형 이름은 무엇입니까?",
+          prompt: "이 철학의 매도 유형 이름은 무엇입니까?",
           choices: [
             "가격 도달형 — 내재가치에 닿으면 판다",
             "논거 붕괴형 — 처음 산 이유가 무너지면 판다",
@@ -139,7 +139,7 @@ export const LYNCH: Curriculum = {
       lede: "성장 추정이 틀리면 전부 틀린다.",
       body: [
         "성장주는 이익과 배수가 동시에 꺾이므로 하락이 두 배로 온다.",
-        "이 스타일 고유의 함정이 하나 더 있다 — '내가 아는 회사'를 '좋은 회사'로 착각하는 것이다. 친숙함은 정보 우위가 아니라 편안함일 뿐이다.",
+        "이 철학 고유의 함정이 하나 더 있다 — '내가 아는 회사'를 '좋은 회사'로 착각하는 것이다. 친숙함은 정보 우위가 아니라 편안함일 뿐이다.",
       ],
       exercises: [
         {
@@ -156,7 +156,7 @@ export const LYNCH: Curriculum = {
         },
         {
           kind: "graded",
-          prompt: "이 스타일이 가장 크게 틀리는 상황은?",
+          prompt: "이 철학이 가장 크게 틀리는 상황은?",
           choices: [
             "시장 전체가 조정을 받을 때",
             "회사의 성장률 자체가 꺾일 때",

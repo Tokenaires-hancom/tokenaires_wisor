@@ -25,7 +25,7 @@ export default async function ChartLessonPage({ params }: { params: Promise<{ sl
 
       <hr className="rule" />
 
-      <h2 className="section">핵심 개념 세 가지</h2>
+      <h2 className="section">핵심 개념 {lesson.concepts.length}가지</h2>
       <div className="stack" style={{ marginTop: "1.25rem" }}>
         {lesson.concepts.map((c, i) => (
           <div key={i} className="card">
@@ -33,6 +33,40 @@ export default async function ChartLessonPage({ params }: { params: Promise<{ sl
             <p style={{ margin: 0, color: "var(--ink-soft)", fontSize: "0.93rem" }}>{c.body}</p>
           </div>
         ))}
+      </div>
+
+      <hr className="rule" />
+
+      <p className="eyebrow">차트를 읽는 순서</p>
+      <h2 className="section">눈이 움직이는 순서를 정해두세요</h2>
+      <p className="lede">
+        결론부터 찾으면 보고 싶은 모양만 보이기 쉽습니다. 아래 순서대로 관찰한 사실을 먼저 적습니다.
+      </p>
+      <ol className="chart-reading-steps">
+        {lesson.readingSteps.map((step, index) => (
+          <li key={step.title}>
+            <span className="chart-step-no">{String(index + 1).padStart(2, "0")}</span>
+            <div>
+              <h3>{step.title}</h3>
+              <p>{step.body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <h2 className="section" style={{ marginTop: "3rem" }}>예시로 읽기</h2>
+      <div className="chart-example">
+        <p className="eyebrow">가상의 차트 기록</p>
+        <h3>{lesson.workedExample.title}</h3>
+        <p>{lesson.workedExample.setup}</p>
+        <ul>
+          {lesson.workedExample.observations.map((observation) => (
+            <li key={observation}>{observation}</li>
+          ))}
+        </ul>
+        <p className="chart-example-conclusion">
+          <strong>여기까지 말할 수 있습니다.</strong> {lesson.workedExample.conclusion}
+        </p>
       </div>
 
       <h2 className="section" style={{ marginTop: "3rem" }}>
@@ -46,11 +80,18 @@ export default async function ChartLessonPage({ params }: { params: Promise<{ sl
         <p style={{ margin: 0, fontSize: "0.93rem" }}>{lesson.misconception.correction}</p>
       </div>
 
+      <h2 className="section" style={{ marginTop: "3rem" }}>차트를 닫기 전 체크</h2>
+      <ul className="chart-checklist">
+        {lesson.checklist.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
+
       <hr className="rule" />
 
       <p className="eyebrow">확인해보기</p>
       <h2 className="section" style={{ marginBottom: "1.5rem" }}>
-        세 문항
+        {lesson.quiz.length}문항으로 복습하기
       </h2>
       <Quiz id={`chart:${lesson.id}`} items={lesson.quiz} completedEvent="chart_lesson_completed" />
 

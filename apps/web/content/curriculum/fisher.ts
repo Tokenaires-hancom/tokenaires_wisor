@@ -82,7 +82,7 @@ export const FISHER: Curriculum = {
       exercises: [
         {
           kind: "graded",
-          prompt: "이 스타일의 세 가지 처분 조건 중 회사 자체와 무관한 것은 무엇입니까?",
+          prompt: "이 철학의 세 가지 처분 조건 중 회사 자체와 무관한 것은 무엇입니까?",
           choices: [
             "애초 판단이 틀렸을 때",
             "회사가 기준에서 벗어났을 때",
@@ -118,7 +118,7 @@ export const FISHER: Curriculum = {
         },
         {
           kind: "journal",
-          prompt: "이 스타일에 안전마진을 덧대면 무엇이 좋아지고 무엇을 잃습니까?",
+          prompt: "이 철학에 안전마진을 덧대면 무엇이 좋아지고 무엇을 잃습니까?",
         },
       ],
     },
