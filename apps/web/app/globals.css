@@ -27,7 +27,7 @@
 
   --sans: "Pretendard Variable", Pretendard, -apple-system, system-ui, sans-serif;
   --serif: "Gowun Batang", "Nanum Myeongjo", serif;
-  --mono: "JetBrains Mono", "SFMono-Regular", ui-monospace, monospace;
+  --mono: "Pretendard Variable", Pretendard, -apple-system, system-ui, sans-serif;
 
   --gutter: clamp(1.25rem, 5vw, 4rem);
   --radius: 3px;
@@ -856,9 +856,9 @@ h3.sub {
   flex-wrap: wrap;
   gap: 0.45rem 0.65rem;
   color: var(--ink-faint);
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
   margin: 0 0 0.75rem;
 }
 

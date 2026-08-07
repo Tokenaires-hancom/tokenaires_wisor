@@ -37,7 +37,6 @@ export default function CompareStylesPage() {
                 <tr key={curriculum.masterId}>
                   <th scope="row">
                     <Link href={`/learn/masters/${master.id}`}>{master.name.split(" · ")[0]}</Link>
-                    <small>{master.evaluation === "score" ? "점수 모델" : "자가진단"}</small>
                   </th>
                   {curriculum.chapters.map((chapter, index) => (
                     <td key={CHAPTER_SLOTS[index].no}>

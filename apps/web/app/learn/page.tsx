@@ -50,8 +50,7 @@ export default function LearnIndex() {
             </div>
             <p style={{ fontSize: "0.9rem", color: "var(--ink-soft)", margin: 0 }}>{m.oneLine}</p>
             <p className="mono" style={{ color: "var(--ink-faint)", margin: 0 }}>
-              {CURRICULUM_BY_MASTER[m.id].chapters.length}장 ·{" "}
-              {m.evaluation === "score" ? "점수 모델" : "자가진단"}
+              {CURRICULUM_BY_MASTER[m.id].chapters.length}장
             </p>
           </Link>
         ))}

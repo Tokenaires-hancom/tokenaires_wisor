@@ -22,7 +22,7 @@ export type Master = {
 export const MASTERS: Master[] = [
   {
     id: "buffett",
-    name: "워런 버핏 · 찰리 멍거",
+    name: "워런 버핏",
     styleName: "우량 가치",
     subtitle: "좋은 기업을 지나치게 비싸지 않을 때",
     oneLine: "오랫동안 돈을 잘 버는 기업을 합리적인 가격에 찾습니다.",

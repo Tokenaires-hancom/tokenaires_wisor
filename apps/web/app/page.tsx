@@ -61,8 +61,7 @@ export default function Home() {
               {master.oneLine}
             </p>
             <p className="mono" style={{ color: "var(--ink-faint)", margin: 0 }}>
-              {CURRICULUM_BY_MASTER[master.id].chapters.length}장 ·{" "}
-              {master.evaluation === "score" ? "점수 모델" : "자가진단"}
+              {CURRICULUM_BY_MASTER[master.id].chapters.length}장
             </p>
           </Link>
         ))}
