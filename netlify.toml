@@ -3,13 +3,15 @@
 # 저장소 루트에는 package.json이 없다. 웹 앱은 apps/web 안에만 있고 락파일도
 # 거기 하나뿐이다. base를 잡으면 빌드가 그 디렉터리에서 돈다.
 #
-# publish를 적지 않는다. Next.js Runtime이 빌드 산출물의 발행 위치를 직접 정하기
-# 때문이다. 여기에 .next를 못 박으면 어댑터가 변환할 자리를 잃고 그 폴더가 정적
-# 파일 그대로 발행된다. 실제로 그렇게 배포돼서 모든 경로가 404가 났었다.
-# .next 루트에는 index.html이 없고 페이지는 .next/server/app 아래에 있다.
+# plugins를 명시하는 이유. 단일 저장소라면 Netlify가 Next.js를 감지해 Runtime을
+# 자동으로 붙이지만, 루트에 package.json이 없는 모노레포에서는 붙지 않았다.
+# 배포 기록에 framework는 next로 잡히는데 plugin_state가 none이고 함수도 0개였다.
+# 어댑터가 돌지 않으면 빌드 산출물이 변환되지 않아 모든 경로가 404가 된다.
 #
-# Next.js Runtime은 Netlify가 Next.js를 감지해 자동으로 붙인다. plugins를 적는
-# 것은 버전을 고정할 때뿐이고, 고정은 권장되지 않는다.
+# publish를 함께 적어 둔다. 어댑터가 붙으면 어댑터가 발행 위치를 정하므로 이 값은
+# 무시된다. 붙지 않았을 때가 문제인데, 이 줄이 없으면 base 디렉터리가 통째로
+# 발행돼 소스가 그대로 공개된다. 실제로 그렇게 나갔다. 실패하더라도 .next가
+# 발행되는 쪽이 낫다.
 #
 # Netlify UI의 Build settings는 비워 둔다. 이 파일이 UI 설정을 덮어쓰므로
 # 양쪽에 적으면 나중에 값이 어긋났을 때 UI 쪽이 조용히 무시된다.
@@ -17,11 +19,16 @@
 [build]
   base = "apps/web"
   command = "npm run build"
+  publish = ".next"
 
 [build.environment]
   # package.json의 engines가 node >=23이다. Netlify는 engines 필드로 런타임을
   # 고르지 않고 기본 버전을 쓰므로 여기서 못 박는다. 로컬 개발도 24다.
   NODE_VERSION = "24"
+
+# 버전을 고정하지 않는다. Netlify가 빌드마다 최신으로 올려 준다.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
 
 # 여기에 없지만 반드시 필요한 것 — NEXT_PUBLIC_CHART_API
 #
