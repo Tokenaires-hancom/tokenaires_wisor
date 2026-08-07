@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import CriteriaBar from "@/components/CriteriaBar";
 import DataStamp, { SampleDataFlag } from "@/components/DataStamp";
 import StockLookup from "@/components/StockLookup";
+import ScreenerCompanies from "@/components/ScreenerCompanies";
 import { MASTER_BY_ID, SCORABLE_MASTERS } from "@/content/masters";
 import CoverageTable from "@/components/CoverageTable";
 import { COVERAGE, DATA, ranked, styleMeta } from "@/lib/scores";
@@ -25,6 +25,9 @@ export default async function Screener({ params }: { params: Promise<{ style: st
   return (
     <div className="wrap" style={{ paddingBlock: "3.5rem 5rem" }}>
       <p className="eyebrow">종목 찾기</p>
+      <p className="lede" style={{ marginBottom: "1.5rem" }}>
+        이 화면에서는 네 명의 투자 대가 기준만 동일한 방식으로 점수화해 보여줍니다. 다른 투자자들은 공개한 기준과 데이터가 현재 방식과 맞지 않거나, 같은 기준을 일관되게 적용하기에 필요한 정보가 부족하기 때문에 이 목록에 포함되지 않습니다.
+      </p>
 
       <nav className="screener-style-tabs" aria-label="투자 철학 선택">
         {SCORABLE_MASTERS.map((m) => {
@@ -45,7 +48,7 @@ export default async function Screener({ params }: { params: Promise<{ style: st
       </nav>
 
       <p className="eyebrow screener-current-label">선택한 투자 철학</p>
-      <h1 className="thesis" style={{ fontSize: "clamp(1.7rem, 3.6vw, 2.5rem)", maxWidth: "24ch" }}>
+      <h1 className="thesis" style={{ fontSize: "clamp(1.7rem, 3.6vw, 2.5rem)" }}>
         {master.name.split(" · ")[0]}의 투자 철학
       </h1>
       <p className="lede">{master.oneLine}</p>
@@ -114,43 +117,7 @@ export default async function Screener({ params }: { params: Promise<{ style: st
         보세요.
       </p>
 
-      <div>
-        {scored.map((c, i) => {
-          const s = c.scores[style];
-          return (
-            <Link key={c.ticker} href={`/stocks/${c.ticker}?style=${style}`} className="stock-row">
-              <span className="stock-rank">{String(i + 1).padStart(2, "0")}</span>
-              <span>
-                <span className="stock-name">{c.name}</span>
-                <span className="stock-ticker">{c.ticker} · {c.sector}</span>
-                <div style={{ marginTop: "0.55rem", maxWidth: "420px" }}>
-                  <CriteriaBar criteria={s.criteria} size="sm" />
-                </div>
-                <ul className="reason-list">
-                  {s.reasons.slice(0, 2).map((r, ri) => (
-                    <li key={ri} data-kind="pass">
-                      {r}
-                    </li>
-                  ))}
-                  {s.risks.slice(0, 1).map((r, ri) => (
-                    <li key={ri} data-kind="fail">
-                      {r}
-                    </li>
-                  ))}
-                </ul>
-              </span>
-              <span className="stock-score">
-                <span className="score-value">{s.rank !== undefined ? `#${s.rank}` : s.score}</span>
-                <div className="score-of">
-                  {s.rankComponents
-                    ? `질 ${s.rankComponents.quality}위 · 가격 ${s.rankComponents.value}위`
-                    : `${s.passed}/${s.total} 기준`}
-                </div>
-              </span>
-            </Link>
-          );
-        })}
-      </div>
+      <ScreenerCompanies scored={scored} style={style} />
 
       {unscored.length > 0 && (
         <>

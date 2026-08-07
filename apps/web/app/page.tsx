@@ -14,12 +14,13 @@ export default function Home() {
     <div className="wrap" style={{ paddingBlock: "4rem 5rem" }}>
       <p className="eyebrow">투자 학습 서비스</p>
       <h1 className="thesis">
-        답을 베끼는 대신 <em>질문하는 법</em>을 배웁니다.
+        어떤 시장에서도 흔들리지 않는 <em>질문하는 법</em>을 배웁니다.
       </h1>
       <p className="lede">
-        버핏부터 소로스까지 일곱 투자 철학이 기업과 시장을 볼 때 던진 질문을 배웁니다. 그리고
-        차트에서 무엇이 보이고 무엇이 보이지 않는지 읽는 법을 함께 익힙니다. 어느 쪽도 사라,
-        팔라고 말하지 않습니다.
+        버핏부터 소로스까지 일곱 투자 대가가 기업과 시장을 볼 때 던진 질문을 배웁니다. 그리고
+        차트에서 무엇이 보이고 무엇이 보이지 않는지 읽는 법을 함께 익힙니다.
+        <br />
+        <strong>질문하는 법을 배우고, 스스로 판단하는 법을 익히는 서비스</strong>입니다.
       </p>
 
       <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginBottom: "3rem" }}>
@@ -41,8 +42,9 @@ export default function Home() {
       <p className="eyebrow">일곱 가지 투자 철학</p>
       <h2 className="section">어떤 기준으로 기업을 보시겠습니까?</h2>
       <p className="lede">
-        각 투자 철학은 그 투자자가 공개한 원칙을 참고해 Wisor가 재구성한 것입니다. 한 장은 3~5분이며,
-        다섯 장의 질문을 살펴본 뒤 같은 기준으로 정리된 종목 목록으로 이어집니다.
+        각 투자 철학은 그 투자자가 공개한 원칙을 참고해 Wisor가 재구성한 것입니다. 일곱 철학 모두
+        전제·탐색·검증·처분·실패의 다섯 장을 같은 순서로 지납니다. 시장에 대해 무엇을 가정하는가에서
+        시작해, 이 철학이 어떻게 무너지는가로 끝납니다.
       </p>
 
       <div className="grid">
