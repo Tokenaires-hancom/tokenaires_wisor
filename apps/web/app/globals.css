@@ -510,6 +510,61 @@ h3.sub {
   font-weight: 600;
 }
 
+/* ---------- 종목 찾기: 투자 스타일 전환 ---------- */
+
+.screener-style-tabs {
+  display: flex;
+  margin: 0 0 2.5rem;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--line-strong);
+  scrollbar-width: thin;
+}
+
+.screener-style-tab {
+  display: flex;
+  flex: 1 0 150px;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin-bottom: -1px;
+  padding: 0.9rem 1rem 0.8rem;
+  border-bottom: 3px solid transparent;
+  color: var(--ink-soft);
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.screener-style-tab:hover {
+  background: var(--surface-sunk);
+  color: var(--ink);
+}
+
+.screener-style-tab[aria-current="page"] {
+  background: var(--surface);
+  border-bottom-color: var(--plum);
+  color: var(--plum-deep);
+}
+
+.screener-tab-name {
+  font-size: 0.9rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.screener-tab-meta {
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.screener-style-tab[aria-current="page"] .screener-tab-meta {
+  color: var(--plum);
+}
+
+.screener-current-label {
+  color: var(--plum);
+}
+
 .lens-note {
   font-family: var(--serif);
   color: var(--ink-soft);
@@ -866,6 +921,32 @@ h3.sub {
   margin: 0 0 0.75rem;
 }
 
+.style-kicker {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.65rem;
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  margin: 0 0 0.75rem;
+}
+
+.style-name {
+  background: var(--plum-soft);
+  border: 1px solid var(--plum-line);
+  border-radius: 999px;
+  color: var(--plum-deep);
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  padding: 0.38rem 0.55rem;
+  white-space: nowrap;
+}
+
 .chapter-lede {
   font-family: var(--serif);
   font-size: 1.15rem;
@@ -873,6 +954,101 @@ h3.sub {
   margin: 0 0 1.5rem;
   padding-left: 1rem;
   border-left: 2px solid var(--plum-line);
+}
+
+/* ---------- 차트 학습: 관찰 순서와 기록 ---------- */
+
+.chart-reading-steps {
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  border-top: 1px solid var(--line-strong);
+}
+
+.chart-reading-steps li {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  gap: 1rem;
+  padding: 1.15rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.chart-step-no {
+  color: var(--plum);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  padding-top: 0.15rem;
+}
+
+.chart-reading-steps h3,
+.chart-example h3 {
+  font-size: 0.95rem;
+  margin: 0 0 0.25rem;
+}
+
+.chart-reading-steps p,
+.chart-example > p {
+  color: var(--ink-soft);
+  font-size: 0.93rem;
+  margin: 0;
+}
+
+.chart-example {
+  background: var(--surface-sunk);
+  border: 1px solid var(--plum-line);
+  border-left: 4px solid var(--plum);
+  border-radius: var(--radius);
+  margin-top: 1.25rem;
+  padding: 1.5rem;
+}
+
+.chart-example ul {
+  margin: 1.25rem 0;
+  padding-left: 1.15rem;
+}
+
+.chart-example li {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  margin: 0.45rem 0;
+}
+
+.chart-example .chart-example-conclusion {
+  border-top: 1px dotted var(--plum-line);
+  color: var(--ink);
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+}
+
+.chart-example-conclusion strong {
+  color: var(--plum-deep);
+}
+
+.chart-checklist {
+  display: grid;
+  gap: 0.65rem;
+  list-style: none;
+  margin: 1.25rem 0 0;
+  padding: 0;
+}
+
+.chart-checklist li {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  padding: 0.8rem 1rem 0.8rem 2.4rem;
+  position: relative;
+}
+
+.chart-checklist li::before {
+  content: "✓";
+  color: var(--plum);
+  font-family: var(--mono);
+  left: 1rem;
+  position: absolute;
 }
 
 .prose p {
@@ -952,4 +1128,68 @@ h3.sub {
   .toc-slot {
     display: none;
   }
+}
+
+/* 철학별 채점 종목 수 비교표 — 스크리너와 /learn/scoring이 함께 쓴다 */
+.coverage-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  margin: 1rem 0 0;
+}
+
+.coverage-table th,
+.coverage-table td {
+  padding: 0.55rem 0.4rem;
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+}
+
+.coverage-table th[scope="col"] {
+  font-weight: 500;
+  color: var(--ink-faint);
+  font-size: 0.8rem;
+}
+
+.coverage-table th[scope="row"],
+.coverage-table th[scope="col"]:first-child {
+  text-align: left;
+}
+
+.coverage-table th[scope="row"] {
+  font-weight: 500;
+}
+
+/* 지금 보고 있는 철학. 색만으로 구분하지 않도록 굵기와 여백을 함께 쓴다 */
+.coverage-table tr[aria-current] th[scope="row"] {
+  font-weight: 700;
+  border-left: 3px solid var(--plum);
+  padding-left: 0.5rem;
+}
+
+.coverage-table tr[aria-current] td {
+  color: var(--ink);
+}
+
+.coverage-table tbody tr:last-child th,
+.coverage-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* /learn/scoring 단계 목록 */
+.scoring-steps {
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+  counter-reset: step;
+}
+
+.scoring-steps li {
+  padding: 1.25rem 0;
+  border-top: 1px solid var(--line);
+  max-width: 68ch;
+}
+
+.scoring-steps li:last-child {
+  border-bottom: 1px solid var(--line);
 }

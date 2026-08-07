@@ -18,16 +18,24 @@ export default function LearnIndex() {
       </h2>
       <p className="lede">
         버핏에서 시작해 그레이엄과 린치를 본 뒤 막스에서 시장 단위로 시야를 넓힐 수 있습니다.
-        피셔·그린블랫·소로스는 관심과 실행 방식에 따라 골라 보세요. 일곱 스타일은 모두 같은 다섯
+        피셔·그린블랫·소로스는 관심과 실행 방식에 따라 골라 보세요. 일곱 투자 철학은 모두 같은 다섯
         질문을 공유합니다.
       </p>
-      <Link href="/learn/compare" className="btn" data-variant="quiet" style={{ marginBottom: "1.5rem" }}>
-        다섯 질문으로 일곱 스타일 비교하기
-      </Link>
+      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "1.5rem" }}>
+        <Link href="/learn/compare" className="btn" data-variant="quiet">
+          다섯 질문으로 일곱 투자 철학 비교하기
+        </Link>
+        <Link href="/learn/scoring" className="btn" data-variant="quiet">
+          종목을 고르고 점수를 만드는 법
+        </Link>
+      </div>
       <div className="grid">
         {MASTERS.map((m) => (
           <Link key={m.id} href={`/learn/masters/${m.id}`} className="card card-link">
-            <p className="eyebrow">{m.subtitle}</p>
+            <p className="style-kicker">
+              <span className="style-name">{m.styleName}</span>
+              <span>{m.subtitle}</span>
+            </p>
             <h3 className="sub" style={{ fontSize: "1.05rem" }}>
               {m.name}
             </h3>
