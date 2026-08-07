@@ -45,7 +45,41 @@ def _unscorable(style) -> StyleScore:
     )
 
 
-def build(provider) -> dict:
+def _universe_report(provider, universe_meta: dict | None, passed, issues) -> dict:
+    """유니버스에 무엇이 들어왔고 무엇이 왜 빠졌는지.
+
+    지금까지 이 정보는 배치 로그(stdout)에만 있었다. 화면에서 '무엇을 배제했나'를
+    설명하려면 결과 파일에 남아 있어야 한다.
+
+    종목은 두 단계에서 빠진다. 공급자 단계(공시를 구성하지 못함)와 품질 게이트
+    (구성했지만 내보낼 수 없음)다. 사용자에게는 한 덩어리로 보여야 하므로 합친다.
+    """
+    reasons: dict[str, str] = {}
+    for row in getattr(provider, "excluded", lambda: [])():
+        reasons.setdefault(row["ticker"], row["code"])
+    for issue in issues:
+        # 한 종목이 여러 이유로 걸려도 한 번만 센다. 그래야 요청 = 수록 + 배제가 맞는다.
+        if issue.fatal:
+            reasons.setdefault(issue.ticker, issue.code)
+
+    grouped: dict[str, list[str]] = {}
+    for ticker, code in reasons.items():
+        grouped.setdefault(code, []).append(ticker)
+
+    meta = universe_meta or {}
+    return {
+        "indexes": meta.get("indexes", []),
+        "fetchedAt": meta.get("fetchedAt", ""),
+        "requested": len(passed) + len(reasons),
+        "included": len(passed),
+        "excluded": [
+            {"code": code, "count": len(tickers), "examples": sorted(tickers)[:3]}
+            for code, tickers in sorted(grouped.items(), key=lambda kv: (-len(kv[1]), kv[0]))
+        ],
+    }
+
+
+def build(provider, universe_meta: dict | None = None) -> dict:
     companies = provider.load()
     passed, issues = quality.partition(companies)
 
@@ -112,6 +146,7 @@ def build(provider) -> dict:
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "dataSource": provider.source_name,
         "asOf": as_of,
+        "universe": _universe_report(provider, universe_meta, passed, issues),
         "styles": [
             {
                 "id": s.id,
@@ -143,10 +178,14 @@ def main() -> None:
     args = parser.parse_args()
 
     universe_path = Path(args.universe)
+    raw_universe = json.loads(universe_path.read_text(encoding="utf-8"))
+    universe_meta = {
+        "indexes": sorted({name for c in raw_universe["companies"] for name in c.get("indexes", [])}),
+        "fetchedAt": raw_universe.get("fetchedAt", ""),
+    }
     if args.provider == "sample":
         provider = SampleProvider(universe_path)
     else:
-        raw_universe = json.loads(universe_path.read_text(encoding="utf-8"))
         tickers = [company["ticker"] for company in raw_universe["companies"]]
         provider = SecTossProvider(
             toss_client_id=os.environ.get("TOSS_INVEST_CLIENT_ID", ""),
@@ -155,7 +194,7 @@ def main() -> None:
             universe=tickers[: args.limit] if args.limit else tickers,
             checkpoint=Path(args.checkpoint),
         )
-    payload = build(provider)
+    payload = build(provider, universe_meta)
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)

@@ -219,6 +219,45 @@ def test_operating_company_still_needs_the_full_set():
         fundamentals_from_sec("TEST", STOCK, PRICE, facts, SUBMISSIONS)
 
 
+def raises_with(**overrides):
+    facts = company_facts()
+    for tag in overrides.pop("drop", []):
+        del facts["facts"]["us-gaap"][tag]
+    with pytest.raises(ProviderDataError) as caught:
+        fundamentals_from_sec("TEST", STOCK, PRICE, facts, SUBMISSIONS)
+    return caught.value
+
+
+def test_company_that_files_no_10k_is_reported_as_such():
+    """ASML·ARM·PDD 같은 외국 발행사는 20-F를 낸다. 태그가 하나도 잡히지 않는다.
+
+    '5개 연도가 없다'가 아니라 '미국 연차보고서를 내지 않는다'가 사용자에게 맞는 설명이다.
+    """
+    error = raises_with(drop=[tag for tag, _, _ in REQUIRED] + ["EarningsPerShareDiluted"])
+
+    assert error.code == "NOT_10K"
+
+
+def test_missing_single_required_tag_is_reported_by_name():
+    error = raises_with(drop=["PaymentsToAcquirePropertyPlantAndEquipment"])
+
+    assert error.code == "MISSING_FIELD"
+    assert "capex" in error.detail
+
+
+def test_tags_that_exist_but_never_overlap_are_a_different_reason():
+    """회사가 도중에 태그를 바꾸면 각 항목은 있는데 공통 연도가 없다. 가장 흔한 사유다."""
+    facts = company_facts()
+    # 매출만 다른 연도로 옮겨 공통 구간을 없앤다
+    facts["facts"]["us-gaap"].update(
+        fact("Revenues", [annual(1000, y) for y in range(2010, 2015)])
+    )
+    with pytest.raises(ProviderDataError) as caught:
+        fundamentals_from_sec("TEST", STOCK, PRICE, facts, SUBMISSIONS)
+
+    assert caught.value.code == "NO_COMMON_YEARS"
+
+
 def test_stale_debt_tag_from_another_year_is_not_used_as_current_debt():
     """VZ의 LongTermDebt는 2013년에서 멈춰 있는데 그 값이 현재 부채로 쓰이고 있었다.
 

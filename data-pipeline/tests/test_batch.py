@@ -67,6 +67,77 @@ def test_as_of_describes_the_companies_that_actually_went_out():
     assert result["asOf"] == {"price": "2026-08-05", "financial": "2025-06-30"}
 
 
+class ExcludingProvider(FakeProvider):
+    """공급자 단계에서 일부 종목을 떨어뜨린 상황."""
+
+    def __init__(self, companies, dropped):
+        super().__init__(companies)
+        self.dropped = dropped
+
+    def excluded(self):
+        return self.dropped
+
+
+def test_universe_report_says_what_came_in_and_what_was_left_out():
+    """무엇을 배제했는지는 지금 배치 로그에만 있다. 화면에서 쓰려면 결과에 남겨야 한다."""
+    provider = ExcludingProvider(
+        [sample("ADBE", "7372"), sample("MSFT", "7372")],
+        [
+            {"ticker": "ASML", "code": "NOT_10K", "detail": ""},
+            {"ticker": "ARM", "code": "NOT_10K", "detail": ""},
+            {"ticker": "DIS", "code": "NO_COMMON_YEARS", "detail": ""},
+        ],
+    )
+
+    universe = build(provider, {"indexes": ["S&P 500"], "fetchedAt": "2026-08-06"})["universe"]
+
+    assert universe["requested"] == 5
+    assert universe["included"] == 2
+    assert universe["indexes"] == ["S&P 500"]
+    by_code = {e["code"]: e for e in universe["excluded"]}
+    assert by_code["NOT_10K"]["count"] == 2
+    assert by_code["NOT_10K"]["examples"] == ["ARM", "ASML"]
+
+
+def test_quality_failures_are_reported_alongside_provider_failures():
+    """두 단계에서 빠지는데 사용자에게는 '무엇이 빠졌나' 하나로 보여야 한다."""
+    stale = sample("MSFT", "7372")
+    stale.price_as_of, stale.financial_as_of = "2026-08-05", "2023-01-01"
+    provider = ExcludingProvider(
+        [sample("ADBE", "7372"), stale],
+        [{"ticker": "ASML", "code": "NOT_10K", "detail": ""}],
+    )
+
+    universe = build(provider, None)["universe"]
+    by_code = {e["code"]: e for e in universe["excluded"]}
+
+    assert by_code["STALE_FINANCIALS"]["count"] == 1
+    assert by_code["NOT_10K"]["count"] == 1
+
+
+def test_the_numbers_add_up():
+    """요청 = 수록 + 배제. 어긋나면 화면에서 사용자가 바로 알아챈다."""
+    provider = ExcludingProvider(
+        [sample("ADBE", "7372")],
+        [{"ticker": f"X{i}", "code": "NO_COMMON_YEARS", "detail": ""} for i in range(4)],
+    )
+
+    u = build(provider, None)["universe"]
+
+    assert u["requested"] == u["included"] + sum(e["count"] for e in u["excluded"])
+
+
+def test_a_company_failing_twice_is_counted_once():
+    """한 종목이 여러 이유로 걸려도 배제 수는 한 번만 센다."""
+    broken = sample("MSFT", "7372")
+    broken.price_as_of, broken.financial_as_of = "2026-08-05", "2023-01-01"
+    broken.revenue = broken.revenue[:2]
+
+    u = build(ExcludingProvider([sample("ADBE", "7372"), broken], []), None)["universe"]
+
+    assert sum(e["count"] for e in u["excluded"]) == 1
+
+
 def test_financial_company_stays_in_the_universe(payload):
     assert row(payload, "ULTA")["ticker"] == "ULTA"
 

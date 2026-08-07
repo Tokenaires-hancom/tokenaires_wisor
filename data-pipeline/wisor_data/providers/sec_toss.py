@@ -33,12 +33,22 @@ STOCKS_PER_REQUEST = 50
 
 
 class ProviderDataError(RuntimeError):
-    def __init__(self, message: str, retryable: bool = False, status: int | None = None):
+    def __init__(
+        self,
+        message: str,
+        retryable: bool = False,
+        status: int | None = None,
+        code: str = "FETCH_FAILED",
+        detail: str = "",
+    ):
         super().__init__(message)
         #: 다시 걸면 될 수 있는 실패인지. 없는 종목의 404를 세 번 두드리지 않는다.
         self.retryable = retryable
         #: HTTP 상태. 401(토큰 만료)을 다른 실패와 구분하는 데 쓴다.
         self.status = status
+        #: 왜 빠졌는지. 화면의 '무엇을 배제했나'에 그대로 집계된다.
+        self.code = code
+        self.detail = detail
 
 
 def _get_json(url: str, headers: dict[str, str] | None = None) -> dict:
@@ -255,8 +265,19 @@ def fundamentals_from_sec(
     common_ends = sorted(set.intersection(*(set(values) for values in required)))[-5:]
     if len(common_ends) < 5:
         counts = ", ".join(f"{name}={len(values)}" for name, values in required_by_name.items())
+        empty = [name for name, values in required_by_name.items() if not values]
+        if len(empty) == len(required_by_name):
+            # 태그가 하나도 안 잡힌다 = 10-K를 내지 않는 회사다(외국 발행사는 20-F).
+            code, detail = "NOT_10K", ""
+        elif empty:
+            code, detail = "MISSING_FIELD", ", ".join(empty)
+        else:
+            # 각 항목은 있는데 겹치는 해가 없다. 회사가 도중에 태그를 바꾼 경우다.
+            code, detail = "NO_COMMON_YEARS", ""
         raise ProviderDataError(
-            f"{ticker}: 공통된 5개 회계연도 공시를 구성할 수 없습니다({counts}, common={len(common_ends)})."
+            f"{ticker}: 공통된 5개 회계연도 공시를 구성할 수 없습니다({counts}, common={len(common_ends)}).",
+            code=code,
+            detail=detail,
         )
 
     million = 1_000_000
@@ -331,6 +352,11 @@ class SecTossProvider:
         self.get_json = get_json
         self.checkpoint = checkpoint
         self._access_token: str | None = None
+        #: 빠진 종목과 그 사유. 화면의 '무엇을 배제했나'로 그대로 나간다.
+        self._excluded: list[dict] = []
+
+    def excluded(self) -> list[dict]:
+        return self._excluded
         self._as_of: dict[str, str] | None = None
 
     def _toss_get(self, path: str) -> dict:
@@ -418,7 +444,11 @@ class SecTossProvider:
                 subs = with_retry(lambda: self.get_json(SEC_SUBMISSIONS_URL.format(cik=cik), self.sec_headers))
                 company = fundamentals_from_sec(ticker, stock, candle, facts, subs)
             except (KeyError, IndexError, ProviderDataError) as error:
-                print(f"[공급자] {ticker} 제외: {error}")
+                # KeyError/IndexError는 토스에 없는 종목·CIK 미등록·시세 없음이다.
+                code = getattr(error, "code", "NOT_LISTED")
+                detail = getattr(error, "detail", "")
+                self._excluded.append({"ticker": ticker, "code": code, "detail": detail})
+                print(f"[공급자] {ticker} 제외({code}): {error}")
             else:
                 companies.append(company)
                 if self.checkpoint:
