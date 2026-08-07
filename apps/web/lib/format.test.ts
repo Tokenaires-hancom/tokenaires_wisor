@@ -1,7 +1,20 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { dateRange, formatMetric } from "./format.ts";
-import { METRIC_LABELS } from "./scores.types.ts";
+import { METRIC_LABELS, indexNames } from "./scores.types.ts";
+
+test("지수 이름은 슬러그가 아니라 사람이 읽는 이름으로 쓴다", () => {
+  assert.equal(indexNames(["sp500"]), "S&P 500");
+});
+
+test("지수 순서는 배치가 넘긴 순서가 아니라 정해진 순서를 따른다", () => {
+  // 배치는 슬러그를 알파벳순으로 넘겨 NASDAQ-100이 앞에 온다. 큰 지수를 먼저 쓴다.
+  assert.equal(indexNames(["nasdaq100", "sp500"]), "S&P 500 · NASDAQ-100");
+});
+
+test("모르는 지수는 그대로 두고 뒤에 붙인다", () => {
+  assert.equal(indexNames(["kospi200", "sp500"]), "S&P 500 · kospi200");
+});
 
 test("회계연도가 제각각이면 재무 기준일을 범위로 쓴다", () => {
   // 목록 화면의 9종목은 회계연도 종료일이 6개로 흩어져 있다. 하나를 고르면

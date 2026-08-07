@@ -3,9 +3,10 @@ import CoverageTable from "@/components/CoverageTable";
 import DataStamp from "@/components/DataStamp";
 import { SCORABLE_MASTERS } from "@/content/masters";
 import { COVERAGE, DATA } from "@/lib/scores";
+import { EXCLUSION_LABELS, indexNames } from "@/lib/scores.types";
 
 export const metadata = {
-  title: "점수는 어떻게 만드는가 — Wisor",
+  title: "종목을 고르고 점수를 만드는 법 — Wisor",
 };
 
 const STEPS = [
@@ -33,13 +34,58 @@ const STEPS = [
 
 export default function Scoring() {
   const spread = COVERAGE.byStyle.map((s) => s.scored);
+  const universe = DATA.universe;
 
   return (
     <div className="wrap" style={{ paddingBlock: "3.5rem 5rem" }}>
       <p className="eyebrow">배우기</p>
       <h1 className="thesis" style={{ fontSize: "clamp(1.7rem, 3.6vw, 2.5rem)", maxWidth: "22ch" }}>
-        점수는 어떻게 만드는가
+        종목을 고르고 점수를 만드는 법
       </h1>
+      <p className="lede">
+        어떤 종목이 목록에 들어오는지, 그중 몇 개에 점수가 붙는지를 순서대로 설명합니다. 두 단계
+        모두에서 <strong>판단할 수 없는 것은 지어내지 않고 빼고, 뺐다는 사실을 남깁니다.</strong>
+      </p>
+
+      {universe && (
+        <>
+          <h2 className="section" style={{ marginTop: "3rem" }}>
+            1. 종목은 어떻게 고르나
+          </h2>
+          <p className="lede">
+            {indexNames(universe.indexes)} 구성종목 {universe.requested}개에서 출발합니다
+            {universe.fetchedAt && ` (구성종목 기준 ${universe.fetchedAt})`}. 특정 종목을 골라
+            담지 않고 지수를 통째로 가져옵니다. 고르는 순간 결과가 그 선택을 따라가기 때문입니다.
+          </p>
+          <p className="lede">
+            이 가운데 {universe.requested - universe.included}개를 뺐습니다.{" "}
+            <strong>기업이 나빠서가 아니라 같은 방식으로 읽을 수 없어서입니다.</strong> 사유별로
+            나누면 이렇습니다.
+          </p>
+          <div className="card">
+            <ul className="reason-list">
+              {universe.excluded.map((e) => (
+                <li key={e.code} data-kind="unknown">
+                  <strong>{e.count}종목</strong> — {EXCLUSION_LABELS[e.code] ?? e.code}
+                  {e.examples.length > 0 && (
+                    <span className="mono" style={{ color: "var(--ink-faint)" }}>
+                      {" "}
+                      예: {e.examples.join(" · ")}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+            <p style={{ margin: "1rem 0 0", fontSize: "0.88rem", color: "var(--ink-soft)" }}>
+              남은 <strong>{universe.included}종목</strong>이 목록에 실립니다.
+            </p>
+          </div>
+        </>
+      )}
+
+      <h2 className="section" style={{ marginTop: "3rem" }}>
+        2. 점수는 어떻게 만드나
+      </h2>
       <p className="lede">
         같은 {COVERAGE.universe}종목을 놓고도 철학마다 채점한 종목 수가 {Math.min(...spread)}개에서{" "}
         {Math.max(...spread)}개까지 갈립니다. 어느 철학이 더 엄격해서가 아니라, 각자 다른 숫자를
@@ -61,7 +107,7 @@ export default function Scoring() {
       </ol>
 
       <h2 className="section" style={{ marginTop: "3rem" }}>
-        그래서 철학마다 종목 수가 다릅니다
+        철학마다 종목 수가 다른 이유
       </h2>
       <p className="lede">
         전체 {COVERAGE.universe}종목 가운데 {COVERAGE.unscorable}종목은 위 5단계의 업종에 해당해
