@@ -9,6 +9,7 @@
  * 클라이언트에 필요한 데이터는 서버 컴포넌트에서 props로 내려보낸다.
  */
 
+import { styleCoverage, type Coverage } from "./coverage";
 import raw from "./generated/scores.json";
 import { rank, type Ranking } from "./ranking";
 import type { Company, ScoresPayload, StyleMeta } from "./scores.types";
@@ -60,6 +61,9 @@ export function company(ticker: string): Company | undefined {
 export function companyNames(): Record<string, string> {
   return Object.fromEntries(DATA.companies.map((c) => [c.ticker, c.name]));
 }
+
+/** 철학마다 몇 종목을 채점했고 왜 다른지. 화면 두 곳이 같은 값을 쓴다. */
+export const COVERAGE: Coverage = styleCoverage(DATA.companies, DATA.styles);
 
 /** 점수를 매길 수 없는 종목은 순위에서 빼되, 이유를 나눠 따로 돌려준다. */
 export function ranked(styleId: string): Ranking {
