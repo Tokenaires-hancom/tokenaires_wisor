@@ -60,8 +60,6 @@ cp .env.example .env.local
 npm run dev        # http://localhost:3000
 ```
 
-실시간 종목·현재가 조회를 사용하려면 토스증권 WTS의 Open API 메뉴에서 발급받은 값을 `.env.local`의 `TOSS_INVEST_CLIENT_ID`, `TOSS_INVEST_CLIENT_SECRET`에 넣습니다. 두 값은 서버에서만 사용되며, 설정하지 않아도 나머지 학습 기능은 동작합니다.
-
 ---
 
 ## 구조
