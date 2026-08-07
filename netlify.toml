@@ -1,0 +1,31 @@
+# Netlify 배포 설정
+#
+# 저장소 루트에는 package.json이 없다. 웹 앱은 apps/web 안에만 있고 락파일도
+# 거기 하나뿐이다. base를 잡으면 빌드가 그 디렉터리에서 돌고, 아래 경로도 전부
+# base 기준 상대경로로 읽힌다. 그래서 publish는 apps/web/.next를 가리킨다.
+#
+# Next.js Runtime(@netlify/plugin-nextjs)은 Netlify가 Next.js를 감지해 자동으로
+# 붙인다. 여기에 plugins를 적지 않는 것이 맞다.
+#
+# Netlify UI의 Base directory는 비워 둔다. 이 파일의 base가 UI 설정을 덮어쓰므로
+# 양쪽에 적으면 나중에 값이 어긋났을 때 UI 쪽이 조용히 무시된다.
+
+[build]
+  base = "apps/web"
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  # package.json의 engines가 node >=23이다. Netlify는 engines 필드로 런타임을
+  # 고르지 않고 기본 버전을 쓰므로 여기서 못 박는다. 로컬 개발도 24다.
+  NODE_VERSION = "24"
+
+# 여기에 없지만 반드시 필요한 것 — NEXT_PUBLIC_CHART_API
+#
+# 이 값은 next.config.mjs가 빌드 시점에 브라우저 번들로 굽는다. Netlify UI의
+# 환경변수에 차트 분석 서비스(services/chart-api) 주소를 넣어야 한다. 넣지 않으면
+# 기본값 http://localhost:8000이 그대로 구워져서 방문자의 로컬을 호출하고,
+# https 사이트에서 http 요청이라 브라우저가 mixed content로 차단한다.
+#
+# 값을 이 파일에 적지 않는 이유는 환경마다 다르고, 지금은 chart-api를 어디에
+# 띄울지 정해지지 않았기 때문이다. 잘못된 주소를 굽는 것보다 비워 두는 편이 낫다.
