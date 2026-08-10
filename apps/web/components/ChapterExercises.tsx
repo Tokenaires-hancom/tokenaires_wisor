@@ -49,7 +49,7 @@ export default function ChapterExercises({
       mounted.current = true;
       return;
     }
-    contentRef.current?.focus();
+    contentRef.current?.focus({ preventScroll: true });
   }, [at]);
 
   function go(next: number) {

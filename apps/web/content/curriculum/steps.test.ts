@@ -30,8 +30,13 @@ test("문항 순서가 원본 배열 순서를 그대로 따른다", () => {
   const steps = chapterSteps(input);
   // index만 보면 순서를 뒤집어도 0..n-1이 나오므로 우연히 통과한다.
   // 실제 원본 배열의 어떤 항목을 가리키는지까지 확인한다.
-  assert.equal(input[steps[1].index], journal);
-  assert.equal(input[steps[2].index], graded);
+  const first = steps[1];
+  const second = steps[2];
+  assert.equal(first.kind, "exercise");
+  assert.equal(second.kind, "exercise");
+  if (first.kind !== "exercise" || second.kind !== "exercise") return;
+  assert.equal(input[first.index], journal);
+  assert.equal(input[second.index], graded);
 });
 
 test("스텝 수는 문항 수보다 둘 많다", () => {
