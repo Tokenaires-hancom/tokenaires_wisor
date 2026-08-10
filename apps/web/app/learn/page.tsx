@@ -5,7 +5,7 @@ export default function LearnIndex() {
   return (
     <div className="wrap" style={{ paddingBlock: "3.5rem 5rem" }}>
       <p className="eyebrow">배우기</p>
-      <h1 className="thesis">일곱 투자 철학, 같은 다섯 질문</h1>
+      <h1 className="thesis">대가들의 투자 철학을 배워보세요</h1>
 
       <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "1.5rem" }}>
         <Link href="/learn/compare" className="btn" data-variant="quiet">
@@ -20,7 +20,6 @@ export default function LearnIndex() {
           <Link key={m.id} href={`/learn/masters/${m.id}`} className="card card-link">
             <p className="style-kicker">
               <span className="style-name">{m.styleName}</span>
-              <span>{m.subtitle}</span>
             </p>
             <div className="master-card-head">
               <img
