@@ -26,11 +26,17 @@ test("문항 하나가 스텝 하나가 된다", () => {
 });
 
 test("문항 순서가 원본 배열 순서를 그대로 따른다", () => {
-  const steps = chapterSteps([journal, graded]);
-  const indexes = steps
-    .filter((step): step is { kind: "exercise"; index: number } => step.kind === "exercise")
-    .map((step) => step.index);
-  assert.deepEqual(indexes, [0, 1]);
+  const input = [journal, graded];
+  const steps = chapterSteps(input);
+  // index만 보면 순서를 뒤집어도 0..n-1이 나오므로 우연히 통과한다.
+  // 실제 원본 배열의 어떤 항목을 가리키는지까지 확인한다.
+  assert.equal(input[steps[1].index], journal);
+  assert.equal(input[steps[2].index], graded);
+});
+
+test("스텝 수는 문항 수보다 둘 많다", () => {
+  assert.equal(chapterSteps([]).length, 2);
+  assert.equal(chapterSteps([graded, journal]).length, 4);
 });
 
 test("스텝마다 사람이 읽는 이름이 있다", () => {

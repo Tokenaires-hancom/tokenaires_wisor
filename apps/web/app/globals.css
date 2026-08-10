@@ -820,27 +820,6 @@ h3.sub {
 
 /* ---------- 커리큘럼 챕터 ---------- */
 
-.chapter-progress {
-  display: flex;
-  gap: 3px;
-  margin: 1.25rem 0 1.75rem;
-}
-
-.chapter-progress span {
-  flex: 1;
-  height: 3px;
-  border-radius: 1px;
-  background: var(--line);
-}
-
-.chapter-progress span[data-state="done"] {
-  background: var(--plum-line);
-}
-
-.chapter-progress span[data-state="current"] {
-  background: var(--plum);
-}
-
 .chapter-title {
   font-family: var(--serif);
   font-size: clamp(1.8rem, 4vw, 2.5rem);
@@ -1152,9 +1131,13 @@ h3.sub {
   margin-bottom: 1.25rem;
 }
 
-/* 챕터 안에서 지금 어디쯤인지. 잠금이 아니라 표시다 */
+/* 챕터 안에서 지금 어디쯤인지. 잠금이 아니라 표시다.
+ * 세 상태는 색만으로 구분하지 않는다. 완료는 채운 막대, 지금 위치는 더 크고
+ * 테두리가 있는 막대(가장 눈에 띄어야 한다), 아직 안 간 곳은 얇은 빈 트랙이다.
+ * 흑백으로 봐도 세 상태가 서로 다른 모양으로 구분된다. */
 .step-bar {
   display: flex;
+  align-items: center;
   gap: 3px;
   list-style: none;
   margin: 0 0 1.5rem;
@@ -1165,11 +1148,15 @@ h3.sub {
   height: 5px;
   border-radius: 3px;
   background: var(--line);
+  box-sizing: border-box;
 }
-.step-bar li[data-state="done"] { background: var(--plum); }
-.step-bar li[data-state="current"] {
+.step-bar li[data-state="done"] {
   background: var(--plum);
-  opacity: 0.55;
+}
+.step-bar li[data-state="current"] {
+  height: 9px;
+  background: var(--plum-soft);
+  border: 2px solid var(--plum);
 }
 
 .step-nav {

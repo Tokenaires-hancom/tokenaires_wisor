@@ -7,6 +7,7 @@ import {
   CURRICULUM_BY_MASTER,
   chapterOf,
 } from "@/content/curriculum";
+import { chapterSteps } from "@/content/curriculum/steps";
 import { MASTER_BY_ID, type Master } from "@/content/masters";
 
 export function generateStaticParams() {
@@ -38,7 +39,7 @@ export default async function ChapterPage({
   const previous = no > 1 ? CHAPTER_SLOTS[no - 2] : undefined;
   const next = no < CHAPTER_SLOTS.length ? CHAPTER_SLOTS[no] : undefined;
 
-  const stepCount = chapter.exercises.length + 2;
+  const stepCount = chapterSteps(chapter.exercises).length;
   const parsedStep = Number(step);
   const initialStep = Number.isInteger(parsedStep)
     ? Math.min(Math.max(parsedStep, 0), stepCount - 1)

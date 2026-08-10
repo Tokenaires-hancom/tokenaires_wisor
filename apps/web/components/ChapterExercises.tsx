@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { isCorrect } from "@/content/curriculum/grading";
 import { chapterSteps, stepLabel } from "@/content/curriculum/steps";
 import type { Exercise } from "@/content/curriculum/types";
@@ -19,12 +19,16 @@ export default function ChapterExercises({
   body,
   closing,
   initialStep = 0,
+  syncStepToUrl = true,
 }: {
   chapterId: string;
   exercises: Exercise[];
   body: string[];
   closing: string;
   initialStep?: number;
+  /** 페이지가 `?step=`을 읽어 되돌릴 수 있을 때만 켠다. 읽지 않는 페이지에 켜면
+   *  주소가 실제로 복원되지 않는 스텝을 주장하게 된다. */
+  syncStepToUrl?: boolean;
 }) {
   const steps = chapterSteps(exercises);
   const router = useRouter();
@@ -32,12 +36,27 @@ export default function ChapterExercises({
   const [done, setDone] = useState<boolean[]>(exercises.map(() => false));
   const [picks, setPicks] = useState<number[][]>(exercises.map(() => []));
   const [texts, setTexts] = useState<string[]>(exercises.map(() => ""));
+  const contentRef = useRef<HTMLDivElement>(null);
+  const mounted = useRef(false);
 
   const step = steps[at];
 
+  // 스텝이 바뀔 때 포커스를 새 콘텐츠로 옮긴다. 경계 스텝에서는 눌렀던
+  // 이전/계속 버튼이 disabled가 되며 포커스가 body로 떨어지는데, 그러면
+  // 다음 Tab이 문서 맨 위부터 다시 시작한다. 첫 마운트에는 옮기지 않는다.
+  useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      return;
+    }
+    contentRef.current?.focus();
+  }, [at]);
+
   function go(next: number) {
     setAt(next);
-    router.replace(`?step=${next}`, { scroll: false });
+    if (syncStepToUrl) {
+      router.replace(`?step=${next}`, { scroll: false });
+    }
   }
 
   function toggle(index: number, choice: number, multiple: boolean) {
@@ -96,68 +115,76 @@ export default function ChapterExercises({
           <li
             key={index}
             data-state={index < at ? "done" : index === at ? "current" : undefined}
+            aria-current={index === at ? "step" : undefined}
           >
             <span className="visually-hidden">{stepLabel(each)}</span>
           </li>
         ))}
       </ol>
 
-      {step.kind === "read" && (
-        <div className="prose">
-          {body.map((paragraph, index) => (
-            <p key={index}>{paragraph}</p>
-          ))}
-        </div>
-      )}
+      <div
+        ref={contentRef}
+        tabIndex={-1}
+        role="group"
+        aria-label={`${stepLabel(step)} 단계, ${at + 1}/${steps.length}`}
+      >
+        {step.kind === "read" && (
+          <div className="prose">
+            {body.map((paragraph, index) => (
+              <p key={index}>{paragraph}</p>
+            ))}
+          </div>
+        )}
 
-      {step.kind === "exercise" && (
-        <div className="card">
-          {exercises[step.index].kind === "graded" && (
-            <Graded
-              exercise={exercises[step.index] as Extract<Exercise, { kind: "graded" }>}
-              picked={picks[step.index]}
-              submitted={done[step.index]}
-              onPick={(choice) =>
-                toggle(
-                  step.index,
-                  choice,
-                  (exercises[step.index] as Extract<Exercise, { kind: "graded" }>).answers.length > 1,
-                )
-              }
-              onSubmit={() => void finish(step.index)}
-            />
-          )}
-          {exercises[step.index].kind === "guided" && (
-            <Guided
-              exercise={exercises[step.index] as Extract<Exercise, { kind: "guided" }>}
-              text={texts[step.index]}
-              revealed={done[step.index]}
-              onChange={(value) =>
-                setTexts((prev) => prev.map((text, i) => (i === step.index ? value : text)))
-              }
-              onSubmit={() => void finish(step.index)}
-            />
-          )}
-          {exercises[step.index].kind === "journal" && (
-            <Journal
-              exercise={exercises[step.index] as Extract<Exercise, { kind: "journal" }>}
-              text={texts[step.index]}
-              saved={done[step.index]}
-              onChange={(value) =>
-                setTexts((prev) => prev.map((text, i) => (i === step.index ? value : text)))
-              }
-              onSubmit={() => void finish(step.index)}
-            />
-          )}
-        </div>
-      )}
+        {step.kind === "exercise" && (
+          <div className="card">
+            {exercises[step.index].kind === "graded" && (
+              <Graded
+                exercise={exercises[step.index] as Extract<Exercise, { kind: "graded" }>}
+                picked={picks[step.index]}
+                submitted={done[step.index]}
+                onPick={(choice) =>
+                  toggle(
+                    step.index,
+                    choice,
+                    (exercises[step.index] as Extract<Exercise, { kind: "graded" }>).answers.length > 1,
+                  )
+                }
+                onSubmit={() => void finish(step.index)}
+              />
+            )}
+            {exercises[step.index].kind === "guided" && (
+              <Guided
+                exercise={exercises[step.index] as Extract<Exercise, { kind: "guided" }>}
+                text={texts[step.index]}
+                revealed={done[step.index]}
+                onChange={(value) =>
+                  setTexts((prev) => prev.map((text, i) => (i === step.index ? value : text)))
+                }
+                onSubmit={() => void finish(step.index)}
+              />
+            )}
+            {exercises[step.index].kind === "journal" && (
+              <Journal
+                exercise={exercises[step.index] as Extract<Exercise, { kind: "journal" }>}
+                text={texts[step.index]}
+                saved={done[step.index]}
+                onChange={(value) =>
+                  setTexts((prev) => prev.map((text, i) => (i === step.index ? value : text)))
+                }
+                onSubmit={() => void finish(step.index)}
+              />
+            )}
+          </div>
+        )}
 
-      {step.kind === "summary" && (
-        <div className="card">
-          <p className="eyebrow">이 장의 한 문장</p>
-          <p style={{ margin: 0, fontFamily: "var(--serif)", fontSize: "1.05rem" }}>{closing}</p>
-        </div>
-      )}
+        {step.kind === "summary" && (
+          <div className="card">
+            <p className="eyebrow">이 장의 한 문장</p>
+            <p style={{ margin: 0, fontFamily: "var(--serif)", fontSize: "1.05rem" }}>{closing}</p>
+          </div>
+        )}
+      </div>
 
       <div className="step-nav">
         <button

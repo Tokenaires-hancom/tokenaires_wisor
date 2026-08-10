@@ -91,6 +91,7 @@ export default function CompareStylesPage() {
           "지식보다 자본의 시간표, 기질, 실제 역량이 먼저입니다. 세 층을 차례로 적고 마지막에 교집합을 확인합니다.",
         ]}
         closing="자본의 시간표, 기질, 실제 역량이 겹치는 자리에 지금 실행할 수 있는 철학이 남는다."
+        syncStepToUrl={false}
       />
     </div>
   );
