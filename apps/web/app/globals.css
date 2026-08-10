@@ -1151,3 +1151,43 @@ h3.sub {
 .master-lesson-head {
   margin-bottom: 1.25rem;
 }
+
+/* 챕터 안에서 지금 어디쯤인지. 잠금이 아니라 표시다 */
+.step-bar {
+  display: flex;
+  gap: 3px;
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0;
+}
+.step-bar li {
+  flex: 1;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--line);
+}
+.step-bar li[data-state="done"] { background: var(--plum); }
+.step-bar li[data-state="current"] {
+  background: var(--plum);
+  opacity: 0.55;
+}
+
+.step-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+.step-nav .mono { color: var(--ink-faint); font-size: 0.85rem; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { isCorrect } from "@/content/curriculum/grading";
+import { chapterSteps, stepLabel } from "@/content/curriculum/steps";
 import type { Exercise } from "@/content/curriculum/types";
 import { track } from "@/lib/analytics";
 import { markLessonDone, recordQuiz, saveJournalEntry } from "@/lib/store";
@@ -14,13 +15,21 @@ import { markLessonDone, recordQuiz, saveJournalEntry } from "@/lib/store";
 export default function ChapterExercises({
   chapterId,
   exercises,
+  body,
+  closing,
 }: {
   chapterId: string;
   exercises: Exercise[];
+  body: string[];
+  closing: string;
 }) {
+  const steps = chapterSteps(exercises);
+  const [at, setAt] = useState(0);
   const [done, setDone] = useState<boolean[]>(exercises.map(() => false));
   const [picks, setPicks] = useState<number[][]>(exercises.map(() => []));
   const [texts, setTexts] = useState<string[]>(exercises.map(() => ""));
+
+  const step = steps[at];
 
   function toggle(index: number, choice: number, multiple: boolean) {
     if (done[index]) return;
@@ -72,42 +81,97 @@ export default function ChapterExercises({
   }
 
   return (
-    <section className="stack" aria-label="챕터 문항">
-      {exercises.map((exercise, index) => (
-        <div key={index} className="card">
-          {exercise.kind === "graded" && (
+    <section aria-label="챕터 진행">
+      <ol className="step-bar" aria-label={`${steps.length}단계 중 ${at + 1}단계`}>
+        {steps.map((each, index) => (
+          <li
+            key={index}
+            data-state={index < at ? "done" : index === at ? "current" : undefined}
+          >
+            <span className="visually-hidden">{stepLabel(each)}</span>
+          </li>
+        ))}
+      </ol>
+
+      {step.kind === "read" && (
+        <div className="prose">
+          {body.map((paragraph, index) => (
+            <p key={index}>{paragraph}</p>
+          ))}
+        </div>
+      )}
+
+      {step.kind === "exercise" && (
+        <div className="card">
+          {exercises[step.index].kind === "graded" && (
             <Graded
-              exercise={exercise}
-              picked={picks[index]}
-              submitted={done[index]}
-              onPick={(choice) => toggle(index, choice, exercise.answers.length > 1)}
-              onSubmit={() => void finish(index)}
+              exercise={exercises[step.index] as Extract<Exercise, { kind: "graded" }>}
+              picked={picks[step.index]}
+              submitted={done[step.index]}
+              onPick={(choice) =>
+                toggle(
+                  step.index,
+                  choice,
+                  (exercises[step.index] as Extract<Exercise, { kind: "graded" }>).answers.length > 1,
+                )
+              }
+              onSubmit={() => void finish(step.index)}
             />
           )}
-          {exercise.kind === "guided" && (
+          {exercises[step.index].kind === "guided" && (
             <Guided
-              exercise={exercise}
-              text={texts[index]}
-              revealed={done[index]}
+              exercise={exercises[step.index] as Extract<Exercise, { kind: "guided" }>}
+              text={texts[step.index]}
+              revealed={done[step.index]}
               onChange={(value) =>
-                setTexts((prev) => prev.map((text, i) => (i === index ? value : text)))
+                setTexts((prev) => prev.map((text, i) => (i === step.index ? value : text)))
               }
-              onSubmit={() => void finish(index)}
+              onSubmit={() => void finish(step.index)}
             />
           )}
-          {exercise.kind === "journal" && (
+          {exercises[step.index].kind === "journal" && (
             <Journal
-              exercise={exercise}
-              text={texts[index]}
-              saved={done[index]}
+              exercise={exercises[step.index] as Extract<Exercise, { kind: "journal" }>}
+              text={texts[step.index]}
+              saved={done[step.index]}
               onChange={(value) =>
-                setTexts((prev) => prev.map((text, i) => (i === index ? value : text)))
+                setTexts((prev) => prev.map((text, i) => (i === step.index ? value : text)))
               }
-              onSubmit={() => void finish(index)}
+              onSubmit={() => void finish(step.index)}
             />
           )}
         </div>
-      ))}
+      )}
+
+      {step.kind === "summary" && (
+        <div className="card">
+          <p className="eyebrow">이 장의 한 문장</p>
+          <p style={{ margin: 0, fontFamily: "var(--serif)", fontSize: "1.05rem" }}>{closing}</p>
+        </div>
+      )}
+
+      <div className="step-nav">
+        <button
+          type="button"
+          className="btn"
+          data-variant="quiet"
+          disabled={at === 0}
+          onClick={() => setAt(at - 1)}
+        >
+          이전
+        </button>
+        <span className="mono">
+          {at + 1} / {steps.length}
+        </span>
+        <button
+          type="button"
+          className="btn"
+          disabled={at === steps.length - 1}
+          onClick={() => setAt(at + 1)}
+        >
+          계속
+        </button>
+      </div>
     </section>
   );
 }

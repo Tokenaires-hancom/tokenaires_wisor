@@ -41,34 +41,18 @@ export default async function ChapterPage({
         {master.name} · {slot.no}장 {slot.label} / {curriculum.chapters.length}
       </p>
 
-      <div className="chapter-progress" aria-label={`${curriculum.chapters.length}장 중 ${slot.no}장`}>
-        {CHAPTER_SLOTS.map((chapterSlot) => (
-          <span
-            key={chapterSlot.no}
-            data-state={
-              chapterSlot.no < slot.no
-                ? "done"
-                : chapterSlot.no === slot.no
-                  ? "current"
-                  : undefined
-            }
-          />
-        ))}
-      </div>
-
       <h1 className="chapter-title">{chapter.title}</h1>
       <p className="chapter-lede">{chapter.lede}</p>
       <p className="lede">{slot.asks}</p>
 
-      <div className="prose">
-        {chapter.body.map((paragraph, index) => (
-          <p key={index}>{paragraph}</p>
-        ))}
-      </div>
-
       <hr className="rule" />
 
-      <ChapterExercises chapterId={`master:${master.id}:${slot.no}`} exercises={chapter.exercises} />
+      <ChapterExercises
+        chapterId={`master:${master.id}:${slot.no}`}
+        exercises={chapter.exercises}
+        body={chapter.body}
+        closing={chapter.lede}
+      />
 
       <nav className="chapter-nav" aria-label="장 이동">
         <div>
