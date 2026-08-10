@@ -11,9 +11,6 @@ export default function LearnIndex() {
         <Link href="/learn/compare" className="btn" data-variant="quiet">
           다섯 질문으로 일곱 투자 철학 비교하기
         </Link>
-        <Link href="/learn/scoring" className="btn" data-variant="quiet">
-          종목을 고르고 점수를 만드는 법
-        </Link>
       </div>
       <div className="grid">
         {MASTERS.map((m) => (
