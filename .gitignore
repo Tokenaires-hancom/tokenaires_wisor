@@ -18,3 +18,6 @@ tsconfig.tsbuildinfo
 
 # Local Netlify folder
 .netlify
+
+# 브레인스토밍 목업 (superpowers)
+.superpowers/
