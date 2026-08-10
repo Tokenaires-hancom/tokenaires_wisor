@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { isCorrect } from "@/content/curriculum/grading";
 import { chapterSteps, stepLabel } from "@/content/curriculum/steps";
@@ -17,19 +18,27 @@ export default function ChapterExercises({
   exercises,
   body,
   closing,
+  initialStep = 0,
 }: {
   chapterId: string;
   exercises: Exercise[];
   body: string[];
   closing: string;
+  initialStep?: number;
 }) {
   const steps = chapterSteps(exercises);
-  const [at, setAt] = useState(0);
+  const router = useRouter();
+  const [at, setAt] = useState(() => Math.min(Math.max(initialStep, 0), steps.length - 1));
   const [done, setDone] = useState<boolean[]>(exercises.map(() => false));
   const [picks, setPicks] = useState<number[][]>(exercises.map(() => []));
   const [texts, setTexts] = useState<string[]>(exercises.map(() => ""));
 
   const step = steps[at];
+
+  function go(next: number) {
+    setAt(next);
+    router.replace(`?step=${next}`, { scroll: false });
+  }
 
   function toggle(index: number, choice: number, multiple: boolean) {
     if (done[index]) return;
@@ -156,7 +165,7 @@ export default function ChapterExercises({
           className="btn"
           data-variant="quiet"
           disabled={at === 0}
-          onClick={() => setAt(at - 1)}
+          onClick={() => go(at - 1)}
         >
           이전
         </button>
@@ -167,7 +176,7 @@ export default function ChapterExercises({
           type="button"
           className="btn"
           disabled={at === steps.length - 1}
-          onClick={() => setAt(at + 1)}
+          onClick={() => go(at + 1)}
         >
           계속
         </button>

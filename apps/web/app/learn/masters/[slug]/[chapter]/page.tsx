@@ -20,10 +20,13 @@ export function generateStaticParams() {
 
 export default async function ChapterPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string; chapter: string }>;
+  searchParams: Promise<{ step?: string }>;
 }) {
   const { slug, chapter: chapterParam } = await params;
+  const { step } = await searchParams;
   const master = MASTER_BY_ID[slug as Master["id"]];
   const no = Number(chapterParam);
   const chapter = chapterOf(slug, no);
@@ -34,6 +37,12 @@ export default async function ChapterPage({
   const slot = CHAPTER_SLOTS[no - 1];
   const previous = no > 1 ? CHAPTER_SLOTS[no - 2] : undefined;
   const next = no < CHAPTER_SLOTS.length ? CHAPTER_SLOTS[no] : undefined;
+
+  const stepCount = chapter.exercises.length + 2;
+  const parsedStep = Number(step);
+  const initialStep = Number.isInteger(parsedStep)
+    ? Math.min(Math.max(parsedStep, 0), stepCount - 1)
+    : 0;
 
   return (
     <div className="wrap wrap-narrow" style={{ paddingBlock: "3.5rem 5rem" }}>
@@ -52,6 +61,7 @@ export default async function ChapterPage({
         exercises={chapter.exercises}
         body={chapter.body}
         closing={chapter.lede}
+        initialStep={initialStep}
       />
 
       <nav className="chapter-nav" aria-label="장 이동">
