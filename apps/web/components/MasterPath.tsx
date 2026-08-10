@@ -1,0 +1,63 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { CHAPTER_SLOTS, CURRICULUM_BY_MASTER } from "@/content/curriculum";
+import { MASTER_BY_ID, type Master } from "@/content/masters";
+import { getProgress } from "@/lib/store";
+
+/** 대가 한 명의 5장 경로. 잠금은 없다 — 모든 노드가 항상 눌린다.
+ *  '완료'는 저장된 진도에서 오고, '다음'은 진도가 없는 첫 장이다. */
+export default function MasterPath({ masterId }: { masterId: Master["id"] }) {
+  const master = MASTER_BY_ID[masterId];
+  const curriculum = CURRICULUM_BY_MASTER[masterId];
+  const [done, setDone] = useState<Set<number>>(new Set());
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    void getProgress().then((progress) => {
+      if (!alive) return;
+      const doneNos = CHAPTER_SLOTS.filter((slot) =>
+        progress.lessonsDone.includes(`master:${masterId}:${slot.no}`),
+      ).map((slot) => slot.no);
+      setDone(new Set(doneNos));
+      setReady(true);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [masterId]);
+
+  const nextNo = CHAPTER_SLOTS.find((slot) => !done.has(slot.no))?.no;
+
+  return (
+    <ol className="master-path" aria-label={`${master.name} 학습 경로`}>
+      {curriculum.chapters.map((chapter, index) => {
+        const slot = CHAPTER_SLOTS[index];
+        const isDone = ready && done.has(slot.no);
+        const isCurrent = ready && slot.no === nextNo;
+        return (
+          <li key={slot.no}>
+            <Link
+              href={`/learn/masters/${masterId}/${slot.no}`}
+              className="master-path-node"
+              data-state={isDone ? "done" : isCurrent ? "current" : undefined}
+            >
+              <span className="master-path-no">{String(slot.no).padStart(2, "0")}</span>
+              <span className="master-path-body">
+                <span className="master-path-label">{slot.label}</span>
+                <span className="master-path-title">{chapter.title}</span>
+              </span>
+              {isDone && (
+                <span className="master-path-check" aria-hidden="true">
+                  ✓
+                </span>
+              )}
+            </Link>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}

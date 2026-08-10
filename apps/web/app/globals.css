@@ -1178,3 +1178,91 @@ h3.sub {
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* 대가 개요: 경로(왼쪽)와 팁 패널(오른쪽). 좁은 화면에서는 위아래로 쌓인다.
+ * 팁은 <details>로 기본 접혀 있어 스크롤을 늘리지 않는다. */
+.master-overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(200px, 300px);
+  gap: 1.75rem;
+  align-items: start;
+}
+@media (max-width: 720px) {
+  .master-overview {
+    grid-template-columns: 1fr;
+  }
+}
+
+.master-path {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.master-path-node {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+}
+.master-path-node[data-state="done"] {
+  border-color: var(--plum-line);
+  background: var(--plum-soft);
+}
+.master-path-node[data-state="current"] {
+  border: 2px solid var(--plum);
+  padding: calc(0.6rem - 1px) calc(0.75rem - 1px);
+}
+.master-path-no {
+  font-family: var(--mono);
+  color: var(--ink-faint);
+  font-size: 0.8rem;
+  width: 1.5rem;
+  flex-shrink: 0;
+}
+.master-path-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.master-path-label {
+  font-size: 0.7rem;
+  color: var(--ink-faint);
+}
+.master-path-title {
+  font-size: 0.92rem;
+}
+.master-path-check {
+  color: var(--plum);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.master-tips {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.master-tips details {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+}
+.master-tips summary {
+  cursor: pointer;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.master-tips details[open] summary {
+  margin-bottom: 0.5rem;
+}
+.master-tips .reason-list {
+  margin: 0;
+}
