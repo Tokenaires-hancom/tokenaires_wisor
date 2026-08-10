@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { MASTERS } from "@/content/masters";
-import { CURRICULUM_BY_MASTER } from "@/content/curriculum";
 
 export default function LearnIndex() {
   return (
@@ -36,9 +35,6 @@ export default function LearnIndex() {
               </h3>
             </div>
             <p style={{ fontSize: "0.9rem", color: "var(--ink-soft)", margin: 0 }}>{m.oneLine}</p>
-            <p className="mono" style={{ color: "var(--ink-faint)", margin: 0 }}>
-              {CURRICULUM_BY_MASTER[m.id].chapters.length}장
-            </p>
           </Link>
         ))}
       </div>
