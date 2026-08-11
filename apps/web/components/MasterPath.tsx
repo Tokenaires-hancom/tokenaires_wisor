@@ -2,9 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import MasterCharacter from "@/components/MasterCharacter";
 import { CHAPTER_SLOTS, CURRICULUM_BY_MASTER } from "@/content/curriculum";
 import { MASTER_BY_ID, type Master } from "@/content/masters";
 import { getProgress } from "@/lib/store";
+
+const SWAY = [0, 48, 72, 48, 0];
 
 /** 대가 한 명의 5장 경로 + 그 위의 진행 인지 CTA. 잠금은 없다 — 모든 노드가
  *  항상 눌린다. '완료'는 저장된 진도에서 오고, '다음'은 진도가 없는 첫 장이다.
@@ -52,40 +55,58 @@ export default function MasterPath({
       ? { href: `/learn/masters/${masterId}/${nextNo}`, label: `${nextNo}장부터 이어서 하기` }
       : { href: `/learn/masters/${masterId}/1`, label: "1장부터 시작하기" };
 
+  const figureAt = nextNo ?? CHAPTER_SLOTS[CHAPTER_SLOTS.length - 1].no;
+
   return (
-    <div>
-      {cta && (
-        <Link href={cta.href} className="btn" style={{ marginBottom: "1rem" }}>
-          {cta.label}
-        </Link>
-      )}
-      <ol className="master-path" aria-label={`${master.name} 학습 경로`}>
+    <div className="path-shell">
+      <ol className="path" aria-label={`${master.name} 학습 경로`}>
         {curriculum.chapters.map((chapter, index) => {
           const slot = CHAPTER_SLOTS[index];
           const isDone = ready && done.has(slot.no);
           const isCurrent = ready && slot.no === nextNo;
           return (
-            <li key={slot.no}>
+            <li
+              key={slot.no}
+              className="path-row"
+              style={{ "--sway": `${SWAY[index % SWAY.length]}px` } as React.CSSProperties}
+            >
+              {isCurrent && (
+                <span className="path-bubble" aria-hidden="true">
+                  시작
+                </span>
+              )}
               <Link
                 href={`/learn/masters/${masterId}/${slot.no}`}
-                className="master-path-node"
-                data-state={isDone ? "done" : isCurrent ? "current" : undefined}
+                className="path-node"
+                data-state={isDone ? "done" : isCurrent ? "current" : "todo"}
               >
-                <span className="master-path-no">{String(slot.no).padStart(2, "0")}</span>
-                <span className="master-path-body">
-                  <span className="master-path-label">{slot.label}</span>
-                  <span className="master-path-title">{chapter.title}</span>
+                <span className="path-node-mark" aria-hidden="true">
+                  {isDone ? "✓" : slot.no}
                 </span>
-                {isDone && (
-                  <span className="master-path-check" aria-hidden="true">
-                    ✓
-                  </span>
-                )}
+                <span className="visually-hidden">
+                  {slot.no}장 {chapter.title}
+                  {isDone ? " · 완료" : isCurrent ? " · 지금 여기" : ""}
+                </span>
               </Link>
+              <span className="path-label" aria-hidden="true">
+                <span className="path-label-slot">{slot.label}</span>
+                <span className="path-label-title">{chapter.title}</span>
+              </span>
+              {slot.no === figureAt && (
+                <span className="path-figure">
+                  <MasterCharacter masterId={masterId} height={170} dimmed={!ready} />
+                </span>
+              )}
             </li>
           );
         })}
       </ol>
+
+      {cta && (
+        <Link href={cta.href} className="btn path-cta">
+          {cta.label}
+        </Link>
+      )}
     </div>
   );
 }
