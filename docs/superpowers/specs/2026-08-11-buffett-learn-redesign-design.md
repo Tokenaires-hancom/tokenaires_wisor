@@ -203,7 +203,8 @@ px으로 구불구불하게. 상태 셋:
 2. 각 단계 뒤 같은 세 화면을 다시 찍어 비교한다. 특히 `graham`처럼
    캐릭터가 없는 대가의 화면이 깨지지 않는지 본다.
 3. `npm run build` 통과
-4. `npx vitest run` — 기존 29개 웹 테스트 통과
+4. `npm test` — 기존 52개 통과. 러너는 `node --test`이고 대상 glob은
+   `content/**/*.test.ts`와 `lib/**/*.test.ts`다. 새 테스트는 이 안에 둔다.
 5. 콘솔 에러 없음 (`read_console_messages`)
 
 ## 9. 배포
