@@ -820,6 +820,27 @@ h3.sub {
 
 /* ---------- 커리큘럼 챕터 ---------- */
 
+.chapter-progress {
+  display: flex;
+  gap: 3px;
+  margin: 1.25rem 0 1.75rem;
+}
+
+.chapter-progress span {
+  flex: 1;
+  height: 3px;
+  border-radius: 1px;
+  background: var(--line);
+}
+
+.chapter-progress span[data-state="done"] {
+  background: var(--plum-line);
+}
+
+.chapter-progress span[data-state="current"] {
+  background: var(--plum);
+}
+
 .chapter-title {
   font-family: var(--serif);
   font-size: clamp(1.8rem, 4vw, 2.5rem);
@@ -1131,138 +1152,49 @@ h3.sub {
   margin-bottom: 1.25rem;
 }
 
-/* 챕터 안에서 지금 어디쯤인지. 잠금이 아니라 표시다.
- * 세 상태는 색만으로 구분하지 않는다. 완료는 채운 막대, 지금 위치는 더 크고
- * 테두리가 있는 막대(가장 눈에 띄어야 한다), 아직 안 간 곳은 얇은 빈 트랙이다.
- * 흑백으로 봐도 세 상태가 서로 다른 모양으로 구분된다. */
-.step-bar {
+/* ---------- 모달 (주식 기본개념) ---------- */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(20, 16, 14, 0.55);
   display: flex;
   align-items: center;
-  gap: 3px;
-  list-style: none;
-  margin: 0 0 1.5rem;
-  padding: 0;
-}
-.step-bar li {
-  flex: 1;
-  height: 5px;
-  border-radius: 3px;
-  background: var(--line);
-  box-sizing: border-box;
-}
-.step-bar li[data-state="done"] {
-  background: var(--plum);
-}
-.step-bar li[data-state="current"] {
-  height: 9px;
-  background: var(--plum-soft);
-  border: 2px solid var(--plum);
+  justify-content: center;
+  padding: 1.5rem;
 }
 
-.step-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-top: 2rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--line);
-}
-.step-nav .mono { color: var(--ink-faint); font-size: 0.85rem; }
-
-.visually-hidden {
-  position: absolute;
-  width: 1px; height: 1px;
-  margin: -1px; padding: 0;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-}
-
-/* 대가 개요: 경로(왼쪽)와 팁 패널(오른쪽). 좁은 화면에서는 위아래로 쌓인다.
- * 팁은 <details>로 기본 접혀 있어 스크롤을 늘리지 않는다. */
-.master-overview {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(200px, 300px);
-  gap: 1.75rem;
-  align-items: start;
-}
-@media (max-width: 720px) {
-  .master-overview {
-    grid-template-columns: 1fr;
-  }
-}
-
-.master-path {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-.master-path-node {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 0.75rem;
+.modal-panel {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  max-height: min(88vh, 900px);
+  overflow-y: auto;
+  background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 8px;
-  text-decoration: none;
-  color: inherit;
-}
-.master-path-node[data-state="done"] {
-  border-color: var(--plum-line);
-  background: var(--plum-soft);
-}
-.master-path-node[data-state="current"] {
-  border: 2px solid var(--plum);
-  padding: calc(0.6rem - 1px) calc(0.75rem - 1px);
-}
-.master-path-no {
-  font-family: var(--mono);
-  color: var(--ink-faint);
-  font-size: 0.8rem;
-  width: 1.5rem;
-  flex-shrink: 0;
-}
-.master-path-body {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-.master-path-label {
-  font-size: 0.7rem;
-  color: var(--ink-faint);
-}
-.master-path-title {
-  font-size: 0.92rem;
-}
-.master-path-check {
-  color: var(--plum);
-  margin-left: auto;
-  flex-shrink: 0;
+  border-radius: var(--radius);
+  padding: 2rem;
+  box-shadow: 0 24px 60px rgba(20, 16, 14, 0.25);
 }
 
-.master-tips {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-.master-tips details {
+.modal-close {
+  position: sticky;
+  float: right;
+  top: 0;
+  margin-left: 1rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
   border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 0.6rem 0.8rem;
-}
-.master-tips summary {
-  cursor: pointer;
-  font-size: 0.86rem;
-  font-weight: 600;
+  background: var(--surface);
   color: var(--ink);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 1;
 }
-.master-tips details[open] summary {
-  margin-bottom: 0.5rem;
-}
-.master-tips .reason-list {
-  margin: 0;
+
+.modal-close:hover {
+  border-color: var(--plum-line);
 }
