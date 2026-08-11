@@ -1519,3 +1519,25 @@ h3.sub {
 .master-tips .reason-list {
   margin: 0;
 }
+
+/* ---------- 캐릭터 ---------- */
+
+.character {
+  display: block;
+  flex: none;
+  line-height: 0;
+}
+
+.character img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+/* 아직 도달하지 않은 구간의 캐릭터. 듀오링고는 미완 구간을 통째로
+ * 회색으로 둔다 — 색이 곧 진행 상태다. */
+.character[data-dimmed="true"] img {
+  filter: grayscale(1);
+  opacity: 0.45;
+}
