@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { isCorrect } from "@/content/curriculum/grading";
@@ -7,6 +8,12 @@ import { chapterSteps, stepLabel } from "@/content/curriculum/steps";
 import type { Exercise } from "@/content/curriculum/types";
 import { track } from "@/lib/analytics";
 import { markLessonDone, recordQuiz, saveJournalEntry } from "@/lib/store";
+
+const SUBMIT_LABEL: Record<Exercise["kind"], string> = {
+  graded: "답 확인하기",
+  guided: "체크 포인트 보기",
+  journal: "기록하기",
+};
 
 /** 챕터의 유일한 클라이언트 경계.
  *
@@ -20,6 +27,7 @@ export default function ChapterExercises({
   closing,
   initialStep = 0,
   syncStepToUrl = true,
+  next,
 }: {
   chapterId: string;
   exercises: Exercise[];
@@ -29,6 +37,9 @@ export default function ChapterExercises({
   /** 페이지가 `?step=`을 읽어 되돌릴 수 있을 때만 켠다. 읽지 않는 페이지에 켜면
    *  주소가 실제로 복원되지 않는 스텝을 주장하게 된다. */
   syncStepToUrl?: boolean;
+  /** 마지막 스텝에서 '계속' 대신 보여줄 이동 대상. 없으면 마지막 스텝에서
+   *  그냥 비활성화된다(예: compare 페이지의 최종 기록에는 다음 장이 없다). */
+  next?: { href: string; label: string };
 }) {
   const steps = chapterSteps(exercises);
   const router = useRouter();
@@ -40,6 +51,13 @@ export default function ChapterExercises({
   const mounted = useRef(false);
 
   const step = steps[at];
+  const exerciseIndex = step.kind === "exercise" ? step.index : undefined;
+  const currentExercise = exerciseIndex !== undefined ? exercises[exerciseIndex] : undefined;
+  const currentSubmitted = exerciseIndex !== undefined && done[exerciseIndex];
+  const currentHasInput =
+    currentExercise?.kind === "graded"
+      ? picks[exerciseIndex!].length > 0
+      : currentExercise !== undefined && texts[exerciseIndex!].trim() !== "";
 
   // 스텝이 바뀔 때 포커스를 새 콘텐츠로 옮긴다. 경계 스텝에서는 눌렀던
   // 이전/계속 버튼이 disabled가 되며 포커스가 body로 떨어지는데, 그러면
@@ -73,15 +91,15 @@ export default function ChapterExercises({
   }
 
   async function finish(index: number) {
-    const next = done.map((complete, i) => (i === index ? true : complete));
-    setDone(next);
+    const updated = done.map((complete, i) => (i === index ? true : complete));
+    setDone(updated);
 
     const exercise = exercises[index];
     if (exercise.kind === "journal") {
       await saveJournalEntry(`${chapterId}#${index}`, exercise.prompt, texts[index]);
     }
 
-    if (!next.every(Boolean)) return;
+    if (!updated.every(Boolean)) return;
 
     await markLessonDone(chapterId);
 
@@ -150,7 +168,6 @@ export default function ChapterExercises({
                     (exercises[step.index] as Extract<Exercise, { kind: "graded" }>).answers.length > 1,
                   )
                 }
-                onSubmit={() => void finish(step.index)}
               />
             )}
             {exercises[step.index].kind === "guided" && (
@@ -161,7 +178,6 @@ export default function ChapterExercises({
                 onChange={(value) =>
                   setTexts((prev) => prev.map((text, i) => (i === step.index ? value : text)))
                 }
-                onSubmit={() => void finish(step.index)}
               />
             )}
             {exercises[step.index].kind === "journal" && (
@@ -172,7 +188,6 @@ export default function ChapterExercises({
                 onChange={(value) =>
                   setTexts((prev) => prev.map((text, i) => (i === step.index ? value : text)))
                 }
-                onSubmit={() => void finish(step.index)}
               />
             )}
           </div>
@@ -187,26 +202,39 @@ export default function ChapterExercises({
       </div>
 
       <div className="step-nav">
-        <button
-          type="button"
-          className="btn"
-          data-variant="quiet"
-          disabled={at === 0}
-          onClick={() => go(at - 1)}
-        >
-          이전
-        </button>
+        {at > 0 ? (
+          <button type="button" className="btn" data-variant="quiet" onClick={() => go(at - 1)}>
+            이전
+          </button>
+        ) : (
+          <span aria-hidden="true" />
+        )}
         <span className="mono">
           {at + 1} / {steps.length}
         </span>
-        <button
-          type="button"
-          className="btn"
-          disabled={at === steps.length - 1}
-          onClick={() => go(at + 1)}
-        >
-          계속
-        </button>
+        {at === steps.length - 1 && next ? (
+          <Link href={next.href} className="btn">
+            {next.label}
+          </Link>
+        ) : currentExercise && !currentSubmitted ? (
+          <button
+            type="button"
+            className="btn"
+            disabled={!currentHasInput}
+            onClick={() => void finish(exerciseIndex!)}
+          >
+            {SUBMIT_LABEL[currentExercise.kind]}
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="btn"
+            disabled={at === steps.length - 1}
+            onClick={() => go(at + 1)}
+          >
+            계속
+          </button>
+        )}
       </div>
     </section>
   );
@@ -217,13 +245,11 @@ function Graded({
   picked,
   submitted,
   onPick,
-  onSubmit,
 }: {
   exercise: Extract<Exercise, { kind: "graded" }>;
   picked: number[];
   submitted: boolean;
   onPick: (choice: number) => void;
-  onSubmit: () => void;
 }) {
   const multiple = exercise.answers.length > 1;
 
@@ -262,17 +288,13 @@ function Graded({
           );
         })}
       </div>
-      {submitted ? (
+      {submitted && (
         <p
           role="status"
           style={{ fontSize: "0.88rem", color: "var(--ink-soft)", marginBottom: 0 }}
         >
           {exercise.explain}
         </p>
-      ) : (
-        <button type="button" className="btn" disabled={picked.length === 0} onClick={onSubmit}>
-          답 확인하기
-        </button>
       )}
     </>
   );
@@ -283,13 +305,11 @@ function Guided({
   text,
   revealed,
   onChange,
-  onSubmit,
 }: {
   exercise: Extract<Exercise, { kind: "guided" }>;
   text: string;
   revealed: boolean;
   onChange: (value: string) => void;
-  onSubmit: () => void;
 }) {
   return (
     <>
@@ -304,7 +324,7 @@ function Guided({
           disabled={revealed}
         />
       </label>
-      {revealed ? (
+      {revealed && (
         <div className="checkpoints" role="status">
           <p className="eyebrow">체크 포인트</p>
           <ul className="reason-list">
@@ -315,10 +335,6 @@ function Guided({
             ))}
           </ul>
         </div>
-      ) : (
-        <button type="button" className="btn" disabled={text.trim() === ""} onClick={onSubmit}>
-          체크 포인트 보기
-        </button>
       )}
     </>
   );
@@ -329,13 +345,11 @@ function Journal({
   text,
   saved,
   onChange,
-  onSubmit,
 }: {
   exercise: Extract<Exercise, { kind: "journal" }>;
   text: string;
   saved: boolean;
   onChange: (value: string) => void;
-  onSubmit: () => void;
 }) {
   return (
     <>
@@ -350,17 +364,13 @@ function Journal({
           disabled={saved}
         />
       </label>
-      {saved ? (
+      {saved && (
         <p
           role="status"
           style={{ fontSize: "0.88rem", color: "var(--ink-soft)", marginBottom: 0 }}
         >
           기록했습니다. 90일 뒤 내 학습에서 다시 묻습니다.
         </p>
-      ) : (
-        <button type="button" className="btn" disabled={text.trim() === ""} onClick={onSubmit}>
-          기록하기
-        </button>
       )}
     </>
   );

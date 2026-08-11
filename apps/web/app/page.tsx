@@ -5,6 +5,18 @@ import { MASTERS } from "@/content/masters";
 import { CURRICULUM_BY_MASTER } from "@/content/curriculum";
 import { ranked, styleMeta } from "@/lib/scores";
 
+/** 7명의 원형 아바타를 듀오링고 마스코트 무리처럼 겹쳐 배치한다.
+ *  좌표는 고정값이다 — 서버 컴포넌트라 Math.random을 쓰면 하이드레이션이 어긋난다. */
+const HERO_CLUSTER: { id: (typeof MASTERS)[number]["id"]; top: string; left: string; size: number; rotate: number }[] = [
+  { id: "buffett", top: "4%", left: "36%", size: 108, rotate: -6 },
+  { id: "graham", top: "0%", left: "2%", size: 62, rotate: 11 },
+  { id: "lynch", top: "6%", left: "74%", size: 58, rotate: -13 },
+  { id: "fisher", top: "48%", left: "0%", size: 68, rotate: 8 },
+  { id: "greenblatt", top: "52%", left: "78%", size: 64, rotate: 14 },
+  { id: "marks", top: "66%", left: "28%", size: 60, rotate: -9 },
+  { id: "soros", top: "72%", left: "58%", size: 52, rotate: 7 },
+];
+
 export default function Home() {
   const { scored } = ranked("buffett");
   const sample = scored[0];
@@ -12,30 +24,42 @@ export default function Home() {
 
   return (
     <div className="wrap" style={{ paddingBlock: "4rem 5rem" }}>
-      <p className="eyebrow">투자 학습 서비스</p>
-      <h1 className="thesis">
-        어떤 시장에서도 흔들리지 않는 <em>질문하는 법</em>을 배웁니다.
-      </h1>
-      <p className="lede">
-        버핏부터 소로스까지 일곱 투자 대가가 기업과 시장을 볼 때 던진 질문을 배웁니다. 그리고
-        차트에서 무엇이 보이고 무엇이 보이지 않는지 읽는 법을 함께 익힙니다.
-        <br />
-        <strong>질문하는 법을 배우고, 스스로 판단하는 법을 익히는 서비스</strong>입니다.
-      </p>
+      <section className="hero">
+        <div className="hero-cluster" aria-hidden="true">
+          {HERO_CLUSTER.map((a) => (
+            <img
+              key={a.id}
+              src={`/investors/${a.id}.png`}
+              alt=""
+              style={{
+                top: a.top,
+                left: a.left,
+                width: a.size,
+                height: a.size,
+                transform: `rotate(${a.rotate}deg)`,
+              }}
+            />
+          ))}
+        </div>
 
-      <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginBottom: "3rem" }}>
-        <Link href="/learn" className="btn">
-          투자 대가에게 배우기
-        </Link>
-        <Link href="/screener/buffett" className="btn" data-variant="quiet">
-          예시 결과 보기
-        </Link>
-        <Link href="/learn/compare" className="btn" data-variant="quiet">
-          일곱 투자 철학 비교하기
-        </Link>
-      </div>
+        <div>
+          <p className="eyebrow">투자 학습 서비스</p>
+          <h1 className="thesis">
+            대가들의 가르침을 따라 <em>스스로 질문</em>해보세요.
+          </h1>
+        </div>
 
-      <SampleDataFlag />
+        <div className="hero-ctas">
+          <Link href="/learn" className="btn">
+            배우러 가기
+          </Link>
+          <Link href="/screener/buffett" className="btn" data-variant="quiet">
+            예시 결과 보기
+          </Link>
+        </div>
+
+        <SampleDataFlag />
+      </section>
 
       <hr className="rule" />
 

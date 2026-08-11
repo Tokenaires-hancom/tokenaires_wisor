@@ -548,6 +548,53 @@ h3.sub {
   cursor: not-allowed;
 }
 
+/* ---------- 홈 헤로 ---------- */
+
+.hero {
+  min-height: calc(100vh - 60px - 4rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  text-align: center;
+}
+
+.hero .eyebrow {
+  text-align: center;
+}
+
+.hero .thesis {
+  margin: 0;
+  max-width: 18ch;
+  text-align: center;
+}
+
+.hero-cluster {
+  position: relative;
+  width: min(100%, 340px);
+  height: 220px;
+}
+
+.hero-cluster img {
+  position: absolute;
+  border-radius: 50%;
+  box-shadow: 0 8px 20px rgba(27, 23, 32, 0.14);
+}
+
+.hero-ctas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: min(100%, 320px);
+}
+
+.hero-ctas .btn {
+  justify-content: center;
+  padding-block: 0.85rem;
+  font-size: 0.95rem;
+}
+
 .field {
   display: block;
   margin-bottom: 1.25rem;
@@ -839,6 +886,34 @@ h3.sub {
 
 .chapter-progress span[data-state="current"] {
   background: var(--plum);
+}
+
+/* 챕터 안에서 지금 어디쯤인지. 잠금이 아니라 표시다.
+ * 세 상태는 색만으로 구분하지 않는다. 완료는 채운 막대, 지금 위치는 더 크고
+ * 테두리가 있는 막대(가장 눈에 띄어야 한다), 아직 안 간 곳은 얇은 빈 트랙이다.
+ * 흑백으로 봐도 세 상태가 서로 다른 모양으로 구분된다. */
+.step-bar {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0;
+}
+.step-bar li {
+  flex: 1;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--line);
+  box-sizing: border-box;
+}
+.step-bar li[data-state="done"] {
+  background: var(--plum);
+}
+.step-bar li[data-state="current"] {
+  height: 9px;
+  background: var(--plum-soft);
+  border: 2px solid var(--plum);
 }
 
 .chapter-title {
@@ -1197,4 +1272,220 @@ h3.sub {
 
 .modal-close:hover {
   border-color: var(--plum-line);
+}
+
+.step-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+.step-nav .mono { color: var(--ink-faint); font-size: 0.85rem; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.master-path {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.master-path-node {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+}
+.master-path-node[data-state="done"] {
+  border-color: var(--plum-line);
+  background: var(--plum-soft);
+}
+.master-path-node[data-state="current"] {
+  border: 2px solid var(--plum);
+  padding: calc(0.6rem - 1px) calc(0.75rem - 1px);
+}
+.master-path-no {
+  font-family: var(--mono);
+  color: var(--ink-faint);
+  font-size: 0.8rem;
+  width: 1.5rem;
+  flex-shrink: 0;
+}
+.master-path-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.master-path-label {
+  font-size: 0.7rem;
+  color: var(--ink-faint);
+}
+.master-path-title {
+  font-size: 0.92rem;
+}
+.master-path-check {
+  color: var(--plum);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.master-shell {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+.master-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+  flex-shrink: 0;
+  width: 44px;
+  margin-left: -1.5rem;
+  padding-top: 0.25rem;
+  padding-right: 2.5rem;
+  border-right: 1px solid var(--line);
+}
+
+/* 아주 넓은 화면에서는 .wrap의 가운데 정렬 폭 안에 갇혀 있지 말고 뷰포트
+ * 왼쪽 끝에 진짜로 붙인다. 그 폭만큼 본문 쪽에 여백을 더 준다. */
+@media (min-width: 1600px) {
+  .master-rail {
+    position: fixed;
+    left: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 0;
+    padding-right: 0;
+    border-right: none;
+  }
+  .master-main {
+    margin-left: 5rem;
+  }
+}
+
+.master-rail-item {
+  display: block;
+  position: relative;
+  z-index: 1;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  line-height: 0;
+}
+
+.master-rail-item:hover {
+  z-index: 2;
+}
+
+.master-rail-name {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 0.5rem;
+  padding: 0.2rem 0.5rem;
+  background: var(--ink);
+  color: #fff;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  white-space: nowrap;
+  border-radius: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.master-rail-item:hover .master-rail-name {
+  opacity: 1;
+}
+
+.master-rail-item img {
+  display: block;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 6px rgba(27, 23, 32, 0.12);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transform-origin: center;
+}
+
+/* width/height 대신 transform으로 키운다 — 박스 크기가 바뀌면 flex 레이아웃이
+ * 다시 계산되면서 옆에 있는 경로 카드까지 흔들린다. transform은 레이아웃에
+ * 영향을 안 준다. */
+.master-rail-item[data-current="true"] img {
+  transform: scale(1.32);
+  box-shadow: 0 4px 14px rgba(27, 23, 32, 0.22);
+  /* outline은 hover 규칙의 box-shadow와 겹쳐도 사라지지 않는다 — 호버 중에도
+   * '지금 이 페이지'라는 표시가 계속 남아야 한다. */
+  outline: 3px solid var(--plum-line);
+  outline-offset: 3px;
+}
+
+.master-rail-item:hover img {
+  transform: scale(1.64);
+  box-shadow: 0 6px 18px rgba(27, 23, 32, 0.26);
+}
+
+.master-main {
+  min-width: 0;
+  flex: 1;
+}
+
+@media (max-width: 640px) {
+  .master-shell {
+    flex-direction: column;
+  }
+  .master-rail {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: auto;
+    margin-left: 0;
+    padding-right: 0;
+    padding-bottom: 1.75rem;
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+  }
+}
+
+.master-tips {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.master-tips details {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+}
+.master-tips summary {
+  cursor: pointer;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.master-tips details[open] summary {
+  margin-bottom: 0.5rem;
+}
+.master-tips .reason-list {
+  margin: 0;
 }
