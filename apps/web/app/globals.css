@@ -1625,6 +1625,58 @@ h3.sub {
 
 /* ---------- 대가 선택 카드 레일 ---------- */
 
+.learn-page {
+  max-width: 1440px;
+  padding-block: 3.5rem 5rem;
+}
+
+.learn-page-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 250px;
+  align-items: start;
+  gap: 3rem;
+  margin-bottom: 2rem;
+}
+
+.learn-tools {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.learn-tool {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: 0 3px 0 var(--line);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 750;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.learn-tool-arrow {
+  color: var(--wine);
+}
+
+.learn-tool:hover,
+.learn-tool:focus-visible {
+  border-color: var(--wine);
+  color: var(--wine);
+}
+
+.learn-tool:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--line);
+}
+
 .master-carousel {
   position: relative;
   padding-bottom: 2rem;
@@ -1648,7 +1700,7 @@ h3.sub {
 }
 
 .master-carousel-item {
-  flex: 0 0 280px;
+  flex: 0 0 360px;
   scroll-snap-align: start;
 }
 
@@ -1661,7 +1713,7 @@ h3.sub {
   border-radius: var(--radius);
   background: var(--surface);
   box-shadow: 0 4px 0 var(--line);
-  min-height: 410px;
+  min-height: 500px;
   transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -1681,8 +1733,8 @@ h3.sub {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  height: 250px;
-  background: var(--surface-sunk);
+  height: 330px;
+  background: var(--surface);
   overflow: hidden;
 }
 
@@ -1696,12 +1748,14 @@ h3.sub {
   height: 100%;
   object-fit: contain;
   object-position: center bottom;
+  transform: scale(1.08);
+  transform-origin: center bottom;
 }
 
 .master-card-portrait {
-  width: 132px;
-  height: 132px;
-  margin-bottom: 2.1rem;
+  width: 180px;
+  height: 180px;
+  margin-bottom: 3rem;
   border-radius: 50%;
   object-fit: cover;
   box-shadow: 0 0 0 8px var(--surface), 0 4px 0 8px var(--line);
@@ -1712,11 +1766,11 @@ h3.sub {
   flex-direction: column;
   align-items: flex-start;
   gap: 0.4rem;
-  padding: 0.9rem 1rem 1.1rem;
+  padding: 1.1rem 1.2rem 1.35rem;
 }
 
 .master-card-name {
-  font-size: 1.05rem;
+  font-size: 1.12rem;
   font-weight: 800;
   letter-spacing: -0.01em;
   word-break: keep-all;
@@ -1724,7 +1778,7 @@ h3.sub {
 
 .master-card-line {
   color: var(--ink-soft);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   line-height: 1.55;
   word-break: keep-all;
 }
@@ -1732,7 +1786,7 @@ h3.sub {
 .master-carousel-arrow {
   position: absolute;
   z-index: 2;
-  top: 126px;
+  top: 166px;
   display: grid;
   place-items: center;
   width: 46px;
@@ -1789,6 +1843,15 @@ h3.sub {
 }
 
 @media (max-width: 640px) {
+  .learn-page {
+    padding-block: 2.5rem 4rem;
+  }
+
+  .learn-page-header {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
   .master-carousel-track {
     margin-inline: -1rem;
     padding-inline: 1rem;
@@ -1797,6 +1860,14 @@ h3.sub {
 
   .master-carousel-item {
     flex-basis: 86vw;
+  }
+
+  .master-card {
+    min-height: 460px;
+  }
+
+  .master-card-art {
+    height: 300px;
   }
 
   .master-carousel-arrow {

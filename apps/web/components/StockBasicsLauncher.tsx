@@ -32,21 +32,11 @@ export default function StockBasicsLauncher() {
     <>
       <button
         type="button"
-        className="card card-link"
-        style={{
-          marginBottom: "1.5rem",
-          width: "100%",
-          textAlign: "left",
-          font: "inherit",
-          cursor: "pointer",
-        }}
+        className="learn-tool"
         onClick={() => setOpen(true)}
       >
-        <p className="eyebrow">한 번에 모두 보기</p>
-        <strong>주식 기본개념 다섯 단원</strong>
-        <p style={{ fontSize: "0.88rem", color: "var(--ink-soft)", margin: "0.35rem 0 0" }}>
-          {STOCK_BASICS.map((lesson) => lesson.title).join(" · ")}
-        </p>
+        <span>주식 기본개념</span>
+        <span className="learn-tool-arrow" aria-hidden="true">→</span>
       </button>
 
       {open && mounted &&

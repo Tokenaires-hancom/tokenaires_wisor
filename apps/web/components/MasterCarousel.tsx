@@ -1,13 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MASTERS } from "@/content/masters";
+import { getCarouselRange } from "@/lib/carouselRange";
 
 export default function MasterCarousel() {
   const trackRef = useRef<HTMLUListElement>(null);
-  const [active, setActive] = useState(0);
+  const [range, setRange] = useState({ start: 0, end: 0 });
   const [atEnd, setAtEnd] = useState(false);
+
+  useEffect(() => {
+    updateActive();
+    window.addEventListener("resize", updateActive);
+    return () => window.removeEventListener("resize", updateActive);
+  }, []);
 
   function cardStep() {
     const track = trackRef.current;
@@ -28,7 +35,7 @@ export default function MasterCarousel() {
     const track = trackRef.current;
     const step = cardStep();
     if (!track || !step) return;
-    setActive(Math.min(MASTERS.length - 1, Math.max(0, Math.round(track.scrollLeft / step))));
+    setRange(getCarouselRange(track.scrollLeft, track.clientWidth, step, MASTERS.length));
     setAtEnd(track.scrollLeft >= track.scrollWidth - track.clientWidth - 1);
   }
 
@@ -39,7 +46,7 @@ export default function MasterCarousel() {
         className="master-carousel-arrow"
         data-side="prev"
         aria-label="이전 대가 보기"
-        disabled={active === 0}
+        disabled={range.start === 0}
         onClick={() => move(-1)}
       >
         <span aria-hidden="true">←</span>
@@ -85,7 +92,12 @@ export default function MasterCarousel() {
       </button>
 
       <p className="master-carousel-progress" aria-live="polite">
-        <strong>{active + 1}</strong> / {MASTERS.length}
+        <strong>
+          {range.start === range.end
+            ? range.start + 1
+            : `${range.start + 1}–${range.end + 1}`}
+        </strong>{" "}
+        / {MASTERS.length}
       </p>
     </section>
   );

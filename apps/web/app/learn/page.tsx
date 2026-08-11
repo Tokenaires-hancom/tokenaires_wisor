@@ -4,16 +4,20 @@ import StockBasicsLauncher from "@/components/StockBasicsLauncher";
 
 export default function LearnIndex() {
   return (
-    <div className="wrap" style={{ paddingBlock: "3.5rem 5rem" }}>
-      <p className="eyebrow">배우기</p>
-      <h1 className="thesis">누구의 눈으로 기업을 볼까요</h1>
+    <div className="wrap learn-page">
+      <div className="learn-page-header">
+        <div>
+          <p className="eyebrow">배우기</p>
+          <h1 className="thesis">누구의 눈으로 기업을 볼까요</h1>
+        </div>
 
-      <StockBasicsLauncher />
-
-      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "2rem" }}>
-        <Link href="/learn/compare" className="btn" data-variant="quiet">
-          다섯 질문으로 일곱 투자 철학 비교하기
-        </Link>
+        <div className="learn-tools">
+          <StockBasicsLauncher />
+          <Link href="/learn/compare" className="learn-tool">
+            <span>대가들의 투자철학 비교</span>
+            <span className="learn-tool-arrow" aria-hidden="true">→</span>
+          </Link>
+        </div>
       </div>
 
       <MasterCarousel />
