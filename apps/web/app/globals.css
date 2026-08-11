@@ -185,7 +185,7 @@ button {
   font-weight: 800;
   letter-spacing: -0.01em;
   margin: 0 0 1.25rem;
-  /* 1ch은 명조 "0" 폭이라 0.54em이다. 26ch은 48px 기준 674px, 한글 약 15자 */
+  /* 산세리프 굵은 제목 기준으로 줄바꿈 폭을 좁혔다. 한글 약 11~12자 */
   max-width: 20ch;
   /* 한글 기본 줄바꿈은 글자 단위라 "배웁니다"가 "배 / 웁니다"로 쪼개진다. 어절에서만 끊는다 */
   word-break: keep-all;
@@ -244,7 +244,7 @@ h3.sub {
 }
 
 .tick[data-status="pass"] {
-  background: var(--wine);
+  background: var(--gold);
 }
 
 .tick[data-status="fail"] {
@@ -417,7 +417,7 @@ h3.sub {
 }
 
 .reason-list li[data-kind="pass"]::before {
-  background: var(--wine);
+  background: var(--gold);
 }
 
 .reason-list li[data-kind="fail"]::before {
