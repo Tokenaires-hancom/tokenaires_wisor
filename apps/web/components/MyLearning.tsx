@@ -119,7 +119,7 @@ export default function MyLearning({ names }: { names: Record<string, string> })
       <h2 className="section">퀴즈 결과</h2>
       {Object.keys(progress.quizResults).length === 0 ? (
         <p className="lede">
-          아직 푼 확인 문항이 없습니다. <Link href="/learn" style={{ color: "var(--plum)" }}>배우기</Link>에서
+          아직 푼 확인 문항이 없습니다. <Link href="/learn" style={{ color: "var(--wine)" }}>배우기</Link>에서
           한 챕터를 끝까지 살펴보세요.
         </p>
       ) : (
@@ -195,7 +195,7 @@ export default function MyLearning({ names }: { names: Record<string, string> })
       {watchlist.length === 0 ? (
         <p className="lede">
           아직 담은 종목이 없습니다.{" "}
-          <Link href="/screener/buffett" style={{ color: "var(--plum)" }}>종목 찾기</Link>에서
+          <Link href="/screener/buffett" style={{ color: "var(--wine)" }}>종목 찾기</Link>에서
           살펴볼 종목을 골라보세요.
         </p>
       ) : (

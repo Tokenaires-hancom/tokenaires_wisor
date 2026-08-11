@@ -6,8 +6,9 @@ import { markLessonDone, recordQuiz } from "@/lib/store";
 import { track, type WisorEvent } from "@/lib/analytics";
 
 /** 듀오링고 스타일 퀴즈. 기존 `Quiz`(components/Quiz.tsx)와 달리 한 문항씩 즉시
- *  정오를 보여주고 다음 문항으로 넘어간다. 배지·점수 색은 앱의 규칙대로
- *  빨강·초록 대신 --plum(정답)·--ochre(오답)만 쓴다. */
+ *  정오를 보여주고 다음 문항으로 넘어간다. 빨강·초록 금지 규칙은 주식 화면에서
+ *  가격 방향을 뜻하지 않기 위한 것이라 학습 화면인 이 퀴즈에는 적용되지 않는다.
+ *  배지·점수 색은 --wine(정답)·--ochre(오답)을 쓴다. */
 export default function DuoQuiz({
   id,
   items,
@@ -130,7 +131,7 @@ export default function DuoQuiz({
           문항 {step + 1} / {items.length}
         </p>
         {streak >= 2 && (
-          <p className="mono" style={{ margin: 0, color: "var(--plum)", fontSize: "0.82rem" }}>
+          <p className="mono" style={{ margin: 0, color: "var(--wine)", fontSize: "0.82rem" }}>
             연속 정답 {streak}개
           </p>
         )}

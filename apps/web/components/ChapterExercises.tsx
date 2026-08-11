@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import MasterCharacter from "@/components/MasterCharacter";
 import { isCorrect } from "@/content/curriculum/grading";
 import { chapterSteps, stepLabel } from "@/content/curriculum/steps";
 import type { Exercise } from "@/content/curriculum/types";
+import { moodFor } from "@/content/chapterMood";
 import { track } from "@/lib/analytics";
 import { markLessonDone, recordQuiz, saveJournalEntry } from "@/lib/store";
 
@@ -28,6 +30,7 @@ export default function ChapterExercises({
   initialStep = 0,
   syncStepToUrl = true,
   next,
+  masterId,
 }: {
   chapterId: string;
   exercises: Exercise[];
@@ -40,6 +43,7 @@ export default function ChapterExercises({
   /** 마지막 스텝에서 '계속' 대신 보여줄 이동 대상. 없으면 마지막 스텝에서
    *  그냥 비활성화된다(예: compare 페이지의 최종 기록에는 다음 장이 없다). */
   next?: { href: string; label: string };
+  masterId?: string;
 }) {
   const steps = chapterSteps(exercises);
   const router = useRouter();
@@ -58,6 +62,18 @@ export default function ChapterExercises({
     currentExercise?.kind === "graded"
       ? picks[exerciseIndex!].length > 0
       : currentExercise !== undefined && texts[exerciseIndex!].trim() !== "";
+  const mood = moodFor({
+    stepKind: step.kind,
+    exerciseKind: currentExercise?.kind,
+    submitted: currentSubmitted,
+    correct:
+      currentExercise?.kind === "graded" && exerciseIndex !== undefined
+        ? isCorrect(
+            (exercises[exerciseIndex] as Extract<Exercise, { kind: "graded" }>).answers,
+            picks[exerciseIndex],
+          )
+        : false,
+  });
 
   // 스텝이 바뀔 때 포커스를 새 콘텐츠로 옮긴다. 경계 스텝에서는 눌렀던
   // 이전/계속 버튼이 disabled가 되며 포커스가 body로 떨어지는데, 그러면
@@ -140,12 +156,13 @@ export default function ChapterExercises({
         ))}
       </ol>
 
-      <div
-        ref={contentRef}
-        tabIndex={-1}
-        role="group"
-        aria-label={`${stepLabel(step)} 단계, ${at + 1}/${steps.length}`}
-      >
+      <div className="chapter-stage">
+        <div
+          ref={contentRef}
+          tabIndex={-1}
+          role="group"
+          aria-label={`${stepLabel(step)} 단계, ${at + 1}/${steps.length}`}
+        >
         {step.kind === "read" && (
           <div className="prose">
             {body.map((paragraph, index) => (
@@ -196,7 +213,14 @@ export default function ChapterExercises({
         {step.kind === "summary" && (
           <div className="card">
             <p className="eyebrow">이 장의 한 문장</p>
-            <p style={{ margin: 0, fontFamily: "var(--serif)", fontSize: "1.05rem" }}>{closing}</p>
+            <p style={{ margin: 0, fontSize: "1.05rem" }}>{closing}</p>
+          </div>
+        )}
+        </div>
+
+        {masterId && (
+          <div className="chapter-figure">
+            <MasterCharacter masterId={masterId} mood={mood} height={190} />
           </div>
         )}
       </div>

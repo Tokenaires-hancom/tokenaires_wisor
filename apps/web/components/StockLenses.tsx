@@ -166,7 +166,7 @@ function BusinessLens({
       </ul>
 
       <details style={{ marginTop: "2rem" }}>
-        <summary style={{ cursor: "pointer", fontSize: "0.9rem", color: "var(--plum)" }}>
+        <summary style={{ cursor: "pointer", fontSize: "0.9rem", color: "var(--wine)" }}>
           기준과 실제 수치 펼쳐보기
         </summary>
         <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1rem", fontSize: "0.86rem" }}>
