@@ -1,0 +1,159 @@
+# PR 자동검사
+#
+# 규칙으로 판단 가능한 것만 본다. 세 영역(data-pipeline·chart-api·web)의
+# 커밋 전 필수 명령을 PR마다 자동으로 돌리고, 경계·번짐 지점 두 가지를
+# 추가로 검사한다. 문구·원칙처럼 판단이 필요한 것은 여기서 다루지 않는다
+# (docs/superpowers/specs/2026-08-11-pr-review-system-design.md 참고).
+#
+# 결과는 코멘트 하나로만 남긴다. push마다 새 코멘트를 달면 코멘트가 쌓여서
+# 정작 중요한 걸 찾기 어려워지므로, 숨김 마커로 기존 코멘트를 찾아 고쳐 쓴다.
+#
+# 아무것도 병합을 막지 않는다. 브랜치 보호 규칙에 연결하지 않았다 — 병합
+# 여부는 사람이 이 코멘트를 보고 정한다.
+
+name: PR 자동검사
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+concurrency:
+  # 같은 PR에 연달아 푸시하면 이전 실행은 의미가 없다. scores.yml과 반대로
+  # 여기서는 최신 커밋 결과만 필요하므로 이전 실행을 취소한다.
+  group: pr-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  auto-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: data-pipeline 의존성 (pytest만 필요)
+        run: pip install pytest
+
+      - name: data-pipeline pytest -q
+        id: dp_test
+        continue-on-error: true
+        working-directory: data-pipeline
+        run: python -m pytest -q
+
+      - name: chart-api 의존성
+        run: pip install -r services/chart-api/requirements.txt
+
+      - name: chart-api pytest -q
+        id: api_test
+        continue-on-error: true
+        working-directory: services/chart-api
+        run: python -m pytest -q
+
+      - uses: actions/setup-node@v4
+        with:
+          # netlify.toml의 NODE_VERSION과 맞춘다. CI가 통과해도 배포 버전이
+          # 다르면 의미가 없다.
+          node-version: "24"
+
+      - name: web 의존성
+        working-directory: apps/web
+        run: npm ci
+
+      - name: web npm run build
+        id: web_build
+        continue-on-error: true
+        working-directory: apps/web
+        run: npm run build
+
+      - name: web 번들 누출 검사
+        id: bundle_leak
+        continue-on-error: true
+        working-directory: apps/web
+        # apps/web/CLAUDE.md에 이미 적힌 확인 명령을 그대로 자동화한다.
+        # 직접 import뿐 아니라 중간 모듈을 거친 간접 누출까지 잡는다.
+        run: |
+          if [ -d .next/static ] && grep -rl "evEbitMedian5y" .next/static/ > /dev/null 2>&1; then
+            echo "재무데이터가 클라이언트 번들에 실렸습니다."
+            grep -rl "evEbitMedian5y" .next/static/
+            exit 1
+          fi
+          echo "번들에 재무데이터 누출 없음."
+
+      - name: web tsc --noEmit
+        id: tsc_check
+        continue-on-error: true
+        working-directory: apps/web
+        # npm run build는 앱 빌드 그래프 밖의 *.test.ts 파일 타입 오류를 못
+        # 잡는다(2026-08-10 fa9eb89 커밋에서 실제로 있었던 일). tsc는 잡는다.
+        run: npx tsc --noEmit
+
+      - name: 경계 검사 (lib/scores import)
+        id: boundary_check
+        continue-on-error: true
+        run: python scripts/pr_checks/boundary_check.py
+
+      - name: 번짐 지점 검사 (차트 학습 단원 id)
+        id: ripple_check
+        continue-on-error: true
+        run: python scripts/pr_checks/ripple_check.py
+
+      - name: 결과 코멘트 게시
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          MARKER: "<!-- wisor-auto-checks -->"
+          DP_TEST: ${{ steps.dp_test.outcome }}
+          API_TEST: ${{ steps.api_test.outcome }}
+          WEB_BUILD: ${{ steps.web_build.outcome }}
+          BUNDLE_LEAK: ${{ steps.bundle_leak.outcome }}
+          TSC_CHECK: ${{ steps.tsc_check.outcome }}
+          BOUNDARY_CHECK: ${{ steps.boundary_check.outcome }}
+          RIPPLE_CHECK: ${{ steps.ripple_check.outcome }}
+        run: |
+          mark() { [ "$1" = "success" ] && echo "✅ 통과" || echo "❌ 실패"; }
+
+          BODY_FILE=$(mktemp)
+          {
+            echo "$MARKER"
+            echo "## PR 자동검사 결과"
+            echo
+            echo "| 항목 | 결과 |"
+            echo "|---|---|"
+            echo "| data-pipeline pytest -q | $(mark "$DP_TEST") |"
+            echo "| chart-api pytest -q | $(mark "$API_TEST") |"
+            echo "| apps/web npm run build | $(mark "$WEB_BUILD") |"
+            echo "| apps/web 번들 누출 검사 | $(mark "$BUNDLE_LEAK") |"
+            echo "| apps/web npx tsc --noEmit | $(mark "$TSC_CHECK") |"
+            echo "| 경계 검사 (lib/scores import) | $(mark "$BOUNDARY_CHECK") |"
+            echo "| 번짐 지점 (chartLessons ↔ LESSON_IDS ↔ EXPECTED_IDS) | $(mark "$RIPPLE_CHECK") |"
+            echo
+            echo "규칙·문구 판단이 필요한 리뷰는 별도 코멘트로 남습니다. 병합 여부는 사람이 결정합니다."
+          } > "$BODY_FILE"
+
+          EXISTING_ID=$(gh api "repos/$REPO/issues/$PR_NUMBER/comments" --paginate \
+            --jq "[.[] | select(.body | startswith(\"$MARKER\"))][0].id // empty")
+
+          if [ -n "$EXISTING_ID" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$EXISTING_ID" -F body=@"$BODY_FILE"
+          else
+            gh api -X POST "repos/$REPO/issues/$PR_NUMBER/comments" -F body=@"$BODY_FILE"
+          fi
+
+      - name: 위반 있으면 실패로 표시
+        if: |
+          steps.dp_test.outcome == 'failure' ||
+          steps.api_test.outcome == 'failure' ||
+          steps.web_build.outcome == 'failure' ||
+          steps.bundle_leak.outcome == 'failure' ||
+          steps.tsc_check.outcome == 'failure' ||
+          steps.boundary_check.outcome == 'failure' ||
+          steps.ripple_check.outcome == 'failure'
+        run: exit 1
