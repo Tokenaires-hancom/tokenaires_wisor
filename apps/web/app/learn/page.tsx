@@ -1,8 +1,6 @@
 import Link from "next/link";
-import MasterCharacter from "@/components/MasterCharacter";
+import MasterCarousel from "@/components/MasterCarousel";
 import StockBasicsLauncher from "@/components/StockBasicsLauncher";
-import { hasCharacter } from "@/content/characters";
-import { MASTERS } from "@/content/masters";
 
 export default function LearnIndex() {
   return (
@@ -18,41 +16,7 @@ export default function LearnIndex() {
         </Link>
       </div>
 
-      <ul className="master-grid">
-        {MASTERS.map((m) => {
-          const ready = hasCharacter(m.id);
-          return (
-            <li key={m.id}>
-              <Link
-                href={`/learn/masters/${m.id}`}
-                className="master-card"
-                data-ready={ready ? "true" : "false"}
-              >
-                <span className="master-card-art">
-                  {ready ? (
-                    <MasterCharacter masterId={m.id} height={150} />
-                  ) : (
-                    <img
-                      className="investor-avatar"
-                      src={`/investors/${m.id}.png`}
-                      alt=""
-                      width={64}
-                      height={64}
-                    />
-                  )}
-                </span>
-                <span className="master-card-body">
-                  <span className="style-name">{m.styleName}</span>
-                  <strong className="master-card-name">{m.name}</strong>
-                  <span className="master-card-line">
-                    {ready ? m.oneLine : "캐릭터 준비 중 · 내용은 볼 수 있어요"}
-                  </span>
-                </span>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
+      <MasterCarousel />
     </div>
   );
 }
