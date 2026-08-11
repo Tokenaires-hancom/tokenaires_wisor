@@ -1,36 +1,44 @@
 /* Wisor 디자인 토큰
  *
- * 규칙 하나: 빨강과 초록을 쓰지 않는다.
- * 주식 화면에서 빨강·초록은 가격의 방향을 뜻한다. Wisor는 방향을 말하지 않기로 한
- * 제품이므로 방향색을 팔레트에서 뺀다. 통과는 자두빛(plum), 미충족은 황토(ochre)로
- * 구분하고, 이 두 색은 어떤 시장에서도 등락을 뜻하지 않는다.
+ * 듀오링고를 레퍼런스로 삼는다. 듀오링고가 초록(--color-owl #58CC02)을
+ * 쓰는 자리를 골드가 받고, 버건디는 포인트에만 쓴다.
+ *
+ * 골드 #FFA000의 흰 글씨 대비는 2.05:1로 듀오링고 초록(2.06:1)과 사실상
+ * 같다. 레퍼런스와 동일한 조건이므로 흰 글씨를 얹되, 같은 조건을 따라
+ * 16px 이상 굵기 700 이상으로만 쓴다. 작은 설명 문구는 올리지 않는다.
+ *
+ * 회색 계열은 듀오링고 값을 그대로 가져왔다 (snow/polar/eel/wolf/swan).
  */
 
 :root {
-  --paper: #f6f5f8;
+  --paper: #ffffff;
   --surface: #ffffff;
-  --surface-sunk: #fbfafc;
-  --ink: #1b1720;
-  --ink-soft: #6a6472;
-  --ink-faint: #9a95a3;
-  --line: #e4e1ea;
-  --line-strong: #cfcad8;
+  --surface-sunk: #f7f7f7;
+  --ink: #4b4b4b;
+  --ink-soft: #777777;
+  --ink-faint: #afafaf;
+  --line: #e5e5e5;
+  --line-strong: #cfcfcf;
 
-  --plum: #4a2e5c;
-  --plum-deep: #33203f;
-  --plum-soft: #ede6f2;
-  --plum-line: #c9b8d6;
+  --gold: #ffa000;
+  --gold-deep: #c67b00;
+  --gold-soft: #fff4e0;
+  --gold-line: #ffd08a;
+
+  --wine: #c2183c;
+  --wine-deep: #92102c;
+  --wine-soft: #fce9ed;
+  --wine-line: #efa9b7;
 
   --ochre: #8a5a17;
   --ochre-soft: #f5ecdd;
   --ochre-line: #dcc49a;
 
   --sans: "Pretendard Variable", Pretendard, -apple-system, system-ui, sans-serif;
-  --serif: "Gowun Batang", "Nanum Myeongjo", serif;
   --mono: "Pretendard Variable", Pretendard, -apple-system, system-ui, sans-serif;
 
   --gutter: clamp(1.25rem, 5vw, 4rem);
-  --radius: 3px;
+  --radius: 12px;
 }
 
 * {
@@ -63,7 +71,7 @@ button {
 }
 
 :focus-visible {
-  outline: 2px solid var(--plum);
+  outline: 2px solid var(--wine);
   outline-offset: 2px;
 }
 
@@ -109,10 +117,9 @@ button {
 }
 
 .wordmark {
-  font-family: var(--serif);
   font-size: 1.4rem;
   letter-spacing: 0.02em;
-  color: var(--plum-deep);
+  color: var(--wine-deep);
 }
 
 .wordmark span {
@@ -144,8 +151,8 @@ button {
 }
 
 .nav a[data-active="true"] {
-  color: var(--plum);
-  border-bottom-color: var(--plum);
+  color: var(--wine);
+  border-bottom-color: var(--wine);
 }
 
 .foot {
@@ -173,28 +180,26 @@ button {
 }
 
 .thesis {
-  font-family: var(--serif);
   font-size: clamp(1.9rem, 4.4vw, 3rem);
   line-height: 1.35;
-  font-weight: 400;
+  font-weight: 800;
   letter-spacing: -0.01em;
   margin: 0 0 1.25rem;
   /* 1ch은 명조 "0" 폭이라 0.54em이다. 26ch은 48px 기준 674px, 한글 약 15자 */
-  max-width: 26ch;
+  max-width: 20ch;
   /* 한글 기본 줄바꿈은 글자 단위라 "배웁니다"가 "배 / 웁니다"로 쪼개진다. 어절에서만 끊는다 */
   word-break: keep-all;
 }
 
 .thesis em {
   font-style: normal;
-  color: var(--plum);
-  box-shadow: inset 0 -0.35em 0 var(--plum-soft);
+  color: var(--wine);
+  box-shadow: inset 0 -0.35em 0 var(--wine-soft);
 }
 
 h2.section {
-  font-family: var(--serif);
   font-size: 1.45rem;
-  font-weight: 400;
+  font-weight: 800;
   margin: 0 0 0.35rem;
 }
 
@@ -239,7 +244,7 @@ h3.sub {
 }
 
 .tick[data-status="pass"] {
-  background: var(--plum);
+  background: var(--wine);
 }
 
 .tick[data-status="fail"] {
@@ -295,7 +300,7 @@ h3.sub {
 }
 
 .card-link:hover {
-  border-color: var(--plum-line);
+  border-color: var(--wine-line);
   transform: translateY(-2px);
 }
 
@@ -378,7 +383,7 @@ h3.sub {
 .score-value {
   font-family: var(--mono);
   font-size: 1.5rem;
-  color: var(--plum-deep);
+  color: var(--wine-deep);
   line-height: 1.1;
 }
 
@@ -412,7 +417,7 @@ h3.sub {
 }
 
 .reason-list li[data-kind="pass"]::before {
-  background: var(--plum);
+  background: var(--wine);
 }
 
 .reason-list li[data-kind="fail"]::before {
@@ -441,8 +446,8 @@ h3.sub {
 }
 
 .lens-tab[aria-selected="true"] {
-  color: var(--plum);
-  border-bottom-color: var(--plum);
+  color: var(--wine);
+  border-bottom-color: var(--wine);
   font-weight: 600;
 }
 
@@ -481,8 +486,8 @@ h3.sub {
 
 .screener-style-tab[aria-current="page"] {
   background: var(--surface);
-  border-bottom-color: var(--plum);
-  color: var(--plum-deep);
+  border-bottom-color: var(--wine);
+  color: var(--wine-deep);
 }
 
 .screener-tab-name {
@@ -500,18 +505,17 @@ h3.sub {
 }
 
 .screener-style-tab[aria-current="page"] .screener-tab-meta {
-  color: var(--plum);
+  color: var(--wine);
 }
 
 .screener-current-label {
-  color: var(--plum);
+  color: var(--wine);
 }
 
 .lens-note {
-  font-family: var(--serif);
   color: var(--ink-soft);
   font-size: 0.95rem;
-  border-left: 2px solid var(--plum-line);
+  border-left: 2px solid var(--wine-line);
   padding-left: 1rem;
   margin-bottom: 2rem;
 }
@@ -521,31 +525,60 @@ h3.sub {
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  background: var(--plum);
+  background: var(--gold);
   color: #fff;
-  border: 1px solid var(--plum);
+  border: 0;
   border-radius: var(--radius);
-  padding: 0.6rem 1.1rem;
-  font-size: 0.9rem;
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  box-shadow: 0 4px 0 var(--gold-deep);
 }
 
 .btn:hover {
-  background: var(--plum-deep);
+  background: var(--gold-deep);
+  box-shadow: 0 4px 0 var(--gold-deep);
+}
+
+/* 눌리는 촉감. 그림자가 줄고 그만큼 버튼이 내려앉아 전체 높이는 그대로다.
+ * 움직임이 아니라 형태이므로 reduced-motion에서도 유지한다. */
+.btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 var(--gold-deep);
 }
 
 .btn[data-variant="quiet"] {
-  background: transparent;
-  color: var(--plum);
+  background: var(--surface);
+  color: var(--wine);
+  box-shadow: 0 4px 0 var(--line);
+  border: 2px solid var(--line);
+  padding: calc(0.75rem - 2px) calc(1.25rem - 2px);
 }
 
 .btn[data-variant="quiet"]:hover {
-  background: var(--plum-soft);
+  background: var(--wine-soft);
+  border-color: var(--wine-line);
+  box-shadow: 0 4px 0 var(--wine-line);
+}
+
+.btn[data-variant="quiet"]:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 var(--wine-line);
 }
 
 .btn:disabled {
-  opacity: 0.45;
+  background: var(--line);
+  color: var(--ink-faint);
+  box-shadow: 0 4px 0 var(--line-strong);
   cursor: not-allowed;
+}
+
+.btn:disabled:active {
+  transform: none;
+  box-shadow: 0 4px 0 var(--line-strong);
 }
 
 /* ---------- 홈 헤로 ---------- */
@@ -636,12 +669,12 @@ h3.sub {
 }
 
 .choice:hover {
-  border-color: var(--plum-line);
+  border-color: var(--wine-line);
 }
 
 .choice[data-state="correct"] {
-  border-color: var(--plum);
-  background: var(--plum-soft);
+  border-color: var(--wine);
+  background: var(--wine-soft);
 }
 
 .choice[data-state="wrong"] {
@@ -650,7 +683,7 @@ h3.sub {
 }
 
 .choice[data-state="missed"] {
-  border-color: var(--plum-line);
+  border-color: var(--wine-line);
   border-style: dashed;
 }
 
@@ -664,8 +697,8 @@ h3.sub {
 }
 
 .dropzone[data-over="true"] {
-  border-color: var(--plum);
-  background: var(--plum-soft);
+  border-color: var(--wine);
+  background: var(--wine-soft);
 }
 
 /* ---------- 커리큘럼 문항 ---------- */
@@ -673,12 +706,12 @@ h3.sub {
 .checkpoints {
   margin-top: 1rem;
   padding: 1rem 1.1rem;
-  background: var(--plum-soft);
+  background: var(--wine-soft);
   border-radius: var(--radius);
 }
 
 .checkpoints .eyebrow {
-  color: var(--plum-deep);
+  color: var(--wine-deep);
 }
 
 .checkpoints .reason-list {
@@ -687,9 +720,9 @@ h3.sub {
 
 .qualitative-check {
   padding: 1.5rem;
-  border: 1px dashed var(--plum-line);
+  border: 1px dashed var(--wine-line);
   border-radius: var(--radius);
-  background: var(--plum-soft);
+  background: var(--wine-soft);
 }
 
 .qualitative-check .reason-list {
@@ -733,8 +766,7 @@ h3.sub {
 
 .comparison-matrix thead th {
   background: var(--surface-sunk);
-  color: var(--plum-deep);
-  font-family: var(--serif);
+  color: var(--wine-deep);
   font-size: 1rem;
   font-weight: 400;
 }
@@ -766,13 +798,13 @@ h3.sub {
 }
 
 .comparison-matrix tbody th {
-  background: var(--plum-soft);
-  color: var(--plum-deep);
+  background: var(--wine-soft);
+  color: var(--wine-deep);
 }
 
 .comparison-matrix td a,
 .comparison-matrix tbody th a {
-  text-decoration-color: var(--plum-line);
+  text-decoration-color: var(--wine-line);
   text-decoration-line: underline;
   text-underline-offset: 0.18em;
 }
@@ -832,9 +864,9 @@ h3.sub {
 }
 
 .visibility[data-v="clear"] {
-  border-color: var(--plum-line);
-  color: var(--plum);
-  background: var(--plum-soft);
+  border-color: var(--wine-line);
+  color: var(--wine);
+  background: var(--wine-soft);
 }
 
 .visibility[data-v="unclear"] {
@@ -881,11 +913,11 @@ h3.sub {
 }
 
 .chapter-progress span[data-state="done"] {
-  background: var(--plum-line);
+  background: var(--wine-line);
 }
 
 .chapter-progress span[data-state="current"] {
-  background: var(--plum);
+  background: var(--wine);
 }
 
 /* 챕터 안에서 지금 어디쯤인지. 잠금이 아니라 표시다.
@@ -908,18 +940,17 @@ h3.sub {
   box-sizing: border-box;
 }
 .step-bar li[data-state="done"] {
-  background: var(--plum);
+  background: var(--wine);
 }
 .step-bar li[data-state="current"] {
   height: 9px;
-  background: var(--plum-soft);
-  border: 2px solid var(--plum);
+  background: var(--wine-soft);
+  border: 2px solid var(--wine);
 }
 
 .chapter-title {
-  font-family: var(--serif);
   font-size: clamp(1.8rem, 4vw, 2.5rem);
-  font-weight: 400;
+  font-weight: 800;
   line-height: 1.3;
   letter-spacing: -0.01em;
   margin: 0 0 0.75rem;
@@ -938,10 +969,10 @@ h3.sub {
 }
 
 .style-name {
-  background: var(--plum-soft);
-  border: 1px solid var(--plum-line);
+  background: var(--wine-soft);
+  border: 1px solid var(--wine-line);
   border-radius: 999px;
-  color: var(--plum-deep);
+  color: var(--wine-deep);
   font-family: var(--sans);
   font-size: 0.7rem;
   font-weight: 700;
@@ -952,12 +983,11 @@ h3.sub {
 }
 
 .chapter-lede {
-  font-family: var(--serif);
   font-size: 1.15rem;
-  color: var(--plum);
+  color: var(--wine);
   margin: 0 0 1.5rem;
   padding-left: 1rem;
-  border-left: 2px solid var(--plum-line);
+  border-left: 2px solid var(--wine-line);
 }
 
 /* ---------- 차트 학습: 관찰 순서와 기록 ---------- */
@@ -978,7 +1008,7 @@ h3.sub {
 }
 
 .chart-step-no {
-  color: var(--plum);
+  color: var(--wine);
   font-family: var(--mono);
   font-size: 0.72rem;
   letter-spacing: 0.08em;
@@ -1000,8 +1030,8 @@ h3.sub {
 
 .chart-example {
   background: var(--surface-sunk);
-  border: 1px solid var(--plum-line);
-  border-left: 4px solid var(--plum);
+  border: 1px solid var(--wine-line);
+  border-left: 4px solid var(--wine);
   border-radius: var(--radius);
   margin-top: 1.25rem;
   padding: 1.5rem;
@@ -1019,14 +1049,14 @@ h3.sub {
 }
 
 .chart-example .chart-example-conclusion {
-  border-top: 1px dotted var(--plum-line);
+  border-top: 1px dotted var(--wine-line);
   color: var(--ink);
   margin-top: 1.25rem;
   padding-top: 1rem;
 }
 
 .chart-example-conclusion strong {
-  color: var(--plum-deep);
+  color: var(--wine-deep);
 }
 
 .chart-checklist {
@@ -1049,7 +1079,7 @@ h3.sub {
 
 .chart-checklist li::before {
   content: "✓";
-  color: var(--plum);
+  color: var(--wine);
   font-family: var(--mono);
   left: 1rem;
   position: absolute;
@@ -1167,7 +1197,7 @@ h3.sub {
 /* 지금 보고 있는 철학. 색만으로 구분하지 않도록 굵기와 여백을 함께 쓴다 */
 .coverage-table tr[aria-current] th[scope="row"] {
   font-weight: 700;
-  border-left: 3px solid var(--plum);
+  border-left: 3px solid var(--wine);
   padding-left: 0.5rem;
 }
 
@@ -1271,7 +1301,7 @@ h3.sub {
 }
 
 .modal-close:hover {
-  border-color: var(--plum-line);
+  border-color: var(--wine-line);
 }
 
 .step-nav {
@@ -1313,11 +1343,11 @@ h3.sub {
   color: inherit;
 }
 .master-path-node[data-state="done"] {
-  border-color: var(--plum-line);
-  background: var(--plum-soft);
+  border-color: var(--wine-line);
+  background: var(--wine-soft);
 }
 .master-path-node[data-state="current"] {
-  border: 2px solid var(--plum);
+  border: 2px solid var(--wine);
   padding: calc(0.6rem - 1px) calc(0.75rem - 1px);
 }
 .master-path-no {
@@ -1340,7 +1370,7 @@ h3.sub {
   font-size: 0.92rem;
 }
 .master-path-check {
-  color: var(--plum);
+  color: var(--wine);
   margin-left: auto;
   flex-shrink: 0;
 }
@@ -1436,7 +1466,7 @@ h3.sub {
   box-shadow: 0 4px 14px rgba(27, 23, 32, 0.22);
   /* outline은 hover 규칙의 box-shadow와 겹쳐도 사라지지 않는다 — 호버 중에도
    * '지금 이 페이지'라는 표시가 계속 남아야 한다. */
-  outline: 3px solid var(--plum-line);
+  outline: 3px solid var(--wine-line);
   outline-offset: 3px;
 }
 

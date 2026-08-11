@@ -37,7 +37,7 @@ export default function CriteriaBar({
       {showLegend && (
         <div className="criteria-legend">
           <span>
-            <i className="swatch" style={{ background: "var(--plum)" }} /> 통과
+            <i className="swatch" style={{ background: "var(--wine)" }} /> 통과
           </span>
           <span>
             <i

@@ -74,7 +74,7 @@ export default async function ChartLessonPage({ params }: { params: Promise<{ sl
       </h2>
       <div className="card" style={{ borderColor: "var(--ochre-line)", background: "var(--ochre-soft)" }}>
         <p className="eyebrow" style={{ color: "var(--ochre)" }}>흔한 오해</p>
-        <p style={{ fontFamily: "var(--serif)", fontSize: "1.1rem", margin: "0 0 1rem" }}>
+        <p style={{ fontSize: "1.1rem", margin: "0 0 1rem" }}>
           “{lesson.misconception.claim}”
         </p>
         <p style={{ margin: 0, fontSize: "0.93rem" }}>{lesson.misconception.correction}</p>

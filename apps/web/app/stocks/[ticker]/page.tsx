@@ -31,7 +31,7 @@ export default async function StockDetail({
       </Link>
 
       <div style={{ marginTop: "1rem", marginBottom: "2rem" }}>
-        <h1 style={{ fontFamily: "var(--serif)", fontSize: "2.2rem", fontWeight: 400, margin: "0 0 0.35rem" }}>
+        <h1 style={{ fontSize: "2.2rem", fontWeight: 400, margin: "0 0 0.35rem" }}>
           {found.name}
         </h1>
         <p className="mono" style={{ color: "var(--ink-faint)", margin: 0 }}>

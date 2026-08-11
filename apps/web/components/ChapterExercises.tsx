@@ -196,7 +196,7 @@ export default function ChapterExercises({
         {step.kind === "summary" && (
           <div className="card">
             <p className="eyebrow">이 장의 한 문장</p>
-            <p style={{ margin: 0, fontFamily: "var(--serif)", fontSize: "1.05rem" }}>{closing}</p>
+            <p style={{ margin: 0, fontSize: "1.05rem" }}>{closing}</p>
           </div>
         )}
       </div>
