@@ -14,3 +14,7 @@ export function getCarouselRange(
 
   return { start, end };
 }
+
+export function formatCarouselRange(start: number, end: number) {
+  return start === end ? String(start + 1) : `${start + 1}-${end + 1}`;
+}

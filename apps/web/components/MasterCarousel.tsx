@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { MASTERS } from "@/content/masters";
-import { getCarouselRange } from "@/lib/carouselRange";
+import { formatCarouselRange, getCarouselRange } from "@/lib/carouselRange";
 
 export default function MasterCarousel() {
   const trackRef = useRef<HTMLUListElement>(null);
@@ -91,13 +91,16 @@ export default function MasterCarousel() {
         <span aria-hidden="true">→</span>
       </button>
 
-      <p className="master-carousel-progress" aria-live="polite">
-        <strong>
-          {range.start === range.end
-            ? range.start + 1
-            : `${range.start + 1}–${range.end + 1}`}
-        </strong>{" "}
-        / {MASTERS.length}
+      <p
+        className="master-carousel-progress"
+        aria-live="polite"
+        aria-label={
+          range.start === range.end
+            ? `현재 ${range.start + 1}번 카드 표시, 전체 ${MASTERS.length}명`
+            : `현재 ${range.start + 1}번부터 ${range.end + 1}번 카드 표시, 전체 ${MASTERS.length}명`
+        }
+      >
+        <strong>{formatCarouselRange(range.start, range.end)}</strong>
       </p>
     </section>
   );

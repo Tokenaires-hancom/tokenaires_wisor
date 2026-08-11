@@ -97,3 +97,41 @@ Expected: 테스트 66개 이상 통과
 
 Run: `cd apps/web && npm test && npx tsc --noEmit && npm run build`
 Expected: 테스트 전체 통과, 타입 검사와 빌드 성공
+
+---
+
+### Task 3: 정렬·카드 비율·위치 표시 보정
+
+**Files:**
+- Modify: `apps/web/app/globals.css`
+- Modify: `apps/web/components/MasterCarousel.tsx`
+- Modify: `apps/web/lib/carouselRange.ts`
+- Test: `apps/web/lib/carouselRange.test.ts`
+
+**Interfaces:**
+- Consumes: `.learn-page`, `.learn-tools`, `.master-carousel-item`, `getCarouselRange`
+- Produces: `formatCarouselRange(start: number, end: number): string`
+
+- [x] **Step 1: 간단한 범위 표시의 실패 테스트를 작성한다**
+
+`formatCarouselRange(0, 3)`은 `1-4`, `formatCarouselRange(3, 6)`은 `4-7`, 한 장만 보이면 `1`을 반환해야 한다.
+
+- [x] **Step 2: 테스트가 함수 부재로 실패하는지 확인한다**
+
+Run: `cd apps/web && node --test lib/carouselRange.test.ts`
+Expected: `formatCarouselRange`를 찾지 못해 실패
+
+- [x] **Step 3: 정렬과 카드 비율을 최소 수정한다**
+
+배우기 화면에서 `.masthead-inner` 최대 폭을 `1440px`로 맞추고, `.learn-page-header`를 한 열로 바꾼다. `.learn-tools`는 데스크톱에서 두 열, 모바일에서 한 열로 둔다. 카드 폭은 `336px`로 줄이고 버핏 이미지의 `scale(1.08)`을 제거한 뒤 위쪽 `12px` 안전 여백을 확보한다.
+
+- [x] **Step 4: 범위 표시를 단순화한다**
+
+`formatCarouselRange`를 구현해 화면에는 `1-4`만 표시하고, 진행 문단의 `aria-label`에는 `현재 1번부터 4번 카드 표시, 전체 7명`을 제공한다.
+
+- [x] **Step 5: 실제 화면과 전체 회귀를 검증한다**
+
+데스크톱에서 로고·제목 기준선, 제목 아래 학습 도구, 네 장 카드, 버핏 머리 여백, `1-4` 표시를 확인한다. 모바일에서는 한 열 도구, 한 카드 범위, 페이지 오버플로 없음과 화살표 숨김을 확인한다.
+
+Run: `cd apps/web && npm test && npx tsc --noEmit && npm run build`
+Expected: 테스트 전체 통과, 타입 검사와 빌드 성공

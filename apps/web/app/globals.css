@@ -1630,16 +1630,21 @@ h3.sub {
   padding-block: 3.5rem 5rem;
 }
 
+body:has(.learn-page) .masthead-inner {
+  max-width: 1440px;
+}
+
 .learn-page-header {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 250px;
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
-  gap: 3rem;
+  gap: 1.5rem;
   margin-bottom: 2rem;
 }
 
 .learn-tools {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 250px));
   gap: 0.65rem;
 }
 
@@ -1687,7 +1692,7 @@ h3.sub {
   gap: 1rem;
   list-style: none;
   margin: 0;
-  padding: 0.25rem 0.15rem 0.75rem;
+  padding: 0.25rem 0 0.75rem;
   overflow-x: auto;
   overscroll-behavior-inline: contain;
   scroll-behavior: smooth;
@@ -1700,7 +1705,7 @@ h3.sub {
 }
 
 .master-carousel-item {
-  flex: 0 0 360px;
+  flex: 0 0 336px;
   scroll-snap-align: start;
 }
 
@@ -1745,11 +1750,10 @@ h3.sub {
 
 .master-card-main-character {
   width: 100%;
-  height: 100%;
+  height: calc(100% - 12px);
+  margin-top: 12px;
   object-fit: contain;
   object-position: center bottom;
-  transform: scale(1.08);
-  transform-origin: center bottom;
 }
 
 .master-card-portrait {
@@ -1850,6 +1854,10 @@ h3.sub {
   .learn-page-header {
     grid-template-columns: 1fr;
     gap: 1.5rem;
+  }
+
+  .learn-tools {
+    grid-template-columns: 1fr;
   }
 
   .master-carousel-track {
