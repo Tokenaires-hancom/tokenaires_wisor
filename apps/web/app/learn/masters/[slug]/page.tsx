@@ -36,33 +36,29 @@ export default async function MasterLesson({ params }: { params: Promise<{ slug:
         </nav>
 
         <div className="master-main">
-          <div style={{ display: "flex", gap: "0.85rem", alignItems: "center", marginBottom: "1.5rem" }}>
-            <img
-              className="investor-avatar"
-              src={`/investors/${master.id}.png`}
-              alt=""
-              width={56}
-              height={56}
-            />
-            <div>
-              <p className="style-kicker" style={{ margin: 0 }}>
-                <span className="style-name">{master.styleName}</span>
-                <span>
-                  {master.minutes}분 학습 · {master.subtitle}
-                </span>
-              </p>
-              <h1 className="thesis" style={{ fontSize: "1.4rem", margin: "0.2rem 0 0" }}>
-                {master.oneLine}
-              </h1>
+          <div className="unit-banner">
+            <Link href="/learn" className="unit-banner-back" aria-label="배우기 목록으로">
+              <span aria-hidden="true">←</span>
+            </Link>
+            <div className="unit-banner-text">
+              <p className="unit-banner-style">{master.styleName}</p>
+              <h1 className="unit-banner-name">{master.name}</h1>
             </div>
+            <a href="#principles" className="unit-banner-guide">
+              원칙 보기
+            </a>
           </div>
+
+          <p className="lede" style={{ textAlign: "center", margin: "1.25rem auto 2rem" }}>
+            {master.oneLine}
+          </p>
 
           <MasterPath masterId={master.id} scorable={!!meta} />
 
           <hr className="rule" />
 
           <div className="master-tips">
-            <details>
+            <details id="principles">
               <summary>
                 {master.name} 철학 원칙 {master.principles.length}가지
               </summary>

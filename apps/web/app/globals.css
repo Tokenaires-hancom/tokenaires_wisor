@@ -1703,3 +1703,73 @@ h3.sub {
   line-height: 1.55;
   word-break: keep-all;
 }
+
+/* ---------- 유닛 배너 ---------- */
+
+.unit-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--gold);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 0 var(--gold-deep);
+  color: #fff;
+  padding: 0.9rem 1.1rem;
+}
+
+.unit-banner-back,
+.unit-banner-guide {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  border-radius: var(--radius);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.unit-banner-back {
+  width: 40px;
+  height: 40px;
+  font-size: 1.1rem;
+}
+
+.unit-banner-guide {
+  padding: 0.5rem 0.85rem;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.unit-banner-back:hover,
+.unit-banner-guide:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: #fff;
+}
+
+.unit-banner-text {
+  min-width: 0;
+}
+
+.unit-banner-style {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.unit-banner-name {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0.1rem 0 0;
+  word-break: keep-all;
+}
+
+@media (max-width: 480px) {
+  .unit-banner-guide {
+    display: none;
+  }
+}
