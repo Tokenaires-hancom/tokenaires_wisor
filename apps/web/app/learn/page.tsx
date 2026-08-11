@@ -10,7 +10,9 @@ export default function LearnIndex() {
           <p className="eyebrow">배우기</p>
           <h1 className="thesis">누구의 눈으로 기업을 볼까요</h1>
         </div>
+      </div>
 
+      <div className="learn-selection">
         <div className="learn-tools">
           <StockBasicsLauncher />
           <Link href="/learn/compare" className="learn-tool">
@@ -18,9 +20,9 @@ export default function LearnIndex() {
             <span className="learn-tool-arrow" aria-hidden="true">→</span>
           </Link>
         </div>
-      </div>
 
-      <MasterCarousel />
+        <MasterCarousel />
+      </div>
     </div>
   );
 }

@@ -135,3 +135,32 @@ Expected: `formatCarouselRange`를 찾지 못해 실패
 
 Run: `cd apps/web && npm test && npx tsc --noEmit && npm run build`
 Expected: 테스트 전체 통과, 타입 검사와 빌드 성공
+
+---
+
+### Task 4: 대형 화면 사이드 도구와 버핏 확대
+
+**Files:**
+- Modify: `apps/web/app/learn/page.tsx`
+- Modify: `apps/web/app/globals.css`
+
+**Interfaces:**
+- Consumes: `.learn-page-header`, `.learn-tools`, `MasterCarousel`
+- Produces: `.learn-selection` 레이아웃 컨테이너
+
+- [x] **Step 1: 학습 도구와 캐러셀을 같은 선택 영역으로 묶는다**
+
+`apps/web/app/learn/page.tsx`에서 제목만 `.learn-page-header`에 남기고, `.learn-tools`와 `<MasterCarousel />`을 새 `.learn-selection` 안에 배치한다.
+
+- [x] **Step 2: 대형 화면 사이드바를 적용한다**
+
+기본 화면에서는 도구가 카드 위에 머물게 한다. `min-width: 1700px`에서는 `.learn-tools`를 `right: calc(100% + 2.5rem)`, `width: 200px`로 카드 레일 왼쪽에 절대 배치하고 한 열로 쌓는다.
+
+- [x] **Step 3: 버핏 전신 이미지 영역을 키운다**
+
+데스크톱 `.master-card` 최소 높이를 `560px`, `.master-card-art` 높이를 `390px`, 캐러셀 화살표의 세로 위치를 `196px`로 바꾼다. 모바일의 기존 `460px` 카드와 `300px` 삽화 높이는 유지한다.
+
+- [x] **Step 4: 전체 회귀와 로컬 응답을 검증한다**
+
+Run: `cd apps/web && npm test && npx tsc --noEmit && npm run build`
+Expected: 테스트 전체 통과, 타입 검사와 빌드 성공. 개발 서버 재실행 후 `/learn` HTTP 200.
