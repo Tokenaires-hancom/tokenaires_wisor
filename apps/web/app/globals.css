@@ -1769,7 +1769,38 @@ h3.sub {
 }
 
 @media (max-width: 480px) {
-  .unit-banner-guide {
+.unit-banner-guide {
     display: none;
+  }
+}
+
+/* ---------- 챕터 단계: 본문 + 캐릭터 ---------- */
+
+.chapter-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.5rem;
+  align-items: end;
+}
+
+.chapter-figure {
+  position: sticky;
+  bottom: 1.5rem;
+  flex: none;
+}
+
+@media (max-width: 860px) {
+  .chapter-stage {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .chapter-figure {
+    position: static;
+    order: -1;
+    justify-self: center;
+  }
+
+  .chapter-figure img {
+    height: 110px !important;
   }
 }
