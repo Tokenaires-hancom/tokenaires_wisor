@@ -9,6 +9,7 @@ import {
 } from "@/content/curriculum";
 import { chapterSteps } from "@/content/curriculum/steps";
 import { MASTER_BY_ID, type Master } from "@/content/masters";
+import { styleMeta } from "@/lib/scores";
 
 export function generateStaticParams() {
   return CURRICULA.flatMap((curriculum) =>
@@ -36,8 +37,13 @@ export default async function ChapterPage({
 
   const curriculum = CURRICULUM_BY_MASTER[master.id];
   const slot = CHAPTER_SLOTS[no - 1];
-  const previous = no > 1 ? CHAPTER_SLOTS[no - 2] : undefined;
-  const next = no < CHAPTER_SLOTS.length ? CHAPTER_SLOTS[no] : undefined;
+  const nextSlot = no < CHAPTER_SLOTS.length ? CHAPTER_SLOTS[no] : undefined;
+  const meta = styleMeta(master.id);
+  const next = nextSlot
+    ? { href: `/learn/masters/${master.id}/${nextSlot.no}`, label: "다음 장" }
+    : meta
+      ? { href: `/screener/${master.id}`, label: "이 기준으로 종목 보기" }
+      : { href: `/learn/masters/${master.id}`, label: "개요로 돌아가기" };
 
   const stepCount = chapterSteps(chapter.exercises).length;
   const parsedStep = Number(step);
@@ -47,7 +53,22 @@ export default async function ChapterPage({
 
   return (
     <div className="wrap wrap-narrow" style={{ paddingBlock: "3.5rem 5rem" }}>
-      <p className="eyebrow">
+      <Link
+        href={`/learn/masters/${master.id}`}
+        className="card card-link"
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "0.6rem",
+          padding: "0.7rem 1rem",
+          width: "fit-content",
+        }}
+      >
+        <span aria-hidden="true">←</span>
+        <strong style={{ fontSize: "0.9rem" }}>{master.name} 목차</strong>
+      </Link>
+
+      <p className="eyebrow" style={{ marginTop: "1.25rem" }}>
         {master.name} · {slot.no}장 {slot.label} / {curriculum.chapters.length}
       </p>
 
@@ -63,40 +84,8 @@ export default async function ChapterPage({
         body={chapter.body}
         closing={chapter.lede}
         initialStep={initialStep}
+        next={next}
       />
-
-      <nav className="chapter-nav" aria-label="장 이동">
-        <div>
-          {previous ? (
-            <Link href={`/learn/masters/${master.id}/${previous.no}`} className="card card-link">
-              <p className="eyebrow">이전 장</p>
-              <strong>
-                {previous.no}장 {previous.label}
-              </strong>
-            </Link>
-          ) : (
-            <Link href={`/learn/masters/${master.id}`} className="card card-link">
-              <p className="eyebrow">목차</p>
-              <strong>{master.name} 전체 보기</strong>
-            </Link>
-          )}
-        </div>
-        <div>
-          {next ? (
-            <Link href={`/learn/masters/${master.id}/${next.no}`} className="card card-link">
-              <p className="eyebrow">다음 장</p>
-              <strong>
-                {next.no}장 {next.label}
-              </strong>
-            </Link>
-          ) : (
-            <Link href={`/screener/${master.id}`} className="card card-link">
-              <p className="eyebrow">다음 단계</p>
-              <strong>이 기준으로 종목 보기</strong>
-            </Link>
-          )}
-        </div>
-      </nav>
 
       <p className="disclaimer">{curriculum.currency}</p>
     </div>
