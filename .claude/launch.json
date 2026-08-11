@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "C:\\Users\\Har27\\Documents\\Codex\\2026-08-11\\new-chat\\tokenaires_wisor\\apps\\web",
+      "port": 3000
+    }
+  ]
+}
