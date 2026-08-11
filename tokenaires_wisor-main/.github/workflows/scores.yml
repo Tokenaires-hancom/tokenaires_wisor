@@ -1,0 +1,83 @@
+# scores.json 갱신
+#
+# 두 주기로 돈다. 수명이 다른 두 값을 한 실행에 묶지 않는다.
+#
+#   3시간마다  체결가만 갱신한다. 캐시된 재무를 읽으므로 SEC를 부르지 않는다
+#   하루 1회   SEC 공시까지 다시 받아 재무 캐시를 새로 만든다
+#
+# 커밋이 생기면 Netlify가 재빌드한다. scores.json은 빌드 시점에 번들로 들어가므로
+# 커밋 없이는 배포된 화면이 바뀌지 않는다. 그래서 값이 그대로면 커밋하지 않는다.
+# 빈 커밋 하나가 Netlify 빌드 1분을 쓴다.
+
+name: scores 갱신
+
+on:
+  schedule:
+    # UTC 기준 3시간 간격 정각. 한국시간 09·12·15·18·21·00·03·06시.
+    - cron: "0 */3 * * *"
+    # 미국 정규장 마감(21:00 UTC) 뒤에 공시까지 다시 받는다. 한국시간 07시.
+    - cron: "0 22 * * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "full은 SEC까지 다시 받는다. prices는 체결가만 갱신한다"
+        type: choice
+        options: [prices, full]
+        default: prices
+
+concurrency:
+  # 전체 수집은 10분 넘게 걸린다. 그 사이 3시간짜리가 끼어들면 두 실행이 같은
+  # 파일을 밀어내며 커밋이 엇갈린다.
+  group: scores
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          # data-pipeline은 표준 라이브러리만 쓴다. 설치할 의존성이 없다.
+          python-version: "3.12"
+
+      - name: 모드 정하기
+        id: mode
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "value=${{ inputs.mode }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "0 22 * * *" ]; then
+            echo "value=full" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=prices" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 배치 실행
+        env:
+          TOSS_INVEST_CLIENT_ID: ${{ secrets.TOSS_INVEST_CLIENT_ID }}
+          TOSS_INVEST_CLIENT_SECRET: ${{ secrets.TOSS_INVEST_CLIENT_SECRET }}
+          WISOR_SEC_USER_AGENT: ${{ secrets.WISOR_SEC_USER_AGENT }}
+        working-directory: data-pipeline
+        run: python run_batch.py --provider sec-toss --mode "${{ steps.mode.outputs.value }}"
+
+      - name: 점수 검사
+        working-directory: data-pipeline
+        # 금지 문구와 점수 규칙은 배치가 통과했다고 끝이 아니다. 망가진 결과를
+        # 커밋해서 배포까지 나가는 것을 여기서 막는다.
+        run: python -m pytest -q
+
+      - name: 바뀐 것이 있으면 커밋
+        run: |
+          git config user.name "wisor-batch"
+          git config user.email "noreply@users.noreply.github.com"
+          git add apps/web/lib/generated/scores.json data-pipeline/data/fundamentals.json
+          if git diff --cached --quiet; then
+            echo "값이 그대로입니다. 커밋하지 않습니다."
+            exit 0
+          fi
+          git commit -m "${{ steps.mode.outputs.value }} 실행으로 scores.json을 갱신한다"
+          git push

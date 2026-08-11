@@ -1,0 +1,903 @@
+diff --git a/apps/web/app/globals.css b/apps/web/app/globals.css
+index ad9a8fd..f1edb05 100644
+--- a/apps/web/app/globals.css
++++ b/apps/web/app/globals.css
+@@ -1151,3 +1151,50 @@ h3.sub {
+ .master-lesson-head {
+   margin-bottom: 1.25rem;
+ }
++
++/* ---------- 모달 (주식 기본개념) ---------- */
++
++.modal-overlay {
++  position: fixed;
++  inset: 0;
++  z-index: 100;
++  background: rgba(20, 16, 14, 0.55);
++  display: flex;
++  align-items: center;
++  justify-content: center;
++  padding: 1.5rem;
++}
++
++.modal-panel {
++  position: relative;
++  width: 100%;
++  max-width: 720px;
++  max-height: min(88vh, 900px);
++  overflow-y: auto;
++  background: var(--surface);
++  border: 1px solid var(--line);
++  border-radius: var(--radius);
++  padding: 2rem;
++  box-shadow: 0 24px 60px rgba(20, 16, 14, 0.25);
++}
++
++.modal-close {
++  position: sticky;
++  float: right;
++  top: 0;
++  margin-left: 1rem;
++  width: 2.25rem;
++  height: 2.25rem;
++  border-radius: 50%;
++  border: 1px solid var(--line);
++  background: var(--surface);
++  color: var(--ink);
++  font-size: 1.25rem;
++  line-height: 1;
++  cursor: pointer;
++  z-index: 1;
++}
++
++.modal-close:hover {
++  border-color: var(--plum-line);
++}
+diff --git a/apps/web/app/learn/page.tsx b/apps/web/app/learn/page.tsx
+index 9dd16c8..5fad61e 100644
+--- a/apps/web/app/learn/page.tsx
++++ b/apps/web/app/learn/page.tsx
+@@ -2,6 +2,7 @@ import Link from "next/link";
+ import { CHART_LESSONS } from "@/content/chartLessons";
+ import { MASTERS } from "@/content/masters";
+ import { CURRICULUM_BY_MASTER } from "@/content/curriculum";
++import StockBasicsLauncher from "@/components/StockBasicsLauncher";
+ 
+ export default function LearnIndex() {
+   return (
+@@ -14,6 +15,18 @@ export default function LearnIndex() {
+       </p>
+ 
+       <h2 className="section" style={{ marginTop: "3rem" }}>
++        가장 먼저: 주식 기본개념
++      </h2>
++      <p className="lede">
++        주식이 무엇인지, 시장이 어떻게 움직이는지부터 짚고 시작하면 이후 대가들의 판단 기준이
++        훨씬 쉽게 읽힙니다. 다섯 단원 모두 한 페이지에 이어져 있고, 문항마다 바로 정오를 확인할
++        수 있습니다.
++      </p>
++      <StockBasicsLauncher />
++
++      <hr className="rule" />
++
++      <h2 className="section">
+         투자 대가에게 배우기
+       </h2>
+       <p className="lede">
+diff --git a/apps/web/components/DuoQuiz.tsx b/apps/web/components/DuoQuiz.tsx
+new file mode 100644
+index 0000000..4bfb795
+--- /dev/null
++++ b/apps/web/components/DuoQuiz.tsx
+@@ -0,0 +1,189 @@
++"use client";
++
++import { useEffect, useState } from "react";
++import type { QuizItem } from "@/content/masters";
++import { markLessonDone, recordQuiz } from "@/lib/store";
++import { track, type WisorEvent } from "@/lib/analytics";
++
++/** 듀오링고 스타일 퀴즈. 기존 `Quiz`(components/Quiz.tsx)와 달리 한 문항씩 즉시
++ *  정오를 보여주고 다음 문항으로 넘어간다. 배지·점수 색은 앱의 규칙대로
++ *  빨강·초록 대신 --plum(정답)·--ochre(오답)만 쓴다. */
++export default function DuoQuiz({
++  id,
++  items,
++  startEvent,
++  completedEvent,
++}: {
++  id: string;
++  items: QuizItem[];
++  startEvent?: WisorEvent;
++  completedEvent: WisorEvent;
++}) {
++  const [step, setStep] = useState(0);
++  const [selected, setSelected] = useState<number | null>(null);
++  const [revealed, setRevealed] = useState(false);
++  const [history, setHistory] = useState<boolean[]>([]);
++  const [finished, setFinished] = useState(false);
++
++  useEffect(() => {
++    if (startEvent) track(startEvent, { id });
++    // eslint-disable-next-line react-hooks/exhaustive-deps
++  }, [id]);
++
++  const item = items[step];
++  const correctCount = history.filter(Boolean).length;
++  const streak = (() => {
++    let count = 0;
++    for (let i = history.length - 1; i >= 0; i -= 1) {
++      if (!history[i]) break;
++      count += 1;
++    }
++    return count;
++  })();
++
++  function choose(choice: number) {
++    if (revealed) return;
++    setSelected(choice);
++  }
++
++  function check() {
++    if (selected === null) return;
++    setRevealed(true);
++    setHistory((prev) => [...prev, selected === item.answer]);
++  }
++
++  async function advance() {
++    if (!revealed) return;
++    if (step + 1 < items.length) {
++      setStep((s) => s + 1);
++      setSelected(null);
++      setRevealed(false);
++      return;
++    }
++
++    const finalCorrect = correctCount + (selected === item.answer ? 1 : 0);
++    await recordQuiz(id, finalCorrect, items.length);
++    await markLessonDone(id);
++    track(completedEvent, { id, correct: finalCorrect, total: items.length });
++    setFinished(true);
++  }
++
++  function retry() {
++    setStep(0);
++    setSelected(null);
++    setRevealed(false);
++    setHistory([]);
++    setFinished(false);
++  }
++
++  if (finished) {
++    const missed = items.filter((_, i) => !history[i]);
++    const ratio = correctCount / items.length;
++    const message =
++      ratio === 1
++        ? "만점입니다. 이 단원의 개념이 자리를 잡았습니다."
++        : ratio >= 0.8
++          ? "대부분 맞혔습니다. 놓친 문항의 해설만 한 번 더 읽어보세요."
++          : "틀린 문항의 해설을 다시 읽고 한 번 더 풀어보길 권합니다.";
++
++    return (
++      <div className="card">
++        <p className="eyebrow">결과</p>
++        <div style={{ display: "flex", alignItems: "baseline", gap: "0.6rem", marginBottom: "1rem" }}>
++          <span className="score-value" style={{ fontSize: "2.2rem" }}>
++            {correctCount}
++          </span>
++          <span className="score-of">/ {items.length}문항 정답</span>
++        </div>
++        <p style={{ margin: "0 0 1.25rem", fontSize: "0.93rem", color: "var(--ink-soft)" }}>{message}</p>
++
++        {missed.length > 0 && (
++          <>
++            <p className="eyebrow">다시 볼 문항</p>
++            <ul className="reason-list" style={{ marginBottom: "1.25rem" }}>
++              {missed.map((m, i) => (
++                <li key={i} data-kind="fail">
++                  {m.question} — {m.explain}
++                </li>
++              ))}
++            </ul>
++          </>
++        )}
++
++        <button type="button" className="btn" data-variant="quiet" onClick={retry}>
++          처음부터 다시 풀기
++        </button>
++      </div>
++    );
++  }
++
++  return (
++    <div className="card">
++      <div className="chapter-progress" aria-label={`${items.length}문항 중 ${step + 1}번째`}>
++        {items.map((_, i) => (
++          <span key={i} data-state={i < step ? "done" : i === step ? "current" : undefined} />
++        ))}
++      </div>
++
++      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginTop: "1rem" }}>
++        <p className="eyebrow" style={{ margin: 0 }}>
++          문항 {step + 1} / {items.length}
++        </p>
++        {streak >= 2 && (
++          <p className="mono" style={{ margin: 0, color: "var(--plum)", fontSize: "0.82rem" }}>
++            연속 정답 {streak}개
++          </p>
++        )}
++      </div>
++
++      <h3 className="sub" style={{ marginTop: "0.75rem" }}>
++        {item.question}
++      </h3>
++
++      <div role="group" aria-label={item.question}>
++        {item.choices.map((choice, ci) => {
++          let state: string | undefined;
++          if (revealed) {
++            if (ci === item.answer && selected === ci) state = "correct";
++            else if (selected === ci) state = "wrong";
++            else if (ci === item.answer) state = "missed";
++          } else if (selected === ci) {
++            state = "correct";
++          }
++          return (
++            <button
++              key={ci}
++              type="button"
++              className="choice"
++              data-state={state}
++              aria-pressed={selected === ci}
++              disabled={revealed}
++              onClick={() => choose(ci)}
++            >
++              <span className="mono">{String.fromCharCode(65 + ci)}</span>
++              <span>{choice}</span>
++            </button>
++          );
++        })}
++      </div>
++
++      {revealed && (
++        <p role="status" style={{ fontSize: "0.88rem", color: "var(--ink-soft)", marginTop: "1rem" }}>
++          {item.explain}
++        </p>
++      )}
++
++      <div style={{ marginTop: "1.25rem" }}>
++        {!revealed ? (
++          <button type="button" className="btn" disabled={selected === null} onClick={check}>
++            정답 확인
++          </button>
++        ) : (
++          <button type="button" className="btn" onClick={() => void advance()}>
++            {step + 1 < items.length ? "다음 문항" : "결과 보기"}
++          </button>
++        )}
++      </div>
++    </div>
++  );
++}
+diff --git a/apps/web/components/MyLearning.tsx b/apps/web/components/MyLearning.tsx
+index c68e8a0..f803757 100644
+--- a/apps/web/components/MyLearning.tsx
++++ b/apps/web/components/MyLearning.tsx
+@@ -3,6 +3,7 @@
+ import Link from "next/link";
+ import { useEffect, useState } from "react";
+ import { CHART_LESSONS, LESSON_BY_ID } from "@/content/chartLessons";
++import { STOCK_BASICS, STOCK_BASICS_BY_ID } from "@/content/stockBasics";
+ import { CHAPTER_SLOTS } from "@/content/curriculum/types";
+ import { MASTERS, MASTER_BY_ID } from "@/content/masters";
+ import {
+@@ -64,6 +65,7 @@ export default function MyLearning({ names }: { names: Record<string, string> })
+     );
+   }).length;
+   const chartDone = CHART_LESSONS.filter((l) => progress.lessonsDone.includes(`chart:${l.id}`));
++  const basicsDone = STOCK_BASICS.filter((l) => progress.lessonsDone.includes(`basics:${l.id}`));
+   const bothLenses = notes.filter((n) => n.chartObservations.length > 0 && n.strengths.length > 0);
+ 
+   if (!ready) {
+@@ -82,6 +84,13 @@ export default function MyLearning({ names }: { names: Record<string, string> })
+       </h1>
+ 
+       <div className="grid" style={{ marginTop: "2rem" }}>
++        <div className="card">
++          <p className="eyebrow">주식 기본개념 단원</p>
++          <p className="score-value">
++            {basicsDone.length}
++            <span className="score-of"> / {STOCK_BASICS.length}</span>
++          </p>
++        </div>
+         <div className="card">
+           <p className="eyebrow">투자 대가 챕터</p>
+           <p className="score-value">
+@@ -122,6 +131,8 @@ export default function MyLearning({ names }: { names: Record<string, string> })
+               const name = MASTER_BY_ID[key as keyof typeof MASTER_BY_ID]?.name.split(" · ")[0];
+               const slot = no ? CHAPTER_SLOTS[Number(no) - 1] : undefined;
+               label = name && slot ? `${name} ${slot.no}장 · ${slot.label}` : name;
++            } else if (kind === "basics") {
++              label = STOCK_BASICS_BY_ID[key]?.title;
+             } else {
+               label = LESSON_BY_ID[key]?.title;
+             }
+diff --git a/apps/web/components/StockBasicsLauncher.tsx b/apps/web/components/StockBasicsLauncher.tsx
+new file mode 100644
+index 0000000..dc90ea0
+--- /dev/null
++++ b/apps/web/components/StockBasicsLauncher.tsx
+@@ -0,0 +1,173 @@
++"use client";
++
++import { useEffect, useState } from "react";
++import { createPortal } from "react-dom";
++import Link from "next/link";
++import DuoQuiz from "@/components/DuoQuiz";
++import { STOCK_BASICS } from "@/content/stockBasics";
++
++/** /learn 카드를 누르면 다섯 단원 + 퀴즈를 페이지 이동 없이 모달로 보여준다.
++ *  이전에는 별도 라우트(/learn/basics)였지만, 진입 장벽을 낮추려고 모달로 옮겼다. */
++export default function StockBasicsLauncher() {
++  const [open, setOpen] = useState(false);
++  const [mounted, setMounted] = useState(false);
++
++  useEffect(() => setMounted(true), []);
++
++  useEffect(() => {
++    if (!open) return;
++    const prevOverflow = document.body.style.overflow;
++    document.body.style.overflow = "hidden";
++    const onKeyDown = (event: KeyboardEvent) => {
++      if (event.key === "Escape") setOpen(false);
++    };
++    window.addEventListener("keydown", onKeyDown);
++    return () => {
++      document.body.style.overflow = prevOverflow;
++      window.removeEventListener("keydown", onKeyDown);
++    };
++  }, [open]);
++
++  return (
++    <>
++      <button
++        type="button"
++        className="card card-link"
++        style={{
++          marginBottom: "1.5rem",
++          width: "100%",
++          textAlign: "left",
++          font: "inherit",
++          cursor: "pointer",
++        }}
++        onClick={() => setOpen(true)}
++      >
++        <p className="eyebrow">한 번에 모두 보기</p>
++        <strong>주식 기본개념 다섯 단원</strong>
++        <p style={{ fontSize: "0.88rem", color: "var(--ink-soft)", margin: "0.35rem 0 0" }}>
++          {STOCK_BASICS.map((lesson) => lesson.title).join(" · ")}
++        </p>
++      </button>
++
++      {open && mounted &&
++        createPortal(
++          <div
++            className="modal-overlay"
++            role="presentation"
++            onClick={() => setOpen(false)}
++          >
++            <div
++              className="modal-panel"
++              role="dialog"
++              aria-modal="true"
++              aria-label="주식 기본개념"
++              onClick={(event) => event.stopPropagation()}
++            >
++              <button
++                type="button"
++                className="modal-close"
++                aria-label="닫기"
++                onClick={() => setOpen(false)}
++              >
++                ×
++              </button>
++
++              <div className="wrap wrap-narrow" style={{ paddingBlock: "2.5rem 3rem" }}>
++                <p className="eyebrow">배우기 · 주식 기본개념</p>
++                <h1 className="thesis" style={{ fontSize: "1.6rem" }}>
++                  한 페이지로 끝내는 주식 기본개념
++                </h1>
++                <p className="lede">
++                  주식이 무엇인지부터 시장의 작동 방식, 시가총액, 배당, 분산투자까지 다섯 단원을
++                  이어서 봅니다. 단원마다 끝에 바로 문항을 확인하는 퀴즈가 있습니다.
++                </p>
++
++                <nav className="toc" aria-label="단원 목차">
++                  {STOCK_BASICS.map((lesson) => (
++                    <a key={lesson.id} href={`#modal-${lesson.id}`} className="toc-item">
++                      <span className="toc-no">{String(lesson.order).padStart(2, "0")}</span>
++                      <span>
++                        <span className="toc-title">{lesson.title}</span>
++                        <span className="toc-question">{lesson.oneLine}</span>
++                      </span>
++                    </a>
++                  ))}
++                </nav>
++
++                {STOCK_BASICS.map((lesson, index) => (
++                  <section
++                    key={lesson.id}
++                    id={`modal-${lesson.id}`}
++                    style={{ scrollMarginTop: "1.5rem" }}
++                  >
++                    <hr className="rule" />
++
++                    <p className="eyebrow">
++                      {lesson.order}단원 / {STOCK_BASICS.length}
++                    </p>
++                    <h2 className="section">{lesson.title}</h2>
++                    <p className="lede">{lesson.oneLine}</p>
++
++                    <div className="stack" style={{ marginTop: "1.25rem" }}>
++                      {lesson.concepts.map((c, i) => (
++                        <div key={i} className="card">
++                          <h3 className="sub">{c.term}</h3>
++                          <p style={{ margin: 0, color: "var(--ink-soft)", fontSize: "0.93rem" }}>
++                            {c.body}
++                          </p>
++                        </div>
++                      ))}
++                    </div>
++
++                    <p className="eyebrow" style={{ marginTop: "2rem" }}>
++                      상황으로 보기
++                    </p>
++                    <div className="chart-example">
++                      <h3>{lesson.scenario.title}</h3>
++                      <p>{lesson.scenario.body}</p>
++                      <p className="chart-example-conclusion">
++                        <strong>여기까지 말할 수 있습니다.</strong> {lesson.scenario.takeaway}
++                      </p>
++                    </div>
++
++                    <p className="eyebrow" style={{ marginTop: "2rem" }}>
++                      한 문항씩 풀어보기
++                    </p>
++                    <h3 className="sub" style={{ marginBottom: "1.25rem" }}>
++                      {lesson.quiz.length}문항
++                    </h3>
++                    <DuoQuiz
++                      id={`basics:${lesson.id}`}
++                      items={lesson.quiz}
++                      startEvent="stock_basics_started"
++                      completedEvent="stock_basics_completed"
++                    />
++
++                    {index === STOCK_BASICS.length - 1 && (
++                      <>
++                        <hr className="rule" />
++                        <Link
++                          href="/learn"
++                          className="card card-link"
++                          onClick={() => setOpen(false)}
++                        >
++                          <p className="eyebrow">다음 단계</p>
++                          <strong>투자 대가에게 배우기</strong>
++                        </Link>
++                      </>
++                    )}
++                  </section>
++                ))}
++
++                <p className="disclaimer">
++                  이 단원들은 주식 거래의 기본 개념을 설명하는 것이며, 특정 종목의 매수·매도를
++                  권하지 않습니다.
++                </p>
++              </div>
++            </div>
++          </div>,
++          document.body,
++        )}
++    </>
++  );
++}
+diff --git a/apps/web/content/stockBasics.ts b/apps/web/content/stockBasics.ts
+new file mode 100644
+index 0000000..ef31abe
+--- /dev/null
++++ b/apps/web/content/stockBasics.ts
+@@ -0,0 +1,379 @@
++import type { QuizItem } from "./masters";
++
++export type StockBasicsLesson = {
++  id: string;
++  order: number;
++  title: string;
++  oneLine: string;
++  concepts: { term: string; body: string }[];
++  scenario: { title: string; body: string; takeaway: string };
++  quiz: QuizItem[];
++};
++
++/** 주식 기본개념 5단원. 차트 기초(chartLessons.ts)와 짝을 이루는 "기업 관점" 입문 트랙이다.
++ *  듀오링고 스타일 퀴즈(components/DuoQuiz.tsx)와 함께 쓰인다. */
++export const STOCK_BASICS: StockBasicsLesson[] = [
++  {
++    id: "what-is-a-stock",
++    order: 1,
++    title: "주식이란 무엇인가",
++    oneLine: "주식은 기업의 소유권을 나눈 조각 하나이며, 주주는 그 조각만큼 기업에 대한 권리를 가집니다.",
++    concepts: [
++      {
++        term: "기업의 소유권 조각",
++        body: "주식회사는 사업에 필요한 돈을 한 사람이 아니라 여러 사람에게서 모읍니다. 이때 낸 돈만큼 소유권을 조각내 나눠준 증서가 주식입니다. 1주를 가진 사람도 그 기업의 아주 작은 주인입니다.",
++      },
++      {
++        term: "주주의 권리 세 가지",
++        body: "의결권(주주총회에서 투표할 권리), 배당청구권(이익을 나눠 받을 권리), 잔여재산분배청구권(회사가 청산될 때 남은 재산을 나눠 받을 권리)을 가집니다. 세 권리 모두 보유 주식 수에 비례합니다.",
++      },
++      {
++        term: "유한책임",
++        body: "주주는 회사가 망해도 자신이 투자한 금액 이상은 책임지지 않습니다. 회사의 빚을 주주 개인 재산으로 갚을 의무는 없습니다.",
++      },
++      {
++        term: "보통주와 우선주",
++        body: "보통주는 의결권이 있고, 우선주는 대개 의결권이 없는 대신 배당을 먼저 받을 권리가 있습니다. 같은 회사의 주식이라도 종류에 따라 권리가 다릅니다.",
++      },
++    ],
++    scenario: {
++      title: "친구 세 명이 함께 카페를 차린 경우",
++      body: "세 사람이 각각 300만 원, 400만 원, 300만 원을 모아 카페를 열고, 낸 돈 비율대로 지분을 나눴습니다. 400만 원을 낸 사람은 전체의 40%를 소유합니다.",
++      takeaway:
++        "주식회사의 지분 구조도 원리는 같습니다. 상장회사는 이 지분을 아주 작은 단위(주)로 쪼개 누구나 사고팔 수 있게 만든 것뿐입니다.",
++    },
++    quiz: [
++      {
++        question: "주식이 나타내는 것으로 가장 알맞은 것은?",
++        choices: ["회사에 빌려준 돈의 증서", "회사 소유권의 한 조각", "회사가 약속한 이자율", "회사의 연간 매출액"],
++        answer: 1,
++        explain: "주식은 채권(빌려준 돈)과 달리 회사에 대한 소유권의 조각입니다. 이자가 아니라 지분을 나타냅니다.",
++      },
++      {
++        question: "주주에게 없는 권리는?",
++        choices: ["의결권", "배당청구권", "잔여재산분배청구권", "회사 부채를 대신 갚을 의무"],
++        answer: 3,
++        explain: "주주는 유한책임을 지므로 투자한 금액 이상으로 회사의 빚을 책임지지 않습니다.",
++      },
++      {
++        question: "보통주와 우선주의 일반적인 차이로 알맞은 것은?",
++        choices: [
++          "우선주는 의결권이 없는 대신 배당을 먼저 받을 권리가 있다",
++          "보통주는 배당을 받을 수 없다",
++          "우선주는 이자를 지급하는 채권이다",
++          "보통주만 유한책임이 적용된다",
++        ],
++        answer: 0,
++        explain: "우선주는 대개 의결권이 없지만 배당에서 우선순위를 갖습니다. 유한책임은 두 종류 모두에 적용됩니다.",
++      },
++      {
++        question: "회사가 망했을 때 주주가 지는 책임으로 알맞은 것은?",
++        choices: [
++          "투자한 금액을 넘는 손실까지 개인 재산으로 책임진다",
++          "투자한 금액 안에서만 손실을 진다",
++          "회사 직원의 임금을 대신 지급해야 한다",
++          "은행 대출을 대신 갚아야 한다",
++        ],
++        answer: 1,
++        explain: "유한책임 덕분에 주주의 손실은 원칙적으로 투자한 금액으로 한정됩니다.",
++      },
++    ],
++  },
++  {
++    id: "stock-market-structure",
++    order: 2,
++    title: "주식시장은 어떻게 움직이는가",
++    oneLine: "기업이 처음 주식을 파는 시장과, 이미 발행된 주식을 투자자끼리 사고파는 시장은 서로 다릅니다.",
++    concepts: [
++      {
++        term: "발행시장과 유통시장",
++        body: "기업이 새 주식을 찍어 투자자에게 처음 파는 곳을 발행시장(1차 시장)이라 하고, 그 주식을 산 투자자들이 서로 사고파는 곳을 유통시장(2차 시장)이라 합니다. 흔히 보는 거래소 화면은 유통시장입니다.",
++      },
++      {
++        term: "상장과 IPO",
++        body: "기업이 처음으로 발행시장에서 주식을 팔고 거래소에 등록해 누구나 거래할 수 있게 만드는 절차를 상장, 그 최초 공모를 IPO(기업공개)라고 부릅니다.",
++      },
++      {
++        term: "거래소",
++        body: "한국은 코스피·코스닥, 미국은 뉴욕증권거래소(NYSE)·나스닥(NASDAQ)처럼 나라마다 여러 거래소가 있습니다. 거래소는 매수 주문과 매도 주문을 짝지어 체결시키는 곳입니다.",
++      },
++      {
++        term: "호가와 체결",
++        body: "사려는 사람이 부르는 값이 매수호가, 팔려는 사람이 부르는 값이 매도호가입니다. 두 값이 만나면 그 가격에 거래가 체결되고, 그 가격이 다음 순간의 '현재가'가 됩니다.",
++      },
++      {
++        term: "시장가 주문과 지정가 주문",
++        body: "시장가 주문은 지금 나와 있는 가격에 즉시 사거나 파는 방식이고, 지정가 주문은 내가 원하는 가격을 정해 두고 그 가격에 도달해야 체결되는 방식입니다.",
++      },
++    ],
++    scenario: {
++      title: "내가 낸 지정가 주문이 체결되지 않은 이유",
++      body: "현재가가 10,000원인 종목에 9,800원 지정가 매수 주문을 냈습니다. 하루 종일 가격이 9,900원 아래로 내려가지 않아 주문이 체결되지 않고 장이 마감됐습니다.",
++      takeaway:
++        "지정가 주문은 원하는 가격을 지킬 수 있지만, 그 가격에 도달하지 않으면 아예 체결되지 않을 수 있습니다. 시장가 주문과의 이런 차이를 알고 골라야 합니다.",
++    },
++    quiz: [
++      {
++        question: "우리가 거래소 화면에서 보는 매매는 대부분 어느 시장에서 일어나나요?",
++        choices: ["발행시장", "유통시장", "채권시장", "선물시장"],
++        answer: 1,
++        explain: "이미 발행된 주식을 투자자끼리 사고파는 곳이 유통시장이며, 거래소 화면이 여기에 해당합니다.",
++      },
++      {
++        question: "IPO가 뜻하는 것은?",
++        choices: ["기업의 이익 발표", "기업이 처음으로 주식을 공개해 파는 절차", "배당을 지급하는 날", "주식을 나누는 절차"],
++        answer: 1,
++        explain: "IPO(기업공개)는 기업이 발행시장에서 처음 주식을 팔고 거래소에 상장하는 절차입니다.",
++      },
++      {
++        question: "지정가 매수 주문을 시세보다 낮게 걸었을 때 일어날 수 있는 일은?",
++        choices: [
++          "즉시 그 가격에 체결된다",
++          "가격이 그 수준까지 내려오지 않으면 체결되지 않는다",
++          "자동으로 시장가 주문으로 바뀐다",
++          "주문이 취소되고 수수료가 부과된다",
++        ],
++        answer: 1,
++        explain: "지정가 주문은 원하는 가격에 도달해야만 체결됩니다. 도달하지 않으면 미체결로 남습니다.",
++      },
++      {
++        question: "매수호가와 매도호가에 대한 설명으로 알맞은 것은?",
++        choices: [
++          "매수호가는 파는 사람이 부르는 값이다",
++          "매도호가는 사는 사람이 부르는 값이다",
++          "두 값이 만나야 거래가 체결된다",
++          "매수호가와 매도호가는 항상 같다",
++        ],
++        answer: 2,
++        explain: "매수호가와 매도호가가 일치하는 지점에서 거래가 체결되고 그 가격이 현재가가 됩니다.",
++      },
++    ],
++  },
++  {
++    id: "price-and-market-cap",
++    order: 3,
++    title: "주가와 시가총액",
++    oneLine: "주가 한 주의 값이 비싸다고 그 회사 전체가 더 큰 것은 아닙니다. 회사의 크기는 시가총액으로 봅니다.",
++    concepts: [
++      {
++        term: "시가총액 = 주가 × 발행주식수",
++        body: "주가가 낮아도 발행주식수가 많으면 시가총액이 클 수 있고, 주가가 높아도 발행주식수가 적으면 시가총액은 작을 수 있습니다. 회사 전체의 크기를 비교할 때는 주가가 아니라 시가총액을 봅니다.",
++      },
++      {
++        term: "액면분할",
++        body: "회사가 발행주식수를 늘리고 주가를 그만큼 낮추는 것을 액면분할이라 합니다. 1주를 5주로 나누면 주가는 5분의 1이 되지만 시가총액과 내가 가진 지분 비율은 그대로입니다.",
++      },
++      {
++        term: "유통주식수",
++        body: "전체 발행주식 중 실제로 시장에서 자유롭게 거래되는 주식 수를 유통주식수라 합니다. 대주주 지분이나 자사주처럼 거래되지 않는 물량은 제외됩니다.",
++      },
++      {
++        term: "52주 최고가·최저가",
++        body: "최근 1년(52주) 동안의 최고가와 최저가를 함께 표시하는 관행입니다. 지금 가격이 그 구간의 어디쯤인지 가늠하는 참고치일 뿐, 그 자체로 싸다·비싸다를 판정하는 기준은 아닙니다.",
++      },
++    ],
++    scenario: {
++      title: "주가는 낮지만 회사는 더 큰 경우",
++      body: "A사는 주가 5,000원, 발행주식수 4억 주이고, B사는 주가 50,000원, 발행주식수 1,000만 주입니다.",
++      takeaway:
++        "A사의 시가총액은 2조 원(5,000원 × 4억 주), B사는 500억 원(50,000원 × 1,000만 주)입니다. 주가만 보면 B사가 10배 비싸 보이지만 회사 전체 크기는 A사가 훨씬 큽니다.",
++    },
++    quiz: [
++      {
++        question: "시가총액을 구하는 방법은?",
++        choices: [
++          "주가 ÷ 발행주식수",
++          "주가 × 발행주식수",
++          "연간 매출 × 이익률",
++          "52주 최고가 − 52주 최저가",
++        ],
++        answer: 1,
++        explain: "시가총액은 주가에 발행주식수를 곱한 값이며, 회사 전체의 시장 가치를 나타냅니다.",
++      },
++      {
++        question: "액면분할 이후 변하지 않는 것은?",
++        choices: ["주가", "발행주식수", "내가 가진 지분 비율", "1주당 표시 가격"],
++        answer: 2,
++        explain: "액면분할은 주식을 잘게 쪼갤 뿐 회사의 가치나 내 지분 비율 자체를 바꾸지 않습니다.",
++      },
++      {
++        question: "주가만 보고 두 회사의 크기를 비교하기 어려운 이유는?",
++        choices: [
++          "주가는 매일 바뀌기 때문에",
++          "발행주식수가 회사마다 다르기 때문에",
++          "주가에는 세금이 포함되어 있기 때문에",
++          "주가는 항상 반올림되기 때문에",
++        ],
++        answer: 1,
++        explain: "발행주식수가 다르면 같은 주가라도 시가총액이 크게 달라질 수 있습니다.",
++      },
++      {
++        question: "52주 최고가·최저가에 대한 올바른 설명은?",
++        choices: [
++          "그 종목이 앞으로 도달할 목표가다",
++          "최근 1년간의 가격 범위를 보여주는 참고치일 뿐이다",
++          "회사의 적정 가치를 계산한 값이다",
++          "배당금을 기준으로 계산된다",
++        ],
++        answer: 1,
++        explain: "52주 최고·최저가는 지나간 가격 범위의 기록이지, 싸다·비싸다를 판정하거나 미래를 알려주는 지표가 아닙니다.",
++      },
++    ],
++  },
++  {
++    id: "dividends-and-buybacks",
++    order: 4,
++    title: "배당과 주주환원",
++    oneLine: "기업이 벌어들인 이익 중 일부를 주주에게 돌려주는 대표적인 두 가지 방법이 배당과 자사주매입입니다.",
++    concepts: [
++      {
++        term: "배당",
++        body: "회사가 이익의 일부를 현금(또는 주식)으로 주주에게 나눠주는 것입니다. 배당을 얼마나 줄지는 회사가 정하며, 반드시 지급해야 하는 의무는 아닙니다.",
++      },
++      {
++        term: "배당수익률",
++        body: "연간 배당금을 현재 주가로 나눈 값입니다. 같은 배당금이라도 주가가 오르면 배당수익률은 낮아지고, 주가가 내리면 배당수익률은 높아집니다.",
++      },
++      {
++        term: "배당락일",
++        body: "이 날짜 이후 주식을 사면 이번 배당을 받을 권리가 없습니다. 배당락일에는 배당금만큼 이론적으로 주가가 조정되는 경우가 많습니다.",
++      },
++      {
++        term: "자사주매입",
++        body: "회사가 시장에서 자기 회사 주식을 사들이는 것입니다. 유통주식수를 줄여 남은 주주 한 명당 지분 가치를 높이는 효과가 있으며, 배당과 함께 대표적인 주주환원 방법으로 꼽힙니다.",
++      },
++    ],
++    scenario: {
++      title: "배당수익률이 갑자기 높아 보이는 경우",
++      body: "어느 종목의 연간 배당금은 500원으로 그대로인데, 주가가 10,000원에서 5,000원으로 떨어지면서 배당수익률이 5%에서 10%로 뛰었습니다.",
++      takeaway:
++        "배당수익률이 높아진 이유가 배당이 늘어서인지 주가가 떨어져서인지 구분해야 합니다. 두 경우는 회사에 대해 전혀 다른 이야기를 하고 있습니다.",
++    },
++    quiz: [
++      {
++        question: "배당에 대한 설명으로 알맞은 것은?",
++        choices: [
++          "회사가 반드시 지급해야 하는 법적 의무다",
++          "회사가 정한 만큼 이익의 일부를 주주에게 나눠주는 것이다",
++          "주식을 산 모든 사람에게 매달 지급된다",
++          "주가가 오른 만큼 자동으로 계산되어 지급된다",
++        ],
++        answer: 1,
++        explain: "배당 지급 여부와 금액은 회사가 정하며, 의무가 아닙니다.",
++      },
++      {
++        question: "배당수익률이 뜻하는 것은?",
++        choices: [
++          "연간 배당금을 현재 주가로 나눈 값",
++          "회사의 연간 순이익률",
++          "주가가 오른 비율",
++          "배당을 받은 주주 수의 비율",
++        ],
++        answer: 0,
++        explain: "배당수익률 = 연간 배당금 ÷ 현재 주가입니다. 주가가 바뀌면 배당금이 그대로여도 수익률이 바뀝니다.",
++      },
++      {
++        question: "배당금은 그대로인데 주가가 크게 떨어져 배당수익률이 높아졌다면 가장 먼저 확인할 것은?",
++        choices: [
++          "배당수익률이 높으니 곧바로 좋은 신호로 받아들인다",
++          "주가가 왜 떨어졌는지, 다음 배당도 유지될지 확인한다",
++          "배당수익률 계산이 잘못됐다고 가정한다",
++          "거래소에 오류를 신고한다",
++        ],
++        answer: 1,
++        explain: "주가 하락으로 배당수익률이 높아 보이는 경우, 그 배당이 앞으로도 유지될 수 있는지를 별도로 확인해야 합니다.",
++      },
++      {
++        question: "자사주매입의 일반적인 효과로 알맞은 것은?",
++        choices: [
++          "유통주식수가 늘어난다",
++          "유통주식수를 줄여 남은 주주의 지분 가치를 높이는 효과가 있다",
++          "회사의 부채가 자동으로 사라진다",
++          "모든 주주에게 현금이 지급된다",
++        ],
++        answer: 1,
++        explain: "자사주매입은 시장에 유통되는 주식 수를 줄여, 남아 있는 주식 한 주가 가지는 지분 비율을 높이는 효과가 있습니다.",
++      },
++    ],
++  },
++  {
++    id: "risk-and-diversification",
++    order: 5,
++    title: "위험과 분산투자",
++    oneLine: "가격이 오르내리는 정도를 변동성이라 하고, 여러 자산에 나눠 담아 그 흔들림을 줄이는 방법을 분산투자라 합니다.",
++    concepts: [
++      {
++        term: "변동성",
++        body: "가격이 짧은 기간에 얼마나 크게 오르내리는지를 나타냅니다. 변동성이 크다는 것 자체가 좋다·나쁘다를 뜻하지는 않지만, 내가 감당할 수 있는 흔들림의 크기를 먼저 아는 것이 먼저입니다.",
++      },
++      {
++        term: "분산투자",
++        body: "한 종목에만 돈을 모두 넣으면 그 회사에 문제가 생겼을 때 손실이 그대로 전체 손실이 됩니다. 여러 종목·산업·자산군에 나눠 담으면 한 곳의 문제가 전체에 미치는 영향을 줄일 수 있습니다.",
++      },
++      {
++        term: "지수와 인덱스펀드",
++        body: "코스피200, S&P500처럼 여러 종목의 움직임을 하나의 숫자로 요약한 것이 지수입니다. 지수를 그대로 따라가도록 만든 펀드를 인덱스펀드라 하며, 개별 종목을 고르지 않고도 분산 효과를 얻는 방법 중 하나입니다.",
++      },
++      {
++        term: "상관관계",
++        body: "두 자산이 같은 방향으로 움직이는 정도입니다. 서로 다르게 움직이는(상관관계가 낮은) 자산을 함께 담아야 분산의 효과가 커집니다. 비슷하게 움직이는 종목만 여러 개 담으면 숫자만 늘었을 뿐 분산은 크지 않습니다.",
++      },
++    ],
++    scenario: {
++      title: "종목 수는 늘었지만 분산은 크지 않은 경우",
++      body: "한 투자자가 국내 대형 반도체 회사 다섯 곳의 주식을 나눠 담았습니다. 종목 수는 다섯 개지만 모두 같은 산업의 흐름에 함께 영향을 받습니다.",
++      takeaway:
++        "종목 수를 늘리는 것과 실제로 분산되는 것은 다릅니다. 서로 다르게 반응하는 산업·자산을 섞어야 한 가지 사건이 전체에 미치는 영향이 줄어듭니다.",
++    },
++    quiz: [
++      {
++        question: "변동성이 뜻하는 것은?",
++        choices: [
++          "회사의 부채 비율",
++          "가격이 오르내리는 정도",
++          "배당을 지급하는 횟수",
++          "거래량의 절댓값",
++        ],
++        answer: 1,
++        explain: "변동성은 가격이 짧은 기간에 얼마나 크게 오르내리는지를 나타내는 개념입니다.",
++      },
++      {
++        question: "분산투자의 핵심 원리로 가장 알맞은 것은?",
++        choices: [
++          "종목 수를 최대한 많이 늘린다",
++          "서로 다르게 움직이는 자산을 함께 담아 한 곳의 문제가 전체에 미치는 영향을 줄인다",
++          "가장 변동성이 큰 종목만 골라 담는다",
++          "한 산업에 집중해 전문성을 높인다",
++        ],
++        answer: 1,
++        explain: "핵심은 종목 개수가 아니라 서로 다르게 반응하는 자산을 섞는 것입니다.",
++      },
++      {
++        question: "같은 산업의 종목 다섯 개를 나눠 담았을 때 나타나는 한계는?",
++        choices: [
++          "완전한 분산 효과를 얻는다",
++          "종목 수는 늘었지만 산업 전체에 영향을 주는 사건에는 함께 흔들린다",
++          "변동성이 0이 된다",
++          "배당수익률이 자동으로 높아진다",
++        ],
++        answer: 1,
++        explain: "상관관계가 높은 자산끼리 묶으면 종목 수와 무관하게 같은 사건에 함께 반응합니다.",
++      },
++      {
++        question: "인덱스펀드에 대한 설명으로 알맞은 것은?",
++        choices: [
++          "특정 지수의 움직임을 따라가도록 만든 펀드다",
++          "항상 개별 종목보다 높은 수익을 보장한다",
++          "변동성이 전혀 없는 상품이다",
++          "배당을 지급하지 않는 상품이다",
++        ],
++        answer: 0,
++        explain: "인덱스펀드는 특정 지수를 그대로 추종하도록 설계된 펀드이며, 개별 종목을 고르지 않고도 분산 효과를 얻는 방법 중 하나입니다.",
++      },
++    ],
++  },
++];
++
++export const STOCK_BASICS_BY_ID = Object.fromEntries(
++  STOCK_BASICS.map((l) => [l.id, l]),
++) as Record<string, StockBasicsLesson>;
+diff --git a/apps/web/lib/analytics.ts b/apps/web/lib/analytics.ts
+index de01434..5aef1d5 100644
+--- a/apps/web/lib/analytics.ts
++++ b/apps/web/lib/analytics.ts
+@@ -12,7 +12,9 @@ export type WisorEvent =
+   | "chart_analysis_completed"
+   | "related_chart_lesson_opened"
+   | "study_note_saved"
+-  | "watchlist_added";
++  | "watchlist_added"
++  | "stock_basics_started"
++  | "stock_basics_completed";
+ 
+ export function track(event: WisorEvent, props: Record<string, unknown> = {}): void {
+   if (typeof window === "undefined") return;

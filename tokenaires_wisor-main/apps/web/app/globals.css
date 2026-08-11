@@ -1,0 +1,1200 @@
+/* Wisor 디자인 토큰
+ *
+ * 규칙 하나: 빨강과 초록을 쓰지 않는다.
+ * 주식 화면에서 빨강·초록은 가격의 방향을 뜻한다. Wisor는 방향을 말하지 않기로 한
+ * 제품이므로 방향색을 팔레트에서 뺀다. 통과는 자두빛(plum), 미충족은 황토(ochre)로
+ * 구분하고, 이 두 색은 어떤 시장에서도 등락을 뜻하지 않는다.
+ */
+
+:root {
+  --paper: #f6f5f8;
+  --surface: #ffffff;
+  --surface-sunk: #fbfafc;
+  --ink: #1b1720;
+  --ink-soft: #6a6472;
+  --ink-faint: #9a95a3;
+  --line: #e4e1ea;
+  --line-strong: #cfcad8;
+
+  --plum: #4a2e5c;
+  --plum-deep: #33203f;
+  --plum-soft: #ede6f2;
+  --plum-line: #c9b8d6;
+
+  --ochre: #8a5a17;
+  --ochre-soft: #f5ecdd;
+  --ochre-line: #dcc49a;
+
+  --sans: "Pretendard Variable", Pretendard, -apple-system, system-ui, sans-serif;
+  --serif: "Gowun Batang", "Nanum Myeongjo", serif;
+  --mono: "Pretendard Variable", Pretendard, -apple-system, system-ui, sans-serif;
+
+  --gutter: clamp(1.25rem, 5vw, 4rem);
+  --radius: 3px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--plum);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- 레이아웃 ---------- */
+
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-inline: var(--gutter);
+}
+
+.wrap-narrow {
+  max-width: 720px;
+}
+
+.masthead {
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.masthead-inner {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  height: 60px;
+}
+
+.wordmark {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  letter-spacing: 0.02em;
+  color: var(--plum-deep);
+}
+
+.wordmark span {
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  margin-left: 0.5rem;
+  text-transform: uppercase;
+}
+
+.nav {
+  display: flex;
+  gap: 1.5rem;
+  margin-left: auto;
+  font-size: 0.9rem;
+  overflow-x: auto;
+}
+
+.nav a {
+  color: var(--ink-soft);
+  padding-block: 0.35rem;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+
+.nav a:hover {
+  color: var(--ink);
+}
+
+.nav a[data-active="true"] {
+  color: var(--plum);
+  border-bottom-color: var(--plum);
+}
+
+.foot {
+  margin-top: auto;
+  border-top: 1px solid var(--line);
+  padding-block: 2rem 3rem;
+  color: var(--ink-faint);
+  font-size: 0.8rem;
+}
+
+.foot p {
+  margin: 0.2rem 0;
+  max-width: 60ch;
+}
+
+/* ---------- 활자 ---------- */
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 0 0 0.75rem;
+}
+
+.thesis {
+  font-family: var(--serif);
+  font-size: clamp(1.9rem, 4.4vw, 3rem);
+  line-height: 1.35;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  margin: 0 0 1.25rem;
+  /* 1ch은 명조 "0" 폭이라 0.54em이다. 26ch은 48px 기준 674px, 한글 약 15자 */
+  max-width: 26ch;
+  /* 한글 기본 줄바꿈은 글자 단위라 "배웁니다"가 "배 / 웁니다"로 쪼개진다. 어절에서만 끊는다 */
+  word-break: keep-all;
+}
+
+.thesis em {
+  font-style: normal;
+  color: var(--plum);
+  box-shadow: inset 0 -0.35em 0 var(--plum-soft);
+}
+
+h2.section {
+  font-family: var(--serif);
+  font-size: 1.45rem;
+  font-weight: 400;
+  margin: 0 0 0.35rem;
+}
+
+h3.sub {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+
+.lede {
+  color: var(--ink-soft);
+  max-width: 62ch;
+  margin: 0 0 2rem;
+}
+
+.mono {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+}
+
+/* ---------- 기준 막대: 이 제품의 서명 요소 ----------
+ * 점수 숫자보다 '몇 개 기준을 어떻게 통과했는가'가 먼저 보이게 한다.
+ */
+
+.criteria-bar {
+  display: flex;
+  gap: 3px;
+  align-items: stretch;
+  height: 22px;
+}
+
+.criteria-bar[data-size="sm"] {
+  height: 14px;
+  gap: 2px;
+}
+
+.tick {
+  flex: var(--weight, 1);
+  border-radius: 1px;
+  border: 1px solid transparent;
+}
+
+.tick[data-status="pass"] {
+  background: var(--plum);
+}
+
+.tick[data-status="fail"] {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--ochre-soft),
+    var(--ochre-soft) 3px,
+    var(--ochre-line) 3px,
+    var(--ochre-line) 4px
+  );
+  border-color: var(--ochre-line);
+}
+
+.tick[data-status="unknown"] {
+  background: var(--surface);
+  border: 1px dashed var(--line-strong);
+}
+
+.criteria-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.6rem;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+
+.criteria-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.swatch {
+  width: 11px;
+  height: 11px;
+  border-radius: 1px;
+  display: inline-block;
+}
+
+/* ---------- 카드 ---------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.card-link {
+  display: block;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.card-link:hover {
+  border-color: var(--plum-line);
+  transform: translateY(-2px);
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.stack > * + * {
+  margin-top: 1rem;
+}
+
+.rule {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 2.5rem 0;
+}
+
+/* ---------- 데이터 기준일 ---------- */
+
+.stamp {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--ink-faint);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 1rem;
+  border-top: 1px dotted var(--line-strong);
+  padding-top: 0.6rem;
+  margin-top: 1rem;
+}
+
+.sample-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--ochre-soft);
+  border: 1px solid var(--ochre-line);
+  color: var(--ochre);
+  font-size: 0.75rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--radius);
+}
+
+/* ---------- 종목 줄 ---------- */
+
+.stock-row {
+  display: grid;
+  grid-template-columns: 2.2rem 1fr auto;
+  gap: 1rem;
+  align-items: start;
+  padding: 1.1rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.stock-rank {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--ink-faint);
+  padding-top: 0.2rem;
+}
+
+.stock-name {
+  font-weight: 600;
+}
+
+.stock-ticker {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  margin-left: 0.5rem;
+}
+
+.stock-score {
+  text-align: right;
+  min-width: 6.5rem;
+}
+
+.score-value {
+  font-family: var(--mono);
+  font-size: 1.5rem;
+  color: var(--plum-deep);
+  line-height: 1.1;
+}
+
+.score-of {
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  font-family: var(--mono);
+}
+
+.reason-list {
+  margin: 0.65rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.88rem;
+}
+
+.reason-list li {
+  display: flex;
+  gap: 0.55rem;
+  color: var(--ink-soft);
+  padding: 0.12rem 0;
+}
+
+.reason-list li::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  margin-top: 0.62rem;
+  flex: none;
+  border-radius: 1px;
+}
+
+.reason-list li[data-kind="pass"]::before {
+  background: var(--plum);
+}
+
+.reason-list li[data-kind="fail"]::before {
+  background: var(--ochre);
+}
+
+.reason-list li[data-kind="unknown"]::before {
+  border: 1px dashed var(--line-strong);
+}
+
+/* ---------- 두 렌즈 ---------- */
+
+.lens-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 2rem;
+}
+
+.lens-tab {
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 0.85rem 1.25rem;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+.lens-tab[aria-selected="true"] {
+  color: var(--plum);
+  border-bottom-color: var(--plum);
+  font-weight: 600;
+}
+
+/* ---------- 종목 찾기: 투자 스타일 전환 ---------- */
+
+.screener-style-tabs {
+  display: flex;
+  margin: 0 0 2.5rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-bottom: 1px solid var(--line-strong);
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.screener-style-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.screener-style-tab {
+  display: flex;
+  flex: 1 0 150px;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin-bottom: -1px;
+  padding: 0.9rem 1rem 0.8rem;
+  border-bottom: 3px solid transparent;
+  color: var(--ink-soft);
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.screener-style-tab:hover {
+  background: var(--surface-sunk);
+  color: var(--ink);
+}
+
+.screener-style-tab[aria-current="page"] {
+  background: var(--surface);
+  border-bottom-color: var(--plum);
+  color: var(--plum-deep);
+}
+
+.screener-tab-name {
+  font-size: 0.9rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.screener-tab-meta {
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.screener-style-tab[aria-current="page"] .screener-tab-meta {
+  color: var(--plum);
+}
+
+.screener-current-label {
+  color: var(--plum);
+}
+
+.lens-note {
+  font-family: var(--serif);
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  border-left: 2px solid var(--plum-line);
+  padding-left: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* ---------- 폼 ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--plum);
+  color: #fff;
+  border: 1px solid var(--plum);
+  border-radius: var(--radius);
+  padding: 0.6rem 1.1rem;
+  font-size: 0.9rem;
+}
+
+.btn:hover {
+  background: var(--plum-deep);
+}
+
+.btn[data-variant="quiet"] {
+  background: transparent;
+  color: var(--plum);
+}
+
+.btn[data-variant="quiet"]:hover {
+  background: var(--plum-soft);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.field {
+  display: block;
+  margin-bottom: 1.25rem;
+}
+
+.field > span {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.field textarea,
+.field input[type="text"] {
+  width: 100%;
+  font: inherit;
+  font-size: 0.92rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  resize: vertical;
+}
+
+.choice {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.7rem 0.9rem;
+  margin-bottom: 0.5rem;
+  background: var(--surface);
+  text-align: left;
+  width: 100%;
+  color: var(--ink);
+  font-size: 0.92rem;
+}
+
+.choice:hover {
+  border-color: var(--plum-line);
+}
+
+.choice[data-state="correct"] {
+  border-color: var(--plum);
+  background: var(--plum-soft);
+}
+
+.choice[data-state="wrong"] {
+  border-color: var(--ochre-line);
+  background: var(--ochre-soft);
+}
+
+.choice[data-state="missed"] {
+  border-color: var(--plum-line);
+  border-style: dashed;
+}
+
+.dropzone {
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface-sunk);
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+.dropzone[data-over="true"] {
+  border-color: var(--plum);
+  background: var(--plum-soft);
+}
+
+/* ---------- 커리큘럼 문항 ---------- */
+
+.checkpoints {
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+  background: var(--plum-soft);
+  border-radius: var(--radius);
+}
+
+.checkpoints .eyebrow {
+  color: var(--plum-deep);
+}
+
+.checkpoints .reason-list {
+  margin-bottom: 0;
+}
+
+.qualitative-check {
+  padding: 1.5rem;
+  border: 1px dashed var(--plum-line);
+  border-radius: var(--radius);
+  background: var(--plum-soft);
+}
+
+.qualitative-check .reason-list {
+  margin-bottom: 1.25rem;
+}
+
+/* ---------- 일곱 스타일 비교 ---------- */
+
+.comparison-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.comparison-matrix {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.comparison-matrix th,
+.comparison-matrix td {
+  padding: 1rem;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.comparison-matrix tr:last-child th,
+.comparison-matrix tr:last-child td {
+  border-bottom: 0;
+}
+
+.comparison-matrix th:last-child,
+.comparison-matrix td:last-child {
+  border-right: 0;
+}
+
+.comparison-matrix thead th {
+  background: var(--surface-sunk);
+  color: var(--plum-deep);
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.comparison-matrix thead th:first-child,
+.comparison-matrix tbody th {
+  width: 10rem;
+}
+
+.comparison-matrix thead span {
+  display: block;
+}
+
+.comparison-matrix thead .mono {
+  margin-bottom: 0.25rem;
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+}
+
+.comparison-matrix small {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--ink-faint);
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+.comparison-matrix tbody th {
+  background: var(--plum-soft);
+  color: var(--plum-deep);
+}
+
+.comparison-matrix td a,
+.comparison-matrix tbody th a {
+  text-decoration-color: var(--plum-line);
+  text-decoration-line: underline;
+  text-underline-offset: 0.18em;
+}
+
+.comparison-matrix td {
+  color: var(--ink-soft);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.comparison-sell {
+  min-width: 620px;
+}
+
+.comparison-sell thead th:first-child,
+.comparison-sell tbody th {
+  width: auto;
+}
+
+.notice {
+  border: 1px solid var(--ochre-line);
+  background: var(--ochre-soft);
+  color: var(--ochre);
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  font-size: 0.86rem;
+}
+
+.disclaimer {
+  border-top: 1px solid var(--line);
+  margin-top: 1.5rem;
+  padding-top: 0.9rem;
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+}
+
+/* ---------- 관찰 항목 ---------- */
+
+.observation {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  gap: 1rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--line);
+  align-items: start;
+}
+
+.visibility {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.45rem;
+  border-radius: 1px;
+  border: 1px solid var(--line-strong);
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.visibility[data-v="clear"] {
+  border-color: var(--plum-line);
+  color: var(--plum);
+  background: var(--plum-soft);
+}
+
+.visibility[data-v="unclear"] {
+  border-style: dashed;
+}
+
+.obs-category {
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+@media (max-width: 640px) {
+  .observation {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
+
+  .stock-row {
+    grid-template-columns: 1.6rem 1fr;
+  }
+
+  .stock-score {
+    grid-column: 2;
+    text-align: left;
+  }
+
+}
+
+/* ---------- 커리큘럼 챕터 ---------- */
+
+.chapter-progress {
+  display: flex;
+  gap: 3px;
+  margin: 1.25rem 0 1.75rem;
+}
+
+.chapter-progress span {
+  flex: 1;
+  height: 3px;
+  border-radius: 1px;
+  background: var(--line);
+}
+
+.chapter-progress span[data-state="done"] {
+  background: var(--plum-line);
+}
+
+.chapter-progress span[data-state="current"] {
+  background: var(--plum);
+}
+
+.chapter-title {
+  font-family: var(--serif);
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.75rem;
+}
+
+.style-kicker {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.65rem;
+  color: var(--ink-faint);
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  margin: 0 0 0.75rem;
+}
+
+.style-name {
+  background: var(--plum-soft);
+  border: 1px solid var(--plum-line);
+  border-radius: 999px;
+  color: var(--plum-deep);
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  padding: 0.38rem 0.55rem;
+  white-space: nowrap;
+}
+
+.chapter-lede {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  color: var(--plum);
+  margin: 0 0 1.5rem;
+  padding-left: 1rem;
+  border-left: 2px solid var(--plum-line);
+}
+
+/* ---------- 차트 학습: 관찰 순서와 기록 ---------- */
+
+.chart-reading-steps {
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  border-top: 1px solid var(--line-strong);
+}
+
+.chart-reading-steps li {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  gap: 1rem;
+  padding: 1.15rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.chart-step-no {
+  color: var(--plum);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  padding-top: 0.15rem;
+}
+
+.chart-reading-steps h3,
+.chart-example h3 {
+  font-size: 0.95rem;
+  margin: 0 0 0.25rem;
+}
+
+.chart-reading-steps p,
+.chart-example > p {
+  color: var(--ink-soft);
+  font-size: 0.93rem;
+  margin: 0;
+}
+
+.chart-example {
+  background: var(--surface-sunk);
+  border: 1px solid var(--plum-line);
+  border-left: 4px solid var(--plum);
+  border-radius: var(--radius);
+  margin-top: 1.25rem;
+  padding: 1.5rem;
+}
+
+.chart-example ul {
+  margin: 1.25rem 0;
+  padding-left: 1.15rem;
+}
+
+.chart-example li {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  margin: 0.45rem 0;
+}
+
+.chart-example .chart-example-conclusion {
+  border-top: 1px dotted var(--plum-line);
+  color: var(--ink);
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+}
+
+.chart-example-conclusion strong {
+  color: var(--plum-deep);
+}
+
+.chart-checklist {
+  display: grid;
+  gap: 0.65rem;
+  list-style: none;
+  margin: 1.25rem 0 0;
+  padding: 0;
+}
+
+.chart-checklist li {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  padding: 0.8rem 1rem 0.8rem 2.4rem;
+  position: relative;
+}
+
+.chart-checklist li::before {
+  content: "✓";
+  color: var(--plum);
+  font-family: var(--mono);
+  left: 1rem;
+  position: absolute;
+}
+
+.prose p {
+  max-width: 40em;
+  margin: 0 0 1.5rem;
+  font-size: 1.03rem;
+  line-height: 1.9;
+}
+
+.prose p:last-child {
+  margin-bottom: 0;
+}
+
+.chapter-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 3rem;
+}
+
+.chapter-nav .card-link {
+  height: 100%;
+}
+
+.toc {
+  border-top: 1px solid var(--line);
+}
+
+.toc-item {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr auto;
+  gap: 1rem;
+  align-items: baseline;
+  padding: 1.1rem 0.5rem 1.1rem 0;
+  border-bottom: 1px solid var(--line);
+  transition: background 0.12s ease;
+}
+
+.toc-item:hover {
+  background: var(--surface);
+}
+
+.toc-no {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+}
+
+.toc-title {
+  font-weight: 600;
+}
+
+.toc-question {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.88rem;
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+
+.toc-slot {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .chapter-nav {
+    grid-template-columns: 1fr;
+  }
+
+  .toc-item {
+    grid-template-columns: 2rem 1fr;
+  }
+
+  .toc-slot {
+    display: none;
+  }
+}
+
+/* 철학별 채점 종목 수 비교표 — 스크리너와 /learn/scoring이 함께 쓴다 */
+.coverage-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  margin: 1rem 0 0;
+}
+
+.coverage-table th,
+.coverage-table td {
+  padding: 0.55rem 0.4rem;
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+}
+
+.coverage-table th[scope="col"] {
+  font-weight: 500;
+  color: var(--ink-faint);
+  font-size: 0.8rem;
+}
+
+.coverage-table th[scope="row"],
+.coverage-table th[scope="col"]:first-child {
+  text-align: left;
+}
+
+.coverage-table th[scope="row"] {
+  font-weight: 500;
+}
+
+/* 지금 보고 있는 철학. 색만으로 구분하지 않도록 굵기와 여백을 함께 쓴다 */
+.coverage-table tr[aria-current] th[scope="row"] {
+  font-weight: 700;
+  border-left: 3px solid var(--plum);
+  padding-left: 0.5rem;
+}
+
+.coverage-table tr[aria-current] td {
+  color: var(--ink);
+}
+
+.coverage-table tbody tr:last-child th,
+.coverage-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* /learn/scoring 단계 목록 */
+.scoring-steps {
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+  counter-reset: step;
+}
+
+.scoring-steps li {
+  padding: 1.25rem 0;
+  border-top: 1px solid var(--line);
+  max-width: 68ch;
+}
+
+.scoring-steps li:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+/* ---------- 투자자 초상 ---------- */
+
+.investor-avatar {
+  display: block;
+  flex: none;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--surface-sunk);
+}
+
+/* 배우기 목록의 카드 머리. 초상 옆에 인물 이름을 놓는다 */
+.master-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+/* 초상만큼 이름 칸이 좁아졌다. 두 줄이 되더라도 어절 안에서 끊기지 않게 한다 */
+.master-card-head h3.sub {
+  margin-bottom: 0;
+  word-break: keep-all;
+}
+
+/* 대가 상세의 머리. 초상을 제목 위에 크게 놓는다 */
+.master-lesson-head {
+  margin-bottom: 1.25rem;
+}
+
+/* ---------- 모달 (주식 기본개념) ---------- */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(20, 16, 14, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.modal-panel {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  max-height: min(88vh, 900px);
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 2rem;
+  box-shadow: 0 24px 60px rgba(20, 16, 14, 0.25);
+}
+
+.modal-close {
+  position: sticky;
+  float: right;
+  top: 0;
+  margin-left: 1rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.modal-close:hover {
+  border-color: var(--plum-line);
+}

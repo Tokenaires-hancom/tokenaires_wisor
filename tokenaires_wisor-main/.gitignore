@@ -1,0 +1,20 @@
+node_modules/
+.next/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+.env.local
+.dev-server.*.log
+*.stdout.log
+*.stderr.log
+.next-stale-*/
+.cache/
+.DS_Store
+next-env.d.ts
+tsconfig.tsbuildinfo
+.claude/settings.local.json
+
+# Local Netlify folder
+.netlify

@@ -1,0 +1,850 @@
+{
+  "dataSource": "sample",
+  "notice": "손으로 만든 예시 데이터입니다. 실제 재무수치가 아니며 화면 검증 용도로만 씁니다. 실서비스 전에 providers/ 아래 실데이터 공급자로 교체하세요.",
+  "asOf": {
+    "price": "2026-07-29",
+    "financial": "2026-06-30"
+  },
+  "companies": [
+    {
+      "ticker": "ADBE",
+      "name": "Adobe",
+      "sector": "소프트웨어",
+      "price": 434.0,
+      "sharesOut": 436.0,
+      "asOf": {
+        "price": "2026-07-29",
+        "financial": "2026-06-30"
+      },
+      "series": {
+        "revenue": [
+          21505,
+          22400,
+          23100,
+          23600,
+          24050
+        ],
+        "ebit": [
+          7200,
+          7500,
+          7800,
+          8020,
+          8180
+        ],
+        "netIncome": [
+          4822,
+          5260,
+          4756,
+          5560,
+          5900
+        ],
+        "fcf": [
+          7275,
+          7600,
+          7900,
+          8100,
+          8260
+        ],
+        "investedCapital": [
+          23000,
+          24200,
+          25500,
+          26800,
+          27600
+        ],
+        "equity": [
+          13264,
+          14051,
+          15000,
+          16100,
+          17200
+        ],
+        "eps": [
+          9.8,
+          10.9,
+          10.1,
+          12.4,
+          13.4
+        ]
+      },
+      "totalDebt": 5600,
+      "cash": 7800,
+      "interestExpense": 118,
+      "depreciation": 1010,
+      "currentAssets": 12400,
+      "currentLiabilities": 12900,
+      "evEbitMedian5y": 24.0,
+      "epsGrowthForward": 0.09
+    },
+    {
+      "ticker": "MSFT",
+      "name": "Microsoft",
+      "sector": "소프트웨어",
+      "price": 498.0,
+      "sharesOut": 7440.0,
+      "asOf": {
+        "price": "2026-07-29",
+        "financial": "2026-06-30"
+      },
+      "series": {
+        "revenue": [
+          168088,
+          198270,
+          211915,
+          245122,
+          279400
+        ],
+        "ebit": [
+          69916,
+          83383,
+          88523,
+          109433,
+          127600
+        ],
+        "netIncome": [
+          61271,
+          72738,
+          72361,
+          88136,
+          101200
+        ],
+        "fcf": [
+          56118,
+          65149,
+          59475,
+          74071,
+          82400
+        ],
+        "investedCapital": [
+          180000,
+          196000,
+          214000,
+          243000,
+          271000
+        ],
+        "equity": [
+          141988,
+          166542,
+          206223,
+          268477,
+          312000
+        ],
+        "eps": [
+          8.05,
+          9.65,
+          9.68,
+          11.8,
+          13.6
+        ]
+      },
+      "totalDebt": 67000,
+      "cash": 80000,
+      "interestExpense": 1900,
+      "depreciation": 22000,
+      "currentAssets": 160000,
+      "currentLiabilities": 118000,
+      "evEbitMedian5y": 28.0,
+      "epsGrowthForward": 0.14
+    },
+    {
+      "ticker": "TXN",
+      "name": "Texas Instruments",
+      "sector": "반도체",
+      "price": 168.0,
+      "sharesOut": 910.0,
+      "asOf": {
+        "price": "2026-07-29",
+        "financial": "2026-06-30"
+      },
+      "series": {
+        "revenue": [
+          18344,
+          20028,
+          17519,
+          15641,
+          16300
+        ],
+        "ebit": [
+          9720,
+          11326,
+          8319,
+          6200,
+          6600
+        ],
+        "netIncome": [
+          7769,
+          8749,
+          6510,
+          4800,
+          5100
+        ],
+        "fcf": [
+          6327,
+          5920,
+          1276,
+          1500,
+          2100
+        ],
+        "investedCapital": [
+          20000,
+          22500,
+          26000,
+          29500,
+          31000
+        ],
+        "equity": [
+          13333,
+          15975,
+          17198,
+          18600,
+          19700
+        ],
+        "eps": [
+          8.26,
+          9.41,
+          7.07,
+          5.2,
+          5.6
+        ]
+      },
+      "totalDebt": 13500,
+      "cash": 8100,
+      "interestExpense": 480,
+      "depreciation": 2300,
+      "currentAssets": 15600,
+      "currentLiabilities": 4900,
+      "evEbitMedian5y": 21.0,
+      "epsGrowthForward": 0.08
+    },
+    {
+      "ticker": "UNH",
+      "name": "UnitedHealth Group",
+      "sector": "헬스케어",
+      "price": 296.0,
+      "sharesOut": 920.0,
+      "asOf": {
+        "price": "2026-07-29",
+        "financial": "2026-06-30"
+      },
+      "series": {
+        "revenue": [
+          287597,
+          324162,
+          371622,
+          400278,
+          428000
+        ],
+        "ebit": [
+          22405,
+          28443,
+          32358,
+          32287,
+          30100
+        ],
+        "netIncome": [
+          15403,
+          20120,
+          22381,
+          14405,
+          16800
+        ],
+        "fcf": [
+          20147,
+          23343,
+          25675,
+          20692,
+          19400
+        ],
+        "investedCapital": [
+          125000,
+          138000,
+          152000,
+          168000,
+          176000
+        ],
+        "equity": [
+          71760,
+          77808,
+          88756,
+          92653,
+          96400
+        ],
+        "eps": [
+          16.2,
+          21.2,
+          23.9,
+          15.5,
+          18.2
+        ]
+      },
+      "totalDebt": 78000,
+      "cash": 29000,
+      "interestExpense": 3400,
+      "depreciation": 4600,
+      "currentAssets": 92000,
+      "currentLiabilities": 88000,
+      "evEbitMedian5y": 15.0,
+      "epsGrowthForward": 0.07
+    },
+    {
+      "ticker": "NKE",
+      "name": "Nike",
+      "sector": "소비재",
+      "price": 71.0,
+      "sharesOut": 1480.0,
+      "asOf": {
+        "price": "2026-07-29",
+        "financial": "2026-05-31"
+      },
+      "series": {
+        "revenue": [
+          46710,
+          51217,
+          51362,
+          46200,
+          44800
+        ],
+        "ebit": [
+          6935,
+          5915,
+          5900,
+          3200,
+          2600
+        ],
+        "netIncome": [
+          6046,
+          5070,
+          5700,
+          3200,
+          2500
+        ],
+        "fcf": [
+          4500,
+          5000,
+          6600,
+          3400,
+          2200
+        ],
+        "investedCapital": [
+          21000,
+          22000,
+          22500,
+          22800,
+          22400
+        ],
+        "equity": [
+          15281,
+          14004,
+          14430,
+          14500,
+          14100
+        ],
+        "eps": [
+          3.75,
+          3.23,
+          3.73,
+          2.16,
+          1.7
+        ]
+      },
+      "totalDebt": 12000,
+      "cash": 9800,
+      "interestExpense": 320,
+      "depreciation": 800,
+      "currentAssets": 25200,
+      "currentLiabilities": 11000,
+      "evEbitMedian5y": 26.0,
+      "epsGrowthForward": 0.04
+    },
+    {
+      "ticker": "GILD",
+      "name": "Gilead Sciences",
+      "sector": "제약",
+      "price": 118.0,
+      "sharesOut": 1245.0,
+      "asOf": {
+        "price": "2026-07-29",
+        "financial": "2026-06-30"
+      },
+      "series": {
+        "revenue": [
+          24689,
+          27305,
+          27116,
+          28754,
+          29600
+        ],
+        "ebit": [
+          5100,
+          9200,
+          5200,
+          8100,
+          8600
+        ],
+        "netIncome": [
+          6225,
+          4592,
+          5665,
+          480,
+          6100
+        ],
+        "fcf": [
+          8300,
+          9200,
+          8000,
+          8300,
+          8800
+        ],
+        "investedCapital": [
+          46000,
+          44000,
+          42500,
+          43000,
+          42000
+        ],
+        "equity": [
+          21201,
+          22794,
+          21916,
+          19343,
+          20400
+        ],
+        "eps": [
+          4.93,
+          3.65,
+          4.5,
+          0.38,
+          4.25
+        ]
+      },
+      "totalDebt": 25000,
+      "cash": 9200,
+      "interestExpense": 950,
+      "depreciation": 1200,
+      "currentAssets": 17800,
+      "currentLiabilities": 12100,
+      "evEbitMedian5y": 12.5,
+      "epsGrowthForward": 0.05
+    },
+    {
+      "ticker": "ULTA",
+      "name": "Ulta Beauty",
+      "sector": "소매",
+      "price": 402.0,
+      "sharesOut": 45.0,
+      "asOf": {
+        "price": "2026-07-29",
+        "financial": "2026-05-31"
+      },
+      "series": {
+        "revenue": [
+          8631,
+          10209,
+          11207,
+          11600,
+          12300
+        ],
+        "ebit": [
+          1189,
+          1600,
+          1670,
+          1610,
+          1680
+        ],
+        "netIncome": [
+          986,
+          1242,
+          1291,
+          1230,
+          1290
+        ],
+        "fcf": [
+          960,
+          1100,
+          900,
+          1010,
+          1080
+        ],
+        "investedCapital": [
+          4200,
+          4600,
+          5000,
+          5300,
+          5500
+        ],
+        "equity": [
+          1800,
+          1900,
+          2100,
+          2200,
+          2350
+        ],
+        "eps": [
+          17.1,
+          22.3,
+          25.3,
+          26.1,
+          28.4
+        ]
+      },
+      "totalDebt": 1750,
+      "cash": 700,
+      "interestExpense": 60,
+      "depreciation": 320,
+      "currentAssets": 3100,
+      "currentLiabilities": 1950,
+      "evEbitMedian5y": 14.0,
+      "epsGrowthForward": 0.1
+    },
+    {
+      "ticker": "DE",
+      "name": "Deere & Company",
+      "sector": "산업재",
+      "price": 468.0,
+      "sharesOut": 272.0,
+      "asOf": {
+        "price": "2026-07-29",
+        "financial": "2026-04-30"
+      },
+      "series": {
+        "revenue": [
+          44024,
+          52577,
+          61251,
+          51716,
+          47800
+        ],
+        "ebit": [
+          7100,
+          9700,
+          12500,
+          8900,
+          7300
+        ],
+        "netIncome": [
+          5963,
+          7131,
+          10166,
+          7100,
+          5600
+        ],
+        "fcf": [
+          3200,
+          -1200,
+          4500,
+          3900,
+          3100
+        ],
+        "investedCapital": [
+          42000,
+          48000,
+          53000,
+          55000,
+          54000
+        ],
+        "equity": [
+          18431,
+          20337,
+          21738,
+          22800,
+          23400
+        ],
+        "eps": [
+          18.99,
+          23.28,
+          34.63,
+          25.6,
+          20.6
+        ]
+      },
+      "totalDebt": 62000,
+      "cash": 7300,
+      "interestExpense": 3100,
+      "depreciation": 2200,
+      "currentAssets": 48000,
+      "currentLiabilities": 32000,
+      "evEbitMedian5y": 13.0,
+      "epsGrowthForward": 0.03
+    },
+    {
+      "ticker": "VZ",
+      "name": "Verizon Communications",
+      "sector": "통신",
+      "price": 43.5,
+      "sharesOut": 4210.0,
+      "asOf": {
+        "price": "2026-07-29",
+        "financial": "2026-06-30"
+      },
+      "series": {
+        "revenue": [
+          128292,
+          133613,
+          136835,
+          134000,
+          135400
+        ],
+        "ebit": [
+          28798,
+          30467,
+          22877,
+          28300,
+          28900
+        ],
+        "netIncome": [
+          17801,
+          22065,
+          21256,
+          11614,
+          17500
+        ],
+        "fcf": [
+          23600,
+          19300,
+          14100,
+          18700,
+          19200
+        ],
+        "investedCapital": [
+          220000,
+          235000,
+          248000,
+          250000,
+          249000
+        ],
+        "equity": [
+          67704,
+          81790,
+          91144,
+          92000,
+          95000
+        ],
+        "eps": [
+          4.3,
+          5.32,
+          5.06,
+          2.75,
+          4.15
+        ]
+      },
+      "totalDebt": 152000,
+      "cash": 4000,
+      "interestExpense": 6200,
+      "depreciation": 17800,
+      "currentAssets": 40000,
+      "currentLiabilities": 50000,
+      "evEbitMedian5y": 11.0,
+      "epsGrowthForward": 0.02
+    },
+    {
+      "ticker": "PEP",
+      "name": "PepsiCo",
+      "sector": "필수소비재",
+      "price": 141.0,
+      "sharesOut": 1372.0,
+      "asOf": {
+        "price": "2026-07-29",
+        "financial": "2026-06-30"
+      },
+      "series": {
+        "revenue": [
+          70372,
+          79474,
+          86392,
+          91471,
+          93200
+        ],
+        "ebit": [
+          10080,
+          11164,
+          11751,
+          12800,
+          13100
+        ],
+        "netIncome": [
+          7120,
+          7618,
+          8910,
+          9074,
+          9300
+        ],
+        "fcf": [
+          6350,
+          6999,
+          4900,
+          7300,
+          7600
+        ],
+        "investedCapital": [
+          58000,
+          62000,
+          65000,
+          67000,
+          68000
+        ],
+        "equity": [
+          13454,
+          16043,
+          17149,
+          18000,
+          18900
+        ],
+        "eps": [
+          5.12,
+          5.49,
+          6.42,
+          6.56,
+          6.78
+        ]
+      },
+      "totalDebt": 44000,
+      "cash": 9300,
+      "interestExpense": 1250,
+      "depreciation": 3200,
+      "currentAssets": 27000,
+      "currentLiabilities": 31000,
+      "evEbitMedian5y": 19.0,
+      "epsGrowthForward": 0.05
+    },
+    {
+      "ticker": "CI",
+      "name": "The Cigna Group",
+      "sector": "헬스케어",
+      "price": 292.0,
+      "sharesOut": 268.0,
+      "asOf": {
+        "price": "2026-07-29",
+        "financial": "2026-06-30"
+      },
+      "series": {
+        "revenue": [
+          174078,
+          180516,
+          195265,
+          247121,
+          256400
+        ],
+        "ebit": [
+          8300,
+          8100,
+          8900,
+          9600,
+          10100
+        ],
+        "netIncome": [
+          8458,
+          5365,
+          6704,
+          3434,
+          7200
+        ],
+        "fcf": [
+          7100,
+          8300,
+          9200,
+          10400,
+          9800
+        ],
+        "investedCapital": [
+          72000,
+          70000,
+          71000,
+          74000,
+          75000
+        ],
+        "equity": [
+          45908,
+          43537,
+          45182,
+          41139,
+          43800
+        ],
+        "eps": [
+          24.3,
+          16.6,
+          22.3,
+          12.1,
+          26.4
+        ]
+      },
+      "totalDebt": 31500,
+      "cash": 8200,
+      "interestExpense": 1450,
+      "depreciation": 3400,
+      "currentAssets": 42000,
+      "currentLiabilities": 26000,
+      "evEbitMedian5y": 12.0,
+      "epsGrowthForward": 0.09
+    },
+    {
+      "ticker": "LULU",
+      "name": "Lululemon Athletica",
+      "sector": "소비재",
+      "price": 320.0,
+      "sharesOut": 118.0,
+      "asOf": {
+        "price": "2026-07-29",
+        "financial": "2026-04-30"
+      },
+      "series": {
+        "revenue": [
+          7800,
+          8600,
+          9200,
+          9800,
+          10400
+        ],
+        "ebit": [
+          1560,
+          1810,
+          2100,
+          2260,
+          2400
+        ],
+        "netIncome": [
+          1200,
+          1400,
+          1620,
+          1750,
+          1880
+        ],
+        "fcf": [
+          -120,
+          1150,
+          1290,
+          1400,
+          1520
+        ],
+        "investedCapital": [
+          4300,
+          4700,
+          5100,
+          5500,
+          5900
+        ],
+        "equity": [
+          3200,
+          3800,
+          4400,
+          5000,
+          5600
+        ],
+        "eps": [
+          8.4,
+          10.2,
+          12.6,
+          14.4,
+          16.2
+        ]
+      },
+      "totalDebt": 1200,
+      "cash": 2100,
+      "interestExpense": 45,
+      "depreciation": 420,
+      "currentAssets": 4600,
+      "currentLiabilities": 2200,
+      "evEbitMedian5y": 24.0,
+      "epsGrowthForward": 0.17
+    }
+  ]
+}
