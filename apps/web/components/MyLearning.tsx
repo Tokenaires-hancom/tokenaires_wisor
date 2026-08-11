@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CHART_LESSONS, LESSON_BY_ID } from "@/content/chartLessons";
+import { STOCK_BASICS, STOCK_BASICS_BY_ID } from "@/content/stockBasics";
 import { CHAPTER_SLOTS } from "@/content/curriculum/types";
 import { MASTERS, MASTER_BY_ID } from "@/content/masters";
 import {
@@ -64,6 +65,7 @@ export default function MyLearning({ names }: { names: Record<string, string> })
     );
   }).length;
   const chartDone = CHART_LESSONS.filter((l) => progress.lessonsDone.includes(`chart:${l.id}`));
+  const basicsDone = STOCK_BASICS.filter((l) => progress.lessonsDone.includes(`basics:${l.id}`));
   const bothLenses = notes.filter((n) => n.chartObservations.length > 0 && n.strengths.length > 0);
 
   if (!ready) {
@@ -82,6 +84,13 @@ export default function MyLearning({ names }: { names: Record<string, string> })
       </h1>
 
       <div className="grid" style={{ marginTop: "2rem" }}>
+        <div className="card">
+          <p className="eyebrow">주식 기본개념 단원</p>
+          <p className="score-value">
+            {basicsDone.length}
+            <span className="score-of"> / {STOCK_BASICS.length}</span>
+          </p>
+        </div>
         <div className="card">
           <p className="eyebrow">투자 대가 챕터</p>
           <p className="score-value">
@@ -122,6 +131,8 @@ export default function MyLearning({ names }: { names: Record<string, string> })
               const name = MASTER_BY_ID[key as keyof typeof MASTER_BY_ID]?.name.split(" · ")[0];
               const slot = no ? CHAPTER_SLOTS[Number(no) - 1] : undefined;
               label = name && slot ? `${name} ${slot.no}장 · ${slot.label}` : name;
+            } else if (kind === "basics") {
+              label = STOCK_BASICS_BY_ID[key]?.title;
             } else {
               label = LESSON_BY_ID[key]?.title;
             }
