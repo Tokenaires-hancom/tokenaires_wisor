@@ -94,10 +94,10 @@ export default function Home() {
       <hr className="rule" />
 
       <p className="eyebrow">어떻게 작동하나요</p>
-      <h2 className="section">한 종목을 두 개의 렌즈로 봅니다</h2>
+      <h2 className="section">기업 관점으로 보고, 판단은 직접 기록합니다</h2>
       <div className="grid" style={{ marginTop: "1.5rem" }}>
         <div className="card">
-          <p className="eyebrow">렌즈 1</p>
+          <p className="eyebrow">렌즈</p>
           <h3 className="sub">기업 관점</h3>
           <p style={{ fontSize: "0.9rem", color: "var(--ink-soft)", margin: 0 }}>
             어떤 기업을 관심 있게 볼 것인가. 현금흐름, 자본 효율성, 부채, 성장, 가격을 같은
@@ -105,19 +105,10 @@ export default function Home() {
           </p>
         </div>
         <div className="card">
-          <p className="eyebrow">렌즈 2</p>
-          <h3 className="sub">차트 관점</h3>
-          <p style={{ fontSize: "0.9rem", color: "var(--ink-soft)", margin: 0 }}>
-            지금 가격이 어떤 움직임을 보이고 있는가. 차트에서 보이는 것과 보이지 않는 것을
-            구분해 설명합니다.
-          </p>
-        </div>
-        <div className="card">
           <p className="eyebrow">그리고</p>
           <h3 className="sub">나의 학습노트</h3>
           <p style={{ fontSize: "0.9rem", color: "var(--ink-soft)", margin: 0 }}>
-            두 관점에서 확인한 것을 한자리에 모으고, 판단은 직접 기록합니다. 두 점수를 합쳐
-            매수 점수를 만들지 않습니다.
+            기업 관점에서 확인한 것을 기록해 두고, 판단은 직접 내립니다.
           </p>
         </div>
       </div>

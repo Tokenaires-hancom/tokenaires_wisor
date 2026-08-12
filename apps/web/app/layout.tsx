@@ -3,9 +3,8 @@ import Nav from "@/components/Nav";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Wisor — 기업을 고르는 법과 가격을 관찰하는 법",
-  description:
-    "투자 대가의 판단 기준으로 종목을 살펴보고, 차트에서 보이는 것을 읽는 법을 함께 배우는 학습 서비스입니다.",
+  title: "Wisor — 기업을 고르는 법을 배우는 학습 서비스",
+  description: "투자 대가의 판단 기준으로 종목을 살펴보고, 확인한 것을 학습노트에 기록하는 학습 서비스입니다.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

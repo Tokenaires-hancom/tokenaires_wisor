@@ -7,13 +7,11 @@
 
 ## 이 제품이 무엇인가
 
-기업을 고르는 법과 가격을 관찰하는 법을 함께 가르치는 **투자 학습 서비스**입니다. 종목 추천 앱이 아닙니다.
+기업을 고르는 법을 가르치는 **투자 학습 서비스**입니다. 종목 추천 앱이 아닙니다.
 
-세 가지 원칙은 코드로 강제돼 있고, 어기는 변경은 테스트에서 막힙니다.
+핵심 원칙은 코드로 강제돼 있고, 어기는 변경은 테스트에서 막힙니다.
 
-1. **투자 스타일 점수와 차트 분석을 합쳐 하나의 매수 점수를 만들지 않는다.**
-2. **차트 분석은 이미지에서 보이는 현상만 설명하고 미래를 예측하지 않는다.**
-3. **정식 기능은 정적 차트 교육이고, 이미지 분석은 제한된 베타다.**
+1. **투자 스타일 점수는 관찰과 확인 사항까지만 말하고, 매수·매도를 권하지 않는다.**
 
 판단이 애매할 때는 이렇게 물으세요. **"이 변경이 사용자를 '살까 말까'로 데려가는가, '무엇을 확인해야 하는가'로 데려가는가?"** 앞쪽이면 하지 않습니다.
 
@@ -25,18 +23,15 @@
 wisor/
 ├─ apps/web/            Next.js 15 · 화면 전체          → apps/web/CLAUDE.md
 ├─ data-pipeline/       Python 배치 · 스타일 점수        → data-pipeline/CLAUDE.md
-├─ services/chart-api/  FastAPI · 차트 분석과 안전장치   → services/chart-api/CLAUDE.md
 ├─ supabase/schema.sql  사용자 데이터 스키마
 └─ docs/                결정 기록
 ```
 
-경계는 셋뿐이고, 이 셋은 절대 넘지 않습니다.
+경계는 하나뿐이고, 이 경계는 절대 넘지 않습니다.
 
 | 경계 | 규칙 |
 |---|---|
 | 화면 ↔ 재무데이터 | 화면은 `apps/web/lib/generated/scores.json`만 읽습니다. 재무 원천을 직접 만지지 않습니다. |
-| 화면 ↔ 차트 분석 | 분석기에 **종목명·티커를 넘기지 않습니다.** 종목 연결은 프론트엔드와 학습노트에서만 관리합니다. |
-| 브라우저 ↔ LLM 키 | 비전 LLM 키는 `services/chart-api` 프로세스 안에만 있습니다. `NEXT_PUBLIC_` 접두사에 비밀값을 넣지 않습니다. |
 
 ---
 
@@ -46,16 +41,12 @@ wisor/
 # 점수 배치 (재무데이터 → scores.json)
 cd data-pipeline && python run_batch.py && pytest -q
 
-# 차트 분석 서비스
-cd services/chart-api && uvicorn app.main:app --reload --port 8000
-cd services/chart-api && pytest -q
-
 # 웹
 cd apps/web && npm run dev
 cd apps/web && npm run build      # 커밋 전 반드시 통과
 ```
 
-**커밋 전 세 가지를 모두 통과해야 합니다.** 어느 영역을 고쳤든 전부 돌립니다. 점수 모델을 바꾸면 화면이 깨지고, 필터를 바꾸면 분석 흐름이 깨집니다.
+**커밋 전 두 가지를 모두 통과해야 합니다.** 어느 영역을 고쳤든 전부 돌립니다. 점수 모델을 바꾸면 화면이 깨집니다.
 
 ---
 
@@ -65,12 +56,9 @@ cd apps/web && npm run build      # 커밋 전 반드시 통과
 
 - ❌ **없는 값을 0으로 채우기.** 판정할 데이터가 없으면 `fail`이 아니라 `unknown`입니다. `unknown`은 점수 계산의 분모에서도 빠집니다.
 - ❌ **주식 화면에 빨강·초록 사용.** 두 색은 가격 방향을 뜻하는데 이 제품은 방향을 말하지 않습니다. 충족은 `--gold`, 미충족은 `--ochre`이고, 색만으로 의미를 전달하지 않도록 채움·빗금·점선을 함께 씁니다. 포인트 색 `--wine`은 붉은 계열이라 버튼과 배우기 화면 UI에만 쓰고, 충족 표시에는 쓰지 않습니다.
-- ❌ **응답 스키마에 `confidence`, `targetPrice`, `buySignal` 류 필드 추가.** 스키마가 `extra="forbid"`인 것은 실수가 아니라 방어선입니다.
 - ❌ **`scores.json` 직접 수정.** 배치를 다시 돌립니다.
-- ❌ **차트 원본 이미지 저장.** 메모리에서만 다루고 응답 후 버립니다. 남기는 것은 사용 기록 한 줄뿐입니다.
 - ❌ **컴포넌트에서 `localStorage` 직접 호출.** 저장은 `apps/web/lib/store.ts`를 거칩니다. Supabase 교체 지점이기 때문입니다. 이 함수들은 전부 `Promise`를 돌려줍니다.
 - ❌ **클라이언트 컴포넌트에서 `lib/scores.ts` import.** scores.json 전체가 브라우저 번들에 실립니다. 타입과 라벨은 `lib/scores.types.ts`에서 가져오고, 데이터는 서버 컴포넌트에서 props로 내려보냅니다.
-- ❌ **정규화하지 않은 이미지를 LLM에 전달.** `services/image.py`의 `normalize()`를 거쳐야 EXIF(촬영 위치)가 제거됩니다.
 - ❌ **의존성 추가.** 새 패키지가 정말 필요하면 먼저 물어보세요. 지금 웹은 Next·React뿐이고 그 상태를 유지합니다.
 - ❌ **"~하면 좋습니다", "지금이 기회입니다" 류 UI 문구.** 사용자에게 보이는 문장은 관찰과 확인 사항까지입니다.
 
@@ -88,10 +76,7 @@ cd apps/web && npm run build      # 커밋 전 반드시 통과
 
 "현재"라고 쓰지 않고 날짜를 씁니다. 모든 점수 화면에 가격 기준일·재무 기준일·점수 모델 버전이 함께 나가야 합니다.
 
-금지어 목록은 두 곳에 있고 **둘 다 실행되는 코드**입니다.
-
-- `data-pipeline/wisor_data/styles/base.py` → `BANNED_PHRASES` (점수 문구 검사)
-- `services/chart-api/app/services/safety.py` → `RULES` (LLM 출력 필터)
+금지어 목록은 `data-pipeline/wisor_data/styles/base.py`의 `BANNED_PHRASES`에 있고 **실행되는 코드**입니다.
 
 ---
 
@@ -104,15 +89,6 @@ cd apps/web && npm run build      # 커밋 전 반드시 통과
 → `tests/test_scoring.py::test_criteria_count_is_eight_for_buffett` 수정
 → `run_batch.py` 재실행 → `scores.json` 커밋
 → 기준 막대의 칸 수가 바뀌므로 스크리너 화면 확인
-
-**차트 학습 단원을 추가·삭제하면**
-→ `apps/web/content/chartLessons.ts`의 `id`
-→ `services/chart-api/app/services/prompt.py`의 `LESSON_IDS`
-→ 이 둘이 어긋나면 분석 결과가 없는 페이지로 링크됩니다. 반드시 같이 고칩니다.
-
-**필터 규칙을 고치면**
-→ `tests/test_safety.py`의 `MUST_BLOCK` / `MUST_PASS`에 실제 문장을 추가합니다
-→ 규칙만 고치고 표본을 안 늘리면 다음에 같은 실수가 다시 통과합니다
 
 **`lib/store.ts`의 함수 시그니처를 바꾸면**
 → Supabase 교체 계획과 어긋나지 않는지 2번과 확인합니다
@@ -131,7 +107,7 @@ cd apps/web && npm run build      # 커밋 전 반드시 통과
 | **1번** | 제품·UX·프론트엔드 | `apps/web/app`, `apps/web/components`, `apps/web/content` |
 | **2번** | 백엔드·Supabase·통합 | `supabase/`, `apps/web/lib/store.ts`, 배포·환경변수 |
 | **3번** | 재무데이터·스타일 점수 | `data-pipeline/` |
-| **4번** | 차트 교육·비전 LLM·안전성 | `services/chart-api/`, `apps/web/content/chartLessons.ts` |
+| **4번** | (차트 교육·비전 LLM 기능 제거로 공석 — 다음 담당 재배정 필요) | — |
 
 **남의 영역 파일을 고쳐야 하면 직접 고치지 말고 이슈로 넘깁니다.** 예외는 명백한 오타와 타입 오류입니다.
 
@@ -140,12 +116,8 @@ cd apps/web && npm run build      # 커밋 전 반드시 통과
 | 변경 영역 | 작성 | 리뷰 |
 |---|---|---|
 | 스타일 점수 | 3번 | 1번 |
-| 차트 교육 콘텐츠 | 4번 | 1번 |
 | 스크리너·종목 상세 화면 | 1번 | 2번·3번 |
-| FastAPI 분석 | 4번 | 2번 |
-| LLM 키·보안 | 2번 | 4번 |
 | 학습노트 | 2번 | 1번 |
-| **AI 안전 필터** | 4번 | **전원** |
 | **데이터 검수** | 3번 | **전원** |
 
 ---
@@ -155,7 +127,7 @@ cd apps/web && npm run build      # 커밋 전 반드시 통과
 ```
 main                 배포 가능한 상태만
   └─ feat/<영역>-<내용>     feat/screener-filter
-  └─ fix/<영역>-<내용>      fix/chart-api-timeout
+  └─ fix/<영역>-<내용>      fix/screener-filter-timeout
   └─ data/<내용>           data/graham-1.0-promotion
 ```
 
@@ -187,14 +159,13 @@ PR마다 자동검사가 제목·본문 형식을 확인하고 코멘트를 남�
 작업할 디렉터리로 먼저 들어가서 세션을 시작하세요. 그 디렉터리의 `CLAUDE.md`가 함께 읽힙니다. 루트에서 시작하면 남의 영역 규칙까지 매번 컨텍스트에 들어갑니다.
 
 **서브에이전트를 쓸 만한 곳**
-- 테스트 차트 16종 검수처럼 같은 작업을 반복할 때
 - 점수 결과를 실제 공시와 대조하는 검수 작업
 
 **작업이 끝났다고 말하기 전에**
 해당 영역의 테스트와 `npm run build`를 실제로 돌린 결과를 붙입니다. "통과할 것으로 보입니다"는 통과가 아닙니다.
 
 **공유 훅**
-`.claude/settings.json`에 `PostToolUse` 훅이 하나 걸려 있습니다. 안전장치나 점수 모델 파일을 고치면 곧바로 해당 테스트를 돌리고, `scores.json`을 손으로 고치려 하면 경고합니다. 작업을 막지는 않습니다.
+`.claude/settings.json`에 `PostToolUse` 훅이 하나 걸려 있습니다. 점수 모델 파일을 고치면 곧바로 해당 테스트를 돌리고, `scores.json`을 손으로 고치려 하면 경고합니다. 작업을 막지는 않습니다.
 
 개인 설정은 `.claude/settings.local.json`에 두세요. gitignore돼 있습니다.
 
