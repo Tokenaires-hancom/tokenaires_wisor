@@ -1,29 +1,24 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import CriteriaBar from "./CriteriaBar";
-import ChartAnalyzer from "./ChartAnalyzer";
 import WatchButton from "./WatchButton";
-import { CHART_LESSONS } from "@/content/chartLessons";
 import { MASTER_BY_ID } from "@/content/masters";
 import { formatMetric } from "@/lib/format";
 import { METRIC_LABELS, type Company } from "@/lib/scores.types";
 import { NOTE_STATUS_LABEL, getNote, saveNote, type NoteStatus } from "@/lib/store";
 import { track } from "@/lib/analytics";
 
-type Lens = "business" | "chart" | "note";
+type Lens = "business" | "note";
 
 const LENS_LABEL: Record<Lens, string> = {
   business: "기업 관점",
-  chart: "차트 관점",
   note: "나의 학습노트",
 };
 
 const LENS_NOTE: Record<Lens, string> = {
   business: "어떤 기업을 관심 있게 볼 것인가 — 대가의 기준으로 이 회사를 훑어봅니다.",
-  chart: "현재 가격이 어떤 움직임을 보이고 있는가 — 차트에서 보이는 것만 읽습니다. 두 관점을 합쳐 하나의 매수 점수를 만들지 않습니다.",
-  note: "두 관점에서 확인한 것을 한자리에 모아 두고, 판단은 직접 기록합니다.",
+  note: "기업 관점에서 확인한 것을 기록해 두고, 판단은 직접 내립니다.",
 };
 
 export default function StockLenses({
@@ -59,7 +54,6 @@ export default function StockLenses({
       {lens === "business" && (
         <BusinessLens company={company} styleId={styleId} onStyleChange={setStyleId} />
       )}
-      {lens === "chart" && <ChartLens />}
       {lens === "note" && <NoteLens company={company} styleId={styleId} />}
 
       {lens === "business" && score && (
@@ -197,36 +191,10 @@ function BusinessLens({
   );
 }
 
-function ChartLens() {
-  return (
-    <>
-      <p style={{ color: "var(--ink-soft)", maxWidth: "62ch" }}>
-        차트 분석에는 종목명이나 티커를 넘기지 않습니다. 모델이 회사에 대해 알고 있는 것으로
-        전망을 덧붙이지 않고, 이미지에 보이는 것만 설명하게 하기 위해서입니다.
-      </p>
-      <div style={{ marginTop: "1.5rem" }}>
-        <ChartAnalyzer />
-      </div>
-      <h3 className="sub" style={{ marginTop: "2.5rem" }}>
-        차트를 읽는 순서
-      </h3>
-      <div className="grid">
-        {CHART_LESSONS.map((lesson) => (
-          <Link key={lesson.id} href={`/learn/chart/${lesson.id}`} className="card card-link">
-            <p className="eyebrow">{lesson.order}단원</p>
-            <strong>{lesson.title}</strong>
-          </Link>
-        ))}
-      </div>
-    </>
-  );
-}
-
 function NoteLens({ company, styleId }: { company: Company; styleId: string }) {
   const score = company.scores[styleId];
   const [why, setWhy] = useState("");
   const [questions, setQuestions] = useState("");
-  const [chartNote, setChartNote] = useState("");
   const [status, setStatus] = useState<NoteStatus>("first");
   const [savedAt, setSavedAt] = useState<string | null>(null);
 
@@ -236,7 +204,6 @@ function NoteLens({ company, styleId }: { company: Company; styleId: string }) {
       if (!alive || !existing) return;
       setWhy(existing.whyInterested);
       setQuestions(existing.openQuestions);
-      setChartNote(existing.chartObservations.join("\n"));
       setStatus(existing.status);
       setSavedAt(existing.updatedAt);
     });
@@ -257,15 +224,12 @@ function NoteLens({ company, styleId }: { company: Company; styleId: string }) {
       })),
       strengths: score?.reasons ?? [],
       risks: score?.risks ?? [],
-      chartObservations: chartNote.split("\n").filter(Boolean),
+      chartObservations: [],
       openQuestions: questions,
       status,
     });
     setSavedAt(note.updatedAt);
-    track("study_note_saved", {
-      ticker: company.ticker,
-      hasChartObservation: note.chartObservations.length > 0,
-    });
+    track("study_note_saved", { ticker: company.ticker });
   }
 
   return (
@@ -310,17 +274,7 @@ function NoteLens({ company, styleId }: { company: Company; styleId: string }) {
       </div>
 
       <label className="field">
-        <span>5. 차트에서 관찰한 내용</span>
-        <textarea
-          rows={4}
-          value={chartNote}
-          onChange={(e) => setChartNote(e.target.value)}
-          placeholder="차트 관점 탭의 분석 결과 중 남길 문장을 한 줄에 하나씩 옮겨 적으세요."
-        />
-      </label>
-
-      <label className="field">
-        <span>6. 추가로 확인할 질문</span>
+        <span>5. 추가로 확인할 질문</span>
         <textarea
           rows={3}
           value={questions}
@@ -331,7 +285,7 @@ function NoteLens({ company, styleId }: { company: Company; styleId: string }) {
 
       <fieldset style={{ border: 0, padding: 0, margin: "0 0 1.5rem" }}>
         <legend style={{ fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem" }}>
-          7. 나의 판단
+          6. 나의 판단
         </legend>
         {(Object.keys(NOTE_STATUS_LABEL) as NoteStatus[]).map((key) => (
           <button

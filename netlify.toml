@@ -29,13 +29,3 @@
 # 버전을 고정하지 않는다. Netlify가 빌드마다 최신으로 올려 준다.
 [[plugins]]
   package = "@netlify/plugin-nextjs"
-
-# 여기에 없지만 반드시 필요한 것 — NEXT_PUBLIC_CHART_API
-#
-# 이 값은 next.config.mjs가 빌드 시점에 브라우저 번들로 굽는다. Netlify UI의
-# 환경변수에 차트 분석 서비스(services/chart-api) 주소를 넣어야 한다. 넣지 않으면
-# 기본값 http://localhost:8000이 그대로 구워져서 방문자의 로컬을 호출하고,
-# https 사이트에서 http 요청이라 브라우저가 mixed content로 차단한다.
-#
-# 값을 이 파일에 적지 않는 이유는 환경마다 다르고, 지금은 chart-api를 어디에
-# 띄울지 정해지지 않았기 때문이다. 잘못된 주소를 굽는 것보다 비워 두는 편이 낫다.

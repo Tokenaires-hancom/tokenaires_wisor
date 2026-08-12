@@ -10,7 +10,7 @@ export type StockBasicsLesson = {
   quiz: QuizItem[];
 };
 
-/** 주식 기본개념 5단원. 차트 기초(chartLessons.ts)와 짝을 이루는 "기업 관점" 입문 트랙이다.
+/** 주식 기본개념 5단원. "기업 관점" 입문 트랙이다.
  *  듀오링고 스타일 퀴즈(components/DuoQuiz.tsx)와 함께 쓰인다. */
 export const STOCK_BASICS: StockBasicsLesson[] = [
   {

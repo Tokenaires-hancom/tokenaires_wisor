@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 const ITEMS = [
   { href: "/learn", label: "배우기" },
   { href: "/screener/buffett", label: "종목 찾기", match: "/screener" },
-  { href: "/practice", label: "차트 실습" },
   { href: "/me", label: "내 학습" },
 ];
 

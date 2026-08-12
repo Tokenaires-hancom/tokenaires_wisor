@@ -1,9 +1,8 @@
 # PR 자동검사
 #
-# 규칙으로 판단 가능한 것만 본다. develop과 병합 가능한지, 세 영역
-# (data-pipeline·chart-api·web)의 커밋 전 필수 명령을 PR마다 자동으로
-# 돌리고, 경계·번짐 지점 두 가지를 추가로 검사한다. 문구·원칙처럼 판단이
-# 필요한 것은 여기서 다루지 않는다
+# 규칙으로 판단 가능한 것만 본다. develop과 병합 가능한지, 두 영역
+# (data-pipeline·web)의 커밋 전 필수 명령을 PR마다 자동으로 돌리고, 경계
+# 검사를 추가로 한다. 문구·원칙처럼 판단이 필요한 것은 여기서 다루지 않는다
 # (docs/superpowers/specs/2026-08-11-pr-review-system-design.md 참고).
 #
 # 병합 가능 여부는 "지금" 기준이다. 이 PR을 연 뒤 다른 PR이 먼저 develop에
@@ -90,15 +89,6 @@ jobs:
         working-directory: data-pipeline
         run: python -m pytest -q | tee ../dp_test_output.txt
 
-      - name: chart-api 의존성
-        run: pip install -r services/chart-api/requirements.txt
-
-      - name: chart-api pytest -q
-        id: api_test
-        continue-on-error: true
-        working-directory: services/chart-api
-        run: python -m pytest -q | tee ../../api_test_output.txt
-
       - uses: actions/setup-node@v4
         with:
           # netlify.toml의 NODE_VERSION과 맞춘다. CI가 통과해도 배포 버전이
@@ -144,11 +134,6 @@ jobs:
         continue-on-error: true
         run: python scripts/pr_checks/boundary_check.py | tee boundary_check_output.txt
 
-      - name: 번짐 지점 검사 (차트 학습 단원 id)
-        id: ripple_check
-        continue-on-error: true
-        run: python scripts/pr_checks/ripple_check.py | tee ripple_check_output.txt
-
       - name: 결과 코멘트 게시
         if: always()
         env:
@@ -158,12 +143,10 @@ jobs:
           MARKER: "<!-- wisor-auto-checks -->"
           MERGE_CHECK: ${{ steps.merge_check.outcome }}
           DP_TEST: ${{ steps.dp_test.outcome }}
-          API_TEST: ${{ steps.api_test.outcome }}
           WEB_BUILD: ${{ steps.web_build.outcome }}
           BUNDLE_LEAK: ${{ steps.bundle_leak.outcome }}
           TSC_CHECK: ${{ steps.tsc_check.outcome }}
           BOUNDARY_CHECK: ${{ steps.boundary_check.outcome }}
-          RIPPLE_CHECK: ${{ steps.ripple_check.outcome }}
           FORMAT_CHECK: ${{ steps.format_check.outcome }}
         run: |
           mark() { [ "$1" = "success" ] && echo "✅ 통과" || echo "❌ 실패"; }
@@ -194,23 +177,19 @@ jobs:
             echo "|---|---|"
             echo "| develop 병합 가능 여부 | $(mark "$MERGE_CHECK") |"
             echo "| data-pipeline pytest -q | $(mark "$DP_TEST") |"
-            echo "| chart-api pytest -q | $(mark "$API_TEST") |"
             echo "| apps/web npm run build | $(mark "$WEB_BUILD") |"
             echo "| apps/web 번들 누출 검사 | $(mark "$BUNDLE_LEAK") |"
             echo "| apps/web npx tsc --noEmit | $(mark "$TSC_CHECK") |"
             echo "| 경계 검사 (lib/scores import) | $(mark "$BOUNDARY_CHECK") |"
-            echo "| 번짐 지점 (chartLessons ↔ LESSON_IDS ↔ EXPECTED_IDS) | $(mark "$RIPPLE_CHECK") |"
             echo "| PR 제목·본문 형식 (참고용, 병합 안 막음) | $(soft_mark "$FORMAT_CHECK") |"
             echo
 
             append_output "develop 병합 가능 여부" "$MERGE_CHECK" merge_check_output.txt
             append_output "data-pipeline pytest -q" "$DP_TEST" dp_test_output.txt
-            append_output "chart-api pytest -q" "$API_TEST" api_test_output.txt
             append_output "apps/web npm run build" "$WEB_BUILD" web_build_output.txt
             append_output "apps/web 번들 누출 검사" "$BUNDLE_LEAK" bundle_leak_output.txt
             append_output "apps/web npx tsc --noEmit" "$TSC_CHECK" tsc_check_output.txt
             append_output "경계 검사" "$BOUNDARY_CHECK" boundary_check_output.txt
-            append_output "번짐 지점 검사" "$RIPPLE_CHECK" ripple_check_output.txt
 
             if [ "$FORMAT_CHECK" != "success" ] && [ -f format_check_output.txt ]; then
               echo "**형식 확인 필요:**"
@@ -235,10 +214,8 @@ jobs:
         if: |
           steps.merge_check.outcome == 'failure' ||
           steps.dp_test.outcome == 'failure' ||
-          steps.api_test.outcome == 'failure' ||
           steps.web_build.outcome == 'failure' ||
           steps.bundle_leak.outcome == 'failure' ||
           steps.tsc_check.outcome == 'failure' ||
-          steps.boundary_check.outcome == 'failure' ||
-          steps.ripple_check.outcome == 'failure'
+          steps.boundary_check.outcome == 'failure'
         run: exit 1

@@ -16,7 +16,6 @@ lib/generated/scores.json   ← data-pipeline/run_batch.py가 만든다. 손으�
 lib/scores.ts               ← 서버 전용. 데이터 조회 함수
 lib/scores.types.ts         ← 클라이언트 안전. 타입과 라벨만
 content/masters.ts          ← 대가 3명 학습 콘텐츠 + 퀴즈
-content/chartLessons.ts     ← 차트 5단원 + 퀴즈
 lib/store.ts                ← 사용자 데이터 저장. Supabase 교체 지점
 lib/analytics.ts            ← 측정 이벤트
 ```
@@ -61,13 +60,9 @@ lib/analytics.ts            ← 측정 이벤트
 
 `components/CriteriaBar.tsx`는 이 제품의 정체성입니다. 큰 점수 숫자가 주인공이 되지 않도록 만든 것이므로, 점수를 더 크게 강조하거나 기준 막대를 빼는 방향의 변경은 하지 않습니다.
 
-## 종목 상세의 세 렌즈
+## 종목 상세의 두 관점
 
-`components/StockLenses.tsx`는 기업 관점 / 차트 관점 / 학습노트를 탭으로 분리합니다.
-
-**두 관점을 합친 종합 점수를 만들지 않습니다.** 이건 제품 원칙 1번이고, 탭을 나눈 이유 자체입니다.
-
-차트 관점 탭에서 분석기를 부를 때 **종목명·티커를 넘기지 않습니다.** `ChartAnalyzer`가 티커를 받지 않는 것은 실수가 아닙니다.
+`components/StockLenses.tsx`는 기업 관점 / 학습노트를 탭으로 분리합니다.
 
 ## 문구
 
