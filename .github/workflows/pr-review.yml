@@ -1,9 +1,16 @@
 # PR 자동검사
 #
-# 규칙으로 판단 가능한 것만 본다. 세 영역(data-pipeline·chart-api·web)의
-# 커밋 전 필수 명령을 PR마다 자동으로 돌리고, 경계·번짐 지점 두 가지를
-# 추가로 검사한다. 문구·원칙처럼 판단이 필요한 것은 여기서 다루지 않는다
+# 규칙으로 판단 가능한 것만 본다. develop과 병합 가능한지, 세 영역
+# (data-pipeline·chart-api·web)의 커밋 전 필수 명령을 PR마다 자동으로
+# 돌리고, 경계·번짐 지점 두 가지를 추가로 검사한다. 문구·원칙처럼 판단이
+# 필요한 것은 여기서 다루지 않는다
 # (docs/superpowers/specs/2026-08-11-pr-review-system-design.md 참고).
+#
+# 병합 가능 여부는 "지금" 기준이다. 이 PR을 연 뒤 다른 PR이 먼저 develop에
+# 들어가면서 같은 자리를 건드리면 사후적으로 충돌이 생길 수 있고, 그건 이
+# PR에 새 커밋이 push될 때(= 이 워크플로가 다시 돌 때)까지는 못 잡는다.
+# 동시에 열린 두 PR끼리의 충돌은 어느 한쪽도 아직 develop에 없으므로 원천적으로
+# 못 잡는다.
 #
 # 결과는 코멘트 하나로만 남긴다. push마다 새 코멘트를 달면 코멘트가 쌓여서
 # 정작 중요한 걸 찾기 어려워지므로, 숨김 마커로 기존 코멘트를 찾아 고쳐 쓴다.
@@ -37,6 +44,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: develop 병합 가능 여부 검사
+        id: merge_check
+        continue-on-error: true
+        # PR을 열 때는 안 겹쳤어도, 그 뒤 다른 PR이 먼저 develop에 들어가면서
+        # 같은 자리를 건드리면 사후적으로 충돌이 생긴다(예: PR #13). 이 저장소
+        # 다른 검사는 전부 "PR 브랜치 자체"만 보고 develop과 실제로 합쳐보지
+        # 않으므로, 이 단계 없이는 아무도 못 잡는다. 뒤 단계(빌드·테스트)에
+        # 영향 안 주도록 병합 시도 후 반드시 원래 커밋으로 되돌린다.
+        run: |
+          set +e
+          HEAD_SHA=$(git rev-parse HEAD)
+          git fetch --unshallow origin 2>/dev/null
+          git fetch origin develop
+          git merge --no-commit --no-ff origin/develop > merge_check_output.txt 2>&1
+          STATUS=$?
+          if [ $STATUS -ne 0 ]; then
+            echo >> merge_check_output.txt
+            echo "충돌 파일:" >> merge_check_output.txt
+            git diff --name-only --diff-filter=U >> merge_check_output.txt
+          fi
+          git merge --abort 2>/dev/null
+          git reset --hard "$HEAD_SHA" > /dev/null
+          exit $STATUS
 
       - uses: actions/setup-python@v5
         with:
@@ -125,6 +156,7 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
           MARKER: "<!-- wisor-auto-checks -->"
+          MERGE_CHECK: ${{ steps.merge_check.outcome }}
           DP_TEST: ${{ steps.dp_test.outcome }}
           API_TEST: ${{ steps.api_test.outcome }}
           WEB_BUILD: ${{ steps.web_build.outcome }}
@@ -160,6 +192,7 @@ jobs:
             echo
             echo "| 항목 | 결과 |"
             echo "|---|---|"
+            echo "| develop 병합 가능 여부 | $(mark "$MERGE_CHECK") |"
             echo "| data-pipeline pytest -q | $(mark "$DP_TEST") |"
             echo "| chart-api pytest -q | $(mark "$API_TEST") |"
             echo "| apps/web npm run build | $(mark "$WEB_BUILD") |"
@@ -170,6 +203,7 @@ jobs:
             echo "| PR 제목·본문 형식 (참고용, 병합 안 막음) | $(soft_mark "$FORMAT_CHECK") |"
             echo
 
+            append_output "develop 병합 가능 여부" "$MERGE_CHECK" merge_check_output.txt
             append_output "data-pipeline pytest -q" "$DP_TEST" dp_test_output.txt
             append_output "chart-api pytest -q" "$API_TEST" api_test_output.txt
             append_output "apps/web npm run build" "$WEB_BUILD" web_build_output.txt
@@ -199,6 +233,7 @@ jobs:
 
       - name: 위반 있으면 실패로 표시
         if: |
+          steps.merge_check.outcome == 'failure' ||
           steps.dp_test.outcome == 'failure' ||
           steps.api_test.outcome == 'failure' ||
           steps.web_build.outcome == 'failure' ||
