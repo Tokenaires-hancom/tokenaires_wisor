@@ -52,31 +52,33 @@ export default async function ChapterPage({
     : 0;
 
   return (
-    <div className="wrap wrap-narrow" style={{ paddingBlock: "3.5rem 5rem" }}>
-      <Link
-        href={`/learn/masters/${master.id}`}
-        className="card card-link"
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "0.6rem",
-          padding: "0.7rem 1rem",
-          width: "fit-content",
-        }}
-      >
-        <span aria-hidden="true">←</span>
-        <strong style={{ fontSize: "0.9rem" }}>{master.name} 목차</strong>
-      </Link>
+    <div className="wrap chapter-page" style={{ paddingBlock: "3.5rem 5rem" }}>
+      <div className="chapter-page-copy">
+        <Link
+          href={`/learn/masters/${master.id}`}
+          className="card card-link"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.6rem",
+            padding: "0.7rem 1rem",
+            width: "fit-content",
+          }}
+        >
+          <span aria-hidden="true">←</span>
+          <strong style={{ fontSize: "0.9rem" }}>{master.name} 목차</strong>
+        </Link>
 
-      <p className="eyebrow" style={{ marginTop: "1.25rem" }}>
-        {master.name} · {slot.no}장 {slot.label} / {curriculum.chapters.length}
-      </p>
+        <p className="eyebrow" style={{ marginTop: "1.25rem" }}>
+          {master.name} · {slot.no}장 {slot.label} / {curriculum.chapters.length}
+        </p>
 
-      <h1 className="chapter-title">{chapter.title}</h1>
-      <p className="chapter-lede">{chapter.lede}</p>
-      <p className="lede">{slot.asks}</p>
+        <h1 className="chapter-title">{chapter.title}</h1>
+        <p className="chapter-lede">{chapter.lede}</p>
+        <p className="lede">{slot.asks}</p>
 
-      <hr className="rule" />
+        <hr className="rule" />
+      </div>
 
       <ChapterExercises
         chapterId={`master:${master.id}:${slot.no}`}
@@ -88,7 +90,7 @@ export default async function ChapterPage({
         masterId={master.id}
       />
 
-      <p className="disclaimer">{curriculum.currency}</p>
+      <p className="disclaimer chapter-page-copy">{curriculum.currency}</p>
     </div>
   );
 }

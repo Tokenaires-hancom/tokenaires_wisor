@@ -17,7 +17,7 @@ export default async function MasterLesson({ params }: { params: Promise<{ slug:
   const meta = styleMeta(master.id);
 
   return (
-    <div className="wrap" style={{ paddingBlock: "3rem 5rem" }}>
+    <div className="wrap master-page">
       <div className="master-shell">
         <nav className="master-rail" aria-label="다른 대가로 이동">
           {MASTERS.map((m) => (

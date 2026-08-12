@@ -52,7 +52,13 @@ export default function MasterCarousel() {
         <span aria-hidden="true">←</span>
       </button>
 
-      <ul ref={trackRef} className="master-carousel-track" onScroll={updateActive}>
+      <ul
+        ref={trackRef}
+        className="master-carousel-track"
+        data-at-start={range.start === 0 ? "true" : undefined}
+        data-at-end={atEnd ? "true" : undefined}
+        onScroll={updateActive}
+      >
         {MASTERS.map((master) => {
           const featured = master.id === "buffett";
           return (

@@ -7,7 +7,6 @@ export default function LearnIndex() {
     <div className="wrap learn-page">
       <div className="learn-page-header">
         <div>
-          <p className="eyebrow">배우기</p>
           <h1 className="thesis">누구의 눈으로 기업을 볼까요</h1>
         </div>
       </div>
