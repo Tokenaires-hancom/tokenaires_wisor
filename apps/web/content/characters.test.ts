@@ -23,12 +23,12 @@ test("캐릭터가 없으면 전신 경로도 null", () => {
   assert.equal(characterStand("graham"), null);
 });
 
-test("기분별 GIF 경로", () => {
-  assert.equal(characterMood("buffett", "great"), "/characters/buffett/great.gif");
-  assert.equal(characterMood("buffett", "nope"), "/characters/buffett/nope.gif");
-  assert.equal(characterMood("buffett", "guide"), "/characters/buffett/guide.gif");
-  assert.equal(characterMood("buffett", "proud"), "/characters/buffett/proud.gif");
-  assert.equal(characterMood("buffett", "aha"), "/characters/buffett/aha.gif");
+test("기분별 애니메이션 경로", () => {
+  assert.equal(characterMood("buffett", "great"), "/characters/buffett/great.webp");
+  assert.equal(characterMood("buffett", "nope"), "/characters/buffett/nope.webp");
+  assert.equal(characterMood("buffett", "guide"), "/characters/buffett/guide.webp");
+  assert.equal(characterMood("buffett", "proud"), "/characters/buffett/proud.webp");
+  assert.equal(characterMood("buffett", "aha"), "/characters/buffett/aha.webp");
 });
 
 test("캐릭터가 없으면 기분 경로도 null", () => {

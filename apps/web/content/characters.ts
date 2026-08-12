@@ -20,5 +20,5 @@ export function characterStand(id: string): string | null {
 }
 
 export function characterMood(id: string, mood: CharacterMood): string | null {
-  return hasCharacter(id) ? `/characters/${id}/${mood}.gif` : null;
+  return hasCharacter(id) ? `/characters/${id}/${mood}.webp` : null;
 }

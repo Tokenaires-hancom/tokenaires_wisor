@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 import MasterCharacter from "@/components/MasterCharacter";
 import { CHAPTER_SLOTS, CURRICULUM_BY_MASTER } from "@/content/curriculum";
 import { MASTER_BY_ID, type Master } from "@/content/masters";
-import { getProgress } from "@/lib/store";
+import { getCharacterAnchor } from "@/lib/masterPathAnchor";
+import { getProgress, resetMasterProgress } from "@/lib/store";
 
 const SWAY = [0, 48, 72, 48, 0];
 
@@ -43,6 +44,7 @@ export default function MasterPath({
 
   const nextNo = CHAPTER_SLOTS.find((slot) => !done.has(slot.no))?.no;
   const allDone = ready && nextNo === undefined;
+  const isResume = ready && done.size > 0 && !allDone;
 
   // 진도를 읽기 전(첫 페인트)엔 '처음 오는 사람' 기준으로 보여준다. 진도가
   // 있는 재방문자는 읽힌 직후 '이어서 하기'로 한 번 바뀐다 — 체크 표시도
@@ -55,7 +57,17 @@ export default function MasterPath({
       ? { href: `/learn/masters/${masterId}/${nextNo}`, label: `${nextNo}장부터 이어서 하기` }
       : { href: `/learn/masters/${masterId}/1`, label: "1장부터 시작하기" };
 
-  const figureAt = nextNo ?? CHAPTER_SLOTS[CHAPTER_SLOTS.length - 1].no;
+  const figureAt = getCharacterAnchor(nextNo);
+
+  async function restartLearning() {
+    const confirmed = window.confirm(
+      `${master.name} 학습을 처음부터 다시 시작할까요? 완료 상태와 퀴즈 결과만 초기화되며 기록형 답변은 유지됩니다.`,
+    );
+    if (!confirmed) return;
+    await resetMasterProgress(masterId);
+    setDone(new Set());
+    setReady(true);
+  }
 
   return (
     <div className="path-shell">
@@ -68,6 +80,7 @@ export default function MasterPath({
             <li
               key={slot.no}
               className="path-row"
+              data-current={isCurrent ? "true" : undefined}
               style={{ "--sway": `${SWAY[index % SWAY.length]}px` } as React.CSSProperties}
             >
               {isCurrent && (
@@ -93,19 +106,42 @@ export default function MasterPath({
                 <span className="path-label-title">{chapter.title}</span>
               </span>
               {slot.no === figureAt && (
-                <span className="path-figure">
+                <span className="path-figure" data-anchor={figureAt}>
+                  {cta && !allDone && (
+                    <Link
+                      href={cta.href}
+                      className="path-guide-cta"
+                      data-resume={isResume ? "true" : undefined}
+                    >
+                      {cta.label}
+                    </Link>
+                  )}
                   <MasterCharacter masterId={masterId} height={170} dimmed={!ready} />
                 </span>
+              )}
+              {isCurrent && cta && (
+                <Link
+                  href={cta.href}
+                  className="btn path-cta-mobile"
+                  data-resume={isResume ? "true" : undefined}
+                >
+                  {cta.label}
+                </Link>
               )}
             </li>
           );
         })}
       </ol>
 
-      {cta && (
+      {allDone && cta && (
         <Link href={cta.href} className="btn path-cta">
           {cta.label}
         </Link>
+      )}
+      {ready && done.size > 0 && (
+        <button type="button" className="path-restart" onClick={restartLearning}>
+          처음부터 학습하기
+        </button>
       )}
     </div>
   );
