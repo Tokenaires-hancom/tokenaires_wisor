@@ -1863,11 +1863,11 @@ h3.sub {
   opacity: 0.45;
 }
 
-/* ---------- 대가 선택 카드 레일 ---------- */
+/* ---------- 대가 선택 그리드 ---------- */
 
 .learn-page {
   max-width: 1440px;
-  padding-block: 3.75rem 5rem;
+  padding-block: 2.5rem 5rem;
 }
 
 body:has(.learn-page) .masthead-inner {
@@ -1878,115 +1878,121 @@ body:has(.learn-page) .masthead-inner {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-items: start;
-  margin-bottom: 0.5rem;
+  margin-bottom: 2rem;
 }
 
-.learn-selection {
+.master-grid {
   position: relative;
 }
 
-.learn-tools {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 250px));
-  gap: 0.65rem;
-  margin-bottom: 3rem;
+/* 리본은 그리드 상자에 정확히 겹쳐 늘어난다. 카드가 위에 얹히므로
+ * 실제로 보이는 곳은 카드 사이 틈과 2행 좌우의 빈 자리다. */
+.master-grid-ribbon {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
 }
 
-.learn-tool {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 48px;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: 0 3px 0 var(--line);
-  color: var(--ink);
-  font: inherit;
-  font-size: 0.9rem;
-  font-weight: 750;
-  text-align: left;
-  cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+.master-grid-ribbon-path {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 7 9;
+  opacity: 0.55;
+  animation: wisor-ribbon-flow 1.8s linear infinite;
 }
 
-.learn-tool-arrow {
-  color: var(--wine);
+.master-grid-ribbon-arrow {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.9;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: wisor-ribbon-arrow-float 1.8s ease-in-out infinite;
 }
 
-.learn-tool:hover,
-.learn-tool:focus-visible {
-  border-color: var(--wine);
-  color: var(--wine);
-}
-
-.learn-tool:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--line);
-}
-
-.master-carousel {
-  position: relative;
-  padding-bottom: 2rem;
-}
-
-.master-carousel-track {
-  --fade: 64px;
-  display: flex;
-  gap: 1rem;
-  list-style: none;
-  margin: 0;
-  padding: 0.25rem 0 0.75rem;
-  overflow-x: auto;
-  overscroll-behavior-inline: contain;
-  scroll-behavior: smooth;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  /* 잘려 보이는 마지막 카드를 "더 있다"는 신호로 바꾼다. 시작/끝에서는
-   * 그쪽 방향으로 더 볼 게 없으므로 흐림을 뺀다 — 화살표 disabled 상태와
-   * 같은 조건(data-at-start / data-at-end)을 그대로 쓴다. */
-  mask-image: linear-gradient(
-    to right,
-    transparent,
-    black var(--fade),
-    black calc(100% - var(--fade)),
-    transparent
-  );
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent,
-    black var(--fade),
-    black calc(100% - var(--fade)),
-    transparent
-  );
-}
-
-.master-carousel-track[data-at-start="true"] {
-  mask-image: linear-gradient(to right, black calc(100% - var(--fade)), transparent);
-  -webkit-mask-image: linear-gradient(to right, black calc(100% - var(--fade)), transparent);
-}
-
-.master-carousel-track[data-at-end="true"] {
-  mask-image: linear-gradient(to right, transparent, black var(--fade));
-  -webkit-mask-image: linear-gradient(to right, transparent, black var(--fade));
-}
-
-.master-carousel-track[data-at-start="true"][data-at-end="true"] {
-  mask-image: none;
-  -webkit-mask-image: none;
-}
-
-.master-carousel-track::-webkit-scrollbar {
+.master-grid-ribbon-arrow[data-shape="medium"],
+.master-grid-ribbon-arrow[data-shape="narrow"] {
   display: none;
 }
 
-.master-carousel-item {
-  flex: 0 0 336px;
-  scroll-snap-align: start;
+@keyframes wisor-ribbon-flow {
+  to {
+    stroke-dashoffset: -32;
+  }
+}
+
+@keyframes wisor-ribbon-arrow-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(5px);
+  }
+}
+
+/* 무한 반복이라 움직임을 꺼 달라고 한 사용자에게는 멈춘 점선만 남긴다. */
+@media (prefers-reduced-motion: reduce) {
+  .master-grid-ribbon-path {
+    animation: none;
+  }
+
+  .master-grid-ribbon-arrow {
+    animation: none;
+  }
+}
+
+.master-grid-ribbon-path[data-shape="narrow"],
+.master-grid-ribbon-path[data-shape="medium"] {
+  display: none;
+}
+
+/* 8열로 잡는 이유: 1행은 카드 4장(각 2열)이고, 2행 3장을 가운데 두려면
+ * 한 칸의 절반만큼 밀어야 하는데 4열 격자에서는 그 자리가 안 나온다. */
+.master-grid-list {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  column-gap: 20px;
+  row-gap: 36px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.master-grid-item {
+  grid-column: span 2;
+}
+
+/* 2행은 오른쪽에서 왼쪽으로 읽는다. 리본이 1행 오른쪽 끝에서 내려와
+ * 되돌아오기 때문에, DOM 순서(피셔·그린블랫·소로스)대로 놓으면
+ * 리본이 가리키는 방향과 카드 순서가 어긋난다. */
+.master-grid-item:nth-child(5) {
+  grid-column: 6 / span 2;
+  grid-row: 2;
+}
+
+.master-grid-item:nth-child(6) {
+  grid-column: 4 / span 2;
+  grid-row: 2;
+}
+
+.master-grid-item:nth-child(7) {
+  grid-column: 2 / span 2;
+  grid-row: 2;
 }
 
 .master-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -1995,7 +2001,7 @@ body:has(.learn-page) .masthead-inner {
   border-radius: var(--radius);
   background: var(--surface);
   box-shadow: 0 4px 0 var(--line);
-  min-height: 560px;
+  min-height: 320px;
   transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -2010,14 +2016,37 @@ body:has(.learn-page) .masthead-inner {
   box-shadow: 0 2px 0 var(--gold-line);
 }
 
-/* 캐릭터가 아래 가장자리에 발을 딛고 선다 */
+/* 동일한 4:3 아트 프레임이 전신·원형 초상화의 시각적 체급을 맞춘다. */
 .master-card-art {
+  position: relative;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
-  height: 390px;
+  aspect-ratio: 4 / 3;
+  width: 100%;
   background: var(--surface);
   overflow: hidden;
+}
+
+.master-card-sequence {
+  position: absolute;
+  z-index: 2;
+  top: 0.85rem;
+  left: 0.9rem;
+  display: grid;
+  place-items: center;
+  min-width: 2.25rem;
+  height: 1.75rem;
+  padding-inline: 0.45rem;
+  border: 1px solid color-mix(in srgb, var(--gold) 60%, var(--surface));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  color: var(--gold-deep);
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  backdrop-filter: blur(5px);
 }
 
 .master-card[data-featured="true"] {
@@ -2027,27 +2056,37 @@ body:has(.learn-page) .masthead-inner {
 
 .master-card-main-character {
   width: 100%;
-  height: calc(100% - 12px);
-  margin-top: 12px;
-  object-fit: contain;
-  object-position: center bottom;
+  height: 100%;
+  object-fit: cover;
+  /* 원본 842×1264에서 머리 위 여백을 조금 더 남긴다. 얼굴과 양 어깨를 남기고
+   * 하체를 덜어 전신 이미지 특유의 좌우 공백을 없앤다. */
+  object-position: center 6%;
 }
 
 .master-card-portrait {
-  width: 180px;
-  height: 180px;
-  margin-bottom: 3rem;
+  width: 148px;
+  height: 148px;
+  margin-bottom: 0;
   border-radius: 50%;
   object-fit: cover;
   box-shadow: 0 0 0 8px var(--surface), 0 4px 0 8px var(--line);
 }
 
 .master-card-body {
+  position: absolute;
+  z-index: 3;
+  right: 0;
+  bottom: 0;
+  left: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 0.4rem;
   padding: 1.1rem 1.2rem 1.35rem;
+  border-top: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 96%, transparent);
+  backdrop-filter: blur(8px);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .master-card-name {
@@ -2058,108 +2097,234 @@ body:has(.learn-page) .masthead-inner {
 }
 
 .master-card-line {
+  max-height: 0;
+  margin-top: -0.4rem;
+  overflow: hidden;
   color: var(--ink-soft);
   font-size: 0.9rem;
   line-height: 1.55;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: max-height 0.2s ease, margin-top 0.2s ease, opacity 0.16s ease,
+    transform 0.2s ease;
   word-break: keep-all;
 }
 
-.master-carousel-arrow {
-  position: absolute;
-  z-index: 2;
-  top: 196px;
-  display: grid;
-  place-items: center;
-  width: 46px;
-  height: 46px;
-  border: 2px solid var(--gold-line);
-  border-radius: 50%;
-  background: var(--surface);
-  box-shadow: 0 3px 0 var(--line-strong);
-  color: var(--ink);
-  font-size: 1.1rem;
-  opacity: 0.35;
-  transform: translateY(-50%);
-  transition: opacity 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+.master-card:hover .master-card-body,
+.master-card:focus-visible .master-card-body {
+  border-top-color: var(--gold-line);
+  box-shadow: 0 -10px 24px color-mix(in srgb, var(--ink) 8%, transparent);
 }
 
-.master-carousel-arrow[data-side="prev"] {
-  left: -22px;
-}
-
-.master-carousel-arrow[data-side="next"] {
-  right: -22px;
-}
-
-.master-carousel:hover .master-carousel-arrow:not(:disabled),
-.master-carousel:focus-within .master-carousel-arrow:not(:disabled),
-.master-carousel-arrow:focus-visible {
+.master-card:hover .master-card-line,
+.master-card:focus-visible .master-card-line {
+  max-height: 5rem;
+  margin-top: 0;
   opacity: 1;
+  transform: translateY(0);
 }
 
-.master-carousel-arrow:hover:not(:disabled) {
-  transform: translateY(-50%) scale(1.06);
+/* 중간 폭에서는 4:3 프레임의 직선 크롭이 버핏의 허리를 자르는 듯 보인다.
+ * 원본 전신을 카드 전체 높이에 유지하고 정보 패널이 하반신을 서서히 덮게 해
+ * 이미지 자체의 절단선 대신 자연스러운 깊이감으로 마감한다. */
+@media (min-width: 641px) and (max-width: 1400px) {
+  .master-card[data-featured="true"] .master-card-art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+  }
+
+  .master-card[data-featured="true"] .master-card-main-character {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center top;
+  }
+
+  .master-card[data-featured="true"] .master-card-body {
+    padding-top: 1.65rem;
+    border-top: 0;
+    background: linear-gradient(
+      to bottom,
+      transparent 0,
+      color-mix(in srgb, var(--surface) 84%, transparent) 1.45rem,
+      var(--surface) 2.55rem
+    );
+    backdrop-filter: none;
+  }
+
+  .master-card[data-featured="true"]:hover .master-card-body,
+  .master-card[data-featured="true"]:focus-visible .master-card-body {
+    box-shadow: none;
+  }
 }
 
-.master-carousel-arrow:active:not(:disabled) {
-  transform: translateY(calc(-50% + 2px));
-  box-shadow: 0 1px 0 var(--line-strong);
-}
+@media (max-width: 900px) {
+  .master-grid-ribbon-path[data-shape="wide"] {
+    display: none;
+  }
 
-.master-carousel-arrow:disabled {
-  cursor: default;
-  opacity: 0;
-}
+  .master-grid-ribbon-path[data-shape="medium"] {
+    display: block;
+  }
 
-.master-carousel-progress {
-  margin: 0.45rem 0 0;
-  color: var(--ink-faint);
-  font-family: var(--mono);
-  font-size: 0.8rem;
-  text-align: center;
-}
+  .master-grid-ribbon-arrow[data-shape="wide"] {
+    display: none;
+  }
 
-.master-carousel-progress strong {
-  color: var(--wine);
+  .master-grid-ribbon-arrow[data-shape="medium"] {
+    display: block;
+  }
+
+  .master-grid-list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    row-gap: 56px;
+  }
+
+  .master-grid-item,
+  .master-grid-item:nth-child(5),
+  .master-grid-item:nth-child(6),
+  .master-grid-item:nth-child(7) {
+    grid-column: span 2;
+    grid-row: auto;
+  }
+
+  .master-card {
+    min-height: 330px;
+  }
+
+  .master-card-portrait {
+    width: 128px;
+    height: 128px;
+    margin-bottom: 0;
+  }
 }
 
 @media (max-width: 640px) {
   .learn-page {
-    padding-block: 2.5rem 4rem;
+    padding-block: 1.75rem 2rem;
   }
 
   .learn-page-header {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
   }
 
-  .learn-tools {
-    grid-template-columns: 1fr;
-    margin-bottom: 2rem;
+  .master-grid-ribbon-path[data-shape="wide"] {
+    display: none;
   }
 
-  .master-carousel-track {
-    margin-inline: -1rem;
-    padding-inline: 1rem;
-    scroll-padding-inline: 1rem;
+  .master-grid-ribbon-path[data-shape="narrow"] {
+    display: block;
   }
 
-  .master-carousel-item {
-    flex-basis: 86vw;
+  .master-grid-ribbon-path[data-shape="medium"] {
+    display: none;
+  }
+
+  .master-grid-ribbon-arrow[data-shape="medium"] {
+    display: none;
+  }
+
+  .master-grid-ribbon-arrow[data-shape="narrow"] {
+    display: block;
+  }
+
+  .master-grid-list {
+    row-gap: 14px;
+    column-gap: 12px;
+  }
+
+  /* 일곱 번째 카드가 마지막 줄에 혼자 남는다. 두 열에 걸치게 두면
+   * 폭만 넓어져 다른 카드와 달라 보이므로, 오른쪽 절반 자리에 놓아
+   * 가운데로 오게 한다. */
+  .master-grid-item:nth-child(7) {
+    grid-column: 2 / span 2;
   }
 
   .master-card {
-    min-height: 460px;
+    height: 140px;
+    min-height: 140px;
   }
 
   .master-card-art {
-    height: 300px;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
   }
 
-  .master-carousel-arrow {
-    display: none;
+  .master-card-portrait {
+    width: 72px;
+    height: 72px;
+    margin-bottom: 0;
+    box-shadow: 0 0 0 4px var(--surface), 0 3px 0 4px var(--line);
+    transform: translateY(-22px);
+  }
+
+  .master-card-body {
+    position: absolute;
+    padding: 0.5rem 0.65rem 0.6rem;
+    gap: 0.22rem;
+    border-top-color: var(--line);
+    background: color-mix(in srgb, var(--surface) 97%, transparent);
+    backdrop-filter: blur(8px);
+  }
+
+  .master-card-sequence {
+    top: 0.5rem;
+    left: 0.5rem;
+    min-width: 1.8rem;
+    height: 1.45rem;
+    padding-inline: 0.35rem;
+    font-size: 0.65rem;
+  }
+
+  .master-card .style-name {
+    padding: 0.28rem 0.42rem;
+    font-size: 0.58rem;
+  }
+
+  .master-card-name {
+    font-size: 0.82rem;
+  }
+
+  .master-card-line {
+    font-size: 0.68rem;
+    line-height: 1.35;
   }
 }
+
+@media (max-width: 400px) {
+  .learn-page {
+    padding-top: 1.25rem;
+  }
+
+  .learn-page-header {
+    margin-bottom: 1rem;
+  }
+
+  .master-grid-list {
+    row-gap: 10px;
+  }
+
+  .master-card {
+    height: 136px;
+    min-height: 136px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .master-card-body,
+  .master-card-line {
+    transition: none;
+  }
+}
+
 
 /* ---------- 유닛 배너 ---------- */
 
