@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import MasterPath from "@/components/MasterPath";
+import MobileMasterDock from "@/components/MobileMasterDock";
 import { MASTERS, MASTER_BY_ID, type Master } from "@/content/masters";
 import { styleMeta } from "@/lib/scores";
 
@@ -34,6 +35,8 @@ export default async function MasterLesson({ params }: { params: Promise<{ slug:
             </Link>
           ))}
         </nav>
+
+        <MobileMasterDock currentId={master.id} />
 
         <div className="master-main">
           <div className="unit-banner">

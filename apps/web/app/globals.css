@@ -1785,25 +1785,9 @@ h3.sub {
     gap: 1rem;
   }
 
+  /* 좁은 화면에서는 7명을 다 늘어놓는 대신 MobileMasterDock(왼쪽 아래
+   * 떠 있는 버튼)이 그 역할을 한다 — 데스크톱 레일은 숨긴다. */
   .master-rail {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    gap: clamp(1rem, 4vw, 1.5rem);
-    width: 100%;
-    margin-left: 0;
-    padding: 0.85rem 1rem 2rem;
-    overflow-x: auto;
-    border-right: none;
-    border-bottom: 1px solid var(--line);
-    scrollbar-width: none;
-  }
-
-  .master-rail::after {
-    display: none;
-  }
-
-  .master-rail::-webkit-scrollbar {
     display: none;
   }
 
@@ -1816,6 +1800,108 @@ h3.sub {
   .master-page {
     padding-top: 0.75rem;
   }
+}
+
+.mobile-master-dock {
+  display: none;
+}
+@media (max-width: 640px) {
+  .mobile-master-dock {
+    display: block;
+    position: fixed;
+    left: 1.25rem;
+    bottom: 1.25rem;
+    z-index: 40;
+  }
+}
+
+/* 목록이 펼쳐지면 뒤 페이지를 어둡게 깔아서 경로 카드와 겹쳐 보이지
+ * 않게 하고, 바깥을 누르면 닫히게 한다. */
+.mobile-master-dock-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 39;
+  background: rgba(20, 16, 14, 0.4);
+  border: none;
+  padding: 0;
+  cursor: default;
+}
+
+.mobile-master-dock-toggle {
+  position: relative;
+  z-index: 41;
+  display: block;
+  padding: 0;
+  border: 3px solid var(--wine-line);
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 8px 20px rgba(27, 23, 32, 0.22);
+  cursor: pointer;
+}
+.mobile-master-dock-toggle img {
+  display: block;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.mobile-master-dock-list {
+  position: relative;
+  z-index: 41;
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.mobile-master-dock-item {
+  position: relative;
+  z-index: 1;
+  display: block;
+  border-radius: 50%;
+}
+.mobile-master-dock-item:hover,
+.mobile-master-dock-item:focus {
+  z-index: 2;
+}
+.mobile-master-dock-item img {
+  display: block;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(27, 23, 32, 0.2);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.mobile-master-dock-item:hover img,
+.mobile-master-dock-item:focus img {
+  transform: scale(1.4);
+  box-shadow: 0 6px 14px rgba(27, 23, 32, 0.26);
+}
+
+/* 데스크톱 레일의 이름표(.master-rail-name)와 같은 패턴 — 여기서는
+ * 목록이 세로라 아래가 아니라 오른쪽에 띄운다. */
+.mobile-master-dock-name {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 0.6rem;
+  padding: 0.2rem 0.5rem;
+  background: var(--ink);
+  color: #fff;
+  font-size: 0.72rem;
+  white-space: nowrap;
+  border-radius: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+.mobile-master-dock-item:hover .mobile-master-dock-name,
+.mobile-master-dock-item:focus .mobile-master-dock-name {
+  opacity: 1;
 }
 
 .master-tips {
