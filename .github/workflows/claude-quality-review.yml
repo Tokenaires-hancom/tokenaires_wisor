@@ -1,0 +1,36 @@
+# 학습 코드 품질 리뷰
+#
+# CLAUDE.md 규칙과는 무관하게, 버그·비효율·이름 짓기 같은 일반적인 코드
+# 품질을 다룬다. rules-review와 완전히 별도 코멘트로 남는다. 프롬프트 본문은
+# .github/claude/quality-review-prompt.md에 있다.
+
+name: Claude 학습 코드 품질 리뷰
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
+
+jobs:
+  claude-quality-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude 학습 코드 품질 리뷰
+        id: claude-quality-review
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            저장소 루트의 .github/claude/quality-review-prompt.md 파일을 읽고,
+            그 지침을 그대로 따라 이 PR을 리뷰하세요.
+            리뷰 대상 PR: ${{ github.repository }}/pull/${{ github.event.pull_request.number }}

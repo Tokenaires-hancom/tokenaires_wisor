@@ -1,0 +1,38 @@
+# CLAUDE.md 규칙 리뷰
+#
+# docs/superpowers/specs/2026-08-11-pr-review-system-design.md "3. Claude 의미
+# 리뷰 레이어" 참고. 규칙 기반 자동검사(pr-review.yml)와는 별개로, 판단이
+# 필요한 것만 본다 — 세 가지 핵심 원칙, 문장 규칙, 경계. 프롬프트 본문은
+# .github/claude/rules-review-prompt.md에 있다(사람이 읽고 고치기 쉽게 분리).
+
+name: Claude 규칙 리뷰
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
+
+jobs:
+  claude-rules-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude 규칙 리뷰
+        id: claude-rules-review
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            저장소 루트의 .github/claude/rules-review-prompt.md 파일을 읽고,
+            그 지침을 그대로 따라 이 PR을 리뷰하세요.
+            리뷰 대상 PR: ${{ github.repository }}/pull/${{ github.event.pull_request.number }}
+
