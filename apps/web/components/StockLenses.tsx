@@ -224,7 +224,6 @@ function NoteLens({ company, styleId }: { company: Company; styleId: string }) {
       })),
       strengths: score?.reasons ?? [],
       risks: score?.risks ?? [],
-      chartObservations: [],
       openQuestions: questions,
       status,
     });

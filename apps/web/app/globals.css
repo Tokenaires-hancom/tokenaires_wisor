@@ -714,20 +714,6 @@ h3.sub {
   border-style: dashed;
 }
 
-.dropzone {
-  border: 1px dashed var(--line-strong);
-  border-radius: var(--radius);
-  background: var(--surface-sunk);
-  padding: 2.5rem 1.5rem;
-  text-align: center;
-  color: var(--ink-soft);
-}
-
-.dropzone[data-over="true"] {
-  border-color: var(--wine);
-  background: var(--wine-soft);
-}
-
 /* ---------- 커리큘럼 문항 ---------- */
 
 .checkpoints {
@@ -851,15 +837,6 @@ h3.sub {
   width: auto;
 }
 
-.notice {
-  border: 1px solid var(--ochre-line);
-  background: var(--ochre-soft);
-  color: var(--ochre);
-  border-radius: var(--radius);
-  padding: 0.85rem 1rem;
-  font-size: 0.86rem;
-}
-
 .disclaimer {
   border-top: 1px solid var(--line);
   margin-top: 1.5rem;
@@ -868,16 +845,7 @@ h3.sub {
   color: var(--ink-faint);
 }
 
-/* ---------- 관찰 항목 ---------- */
-
-.observation {
-  display: grid;
-  grid-template-columns: 7.5rem 1fr;
-  gap: 1rem;
-  padding: 0.9rem 0;
-  border-bottom: 1px solid var(--line);
-  align-items: start;
-}
+/* ---------- 학습노트 배지 ---------- */
 
 .visibility {
   font-family: var(--mono);
@@ -890,29 +858,7 @@ h3.sub {
   white-space: nowrap;
 }
 
-.visibility[data-v="clear"] {
-  border-color: var(--wine-line);
-  color: var(--wine);
-  background: var(--wine-soft);
-}
-
-.visibility[data-v="unclear"] {
-  border-style: dashed;
-}
-
-.obs-category {
-  font-size: 0.72rem;
-  color: var(--ink-faint);
-  display: block;
-  margin-bottom: 0.15rem;
-}
-
 @media (max-width: 640px) {
-  .observation {
-    grid-template-columns: 1fr;
-    gap: 0.35rem;
-  }
-
   .stock-row {
     grid-template-columns: 1.6rem 1fr;
   }
@@ -1017,38 +963,13 @@ h3.sub {
   border-left: 2px solid var(--wine-line);
 }
 
-/* ---------- 차트 학습: 관찰 순서와 기록 ---------- */
+/* ---------- 주식 기본개념: 상황으로 보기 ---------- */
 
-.chart-reading-steps {
-  list-style: none;
-  margin: 1.5rem 0 0;
-  padding: 0;
-  border-top: 1px solid var(--line-strong);
-}
-
-.chart-reading-steps li {
-  display: grid;
-  grid-template-columns: 2.5rem 1fr;
-  gap: 1rem;
-  padding: 1.15rem 0;
-  border-bottom: 1px solid var(--line);
-}
-
-.chart-step-no {
-  color: var(--wine);
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  padding-top: 0.15rem;
-}
-
-.chart-reading-steps h3,
 .chart-example h3 {
   font-size: 0.95rem;
   margin: 0 0 0.25rem;
 }
 
-.chart-reading-steps p,
 .chart-example > p {
   color: var(--ink-soft);
   font-size: 0.93rem;
@@ -1064,17 +985,6 @@ h3.sub {
   padding: 1.5rem;
 }
 
-.chart-example ul {
-  margin: 1.25rem 0;
-  padding-left: 1.15rem;
-}
-
-.chart-example li {
-  color: var(--ink-soft);
-  font-size: 0.9rem;
-  margin: 0.45rem 0;
-}
-
 .chart-example .chart-example-conclusion {
   border-top: 1px dotted var(--wine-line);
   color: var(--ink);
@@ -1084,32 +994,6 @@ h3.sub {
 
 .chart-example-conclusion strong {
   color: var(--wine-deep);
-}
-
-.chart-checklist {
-  display: grid;
-  gap: 0.65rem;
-  list-style: none;
-  margin: 1.25rem 0 0;
-  padding: 0;
-}
-
-.chart-checklist li {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  color: var(--ink-soft);
-  font-size: 0.9rem;
-  padding: 0.8rem 1rem 0.8rem 2.4rem;
-  position: relative;
-}
-
-.chart-checklist li::before {
-  content: "✓";
-  color: var(--wine);
-  font-family: var(--mono);
-  left: 1rem;
-  position: absolute;
 }
 
 .prose p {
