@@ -1788,6 +1788,117 @@ h3.sub {
   opacity: 1;
 }
 
+/* ---------- 출처 각주 ---------- */
+
+/* 세 유형은 색이 아니라 낱말 자체가 구분한다. 배지 색을 셋으로 나누면
+   골드·오커가 뜻하는 충족/미충족으로 잘못 읽힌다. 여기서 색은 판정이 아니다. */
+
+.source-note {
+  margin-top: 2rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  background: var(--surface-sunk);
+  max-width: 40em;
+}
+
+.source-note summary {
+  cursor: pointer;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.source-note-tally {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+  font-weight: 400;
+}
+
+.source-note[open] summary {
+  margin-bottom: 0.7rem;
+}
+
+.source-note ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.source-note li {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 0.84rem;
+  line-height: 1.65;
+  color: var(--ink-soft);
+}
+
+.source-kind {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  padding: 0.1rem 0.35rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+/* 창작만 테두리를 점선으로 둔다. 근거가 없다는 사실은 색이 아니라 형태로 말한다 */
+.source-kind[data-kind="창작"] {
+  border-style: dashed;
+}
+
+.source-para {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+.source-text {
+  min-width: 0;
+}
+
+.source-note-legend {
+  margin: 0 0 1.25rem;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.source-note-legend li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 30rem) {
+  .source-note li {
+    grid-template-columns: auto auto;
+  }
+  .source-text {
+    grid-column: 1 / -1;
+  }
+}
+
 .master-tips {
   display: flex;
   flex-direction: column;
@@ -1894,6 +2005,29 @@ body:has(.learn-page) .masthead-inner {
 .learn-tool:active {
   transform: translateY(2px);
   box-shadow: 0 1px 0 var(--line);
+}
+
+.learn-sources-link {
+  margin-top: 1.25rem;
+  text-align: right;
+}
+
+.learn-sources-link a {
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+  text-underline-offset: 0.22em;
+  opacity: 0.78;
+  transition: color 0.15s ease, opacity 0.15s ease, text-decoration-color 0.15s ease;
+}
+
+.learn-sources-link a:hover,
+.learn-sources-link a:focus-visible {
+  color: var(--wine);
+  opacity: 1;
+  text-decoration-color: currentColor;
 }
 
 .master-carousel {
@@ -2106,6 +2240,10 @@ body:has(.learn-page) .masthead-inner {
   .learn-tools {
     grid-template-columns: 1fr;
     margin-bottom: 2rem;
+  }
+
+  .learn-sources-link {
+    text-align: center;
   }
 
   .master-carousel-track {

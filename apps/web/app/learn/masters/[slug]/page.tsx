@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import MasterPath from "@/components/MasterPath";
 import MobileMasterDock from "@/components/MobileMasterDock";
+import { CURRICULUM_BY_MASTER } from "@/content/curriculum";
 import { MASTERS, MASTER_BY_ID, type Master } from "@/content/masters";
 import { styleMeta } from "@/lib/scores";
 
@@ -15,6 +16,7 @@ export default async function MasterLesson({ params }: { params: Promise<{ slug:
   if (!master) notFound();
 
   const meta = styleMeta(master.id);
+  const curriculum = CURRICULUM_BY_MASTER[master.id];
 
   return (
     <div className="wrap master-page">
@@ -56,7 +58,11 @@ export default async function MasterLesson({ params }: { params: Promise<{ slug:
             {master.oneLine}
           </p>
 
-          <MasterPath masterId={master.id} scorable={!!meta} />
+          <MasterPath
+            masterId={master.id}
+            scorable={!!meta}
+            chapterTitles={curriculum.chapters.map((chapter) => chapter.title)}
+          />
 
           <hr className="rule" />
 
@@ -83,6 +89,21 @@ export default async function MasterLesson({ params }: { params: Promise<{ slug:
                   </li>
                 ))}
               </ul>
+            </details>
+
+            <details>
+              <summary>이 철학의 원전 {curriculum.primarySources.length}종</summary>
+              <ul style={{ margin: "0.65rem 0 0", paddingLeft: "1.1rem", fontSize: "0.85rem" }}>
+                {curriculum.primarySources.map((source) => (
+                  <li key={source} style={{ color: "var(--ink-soft)", padding: "0.15rem 0" }}>
+                    {source}
+                  </li>
+                ))}
+              </ul>
+              <p style={{ fontSize: "0.82rem", color: "var(--ink-soft)", marginBottom: 0 }}>
+                각 장의 본문 아래에 문단별 출처가 접혀 있습니다.{" "}
+                <Link href="/learn/sources">전체 참고문헌</Link>
+              </p>
             </details>
 
             <details>

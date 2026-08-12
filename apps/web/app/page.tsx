@@ -45,16 +45,15 @@ export default function Home() {
         <div>
           <p className="eyebrow">투자 학습 서비스</p>
           <h1 className="thesis">
-            대가들의 가르침을 따라 <em>스스로 질문</em>해보세요.
+            투자 대가들에게 배우고
+            <br />
+            <em>나만의 투자원칙</em>을 세워보세요
           </h1>
         </div>
 
         <div className="hero-ctas">
           <Link href="/learn" className="btn">
             배우러 가기
-          </Link>
-          <Link href="/screener/buffett" className="btn" data-variant="quiet">
-            예시 결과 보기
           </Link>
         </div>
 
