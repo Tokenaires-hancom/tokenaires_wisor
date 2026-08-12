@@ -10,6 +10,11 @@
 #
 # 아무것도 병합을 막지 않는다. 브랜치 보호 규칙에 연결하지 않았다 — 병합
 # 여부는 사람이 이 코멘트를 보고 정한다.
+#
+# PR 제목·본문 형식 검사(CLAUDE.md의 "type: 설명" 규칙, PR 템플릿 세 섹션)는
+# 그중에서도 특히 더 약하게 다룬다 — 실패해도 이 워크플로 자체의 성패에
+# 반영하지 않는다(아래 "위반 있으면 실패로 표시"의 조건에서 뺐다). 형식은
+# 참고만 하고 항상 코멘트로만 알려준다.
 
 name: PR 자동검사
 
@@ -36,6 +41,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      - name: PR 제목·본문 형식 검사 (소프트 게이트)
+        id: format_check
+        continue-on-error: true
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: python scripts/pr_checks/pr_format_check.py | tee format_check_output.txt
 
       - name: data-pipeline 의존성 (pytest만 필요)
         run: pip install pytest
@@ -117,8 +130,10 @@ jobs:
           TSC_CHECK: ${{ steps.tsc_check.outcome }}
           BOUNDARY_CHECK: ${{ steps.boundary_check.outcome }}
           RIPPLE_CHECK: ${{ steps.ripple_check.outcome }}
+          FORMAT_CHECK: ${{ steps.format_check.outcome }}
         run: |
           mark() { [ "$1" = "success" ] && echo "✅ 통과" || echo "❌ 실패"; }
+          soft_mark() { [ "$1" = "success" ] && echo "✅ 통과" || echo "⚠️ 형식 확인 필요"; }
 
           BODY_FILE=$(mktemp)
           {
@@ -134,7 +149,16 @@ jobs:
             echo "| apps/web npx tsc --noEmit | $(mark "$TSC_CHECK") |"
             echo "| 경계 검사 (lib/scores import) | $(mark "$BOUNDARY_CHECK") |"
             echo "| 번짐 지점 (chartLessons ↔ LESSON_IDS ↔ EXPECTED_IDS) | $(mark "$RIPPLE_CHECK") |"
+            echo "| PR 제목·본문 형식 (참고용, 병합 안 막음) | $(soft_mark "$FORMAT_CHECK") |"
             echo
+
+            if [ "$FORMAT_CHECK" != "success" ] && [ -f format_check_output.txt ]; then
+              echo "**형식 확인 필요:**"
+              echo
+              tail -n +2 format_check_output.txt
+              echo
+            fi
+
             echo "규칙·문구 판단이 필요한 리뷰는 별도 코멘트로 남습니다. 병합 여부는 사람이 결정합니다."
           } > "$BODY_FILE"
 
