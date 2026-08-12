@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { CHART_LESSONS, LESSON_BY_ID } from "@/content/chartLessons";
 import { STOCK_BASICS, STOCK_BASICS_BY_ID } from "@/content/stockBasics";
 import { CHAPTER_SLOTS } from "@/content/curriculum/types";
 import { MASTERS, MASTER_BY_ID } from "@/content/masters";
@@ -64,9 +63,7 @@ export default function MyLearning({ names }: { names: Record<string, string> })
       no <= CHAPTER_SLOTS.length
     );
   }).length;
-  const chartDone = CHART_LESSONS.filter((l) => progress.lessonsDone.includes(`chart:${l.id}`));
   const basicsDone = STOCK_BASICS.filter((l) => progress.lessonsDone.includes(`basics:${l.id}`));
-  const bothLenses = notes.filter((n) => n.chartObservations.length > 0 && n.strengths.length > 0);
 
   if (!ready) {
     return (
@@ -98,20 +95,6 @@ export default function MyLearning({ names }: { names: Record<string, string> })
             <span className="score-of"> / {totalChapters}</span>
           </p>
         </div>
-        <div className="card">
-          <p className="eyebrow">차트 기초 단원</p>
-          <p className="score-value">
-            {chartDone.length}
-            <span className="score-of"> / {CHART_LESSONS.length}</span>
-          </p>
-        </div>
-        <div className="card">
-          <p className="eyebrow">두 관점을 함께 적은 노트</p>
-          <p className="score-value">
-            {bothLenses.length}
-            <span className="score-of"> / {notes.length || 0}</span>
-          </p>
-        </div>
       </div>
 
       <hr className="rule" />
@@ -133,8 +116,6 @@ export default function MyLearning({ names }: { names: Record<string, string> })
               label = name && slot ? `${name} ${slot.no}장 · ${slot.label}` : name;
             } else if (kind === "basics") {
               label = STOCK_BASICS_BY_ID[key]?.title;
-            } else {
-              label = LESSON_BY_ID[key]?.title;
             }
             return (
               <li key={id} data-kind={r.correct === r.total ? "pass" : "fail"}>
@@ -213,8 +194,8 @@ export default function MyLearning({ names }: { names: Record<string, string> })
 
       <h2 className="section">종목 학습노트 ({notes.length})</h2>
       <p className="lede">
-        기업 관점과 차트 관점에서 확인한 것을 한자리에 모아 둔 기록입니다. 시간이 지난 뒤 처음의
-        판단 근거를 다시 읽는 것이 이 노트의 목적입니다.
+        기업 관점에서 확인한 것을 모아 둔 기록입니다. 시간이 지난 뒤 처음의 판단 근거를 다시
+        읽는 것이 이 노트의 목적입니다.
       </p>
       {notes.length === 0 ? (
         <p className="lede">
@@ -241,32 +222,20 @@ export default function MyLearning({ names }: { names: Record<string, string> })
                 </p>
               )}
 
-              <div style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", marginTop: "1rem" }}>
-                <div>
-                  <p className="eyebrow">기업 관점</p>
-                  <ul className="reason-list">
-                    {note.strengths.slice(0, 2).map((s, i) => (
-                      <li key={i} data-kind="pass">
-                        {s}
-                      </li>
-                    ))}
-                    {note.risks.slice(0, 1).map((s, i) => (
-                      <li key={i} data-kind="fail">
-                        {s}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <p className="eyebrow">차트 관점</p>
-                  <ul className="reason-list">
-                    {note.chartObservations.length === 0 ? (
-                      <li data-kind="unknown">아직 기록하지 않았습니다.</li>
-                    ) : (
-                      note.chartObservations.slice(0, 3).map((s, i) => <li key={i} data-kind="pass">{s}</li>)
-                    )}
-                  </ul>
-                </div>
+              <div style={{ marginTop: "1rem" }}>
+                <p className="eyebrow">기업 관점</p>
+                <ul className="reason-list">
+                  {note.strengths.slice(0, 2).map((s, i) => (
+                    <li key={i} data-kind="pass">
+                      {s}
+                    </li>
+                  ))}
+                  {note.risks.slice(0, 1).map((s, i) => (
+                    <li key={i} data-kind="fail">
+                      {s}
+                    </li>
+                  ))}
+                </ul>
               </div>
 
               {note.openQuestions && (

@@ -16,7 +16,6 @@ from ..metrics import Metrics
 Status = Literal["pass", "fail", "unknown"]
 
 # 사용자에게 그대로 노출되는 문장에서 금지하는 표현.
-# 차트 분석기(services/chart-api)와 같은 원칙을 재무 쪽에도 적용한다.
 BANNED_PHRASES = [
     "매수",
     "매도",

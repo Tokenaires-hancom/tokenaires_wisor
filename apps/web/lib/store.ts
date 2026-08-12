@@ -30,7 +30,6 @@ export type StudyNote = {
   styleScores: { styleId: string; label: string; score: number | null }[];
   strengths: string[];
   risks: string[];
-  chartObservations: string[];
   openQuestions: string;
   status: NoteStatus;
   updatedAt: string;
