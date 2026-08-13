@@ -49,6 +49,9 @@ class Fundamentals:
     shares_out: float
     price_as_of: str
     financial_as_of: str
+    #: 시가총액. 금액 단위는 다른 재무 값과 같은 백만 USD다. 라이브 파이프라인에서는
+    #: API가 준 값을 넣고, price * shares_out으로 재계산하지 않는다.
+    market_cap: Optional[float] = None
     #: SEC submissions의 SIC 코드. 업종 판정에 쓴다(coverage.py). 예시 데이터에는 없다.
     sic: Optional[str] = None
     revenue: list[float] = field(default_factory=list)
@@ -64,12 +67,18 @@ class Fundamentals:
     depreciation: Optional[float] = None
     current_assets: Optional[float] = None
     current_liabilities: Optional[float] = None
+    net_fixed_assets: Optional[float] = None
     ev_ebit_median_5y: Optional[float] = None
     eps_growth_forward: Optional[float] = None
 
     @classmethod
     def from_dict(cls, raw: dict) -> "Fundamentals":
         s = raw.get("series", {})
+        # 오래된 샘플/캐시는 marketCap을 들고 있지 않다. 이 경로는 테스트·샘플 호환용이고,
+        # 라이브 sec-toss 공급자는 market_cap을 API 값으로 명시해서 넣는다.
+        market_cap = raw.get("marketCap", raw.get("market_cap"))
+        if market_cap is None and raw.get("price") is not None and raw.get("sharesOut") is not None:
+            market_cap = raw["price"] * raw["sharesOut"]
         return cls(
             ticker=raw["ticker"],
             name=raw["name"],
@@ -78,6 +87,7 @@ class Fundamentals:
             shares_out=raw["sharesOut"],
             price_as_of=raw["asOf"]["price"],
             financial_as_of=raw["asOf"]["financial"],
+            market_cap=market_cap,
             revenue=s.get("revenue", []),
             ebit=s.get("ebit", []),
             net_income=s.get("netIncome", []),
@@ -91,6 +101,7 @@ class Fundamentals:
             depreciation=raw.get("depreciation"),
             current_assets=raw.get("currentAssets"),
             current_liabilities=raw.get("currentLiabilities"),
+            net_fixed_assets=raw.get("netFixedAssets"),
             ev_ebit_median_5y=raw.get("evEbitMedian5y"),
             eps_growth_forward=raw.get("epsGrowthForward"),
         )
@@ -105,6 +116,7 @@ class Metrics:
     roic_series: list[Optional[float]] = field(default_factory=list)
     roic_avg_5y: Optional[float] = None
     roic_years_above_10: int = 0
+    magic_formula_roc: Optional[float] = None
     fcf_positive_years: int = 0
     fcf_margin: Optional[float] = None
     net_debt: Optional[float] = None
@@ -132,7 +144,7 @@ def compute(f: Fundamentals) -> Metrics:
     m = Metrics()
     m.data_years = len(f.revenue)
 
-    m.market_cap = f.price * f.shares_out
+    m.market_cap = f.market_cap
     if f.total_debt is not None and f.cash is not None:
         m.net_debt = f.total_debt - f.cash
     if m.net_debt is not None:
@@ -145,6 +157,16 @@ def compute(f: Fundamentals) -> Metrics:
     known_roic = [r for r in m.roic_series if r is not None]
     m.roic_avg_5y = sum(known_roic) / len(known_roic) if known_roic else None
     m.roic_years_above_10 = sum(1 for r in known_roic if r >= 0.10)
+
+    # 그린블랫 원식: EBIT / (순운전자본 + 순고정자산).
+    # 일반적인 ROIC와 달리 세후 조정을 하지 않고 최신 회계연도 EBIT를 쓴다.
+    if (
+        f.current_assets is not None
+        and f.current_liabilities is not None
+        and f.net_fixed_assets is not None
+    ):
+        tangible_capital = f.current_assets - f.current_liabilities + f.net_fixed_assets
+        m.magic_formula_roc = _safe_div(f.ebit[-1] if f.ebit else None, tangible_capital)
 
     m.fcf_positive_years = sum(1 for v in f.fcf if v > 0)
     if f.fcf and f.revenue:

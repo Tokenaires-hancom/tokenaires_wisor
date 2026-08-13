@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 
 from run_batch import build
-from wisor_data.coverage import UNSCORABLE_REASON
+from wisor_data.coverage import MAGIC_FORMULA_UNSCORABLE_REASON, UNSCORABLE_REASON
 from wisor_data.metrics import Fundamentals
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,6 +21,9 @@ def sample(ticker: str, sic: str | None) -> Fundamentals:
     raw = next(c for c in UNIVERSE["companies"] if c["ticker"] == ticker)
     f = Fundamentals.from_dict(raw)
     f.sic = sic
+    # 오래된 예시 JSON에는 마법공식 전용 순유형자산 필드가 없다.
+    # 배치 조립 테스트에서는 명시적으로 넣고, 결측 동작은 점수 테스트에서 따로 검증한다.
+    f.net_fixed_assets = f.invested_capital[-1]
     return f
 
 
@@ -174,3 +177,19 @@ def test_financials_are_left_out_of_the_greenblatt_ranking(payload):
 
     assert "2개 종목" in message
     assert "3개 종목" not in message
+
+
+def test_utility_is_excluded_from_magic_formula():
+    utility = sample("MSFT", "4911")
+    payload = build(FakeProvider([sample("ADBE", "7372"), utility]))
+    scores = row(payload, "MSFT")["scores"]
+
+    assert scores["greenblatt"]["dataConfidence"] == "판정 대상 아님"
+    assert scores["greenblatt"]["unscorableReason"] == MAGIC_FORMULA_UNSCORABLE_REASON
+    assert "greenblatt-inspired" not in scores
+    assert scores["buffett"]["score"] is not None
+
+
+def test_removed_inspired_model_is_not_emitted(payload):
+    assert "greenblatt-inspired" not in {style["id"] for style in payload["styles"]}
+    assert all("greenblatt-inspired" not in company["scores"] for company in payload["companies"])

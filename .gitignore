@@ -1,5 +1,6 @@
 node_modules/
 .next/
+.next-dev/
 .venv/
 __pycache__/
 *.pyc
@@ -15,6 +16,11 @@ __pycache__/
 next-env.d.ts
 tsconfig.tsbuildinfo
 .claude/settings.local.json
+# 개발 서버 실행 설정 — 머신마다 경로가 달라 공유 대상이 아니다
+.claude/launch.json
 
 # Local Netlify folder
 .netlify
+
+# 브레인스토밍 목업 (superpowers)
+.superpowers/

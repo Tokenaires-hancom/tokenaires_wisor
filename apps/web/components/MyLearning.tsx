@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { CHART_LESSONS, LESSON_BY_ID } from "@/content/chartLessons";
+import { STOCK_BASICS, STOCK_BASICS_BY_ID } from "@/content/stockBasics";
 import { CHAPTER_SLOTS } from "@/content/curriculum/types";
 import { MASTERS, MASTER_BY_ID } from "@/content/masters";
 import {
@@ -63,8 +63,7 @@ export default function MyLearning({ names }: { names: Record<string, string> })
       no <= CHAPTER_SLOTS.length
     );
   }).length;
-  const chartDone = CHART_LESSONS.filter((l) => progress.lessonsDone.includes(`chart:${l.id}`));
-  const bothLenses = notes.filter((n) => n.chartObservations.length > 0 && n.strengths.length > 0);
+  const basicsDone = STOCK_BASICS.filter((l) => progress.lessonsDone.includes(`basics:${l.id}`));
 
   if (!ready) {
     return (
@@ -83,24 +82,17 @@ export default function MyLearning({ names }: { names: Record<string, string> })
 
       <div className="grid" style={{ marginTop: "2rem" }}>
         <div className="card">
+          <p className="eyebrow">주식 기본개념 단원</p>
+          <p className="score-value">
+            {basicsDone.length}
+            <span className="score-of"> / {STOCK_BASICS.length}</span>
+          </p>
+        </div>
+        <div className="card">
           <p className="eyebrow">투자 대가 챕터</p>
           <p className="score-value">
             {chaptersDone}
             <span className="score-of"> / {totalChapters}</span>
-          </p>
-        </div>
-        <div className="card">
-          <p className="eyebrow">차트 기초 단원</p>
-          <p className="score-value">
-            {chartDone.length}
-            <span className="score-of"> / {CHART_LESSONS.length}</span>
-          </p>
-        </div>
-        <div className="card">
-          <p className="eyebrow">두 관점을 함께 적은 노트</p>
-          <p className="score-value">
-            {bothLenses.length}
-            <span className="score-of"> / {notes.length || 0}</span>
           </p>
         </div>
       </div>
@@ -110,7 +102,7 @@ export default function MyLearning({ names }: { names: Record<string, string> })
       <h2 className="section">퀴즈 결과</h2>
       {Object.keys(progress.quizResults).length === 0 ? (
         <p className="lede">
-          아직 푼 확인 문항이 없습니다. <Link href="/learn" style={{ color: "var(--plum)" }}>배우기</Link>에서
+          아직 푼 확인 문항이 없습니다. <Link href="/learn" style={{ color: "var(--wine)" }}>배우기</Link>에서
           한 챕터를 끝까지 살펴보세요.
         </p>
       ) : (
@@ -122,8 +114,8 @@ export default function MyLearning({ names }: { names: Record<string, string> })
               const name = MASTER_BY_ID[key as keyof typeof MASTER_BY_ID]?.name.split(" · ")[0];
               const slot = no ? CHAPTER_SLOTS[Number(no) - 1] : undefined;
               label = name && slot ? `${name} ${slot.no}장 · ${slot.label}` : name;
-            } else {
-              label = LESSON_BY_ID[key]?.title;
+            } else if (kind === "basics") {
+              label = STOCK_BASICS_BY_ID[key]?.title;
             }
             return (
               <li key={id} data-kind={r.correct === r.total ? "pass" : "fail"}>
@@ -184,7 +176,7 @@ export default function MyLearning({ names }: { names: Record<string, string> })
       {watchlist.length === 0 ? (
         <p className="lede">
           아직 담은 종목이 없습니다.{" "}
-          <Link href="/screener/buffett" style={{ color: "var(--plum)" }}>종목 찾기</Link>에서
+          <Link href="/screener/buffett" style={{ color: "var(--wine)" }}>종목 찾기</Link>에서
           살펴볼 종목을 골라보세요.
         </p>
       ) : (
@@ -202,8 +194,8 @@ export default function MyLearning({ names }: { names: Record<string, string> })
 
       <h2 className="section">종목 학습노트 ({notes.length})</h2>
       <p className="lede">
-        기업 관점과 차트 관점에서 확인한 것을 한자리에 모아 둔 기록입니다. 시간이 지난 뒤 처음의
-        판단 근거를 다시 읽는 것이 이 노트의 목적입니다.
+        기업 관점에서 확인한 것을 모아 둔 기록입니다. 시간이 지난 뒤 처음의 판단 근거를 다시
+        읽는 것이 이 노트의 목적입니다.
       </p>
       {notes.length === 0 ? (
         <p className="lede">
@@ -230,32 +222,20 @@ export default function MyLearning({ names }: { names: Record<string, string> })
                 </p>
               )}
 
-              <div style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", marginTop: "1rem" }}>
-                <div>
-                  <p className="eyebrow">기업 관점</p>
-                  <ul className="reason-list">
-                    {note.strengths.slice(0, 2).map((s, i) => (
-                      <li key={i} data-kind="pass">
-                        {s}
-                      </li>
-                    ))}
-                    {note.risks.slice(0, 1).map((s, i) => (
-                      <li key={i} data-kind="fail">
-                        {s}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <p className="eyebrow">차트 관점</p>
-                  <ul className="reason-list">
-                    {note.chartObservations.length === 0 ? (
-                      <li data-kind="unknown">아직 기록하지 않았습니다.</li>
-                    ) : (
-                      note.chartObservations.slice(0, 3).map((s, i) => <li key={i} data-kind="pass">{s}</li>)
-                    )}
-                  </ul>
-                </div>
+              <div style={{ marginTop: "1rem" }}>
+                <p className="eyebrow">기업 관점</p>
+                <ul className="reason-list">
+                  {note.strengths.slice(0, 2).map((s, i) => (
+                    <li key={i} data-kind="pass">
+                      {s}
+                    </li>
+                  ))}
+                  {note.risks.slice(0, 1).map((s, i) => (
+                    <li key={i} data-kind="fail">
+                      {s}
+                    </li>
+                  ))}
+                </ul>
               </div>
 
               {note.openQuestions && (

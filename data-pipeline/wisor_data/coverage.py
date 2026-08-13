@@ -21,8 +21,12 @@ from __future__ import annotations
 from .metrics import Fundamentals
 
 FINANCE_SIC_RANGE = (6000, 6799)
+UTILITY_SIC_RANGE = (4900, 4999)
 
 UNSCORABLE_REASON = "은행·보험·부동산은 현재 점수 모델이 전제하는 대차대조표와 달라 판정하지 않습니다."
+MAGIC_FORMULA_UNSCORABLE_REASON = (
+    "원래 마법공식은 금융·보험·부동산과 유틸리티를 비교 대상에서 제외합니다."
+)
 
 
 def is_finance_sic(sic: str | None) -> bool:
@@ -35,3 +39,15 @@ def is_finance_sic(sic: str | None) -> bool:
 def is_scorable(f: Fundamentals) -> bool:
     """업종 기준으로 점수를 낼 수 있는 종목인지. SIC를 모르면 막지 않는다."""
     return not is_finance_sic(f.sic)
+
+
+def is_utility_sic(sic: str | None) -> bool:
+    """전기·가스·수도 등 유틸리티 업종인지."""
+    if not sic or not sic.isdigit():
+        return False
+    return UTILITY_SIC_RANGE[0] <= int(sic) <= UTILITY_SIC_RANGE[1]
+
+
+def is_magic_formula_scorable(f: Fundamentals) -> bool:
+    """그린블랫 원식이 순위 모수에 넣는 업종인지."""
+    return is_scorable(f) and not is_utility_sic(f.sic)

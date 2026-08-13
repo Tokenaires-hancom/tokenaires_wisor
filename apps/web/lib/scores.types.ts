@@ -29,6 +29,7 @@ export type StyleScore = {
   risks: string[];
   rank?: number;
   rankComponents?: { quality: number; value: number };
+  unscorableReason?: string;
 };
 
 export type Company = {
@@ -119,6 +120,7 @@ export const METRIC_LABELS: Record<
   { label: string; format: "pct" | "x" | "raw"; cap?: number }
 > = {
   roicAvg5y: { label: "자본수익률(5년 평균)", format: "pct" },
+  magicFormulaRoc: { label: "마법공식 자본수익률", format: "pct" },
   fcfMargin: { label: "잉여현금흐름 마진", format: "pct" },
   fcfYield: { label: "잉여현금흐름 수익률", format: "pct" },
   netDebtToEbitda: { label: "순부채 / EBITDA", format: "x" },

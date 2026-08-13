@@ -69,6 +69,18 @@ test("업종 때문에 판정하지 않은 종목은 정보 부족에 넣지 않
   assert.equal(byStyle.find((s) => s.styleId === "buffett")?.unscored, 0);
 });
 
+test("특정 모델에서만 제외한 업종을 그 모델의 정보 부족으로 세지 않는다", () => {
+  const magic = style("greenblatt", ["ROC", "EY"]);
+  const utility = company("UTILITY", {
+    greenblatt: { ...scoreOf(null), dataConfidence: "판정 대상 아님" },
+  });
+
+  const coverage = styleCoverage([utility], [magic]).byStyle[0];
+
+  assert.equal(coverage.unscorable, 1);
+  assert.equal(coverage.unscored, 0);
+});
+
 test("가장 많이 비었던 기준을 이름과 함께 돌려준다", () => {
   const companies = [
     company("A", { buffett: scoreOf(70), lynch: scoreOf(null, ["P", "Q"]) }),

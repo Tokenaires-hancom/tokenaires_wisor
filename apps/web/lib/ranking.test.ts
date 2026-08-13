@@ -54,6 +54,21 @@ test("업종 때문에 빠진 종목은 데이터 부족으로 세지 않는다"
   assert.equal(rank([bank], "buffett").unscored.length, 0);
 });
 
+test("회사 전체가 아니라 특정 모델에서만 제외된 업종도 따로 묶는다", () => {
+  const utility = company({
+    ticker: "UTILITY",
+    scores: {
+      greenblatt: {
+        score: null,
+        dataConfidence: "판정 대상 아님",
+        unscorableReason: "마법공식은 유틸리티를 제외합니다.",
+      } as Company["scores"][string],
+    },
+  });
+
+  assert.deepEqual(rank([utility], "greenblatt").unscorable.map((c) => c.ticker), ["UTILITY"]);
+});
+
 test("스타일 항목이 아예 없는 종목도 정보 부족으로 본다", () => {
   const result = rank([company({ ticker: "NONE" })], "buffett");
   assert.deepEqual(result.unscored.map((c) => c.ticker), ["NONE"]);

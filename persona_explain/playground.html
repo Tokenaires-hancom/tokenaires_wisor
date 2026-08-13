@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>페르소나 해설</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --desk: #1a1714;
+      --paper: #f6f1e4;
+      --rule: #e4d9c5;
+      --ink: #1f1a14;
+      --muted: #6b6258;
+      --amber: #c45c12;
+      --pass: #2f6b4f;
+      --fail: #9b2c2c;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body {
+      background: var(--desk);
+      color: var(--ink);
+      font-family: "IBM Plex Sans KR", sans-serif;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .sheet {
+      width: min(920px, 100%);
+      height: min(860px, 100%);
+      background: var(--paper);
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      box-shadow: 12px 18px 0 rgba(0,0,0,.35);
+      border-left: 10px solid var(--amber);
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 22px 12px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .eyebrow {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      letter-spacing: .16em;
+      color: var(--amber);
+      margin: 0 0 4px;
+    }
+    h1 { font-size: 22px; margin: 0; font-weight: 600; }
+    .sub { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+    .badge {
+      align-self: start;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      padding: 6px 8px;
+      border: 1px solid var(--ink);
+      white-space: nowrap;
+    }
+    .badge.mock { background: #efe6c8; }
+    .badge.live { background: #dceee3; }
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      padding: 12px 22px;
+      border-bottom: 1px solid var(--rule);
+      align-items: start;
+    }
+    label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    input, button, select {
+      font: inherit;
+      color: var(--ink);
+      background: transparent;
+      border: 1px solid var(--ink);
+    }
+    input {
+      width: 100%;
+      padding: 8px 10px;
+      background: #fffdf8;
+    }
+    .personas { display: flex; flex-wrap: wrap; gap: 6px; }
+    .personas button {
+      padding: 7px 10px;
+      cursor: pointer;
+      background: #fffdf8;
+    }
+    .personas button[aria-pressed="true"] {
+      background: var(--ink);
+      color: var(--paper);
+    }
+    .hits {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .hits button {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      padding: 6px 8px;
+      cursor: pointer;
+    }
+    .log {
+      overflow: auto;
+      padding: 16px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .bubble {
+      max-width: 78%;
+      padding: 10px 12px;
+      border: 1px solid var(--rule);
+      background: #fffdf8;
+      white-space: pre-wrap;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+    .bubble.user { align-self: flex-end; background: #efe6c8; }
+    .empty { color: var(--muted); margin: auto; text-align: center; }
+    form.ask {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      padding: 12px 22px 18px;
+      border-top: 1px solid var(--rule);
+    }
+    form.ask input { padding: 10px 12px; }
+    form.ask button, .go {
+      padding: 10px 14px;
+      cursor: pointer;
+      background: var(--ink);
+      color: var(--paper);
+      border-color: var(--ink);
+    }
+    form.ask button:disabled, .go:disabled { opacity: .45; cursor: not-allowed; }
+    .err { color: var(--fail); font-size: 13px; }
+  </style>
+</head>
+<body>
+  <main class="sheet">
+    <header>
+      <div>
+        <p class="eyebrow">FORM TUTOR-1 · 교육용 해설</p>
+        <h1>대가의 기준으로 숫자 읽기</h1>
+        <p class="sub">종목을 고르고 관점을 고르면, 그 대가의 채점표를 해설합니다. 매수·매도 조언은 하지 않습니다.</p>
+      </div>
+      <div class="badge" id="mode">연결 확인 중</div>
+    </header>
+    <section class="toolbar">
+      <div>
+        <label for="q">종목 검색 (티커 또는 이름)</label>
+        <input id="q" placeholder="예: AAPL, 애플" autocomplete="off">
+      </div>
+      <div>
+        <label>관점</label>
+        <div class="personas" id="personas"></div>
+      </div>
+      <div class="hits" id="hits"></div>
+    </section>
+    <section class="log" id="log">
+      <p class="empty">종목을 검색해 고르면 첫 해설이 여기에 뜹니다.</p>
+    </section>
+    <form class="ask" id="ask">
+      <input id="question" placeholder="후속 질문" disabled>
+      <button type="submit" disabled>묻기</button>
+    </form>
+  </main>
+  <script>
+    const state = { persona: "buffett", ticker: null, sessionId: null };
+    const logEl = document.getElementById("log");
+    const askForm = document.getElementById("ask");
+    const questionEl = document.getElementById("question");
+    const askBtn = askForm.querySelector("button");
+
+    function add(role, text) {
+      const empty = logEl.querySelector(".empty");
+      if (empty) empty.remove();
+      const div = document.createElement("div");
+      div.className = "bubble " + role;
+      div.textContent = text;
+      logEl.appendChild(div);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+    function setAsking(on) {
+      questionEl.disabled = !on;
+      askBtn.disabled = !on;
+    }
+
+    async function api(method, path, body) {
+      const res = await fetch(path, {
+        method,
+        headers: body ? { "Content-Type": "application/json" } : {},
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || res.statusText);
+      return data;
+    }
+
+    async function boot() {
+      const health = await api("GET", "/health");
+      const mode = document.getElementById("mode");
+      const live = health.adapter !== "mock";
+      mode.className = "badge " + (live ? "live" : "mock");
+      mode.textContent = live
+        ? "OPENROUTER · " + (health.model || "")
+        : "MOCK · 숫자만 나열 (키 없음)";
+      const box = document.getElementById("personas");
+      box.innerHTML = "";
+      for (const p of health.personas) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = p.name;
+        b.setAttribute("aria-pressed", p.id === state.persona ? "true" : "false");
+        b.addEventListener("click", () => {
+          state.persona = p.id;
+          for (const el of box.querySelectorAll("button")) {
+            el.setAttribute("aria-pressed", el === b ? "true" : "false");
+          }
+          if (state.ticker) start();
+        });
+        box.appendChild(b);
+      }
+    }
+
+    async function search() {
+      const q = document.getElementById("q").value.trim();
+      const hits = document.getElementById("hits");
+      hits.innerHTML = "";
+      if (!q) return;
+      const data = await api("GET", "/companies?q=" + encodeURIComponent(q));
+      for (const c of data.results) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = c.ticker + "  " + c.name;
+        b.addEventListener("click", () => {
+          state.ticker = c.ticker;
+          document.getElementById("q").value = c.ticker;
+          start();
+        });
+        hits.appendChild(b);
+      }
+      if (!data.results.length) hits.textContent = "유니버스에 없는 종목입니다.";
+    }
+
+    async function start() {
+      if (!state.ticker) return;
+      setAsking(false);
+      logEl.innerHTML = "";
+      add("user", state.ticker + " · " + state.persona);
+      try {
+        const data = await api("POST", "/sessions", {
+          ticker: state.ticker, persona: state.persona,
+        });
+        state.sessionId = data.sessionId;
+        add("bot", data.opening);
+        setAsking(true);
+        questionEl.focus();
+      } catch (err) {
+        add("bot", "오류: " + err.message);
+      }
+    }
+
+    let timer;
+    document.getElementById("q").addEventListener("input", () => {
+      clearTimeout(timer);
+      timer = setTimeout(search, 200);
+    });
+    askForm.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const q = questionEl.value.trim();
+      if (!q || !state.sessionId) return;
+      questionEl.value = "";
+      add("user", q);
+      setAsking(false);
+      try {
+        const data = await api("POST", "/sessions/" + state.sessionId + "/messages", { question: q });
+        add("bot", data.reply);
+      } catch (err) {
+        add("bot", "오류: " + err.message);
+        if (String(err.message).includes("세션")) state.sessionId = null;
+      }
+      setAsking(Boolean(state.sessionId));
+    });
+    boot().catch((err) => {
+      document.getElementById("mode").textContent = "서버 연결 실패";
+      logEl.innerHTML = '<p class="empty err">서버가 꺼져 있습니다. 터미널에서 python server.py 를 먼저 실행하세요.<br>' + err.message + "</p>";
+    });
+  </script>
+</body>
+</html>

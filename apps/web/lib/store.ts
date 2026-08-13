@@ -1,6 +1,6 @@
 "use client";
 
-import { isDue } from "./journalDue";
+import { isDue } from "./journalDue.ts";
 
 /** 사용자 데이터 저장소.
  *
@@ -30,7 +30,6 @@ export type StudyNote = {
   styleScores: { styleId: string; label: string; score: number | null }[];
   strengths: string[];
   risks: string[];
-  chartObservations: string[];
   openQuestions: string;
   status: NoteStatus;
   updatedAt: string;
@@ -112,6 +111,20 @@ export async function deleteNote(ticker: string): Promise<void> {
 
 export async function getProgress(): Promise<Progress> {
   return read<Progress>(KEYS.progress, { lessonsDone: [], quizResults: {} });
+}
+
+export function withoutMasterProgress(progress: Progress, masterId: string): Progress {
+  const prefix = `master:${masterId}:`;
+  return {
+    lessonsDone: progress.lessonsDone.filter((id) => !id.startsWith(prefix)),
+    quizResults: Object.fromEntries(
+      Object.entries(progress.quizResults).filter(([id]) => !id.startsWith(prefix)),
+    ),
+  };
+}
+
+export async function resetMasterProgress(masterId: string): Promise<void> {
+  write(KEYS.progress, withoutMasterProgress(await getProgress(), masterId));
 }
 
 export async function markLessonDone(id: string): Promise<void> {

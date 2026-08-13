@@ -14,6 +14,7 @@ export type StyleCoverage = {
   allowedUnknown: number;
   scored: number;
   unscored: number;
+  unscorable: number;
   /** 점수를 못 낸 종목에서 가장 자주 비어 있던 기준 */
   topMissing: { code: string; label: string; count: number }[];
 };
@@ -26,12 +27,14 @@ export type Coverage = {
 };
 
 export function styleCoverage(companies: Company[], styles: StyleMeta[]): Coverage {
-  const judged = companies.filter((c) => c.scorable !== false);
-
   return {
     universe: companies.length,
-    unscorable: companies.length - judged.length,
+    unscorable: companies.filter((c) => c.scorable === false).length,
     byStyle: styles.map((style) => {
+      const judged = companies.filter(
+        (c) => c.scores[style.id]?.dataConfidence !== "판정 대상 아님" && c.scorable !== false
+      );
+      const unscorable = companies.length - judged.length;
       const scored = judged.filter((c) => c.scores[style.id]?.score !== null);
       const unscored = judged.filter((c) => c.scores[style.id]?.score === null);
 
@@ -51,6 +54,7 @@ export function styleCoverage(companies: Company[], styles: StyleMeta[]): Covera
         allowedUnknown: Math.floor(style.criteria.length * UNKNOWN_LIMIT),
         scored: scored.length,
         unscored: unscored.length,
+        unscorable,
         topMissing: [...missing.entries()]
           .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
           .slice(0, 2)

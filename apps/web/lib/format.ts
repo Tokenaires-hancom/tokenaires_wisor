@@ -8,6 +8,11 @@ export function dateRange(from: string, to: string): string {
   return from === to ? from : `${from} ~ ${to}`;
 }
 
+/** 배치의 영문 모델 버전은 호환성을 위해 유지하고, 화면에서는 한글 이름을 쓴다. */
+export function displayModelVersion(modelVersion: string): string {
+  return modelVersion === "Greenblatt 1.0" ? "그린블랫 1.0" : modelVersion;
+}
+
 export function pct(value: number | null | undefined, digits = 1): string {
   if (value === null || value === undefined) return "정보 없음";
   return `${(value * 100).toFixed(digits)}%`;

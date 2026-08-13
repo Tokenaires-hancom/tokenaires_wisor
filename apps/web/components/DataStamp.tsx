@@ -1,4 +1,4 @@
-import { dateRange } from "@/lib/format";
+import { dateRange, displayModelVersion } from "@/lib/format";
 import { DATA, FINANCIAL_RANGE, IS_SAMPLE_DATA } from "@/lib/scores";
 
 /** "2026-08-07T15:31:15+09:00" → "2026-08-07 15:31 KST"
@@ -33,7 +33,7 @@ export default function DataStamp({
       )}
       {/* 종목 하나를 보여줄 때는 그 종목의 날짜를, 목록에서는 걸쳐 있는 범위를 쓴다 */}
       <span>재무 기준 {financial ?? dateRange(FINANCIAL_RANGE.from, FINANCIAL_RANGE.to)}</span>
-      {modelVersion && <span>점수 모델 {modelVersion}</span>}
+      {modelVersion && <span>점수 모델 {displayModelVersion(modelVersion)}</span>}
       {confidence && <span>데이터 신뢰도 {confidence}</span>}
       {DATA.dataSource === "sec-toss" && <span>토스증권 가격 · SEC 공시</span>}
       {IS_SAMPLE_DATA && <span>· 예시 데이터</span>}

@@ -54,6 +54,8 @@ def check(f: Fundamentals) -> list[Issue]:
         add("BAD_PRICE", "가격이 0 이하입니다.")
     if f.shares_out <= 0:
         add("BAD_SHARES", "발행주식수가 0 이하입니다.")
+    if f.market_cap is None or f.market_cap <= 0:
+        add("BAD_MARKET_CAP", "API 시가총액이 없거나 0 이하입니다.")
     for field_name in ("total_debt", "cash", "interest_expense", "depreciation"):
         if getattr(f, field_name) is None:
             add("MISSING_SCALAR", f"{field_name} 값이 없습니다.", fatal=False)

@@ -1,30 +1,31 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import CriteriaBar from "./CriteriaBar";
-import ChartAnalyzer from "./ChartAnalyzer";
+import { FinancialText } from "./FinancialTerm";
 import WatchButton from "./WatchButton";
-import { CHART_LESSONS } from "@/content/chartLessons";
 import { MASTER_BY_ID } from "@/content/masters";
-import { formatMetric } from "@/lib/format";
+import { displayModelVersion, formatMetric } from "@/lib/format";
 import { METRIC_LABELS, type Company } from "@/lib/scores.types";
 import { NOTE_STATUS_LABEL, getNote, saveNote, type NoteStatus } from "@/lib/store";
 import { track } from "@/lib/analytics";
 
-type Lens = "business" | "chart" | "note";
+type Lens = "business" | "note";
 
 const LENS_LABEL: Record<Lens, string> = {
   business: "기업 관점",
-  chart: "차트 관점",
   note: "나의 학습노트",
 };
 
 const LENS_NOTE: Record<Lens, string> = {
   business: "어떤 기업을 관심 있게 볼 것인가 — 대가의 기준으로 이 회사를 훑어봅니다.",
-  chart: "현재 가격이 어떤 움직임을 보이고 있는가 — 차트에서 보이는 것만 읽습니다. 두 관점을 합쳐 하나의 매수 점수를 만들지 않습니다.",
-  note: "두 관점에서 확인한 것을 한자리에 모아 두고, 판단은 직접 기록합니다.",
+  note: "기업 관점에서 확인한 것을 기록해 두고, 판단은 직접 내립니다.",
 };
+
+function scoreModelLabel(id: string, company: Company) {
+  if (id === "greenblatt") return "그린블랫";
+  return MASTER_BY_ID[id as keyof typeof MASTER_BY_ID]?.name.split(" · ")[0] ?? id;
+}
 
 export default function StockLenses({
   company,
@@ -36,6 +37,7 @@ export default function StockLenses({
   const [lens, setLens] = useState<Lens>("business");
   const [styleId, setStyleId] = useState(initialStyle);
   const score = company.scores[styleId];
+  const displayedModelVersion = score ? displayModelVersion(score.modelVersion) : "";
 
   return (
     <>
@@ -59,12 +61,11 @@ export default function StockLenses({
       {lens === "business" && (
         <BusinessLens company={company} styleId={styleId} onStyleChange={setStyleId} />
       )}
-      {lens === "chart" && <ChartLens />}
       {lens === "note" && <NoteLens company={company} styleId={styleId} />}
 
       {lens === "business" && score && (
         <p className="disclaimer">
-          이 결과는 {score.modelVersion} 모델이 공개된 재무데이터에 같은 규칙을 적용한 것입니다.
+          이 결과는 {displayedModelVersion} 모델이 공개된 재무데이터에 같은 규칙을 적용한 것입니다.
           기업을 좁히는 출발점이며, 매수·매도 판단이 아닙니다.
         </p>
       )}
@@ -83,11 +84,20 @@ function BusinessLens({
 }) {
   const score = company.scores[styleId];
   if (!score) return <p>이 철학의 점수가 없습니다.</p>;
+  const displayedModelVersion = displayModelVersion(score.modelVersion);
 
   const passed = score.criteria.filter((c) => c.status === "pass");
   const failed = score.criteria.filter((c) => c.status === "fail");
   const unknown = score.criteria.filter((c) => c.status === "unknown");
-  const rankModel = score.rankComponents !== undefined;
+  const rankModel = styleId.startsWith("greenblatt");
+  const unscorableReason = score.unscorableReason ?? company.unscorableReason;
+  const judgedWeight = score.criteria
+    .filter((c) => c.status !== "unknown")
+    .reduce((sum, c) => sum + c.weight, 0);
+  const passedWeight = score.criteria
+    .filter((c) => c.status === "pass")
+    .reduce((sum, c) => sum + c.weight, 0);
+  const totalWeight = score.criteria.reduce((sum, c) => sum + c.weight, 0);
 
   return (
     <>
@@ -100,7 +110,7 @@ function BusinessLens({
             data-variant={id === styleId ? undefined : "quiet"}
             onClick={() => onStyleChange(id)}
           >
-            {MASTER_BY_ID[id as keyof typeof MASTER_BY_ID]?.name.split(" · ")[0] ?? id}{" "}
+            {scoreModelLabel(id, company)}{" "}
             {company.scores[id].rank !== undefined
               ? `#${company.scores[id].rank}`
               : company.scores[id].score !== null
@@ -112,9 +122,11 @@ function BusinessLens({
 
       <div className="card">
         <p className="eyebrow">
-          {rankModel
-            ? `${score.modelVersion} · 질 ${score.rankComponents?.quality}위 · 가격 ${score.rankComponents?.value}위`
-            : `${score.modelVersion} · 판정한 ${score.totalJudged}개 기준 중 ${score.passed}개 충족`}
+          {unscorableReason
+            ? `${displayedModelVersion} · 판정 대상 아님`
+            : rankModel
+            ? `${displayedModelVersion} · 질 ${score.rankComponents?.quality}위 · 가격 ${score.rankComponents?.value}위`
+            : `${displayedModelVersion} · 판정한 ${score.totalJudged}개 기준 중 ${score.passed}개 충족`}
         </p>
         <div style={{ display: "flex", alignItems: "baseline", gap: "0.6rem", marginBottom: "1rem" }}>
           <span className="score-value" style={{ fontSize: "2.2rem" }}>
@@ -125,12 +137,29 @@ function BusinessLens({
           </span>
         </div>
         {/* 왜 점수가 없는지는 '데이터가 없다'와 '모델이 안 맞는다'가 전혀 다르다 */}
-        {company.unscorableReason ? (
+        {unscorableReason ? (
           <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--ink-soft)" }}>
-            {company.unscorableReason} 아래 지표는 그대로 확인할 수 있습니다.
+            {unscorableReason} 아래 지표는 그대로 확인할 수 있습니다.
           </p>
         ) : (
-          <CriteriaBar criteria={score.criteria} showLegend />
+          <>
+            <CriteriaBar criteria={score.criteria} showBreakdown showLegend />
+            {score.modelVersion === "Buffett 1.0" && (
+              <div className="score-model-note">
+                <h3>Buffett 1.0은 8개 기준, 총 {totalWeight}점입니다</h3>
+                <p>
+                  좋은 기업인지 10점, 재무가 버틸 수 있는지 3점, 성장이 이어지는지 2점,
+                  가격이 과하지 않은지 3점으로 봅니다.
+                </p>
+                <p>데이터가 없는 기준은 맞거나 틀렸다고 보지 않고, 점수 계산에서도 잠시 빼 둡니다.</p>
+              </div>
+            )}
+            <p className="score-formula">
+              {rankModel
+                ? `순위식: 품질 순위 ${score.rankComponents?.quality} + 가격 순위 ${score.rankComponents?.value}. 합이 낮을수록 상위입니다.`
+                : `판정 가능한 ${judgedWeight}점 중 ${passedWeight}점을 채워 ${score.score ?? "—"}점입니다. 판정 불가 기준은 계산에서 뺍니다.`}
+            </p>
+          </>
         )}
       </div>
 
@@ -140,7 +169,7 @@ function BusinessLens({
       <ul className="reason-list">
         {passed.map((c) => (
           <li key={c.code} data-kind="pass">
-            {c.message}
+            <FinancialText text={c.message} />
           </li>
         ))}
         {passed.length === 0 && <li data-kind="unknown">충족한 기준이 없습니다.</li>}
@@ -152,12 +181,12 @@ function BusinessLens({
       <ul className="reason-list">
         {failed.map((c) => (
           <li key={c.code} data-kind="fail">
-            {c.message}
+            <FinancialText text={c.message} />
           </li>
         ))}
         {unknown.map((c) => (
           <li key={c.code} data-kind="unknown">
-            {c.label} — {c.message}
+            <FinancialText text={c.label} /> — <FinancialText text={c.message} />
           </li>
         ))}
         {failed.length + unknown.length === 0 && (
@@ -165,27 +194,42 @@ function BusinessLens({
         )}
       </ul>
 
-      <details style={{ marginTop: "2rem" }}>
-        <summary style={{ cursor: "pointer", fontSize: "0.9rem", color: "var(--plum)" }}>
-          기준과 실제 수치 펼쳐보기
-        </summary>
-        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1rem", fontSize: "0.86rem" }}>
+      <details className="criterion-audit">
+        <summary>기준식과 실제 판정 데이터 펼쳐보기</summary>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">기준</th>
+              <th scope="col">수식</th>
+              <th scope="col">실제 데이터</th>
+              <th scope="col">결과</th>
+            </tr>
+          </thead>
           <tbody>
             {score.criteria.map((c) => (
-              <tr key={c.code} style={{ borderBottom: "1px solid var(--line)" }}>
-                <td style={{ padding: "0.5rem 0", width: "34%" }}>{c.label}</td>
-                <td style={{ padding: "0.5rem 0", color: "var(--ink-soft)" }} className="mono">
-                  {c.detail}
+              <tr key={c.code} data-status={c.status}>
+                <th scope="row">
+                  <FinancialText text={c.label} />
+                  <span className="criterion-weight">가중치 {c.weight}점</span>
+                </th>
+                <td className="mono">
+                  <FinancialText text={c.detail} />
                 </td>
-                <td style={{ padding: "0.5rem 0", width: "6rem", textAlign: "right" }}>
+                <td><FinancialText text={c.message} /></td>
+                <td>
                   {c.status === "pass" ? "충족" : c.status === "fail" ? "미충족" : "판정 불가"}
                 </td>
               </tr>
             ))}
+          </tbody>
+        </table>
+        <h3>원자료 지표</h3>
+        <table>
+          <tbody>
             {Object.entries(METRIC_LABELS).map(([key, meta]) => (
-              <tr key={key} style={{ borderBottom: "1px solid var(--line)" }}>
-                <td style={{ padding: "0.5rem 0" }}>{meta.label}</td>
-                <td colSpan={2} style={{ padding: "0.5rem 0", textAlign: "right" }} className="mono">
+              <tr key={key}>
+                <th scope="row"><FinancialText text={meta.label} /></th>
+                <td className="mono" colSpan={3}>
                   {formatMetric(company.metrics[key], meta.format, meta.cap)}
                 </td>
               </tr>
@@ -197,36 +241,10 @@ function BusinessLens({
   );
 }
 
-function ChartLens() {
-  return (
-    <>
-      <p style={{ color: "var(--ink-soft)", maxWidth: "62ch" }}>
-        차트 분석에는 종목명이나 티커를 넘기지 않습니다. 모델이 회사에 대해 알고 있는 것으로
-        전망을 덧붙이지 않고, 이미지에 보이는 것만 설명하게 하기 위해서입니다.
-      </p>
-      <div style={{ marginTop: "1.5rem" }}>
-        <ChartAnalyzer />
-      </div>
-      <h3 className="sub" style={{ marginTop: "2.5rem" }}>
-        차트를 읽는 순서
-      </h3>
-      <div className="grid">
-        {CHART_LESSONS.map((lesson) => (
-          <Link key={lesson.id} href={`/learn/chart/${lesson.id}`} className="card card-link">
-            <p className="eyebrow">{lesson.order}단원</p>
-            <strong>{lesson.title}</strong>
-          </Link>
-        ))}
-      </div>
-    </>
-  );
-}
-
 function NoteLens({ company, styleId }: { company: Company; styleId: string }) {
   const score = company.scores[styleId];
   const [why, setWhy] = useState("");
   const [questions, setQuestions] = useState("");
-  const [chartNote, setChartNote] = useState("");
   const [status, setStatus] = useState<NoteStatus>("first");
   const [savedAt, setSavedAt] = useState<string | null>(null);
 
@@ -236,7 +254,6 @@ function NoteLens({ company, styleId }: { company: Company; styleId: string }) {
       if (!alive || !existing) return;
       setWhy(existing.whyInterested);
       setQuestions(existing.openQuestions);
-      setChartNote(existing.chartObservations.join("\n"));
       setStatus(existing.status);
       setSavedAt(existing.updatedAt);
     });
@@ -252,20 +269,16 @@ function NoteLens({ company, styleId }: { company: Company; styleId: string }) {
       whyInterested: why,
       styleScores: Object.entries(company.scores).map(([id, s]) => ({
         styleId: id,
-        label: MASTER_BY_ID[id as keyof typeof MASTER_BY_ID]?.name ?? id,
+        label: scoreModelLabel(id, company),
         score: s.score,
       })),
       strengths: score?.reasons ?? [],
       risks: score?.risks ?? [],
-      chartObservations: chartNote.split("\n").filter(Boolean),
       openQuestions: questions,
       status,
     });
     setSavedAt(note.updatedAt);
-    track("study_note_saved", {
-      ticker: company.ticker,
-      hasChartObservation: note.chartObservations.length > 0,
-    });
+    track("study_note_saved", { ticker: company.ticker });
   }
 
   return (
@@ -280,7 +293,7 @@ function NoteLens({ company, styleId }: { company: Company; styleId: string }) {
         <ul className="reason-list">
           {Object.entries(company.scores).map(([id, s]) => (
             <li key={id} data-kind={s.score === null ? "unknown" : "pass"}>
-              {MASTER_BY_ID[id as keyof typeof MASTER_BY_ID]?.name ?? id} —{" "}
+              {scoreModelLabel(id, company)} —{" "}
               {s.rank !== undefined ? `종합 ${s.rank}위` : s.score === null ? s.dataConfidence : `${s.score}점`}
             </li>
           ))}
@@ -310,17 +323,7 @@ function NoteLens({ company, styleId }: { company: Company; styleId: string }) {
       </div>
 
       <label className="field">
-        <span>5. 차트에서 관찰한 내용</span>
-        <textarea
-          rows={4}
-          value={chartNote}
-          onChange={(e) => setChartNote(e.target.value)}
-          placeholder="차트 관점 탭의 분석 결과 중 남길 문장을 한 줄에 하나씩 옮겨 적으세요."
-        />
-      </label>
-
-      <label className="field">
-        <span>6. 추가로 확인할 질문</span>
+        <span>5. 추가로 확인할 질문</span>
         <textarea
           rows={3}
           value={questions}
@@ -331,7 +334,7 @@ function NoteLens({ company, styleId }: { company: Company; styleId: string }) {
 
       <fieldset style={{ border: 0, padding: 0, margin: "0 0 1.5rem" }}>
         <legend style={{ fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem" }}>
-          7. 나의 판단
+          6. 나의 판단
         </legend>
         {(Object.keys(NOTE_STATUS_LABEL) as NoteStatus[]).map((key) => (
           <button

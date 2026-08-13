@@ -22,7 +22,12 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from wisor_data import metrics, quality
-from wisor_data.coverage import UNSCORABLE_REASON, is_scorable
+from wisor_data.coverage import (
+    MAGIC_FORMULA_UNSCORABLE_REASON,
+    UNSCORABLE_REASON,
+    is_magic_formula_scorable,
+    is_scorable,
+)
 from wisor_data.providers.base import SampleProvider
 from wisor_data.providers.sec_toss import (
     CachedPriceProvider,
@@ -41,7 +46,7 @@ DEFAULT_OUT = ROOT.parent / "apps" / "web" / "lib" / "generated" / "scores.json"
 SEOUL = ZoneInfo("Asia/Seoul")
 
 
-def _unscorable(style) -> StyleScore:
+def _unscorable(style, reason: str = UNSCORABLE_REASON) -> StyleScore:
     """판정 대상이 아닌 업종의 자리. 화면이 스타일 항목을 찾으므로 비워 두지 않는다.
 
     '정보 부족'과 구분해야 한다. 데이터는 다 있고, 맞지 않는 것은 모델 쪽이다.
@@ -54,6 +59,7 @@ def _unscorable(style) -> StyleScore:
         total_judged=0,
         total=len(style.criteria),
         data_confidence="판정 대상 아님",
+        unscorable_reason=reason,
     )
 
 
@@ -106,8 +112,13 @@ def build(provider, universe_meta: dict | None = None, price_at: str | None = No
 
     # 판정 대상이 아닌 업종은 상대 순위의 모수에서도 뺀다. 넣으면 사업회사의 순위가 밀린다.
     scorable = [(f, m) for f, m in prepared if is_scorable(f)]
+    magic_formula_universe = [
+        (fundamentals, computed)
+        for fundamentals, computed in scorable
+        if is_magic_formula_scorable(fundamentals)
+    ]
     greenblatt_scores = greenblatt.score_universe(
-        {fundamentals.ticker: computed for fundamentals, computed in scorable}
+        {fundamentals.ticker: computed for fundamentals, computed in magic_formula_universe}
     )
     skipped = len(prepared) - len(scorable)
     if skipped:
@@ -117,7 +128,12 @@ def build(provider, universe_meta: dict | None = None, price_at: str | None = No
     for f, m in prepared:
         if is_scorable(f):
             scores = {s.id: s.score(m).to_dict() for s in THRESHOLD_STYLES}
-            scores[greenblatt.STYLE.id] = greenblatt_scores[f.ticker].to_dict()
+            if is_magic_formula_scorable(f):
+                scores[greenblatt.STYLE.id] = greenblatt_scores[f.ticker].to_dict()
+            else:
+                scores[greenblatt.STYLE.id] = _unscorable(
+                    greenblatt.STYLE, MAGIC_FORMULA_UNSCORABLE_REASON
+                ).to_dict()
         else:
             scores = {s.id: _unscorable(s).to_dict() for s in STYLES}
         rows.append({
@@ -129,6 +145,7 @@ def build(provider, universe_meta: dict | None = None, price_at: str | None = No
             "asOf": {"price": f.price_as_of, "financial": f.financial_as_of},
             "metrics": {
                 "roicAvg5y": m.roic_avg_5y,
+                "magicFormulaRoc": m.magic_formula_roc,
                 "fcfMargin": m.fcf_margin,
                 "fcfYield": m.fcf_yield,
                 "netDebtToEbitda": m.net_debt_to_ebitda,
@@ -236,9 +253,10 @@ def main() -> None:
             companies, built_at = read_fundamentals_cache(cache_path)
             print(f"[캐시] 재무 {len(companies)}종목을 재사용합니다(수집 {built_at or '시각 미상'}).")
             price_at = datetime.now(SEOUL).isoformat(timespec="seconds")
-            prices = toss.latest_prices()
+            prices, market_caps = toss.latest_market_data()
             print(f"[가격] 체결가 {len(prices)}종목 · 기준 {price_at}")
-            provider = CachedPriceProvider(prices, companies, price_at)
+            print(f"[market-cap] API 시가총액 {len(market_caps)}종목")
+            provider = CachedPriceProvider(prices, market_caps, companies, price_at)
     payload = build(provider, universe_meta, price_at)
 
     out = Path(args.out)

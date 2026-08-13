@@ -1,0 +1,109 @@
+# CLAUDE.md 규칙 리뷰
+#
+# docs/superpowers/specs/2026-08-11-pr-review-system-design.md "3. Claude 의미
+# 리뷰 레이어" 참고. 규칙 기반 자동검사(pr-review.yml)와는 별개로, 판단이
+# 필요한 것만 본다 — 세 가지 핵심 원칙, 문장 규칙, 경계. 프롬프트 본문은
+# .github/claude/rules-review-prompt.md에 있다(사람이 읽고 고치기 쉽게 분리).
+#
+# 이 레이어는 Claude 구독 사용량을 쓰므로 불필요한 재실행·재검토를 특히
+# 신경 쓴다.
+# ① docs/**만 바뀐 PR은 paths-ignore로 아예 안 걸린다.
+# ② 이미 리뷰한 커밋 그대로 reopened된 경우 resolve-review-scope 잡이 sticky
+#    코멘트의 reviewed-sha와 비교해서 같으면 리뷰를 건너뛴다.
+# ③ synchronize(새 커밋 push)일 때도 PR 전체 diff를 처음부터 다시 보지 않고,
+#    resolve-review-scope 잡이 찾아낸 이전 reviewed-sha부터 지금 head까지만
+#    보도록 프롬프트에 범위를 알려준다(.github/claude/rules-review-prompt.md
+#    "리뷰 범위" 절 참고). PR을 처음 여는 opened에는 이전 커밋이 없으므로
+#    지금까지처럼 전체 diff를 본다.
+
+name: Claude 규칙 리뷰
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
+    paths-ignore:
+      - "docs/**"
+
+jobs:
+  resolve-review-scope:
+    # 이전에 리뷰한 커밋(있다면)을 sticky 코멘트에서 읽어온다. reopened에서
+    # skip 여부를 정하는 데도, synchronize에서 diff 범위를 좁히는 데도 쓰인다.
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      skip: ${{ steps.check.outputs.skip }}
+      previous_sha: ${{ steps.check.outputs.previous_sha }}
+    steps:
+      - name: 이전 리뷰 커밋 확인
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          MARKER: "<!-- wisor-claude-rules -->"
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          EVENT_ACTION: ${{ github.event.action }}
+        run: |
+          PREVIOUS_SHA=$(gh api "repos/$REPO/issues/$PR_NUMBER/comments" --paginate \
+            --jq "[.[] | select(.body | startswith(\"$MARKER\"))][0].body // empty" \
+            | grep -oP '(?<=<!-- reviewed-sha: )[0-9a-f]+(?= -->)' || true)
+          echo "previous_sha=$PREVIOUS_SHA" >> "$GITHUB_OUTPUT"
+          if [ "$EVENT_ACTION" = "reopened" ] && [ -n "$PREVIOUS_SHA" ] && [ "$PREVIOUS_SHA" = "$HEAD_SHA" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  claude-rules-review:
+    needs: resolve-review-scope
+    if: always() && needs.resolve-review-scope.outputs.skip != 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: read
+      id-token: write
+    env:
+      # 4명이 각자 자기 Claude 계정 토큰을 쓴다 — 한 사람 계정에 팀 전체
+      # PR 트래픽이 몰리지 않게 하기 위함.
+      TOKEN_NAEMNAEM99: ${{ secrets.CLAUDE_TOKEN_NAEMNAEM99 }}
+      TOKEN_LIMSOJANG_GIF: ${{ secrets.CLAUDE_TOKEN_LIMSOJANG_GIF }}
+      TOKEN_RAINBOW0291: ${{ secrets.CLAUDE_TOKEN_RAINBOW0291 }}
+      TOKEN_CHRUSTERD: ${{ secrets.CLAUDE_TOKEN_CHRUSTERD }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: 이 PR을 올린 사람의 Claude 토큰 고르기
+        id: pick_token
+        run: |
+          case "${{ github.event.pull_request.user.login }}" in
+            naemnaem99) TOKEN="$TOKEN_NAEMNAEM99" ;;
+            limsojang-gif) TOKEN="$TOKEN_LIMSOJANG_GIF" ;;
+            rainbow0291) TOKEN="$TOKEN_RAINBOW0291" ;;
+            chrusterd) TOKEN="$TOKEN_CHRUSTERD" ;;
+            *) TOKEN="" ;;
+          esac
+          echo "::add-mask::$TOKEN"
+          echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
+
+      - name: Run Claude 규칙 리뷰
+        id: claude-rules-review
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ steps.pick_token.outputs.token }}
+          claude_args: '--allowed-tools "Bash(gh pr *),Bash(gh api *),mcp__github_inline_comment__create_inline_comment"'
+          prompt: |
+            저장소 루트의 .github/claude/rules-review-prompt.md 파일을 읽고,
+            그 지침을 그대로 따라 이 PR을 리뷰하세요.
+            리뷰 대상 PR: ${{ github.repository }}/pull/${{ github.event.pull_request.number }}
+            이 리뷰가 반영하는 head 커밋 SHA: ${{ github.event.pull_request.head.sha }}
+            이전에 리뷰한 커밋 SHA(없으면 빈 문자열): ${{ needs.resolve-review-scope.outputs.previous_sha }}
+            (프롬프트 파일의 "리뷰 범위" 절 지시를 그대로 따르세요. "형식" 절에
+            적힌 대로 sticky 코멘트 둘째 줄에 head 커밋 SHA를 reviewed-sha로
+            반드시 남기세요.)
+

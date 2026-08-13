@@ -4,10 +4,11 @@ import ChapterExercises from "@/components/ChapterExercises";
 import {
   CHAPTER_SLOTS,
   CURRICULA,
-  CURRICULUM_BY_MASTER,
   chapterOf,
 } from "@/content/curriculum";
+import { chapterSteps } from "@/content/curriculum/steps";
 import { MASTER_BY_ID, type Master } from "@/content/masters";
+import { styleMeta } from "@/lib/scores";
 
 export function generateStaticParams() {
   return CURRICULA.flatMap((curriculum) =>
@@ -20,90 +21,91 @@ export function generateStaticParams() {
 
 export default async function ChapterPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string; chapter: string }>;
+  searchParams: Promise<{ step?: string }>;
 }) {
   const { slug, chapter: chapterParam } = await params;
+  const { step } = await searchParams;
   const master = MASTER_BY_ID[slug as Master["id"]];
   const no = Number(chapterParam);
   const chapter = chapterOf(slug, no);
 
   if (!master || !Number.isInteger(no) || !chapter) notFound();
 
-  const curriculum = CURRICULUM_BY_MASTER[master.id];
   const slot = CHAPTER_SLOTS[no - 1];
-  const previous = no > 1 ? CHAPTER_SLOTS[no - 2] : undefined;
-  const next = no < CHAPTER_SLOTS.length ? CHAPTER_SLOTS[no] : undefined;
+  const nextSlot = no < CHAPTER_SLOTS.length ? CHAPTER_SLOTS[no] : undefined;
+  const meta = styleMeta(master.id);
+  const next = nextSlot
+    ? { href: `/learn/masters/${master.id}/${nextSlot.no}`, label: "다음 장" }
+    : meta
+      ? { href: `/screener/${master.id}`, label: "이 기준으로 종목 보기" }
+      : { href: `/learn/masters/${master.id}`, label: "개요로 돌아가기" };
+
+  const stepCount = chapterSteps(chapter.exercises).length;
+  const parsedStep = Number(step);
+  const initialStep = Number.isInteger(parsedStep)
+    ? Math.min(Math.max(parsedStep, 0), stepCount - 1)
+    : 0;
 
   return (
-    <div className="wrap wrap-narrow" style={{ paddingBlock: "3.5rem 5rem" }}>
-      <p className="eyebrow">
-        {master.name} · {slot.no}장 {slot.label} / {curriculum.chapters.length}
-      </p>
+    <div className="wrap chapter-page" style={{ paddingBlock: "3.5rem 5rem" }}>
+      <div className="chapter-page-copy">
+        <Link
+          href={`/learn/masters/${master.id}`}
+          className="card card-link"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.6rem",
+            padding: "0.7rem 1rem",
+            width: "fit-content",
+          }}
+        >
+          <span aria-hidden="true">←</span>
+          <strong style={{ fontSize: "0.9rem" }}>{master.name} 목차</strong>
+        </Link>
 
-      <div className="chapter-progress" aria-label={`${curriculum.chapters.length}장 중 ${slot.no}장`}>
-        {CHAPTER_SLOTS.map((chapterSlot) => (
-          <span
-            key={chapterSlot.no}
-            data-state={
-              chapterSlot.no < slot.no
-                ? "done"
-                : chapterSlot.no === slot.no
-                  ? "current"
-                  : undefined
-            }
-          />
-        ))}
+        <nav className="chapter-route" aria-label="챕터 단계">
+          <ol>
+            {CHAPTER_SLOTS.map((chapterSlot) => {
+              const isCurrent = chapterSlot.no === slot.no;
+
+              return (
+                <li key={chapterSlot.slot} data-current={isCurrent || undefined}>
+                  <Link
+                    href={`/learn/masters/${master.id}/${chapterSlot.no}`}
+                    aria-current={isCurrent ? "page" : undefined}
+                  >
+                    <span className="chapter-route-number" aria-hidden="true">
+                      {chapterSlot.no}
+                    </span>
+                    <span className="chapter-route-label">{chapterSlot.label}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ol>
+        </nav>
+
+        <h1 className="chapter-title">{chapter.title}</h1>
+        <p className="chapter-lede">{chapter.lede}</p>
+        <p className="lede">{slot.asks}</p>
+
+        <hr className="rule" />
       </div>
 
-      <h1 className="chapter-title">{chapter.title}</h1>
-      <p className="chapter-lede">{chapter.lede}</p>
-      <p className="lede">{slot.asks}</p>
-
-      <div className="prose">
-        {chapter.body.map((paragraph, index) => (
-          <p key={index}>{paragraph}</p>
-        ))}
-      </div>
-
-      <hr className="rule" />
-
-      <ChapterExercises chapterId={`master:${master.id}:${slot.no}`} exercises={chapter.exercises} />
-
-      <nav className="chapter-nav" aria-label="장 이동">
-        <div>
-          {previous ? (
-            <Link href={`/learn/masters/${master.id}/${previous.no}`} className="card card-link">
-              <p className="eyebrow">이전 장</p>
-              <strong>
-                {previous.no}장 {previous.label}
-              </strong>
-            </Link>
-          ) : (
-            <Link href={`/learn/masters/${master.id}`} className="card card-link">
-              <p className="eyebrow">목차</p>
-              <strong>{master.name} 전체 보기</strong>
-            </Link>
-          )}
-        </div>
-        <div>
-          {next ? (
-            <Link href={`/learn/masters/${master.id}/${next.no}`} className="card card-link">
-              <p className="eyebrow">다음 장</p>
-              <strong>
-                {next.no}장 {next.label}
-              </strong>
-            </Link>
-          ) : (
-            <Link href={`/screener/${master.id}`} className="card card-link">
-              <p className="eyebrow">다음 단계</p>
-              <strong>이 기준으로 종목 보기</strong>
-            </Link>
-          )}
-        </div>
-      </nav>
-
-      <p className="disclaimer">{curriculum.currency}</p>
+      <ChapterExercises
+        chapterId={`master:${master.id}:${slot.no}`}
+        exercises={chapter.exercises}
+        body={chapter.body}
+        sources={chapter.sources}
+        closing={chapter.lede}
+        initialStep={initialStep}
+        next={next}
+        masterId={master.id}
+      />
     </div>
   );
 }
