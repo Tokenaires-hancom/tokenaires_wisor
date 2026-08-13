@@ -4,7 +4,6 @@ import ChapterExercises from "@/components/ChapterExercises";
 import {
   CHAPTER_SLOTS,
   CURRICULA,
-  CURRICULUM_BY_MASTER,
   chapterOf,
 } from "@/content/curriculum";
 import { chapterSteps } from "@/content/curriculum/steps";
@@ -35,7 +34,6 @@ export default async function ChapterPage({
 
   if (!master || !Number.isInteger(no) || !chapter) notFound();
 
-  const curriculum = CURRICULUM_BY_MASTER[master.id];
   const slot = CHAPTER_SLOTS[no - 1];
   const nextSlot = no < CHAPTER_SLOTS.length ? CHAPTER_SLOTS[no] : undefined;
   const meta = styleMeta(master.id);
@@ -69,9 +67,27 @@ export default async function ChapterPage({
           <strong style={{ fontSize: "0.9rem" }}>{master.name} 목차</strong>
         </Link>
 
-        <p className="eyebrow" style={{ marginTop: "1.25rem" }}>
-          {master.name} · {slot.no}장 {slot.label} / {curriculum.chapters.length}
-        </p>
+        <nav className="chapter-route" aria-label="챕터 단계">
+          <ol>
+            {CHAPTER_SLOTS.map((chapterSlot) => {
+              const isCurrent = chapterSlot.no === slot.no;
+
+              return (
+                <li key={chapterSlot.slot} data-current={isCurrent || undefined}>
+                  <Link
+                    href={`/learn/masters/${master.id}/${chapterSlot.no}`}
+                    aria-current={isCurrent ? "page" : undefined}
+                  >
+                    <span className="chapter-route-number" aria-hidden="true">
+                      {chapterSlot.no}
+                    </span>
+                    <span className="chapter-route-label">{chapterSlot.label}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ol>
+        </nav>
 
         <h1 className="chapter-title">{chapter.title}</h1>
         <p className="chapter-lede">{chapter.lede}</p>
@@ -84,13 +100,12 @@ export default async function ChapterPage({
         chapterId={`master:${master.id}:${slot.no}`}
         exercises={chapter.exercises}
         body={chapter.body}
+        sources={chapter.sources}
         closing={chapter.lede}
         initialStep={initialStep}
         next={next}
         masterId={master.id}
       />
-
-      <p className="disclaimer chapter-page-copy">{curriculum.currency}</p>
     </div>
   );
 }

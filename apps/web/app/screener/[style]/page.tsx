@@ -2,13 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import DataStamp, { SampleDataFlag } from "@/components/DataStamp";
 import ScreenerCompanies from "@/components/ScreenerCompanies";
-import { MASTER_BY_ID, SCORABLE_MASTERS } from "@/content/masters";
+import { MASTER_BY_ID } from "@/content/masters";
 import CoverageTable from "@/components/CoverageTable";
+import { FinancialText } from "@/components/FinancialTerm";
 import { COVERAGE, DATA, ranked, styleMeta } from "@/lib/scores";
 import { indexNames } from "@/lib/scores.types";
 
 export function generateStaticParams() {
-  return SCORABLE_MASTERS.map((master) => ({ style: master.id }));
+  return DATA.styles.map((model) => ({ style: model.id }));
 }
 
 export default async function Screener({ params }: { params: Promise<{ style: string }> }) {
@@ -20,30 +21,41 @@ export default async function Screener({ params }: { params: Promise<{ style: st
   const { scored, unscored, unscorable } = ranked(style);
   const isRankModel = meta.method === "rank";
   const here = COVERAGE.byStyle.find((s) => s.styleId === style);
+  const totalCriteriaWeight = meta.criteria.reduce((sum, c) => sum + c.weight, 0);
+
+  function criteriaWeightShare(weight: number) {
+    if (totalCriteriaWeight <= 0) return "0%";
+    const percent = (weight / totalCriteriaWeight) * 100;
+    return Number.isInteger(percent) ? `${percent}%` : `${percent.toFixed(1)}%`;
+  }
 
   return (
     <div className="wrap" style={{ paddingBlock: "3.5rem 5rem" }}>
       <p className="eyebrow">종목 찾기</p>
       <p className="lede" style={{ marginBottom: "1.5rem" }}>
-        이 화면에서는 네 명의 투자 대가 기준만 동일한 방식으로 점수화해 보여줍니다. 다른 투자자들은 공개한 기준과 데이터가 현재 방식과 맞지 않거나, 같은 기준을 일관되게 적용하기에 필요한 정보가 부족하기 때문에 이 목록에 포함되지 않습니다.
+        이 화면에서는 네 명의 투자 대가에서 만든 네 점수 모델을 같은 데이터로 보여줍니다.
       </p>
 
       <nav className="screener-style-tabs" aria-label="투자 철학 선택">
-        {SCORABLE_MASTERS.map((m) => {
-          const isActive = m.id === style;
+        {DATA.styles
+          .map((model) => {
+            const modelMaster = MASTER_BY_ID[model.id as keyof typeof MASTER_BY_ID];
+            const isActive = model.id === style;
 
-          return (
-            <Link
-              key={m.id}
-              href={`/screener/${m.id}`}
-              className="screener-style-tab"
-              aria-current={isActive ? "page" : undefined}
-            >
-              <span className="screener-tab-name">{m.name.split(" · ")[0]}</span>
-              <span className="screener-tab-meta">{m.styleName}</span>
-            </Link>
-          );
-        })}
+            return (
+              <Link
+                key={model.id}
+                href={`/screener/${model.id}`}
+                className="screener-style-tab"
+                aria-current={isActive ? "page" : undefined}
+              >
+                <span className="screener-tab-name">{modelMaster?.name.split(" · ")[0] ?? model.name}</span>
+                <span className="screener-tab-meta">
+                  {modelMaster?.styleName ?? model.modelVersion}
+                </span>
+              </Link>
+            );
+          })}
       </nav>
 
       <p className="eyebrow screener-current-label">선택한 투자 철학</p>
@@ -62,13 +74,21 @@ export default async function Screener({ params }: { params: Promise<{ style: st
         <p className="eyebrow">{isRankModel ? "순위를 만드는 방식" : "점수를 매기는 방식"}</p>
         <p style={{ margin: "0 0 1rem", fontSize: "0.92rem", color: "var(--ink-soft)" }}>
           {isRankModel
-            ? "자본수익률과 이익수익률을 각각 전체 종목 안에서 순위 매긴 뒤 두 순위를 합산합니다. 절대 문턱이나 개별 예외를 사용하지 않습니다."
+            ? style === "greenblatt"
+              ? "원래 마법공식대로 최신 EBIT를 순운전자본과 순유형자산의 합으로 나눈 자본수익률과 EBIT/기업가치를 각각 순위 매겨 합산합니다. 금융·유틸리티는 순위에서 제외합니다."
+              : "기존 Wisor 변형대로 5년 평균 세후 ROIC와 EBIT/기업가치를 각각 순위 매긴 뒤 합산합니다."
             : `${meta.criteria.length}개 기준을 같은 방식으로 모든 종목에 적용하고, 충족한 기준의 비중 합을 점수로 씁니다. 판정할 데이터가 없는 기준은 감점하지 않고 따로 표시합니다.`}
         </p>
-        <ol style={{ margin: 0, paddingLeft: "1.2rem", fontSize: "0.88rem", color: "var(--ink-soft)" }}>
+        <ol className="criteria-weight-list">
           {meta.criteria.map((c) => (
-            <li key={c.code} style={{ padding: "0.15rem 0" }}>
-              <strong style={{ color: "var(--ink)" }}>{c.label}</strong> — <span className="mono">{c.detail}</span>
+            <li key={c.code}>
+              <div>
+                <strong><FinancialText text={c.label} /></strong>
+                <span className="criteria-weight-meta">
+                  가중치 {c.weight}점 · 비중 {criteriaWeightShare(c.weight)}
+                </span>
+              </div>
+              <p className="mono"><FinancialText text={c.detail} /></p>
             </li>
           ))}
         </ol>
@@ -138,7 +158,7 @@ export default async function Screener({ params }: { params: Promise<{ style: st
             판정하지 않은 업종 ({unscorable.length})
           </h2>
           <p className="lede">
-            {unscorable[0].unscorableReason} 데이터가 모자란 것이 아니라 모델이 맞지 않는 쪽입니다.
+            {unscorable[0].scores[style]?.unscorableReason ?? unscorable[0].unscorableReason} 데이터가 모자란 것이 아니라 모델이 맞지 않는 쪽입니다.
             종목을 눌러 지표는 그대로 볼 수 있습니다.
           </p>
           <ul className="reason-list">

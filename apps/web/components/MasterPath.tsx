@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import MasterCharacter from "@/components/MasterCharacter";
-import { CHAPTER_SLOTS, CURRICULUM_BY_MASTER } from "@/content/curriculum";
+// 배럴(@/content/curriculum)이 아니라 types를 직접 부른다. 배럴은 일곱 커리큘럼을
+// 전부 import하므로, 클라이언트 컴포넌트가 배럴을 거치면 본문과 각주 전체가 번들에 실린다
+import { CHAPTER_SLOTS } from "@/content/curriculum/types";
 import { MASTER_BY_ID, type Master } from "@/content/masters";
 import { getCharacterAnchor } from "@/lib/masterPathAnchor";
 import { getProgress, resetMasterProgress } from "@/lib/store";
@@ -14,16 +16,20 @@ const SWAY = [0, 48, 72, 48, 0];
  *  항상 눌린다. '완료'는 저장된 진도에서 오고, '다음'은 진도가 없는 첫 장이다.
  *
  *  scorable은 서버에서 styleMeta(masterId)로 계산해 내려받는다 — lib/scores.ts를
- *  여기서 직접 import하면 클라이언트 번들에 재무 데이터가 실린다. */
+ *  여기서 직접 import하면 클라이언트 번들에 재무 데이터가 실린다.
+ *
+ *  chapterTitles도 같은 이유로 props다. CURRICULUM_BY_MASTER를 여기서 부르면
+ *  일곱 커리큘럼의 본문과 각주 전체가 브라우저로 내려간다. 여기 필요한 건 제목뿐이다. */
 export default function MasterPath({
   masterId,
   scorable,
+  chapterTitles,
 }: {
   masterId: Master["id"];
   scorable: boolean;
+  chapterTitles: string[];
 }) {
   const master = MASTER_BY_ID[masterId];
-  const curriculum = CURRICULUM_BY_MASTER[masterId];
   const [done, setDone] = useState<Set<number>>(new Set());
   const [ready, setReady] = useState(false);
 
@@ -72,7 +78,7 @@ export default function MasterPath({
   return (
     <div className="path-shell">
       <ol className="path" aria-label={`${master.name} 학습 경로`}>
-        {curriculum.chapters.map((chapter, index) => {
+        {chapterTitles.map((title, index) => {
           const slot = CHAPTER_SLOTS[index];
           const isDone = ready && done.has(slot.no);
           const isCurrent = ready && slot.no === nextNo;
@@ -97,13 +103,13 @@ export default function MasterPath({
                   {isDone ? "✓" : slot.no}
                 </span>
                 <span className="visually-hidden">
-                  {slot.no}장 {chapter.title}
+                  {slot.no}장 {title}
                   {isDone ? " · 완료" : isCurrent ? " · 지금 여기" : ""}
                 </span>
               </Link>
               <span className="path-label" aria-hidden="true">
                 <span className="path-label-slot">{slot.label}</span>
-                <span className="path-label-title">{chapter.title}</span>
+                <span className="path-label-title">{title}</span>
               </span>
               {slot.no === figureAt && (
                 <span className="path-figure" data-anchor={figureAt}>

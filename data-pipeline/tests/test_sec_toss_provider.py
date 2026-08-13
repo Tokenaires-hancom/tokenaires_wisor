@@ -13,6 +13,7 @@ import pytest
 
 from wisor_data.providers.sec_toss import (
     ProviderDataError,
+    SecTossProvider,
     _annual_values,
     fundamentals_from_sec,
 )
@@ -32,7 +33,7 @@ REQUIRED = (
     ("CashAndCashEquivalentsAtCarryingValue", 100, False),
 )
 
-STOCK = {"name": "Test", "sharesOutstanding": "100000000"}
+STOCK = {"name": "Test", "sharesOutstanding": "100000000", "marketCap": "3000000000"}
 PRICE = {"closePrice": "25", "timestamp": "2025-01-02T16:00:00-05:00"}
 SUBMISSIONS = {"sicDescription": "Services-Prepackaged Software"}
 
@@ -97,7 +98,44 @@ def test_fundamentals_are_built_from_five_real_fiscal_years():
     assert result.invested_capital[-1] == (1004 - 204 - 104) / 1_000_000
     assert result.price == 25
     assert result.shares_out == 100
+    assert result.market_cap == 3000
     assert result.financial_as_of == "2024-12-31"
+
+
+def test_net_fixed_assets_uses_latest_net_ppe_for_magic_formula():
+    result = build(PropertyPlantAndEquipmentNet=(400, False))
+
+    assert result.net_fixed_assets == 400 / 1_000_000
+
+
+def test_market_cap_must_come_from_api():
+    stock = {"name": "Test", "sharesOutstanding": "100000000"}
+
+    with pytest.raises(ProviderDataError) as caught:
+        fundamentals_from_sec("TEST", stock, PRICE, company_facts(), SUBMISSIONS)
+
+    assert caught.value.code == "MISSING_FIELD"
+    assert caught.value.detail == "marketCap"
+
+
+def test_nasdaq_market_caps_keep_only_positive_api_values():
+    provider = SecTossProvider(
+        toss_client_id="id",
+        toss_client_secret="secret",
+        sec_user_agent="Wisor test@example.com",
+        universe=["ADBE"],
+        get_json=lambda _url, _headers: {
+            "data": {
+                "rows": [
+                    {"symbol": "ADBE", "marketCap": "102853125000.00"},
+                    {"symbol": "ZERO", "marketCap": "0"},
+                    {"symbol": "EMPTY", "marketCap": None},
+                ]
+            }
+        },
+    )
+
+    assert provider._market_caps() == {"ADBE": 102853125000.0}
 
 
 def test_sector_comes_from_submissions_because_companyfacts_has_no_sic():

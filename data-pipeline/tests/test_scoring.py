@@ -224,20 +224,6 @@ def test_every_company_has_at_least_one_style_score():
         assert any(v is not None for v in scores), company["ticker"]
 
 
-def test_greenblatt_combines_quality_and_value_ranks():
-    universe = {
-        "AAA": metrics.Metrics(roic_avg_5y=0.30, earnings_yield=0.05),
-        "BBB": metrics.Metrics(roic_avg_5y=0.20, earnings_yield=0.10),
-        "CCC": metrics.Metrics(roic_avg_5y=0.10, earnings_yield=0.03),
-    }
-    scores = greenblatt.score_universe(universe)
-
-    assert scores["AAA"].rank == 1
-    assert scores["BBB"].rank == 1
-    assert scores["CCC"].rank == 3
-    assert scores["BBB"].rank_components == {"quality": 2, "value": 1}
-
-
 def test_greenblatt_message_says_what_the_denominator_counts():
     """'1위/7개'만 쓰면 7이 무엇의 7인지 알 수 없다.
 
@@ -246,9 +232,9 @@ def test_greenblatt_message_says_what_the_denominator_counts():
     """
     scores = greenblatt.score_universe(
         {
-            "AAA": metrics.Metrics(roic_avg_5y=0.30, earnings_yield=0.05),
-            "BBB": metrics.Metrics(roic_avg_5y=0.20, earnings_yield=0.10),
-            "NODEBT": metrics.Metrics(roic_avg_5y=0.40, earnings_yield=None),
+            "AAA": metrics.Metrics(magic_formula_roc=0.30, earnings_yield=0.05),
+            "BBB": metrics.Metrics(magic_formula_roc=0.20, earnings_yield=0.10),
+            "NODEBT": metrics.Metrics(magic_formula_roc=0.40, earnings_yield=None),
         }
     )
     message = scores["AAA"].criteria[0].message
@@ -261,8 +247,8 @@ def test_greenblatt_message_says_what_the_denominator_counts():
 def test_greenblatt_missing_metric_is_unscored():
     scores = greenblatt.score_universe(
         {
-            "KNOWN": metrics.Metrics(roic_avg_5y=0.20, earnings_yield=0.08),
-            "MISSING": metrics.Metrics(roic_avg_5y=0.20, earnings_yield=None),
+            "KNOWN": metrics.Metrics(magic_formula_roc=0.20, earnings_yield=0.08),
+            "MISSING": metrics.Metrics(magic_formula_roc=0.20, earnings_yield=None),
         }
     )
 
@@ -280,3 +266,41 @@ def test_greenblatt_rank_messages_are_safe_for_sample_universe():
         for criterion in score.criteria:
             for banned in BANNED_PHRASES:
                 assert banned not in criterion.message
+
+
+def test_magic_formula_uses_latest_pretax_roc_not_five_year_after_tax_roic():
+    universe = {
+        "LATEST": metrics.Metrics(
+            magic_formula_roc=0.40, roic_avg_5y=0.05, earnings_yield=0.05
+        ),
+        "AVERAGE": metrics.Metrics(
+            magic_formula_roc=0.10, roic_avg_5y=0.50, earnings_yield=0.05
+        ),
+    }
+
+    scores = greenblatt.score_universe(universe)
+
+    assert scores["LATEST"].rank_components["quality"] == 1
+    assert scores["AVERAGE"].rank_components["quality"] == 2
+    assert scores["LATEST"].model_version == "Greenblatt 1.0"
+
+
+def test_magic_formula_roc_uses_ebit_and_tangible_capital_without_tax_adjustment():
+    company = Fundamentals(
+        ticker="MAGIC",
+        name="Magic",
+        sector="산업재",
+        price=10.0,
+        shares_out=100.0,
+        market_cap=1000.0,
+        price_as_of="2026-08-12",
+        financial_as_of="2025-12-31",
+        ebit=[100.0],
+        current_assets=300.0,
+        current_liabilities=150.0,
+        net_fixed_assets=250.0,
+    )
+
+    computed = metrics.compute(company)
+
+    assert computed.magic_formula_roc == pytest.approx(100 / (300 - 150 + 250))

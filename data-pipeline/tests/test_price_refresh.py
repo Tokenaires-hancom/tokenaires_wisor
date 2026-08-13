@@ -27,6 +27,7 @@ PRICE_DEPENDENT = {
 def company(ticker="TEST", price=10.0):
     return Fundamentals(
         ticker=ticker, name="Test", sector="테스트", price=price, shares_out=100.0,
+        market_cap=price * 100.0,
         price_as_of="2026-08-05", financial_as_of="2025-12-31", sic="7372",
         revenue=[100.0, 110.0, 120.0, 130.0, 140.0],
         ebit=[10.0, 11.0, 12.0, 13.0, 14.0],
@@ -65,6 +66,7 @@ def test_only_price_dependent_metrics_move():
 
     provider = CachedPriceProvider(
         prices={"TEST": 20.0},
+        market_caps={"TEST": 2500.0},
         companies=[company(price=10.0)],
         price_at="2026-08-07T15:22:51+09:00",
     )
@@ -77,14 +79,15 @@ def test_only_price_dependent_metrics_move():
     assert moved, "가격을 두 배로 바꿨는데 아무 지표도 움직이지 않았다"
     assert moved <= PRICE_DEPENDENT, f"재무 지표가 함께 흔들렸다: {sorted(moved - PRICE_DEPENDENT)}"
 
-    # 가격이 두 배면 시가총액도 두 배다. 방향만이 아니라 크기까지 맞아야 한다.
-    assert after.market_cap == pytest.approx(before.market_cap * 2)
+    # 시가총액은 가격*주식수가 아니라 API가 준 값을 쓴다.
+    assert after.market_cap == pytest.approx(2500.0)
 
 
 def test_price_date_follows_the_fetch_time():
     """가격 기준일은 조회 시각의 날짜를 따른다."""
     provider = CachedPriceProvider(
         prices={"TEST": 20.0},
+        market_caps={"TEST": 2500.0},
         companies=[company()],
         price_at="2026-08-07T15:22:51+09:00",
     )
@@ -100,6 +103,7 @@ def test_a_ticker_without_a_price_keeps_the_cached_value():
     """체결가를 못 받은 종목은 빼거나 0으로 채우지 않고 캐시 값을 유지한다."""
     provider = CachedPriceProvider(
         prices={"AAA": 20.0},
+        market_caps={"AAA": 2500.0},
         companies=[company("AAA"), company("BBB", price=33.0)],
         price_at="2026-08-07T15:22:51+09:00",
     )
@@ -107,6 +111,7 @@ def test_a_ticker_without_a_price_keeps_the_cached_value():
 
     assert len(refreshed) == 2, "유니버스가 실행마다 출렁이면 안 된다"
     assert refreshed["BBB"].price == 33.0
+    assert refreshed["BBB"].market_cap == 3300.0
     assert refreshed["BBB"].price_as_of == "2026-08-05"  # 옛 기준일을 그대로 둔다
     assert provider.stale() == ["BBB"]
 
@@ -115,6 +120,7 @@ def test_as_of_reports_the_oldest_price_date():
     """일부가 갱신되지 않았으면 기준일은 가장 이른 쪽을 말해야 한다."""
     provider = CachedPriceProvider(
         prices={"AAA": 20.0},
+        market_caps={"AAA": 2500.0},
         companies=[company("AAA"), company("BBB")],
         price_at="2026-08-07T15:22:51+09:00",
     )

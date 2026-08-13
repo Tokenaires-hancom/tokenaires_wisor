@@ -6,34 +6,56 @@
 
 ---
 
-## 지금 상태
-
-설계 가이드 13장의 개발 순서 기준으로 **1~2주차 핵심 범위와 실데이터 조회의 첫 단계**가 구현돼 있습니다.
+## 지금 구현된 것
 
 | 영역 | 상태 |
 |---|---|
-| 재무데이터 → 투자 철학 결과 배치 | 버핏 1.0 / 그레이엄 1.0 / 린치 1.0 절대 기준 · 그린블랫 1.0 상대 순위 · 토스증권 종가와 SEC 공시로 동작 |
-| 웹 앱 | 홈 · 투자 철학 7유형×5장 · 횡단 비교 · 4개 정량 스크리너 · 토스증권 현재가 조회 · 종목 상세 · 학습노트 · 내 학습 |
+| 배우기 | 7명의 투자 대가 × 5장 · 확인 문항 · 철학 비교 · 업적과 근거 자료 |
+| 종목 찾기 | 버핏 1.0 / 그레이엄 1.0 / 린치 1.0 점수 · 그린블랫 1.0 마법공식 순위 |
+| 종목 상세 | 네 투자 철학 전환 · 기준별 실제 판정 데이터 · 가중치 · 재무 용어 설명 · 학습노트 |
+| 데이터 | S&P 500·NASDAQ-100 중복 제거 유니버스 517개 중 품질 기준을 통과한 380개 종목 수록 |
 | Supabase | 스키마 작성 완료, 앱 연결은 미착수 (지금은 브라우저 저장) |
-| 실데이터 공급자 | 토스증권 전 거래일 종가 + SEC Company Facts 최근 5개 회계연도 연결 |
+| 실데이터 공급자 | 토스증권 가격 + Nasdaq 시가총액 + SEC Company Facts 최근 5개 회계연도 |
+
+주요 화면:
+
+- `/learn` — 일곱 투자 대가의 철학을 순서대로 학습
+- `/learn/masters/[slug]` — 대가별 학습 경로, 업적, 원칙과 출처
+- `/learn/compare` — 철학별 판단 방식 비교
+- `/screener/[style]` — 네 정량 모델의 종목 결과
+- `/stocks/[ticker]` — 기업별 네 모델 판정과 학습노트
 
 ---
 
 ## 실행
 
-두 개를 각각 띄웁니다. 순서는 상관없습니다.
+필요한 환경은 Python 3.11 이상과 Node.js 23 이상입니다. 생성된 `scores.json`이 저장소에
+포함돼 있어 웹만 실행할 때는 데이터 배치를 먼저 돌릴 필요가 없습니다.
 
 ### 1. 점수 만들기
 
 ```bash
 cd data-pipeline
-python -m venv .venv && source .venv/bin/activate
+python -m venv .venv
+# macOS/Linux: source .venv/bin/activate
+# Windows PowerShell: .\.venv\Scripts\Activate.ps1
 pip install pytest
-python run_batch.py          # → apps/web/lib/generated/scores.json
-pytest -q
+python run_batch.py          # 예시 데이터 → apps/web/lib/generated/scores.json
+python -m pytest -q
 ```
 
-`scores.json`은 저장소에 이미 들어 있으므로 이 단계를 건너뛰고 바로 웹을 띄워도 됩니다.
+실데이터 전체 갱신은 `data-pipeline/.env.example`의 세 환경변수를 설정한 뒤 실행합니다.
+
+```bash
+python run_batch.py --provider sec-toss --universe data/universe_us.json
+```
+
+전체 갱신은 재무 캐시를 `data/fundamentals.json`에 남깁니다. 이후 가격만 갱신할 때는 SEC를
+다시 호출하지 않습니다.
+
+```bash
+python run_batch.py --provider sec-toss --mode prices --universe data/universe_us.json
+```
 
 ### 2. 웹
 
@@ -41,6 +63,8 @@ pytest -q
 cd apps/web
 npm install
 npm run dev        # http://localhost:3000
+npm test
+npm run build
 ```
 
 ---
@@ -54,6 +78,8 @@ wisor/
 │   ├─ lib/generated/   배치가 만든 scores.json — 화면은 이 파일만 읽는다
 │   └─ lib/store.ts     사용자 데이터 저장 (Supabase 교체 지점)
 ├─ data-pipeline/       Python 배치 · 재무데이터 → 투자 철학 점수 (3번 담당)
+│   └─ data/            종목 유니버스와 재무 캐시
+├─ docs/                설계, 구현 계획, 출처와 작업 인계
 └─ supabase/schema.sql  사용자 데이터 스키마 (2번 담당)
 ```
 
@@ -65,7 +91,7 @@ wisor/
 
 ## 점수는 어떻게 나오는가
 
-블랙박스 회귀식이 아니라 **기준 통과 여부의 가중 합**입니다.
+버핏·그레이엄·린치는 블랙박스 회귀식이 아니라 **기준 통과 여부의 가중 합**입니다.
 
 ```
 버핏 1.0 = 8개 기준
@@ -81,12 +107,11 @@ wisor/
 점수 = 충족 기준의 비중 합 ÷ 판정한 기준의 비중 합 × 100
 ```
 
-기준을 정확히 8개로 둔 것은 기획서 11.3의 권장 문구("8개 기준 중 6개에 부합합니다")가 문자 그대로 성립하게 하기 위해서입니다.
-
-그린블랫 1.0은 절대 기준 가중합이 아닙니다. 같은 종목 유니버스 안에서 5년 평균
-자본수익률과 EBIT/기업가치(이익수익률)를 각각 내림차순으로 순위 매긴 뒤 두 순위를
-합산합니다. 합산값이 같으면 같은 종합 순위를 부여합니다. 피셔·막스·소로스는 공개
-재무지표로 본질을 근사하지 않고 학습 화면의 자가진단 체크리스트로만 다룹니다.
+그린블랫 1.0은 원래 마법공식대로 최신 EBIT/(순운전자본+순유형자산)와
+EBIT/기업가치(이익수익률)를 각각 내림차순으로 순위 매긴 뒤 두 순위를 합산합니다.
+금융·유틸리티처럼 원식의 비교 대상이 아닌 업종은 `정보 부족`과 구분해 `판정 대상 아님`으로
+표시합니다. 피셔·막스·소로스는 공개 재무지표로 본질을 근사하지 않고 학습 화면의 자가진단
+체크리스트로만 다룹니다.
 
 **판정할 데이터가 없으면 미충족이 아니라 `unknown`입니다.** 없는 값을 벌점으로 바꾸지 않습니다. `unknown`이 전체의 25%를 넘으면 점수를 만들지 않고 '정보 부족'으로 표시합니다.
 
@@ -102,24 +127,22 @@ wisor/
 
 ## 남은 작업
 
-**바로 다음 (3~4주차 범위)**
-
 - [x] 실데이터 공급자 연결 — `data-pipeline/wisor_data/providers/sec_toss.py`의 `SecTossProvider`
-- [ ] 종목 유니버스 확정 — 미국 중·대형주 300~500개, ETF·우선주·SPAC 제외, 금융·리츠 별도 분류
+- [x] 종목 유니버스 구성 — S&P 500·NASDAQ-100 중복 제거, ETF·우선주·SPAC 제외
 - [x] 그레이엄 / 린치 상위 종목 검수 후 1.0으로 승격
 - [ ] Supabase 연결 — `apps/web/lib/store.ts`의 함수 본문만 교체
 - [ ] 점수 문구를 코드+값으로 분리 — 지금은 Python이 완성한 한국어 문장이 scores.json에 실려 있어 프론트가 문구를 못 고칩니다
 - [ ] 프론트엔드 스모크 테스트 1개 (학습 → 퀴즈 → 스크리너 → 상세 → 노트 저장)
-
-**출시 전 필수 (7주차)**
-
 - [ ] 검토자 2명이 결과를 "교육용으로 적절"하다고 평가하는지 확인
 
 ---
 
 ## 데이터 출처 표시
 
-기본 개발 입력은 `data-pipeline/data/universe_sample.json`이지만, 저장된 화면 결과는 토스증권 전 거래일 종가와 SEC Company Facts 공시로 생성합니다. `dataSource`가 `sec-toss`이면 예시 데이터 표시는 사라지고 화면에 원천이 표시됩니다.
+기본 개발 입력은 `data-pipeline/data/universe_sample.json`입니다. 저장소의 현재 화면 결과는
+`data/universe_us.json`의 유니버스를 대상으로 토스증권 가격, Nasdaq 시가총액, SEC Company
+Facts 공시를 결합해 생성했습니다. 공급자 값이 없는 항목은 0으로 대체하지 않으며, 판정할 수
+없는 기준은 점수의 분모에서도 제외합니다.
 
 ---
 

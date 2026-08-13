@@ -1,12 +1,12 @@
-"""그린블랫 스타일 — Greenblatt 1.0.
+"""조엘 그린블랫 순위 모델.
 
-절대 문턱을 통과시키는 모델이 아니라 같은 유니버스 안에서 사업의 질과 가격을
-각각 순위 매긴 뒤 합산한다. 개별 Metrics 하나만으로는 결과를 만들 수 없다.
+``Greenblatt 1.0``은 『주식시장을 이기는 작은 책』의 마법공식을 따른다.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Callable
 
 from ..metrics import Metrics
 from .base import CriterionResult, StyleScore, pct
@@ -29,18 +29,18 @@ class RankedStyle:
     criteria: list[RankCriterion]
 
 
-CRITERIA = [
+MAGIC_FORMULA_CRITERIA = [
     RankCriterion(
-        code="GRB_QUALITY_RANK",
-        label="사업의 질 순위",
+        code="GRB_MAGIC_QUALITY_RANK",
+        label="마법공식 자본수익률 순위",
         weight=1,
-        detail="5년 평균 자본수익률의 유니버스 내 내림차순 순위",
+        detail="최신 EBIT / (유동자산 − 유동부채 + 순유형자산)의 유니버스 내 내림차순 순위",
     ),
     RankCriterion(
-        code="GRB_VALUE_RANK",
-        label="가격 순위",
+        code="GRB_MAGIC_VALUE_RANK",
+        label="마법공식 이익수익률 순위",
         weight=1,
-        detail="EBIT / 기업가치(이익수익률)의 유니버스 내 내림차순 순위",
+        detail="최신 EBIT / 기업가치의 유니버스 내 내림차순 순위",
     ),
 ]
 
@@ -49,9 +49,8 @@ STYLE = RankedStyle(
     name="조엘 그린블랫",
     model_version="Greenblatt 1.0",
     method="rank",
-    criteria=CRITERIA,
+    criteria=MAGIC_FORMULA_CRITERIA,
 )
-
 
 def _ordinal_ranks(values: dict[str, float]) -> dict[str, int]:
     """큰 값이 1위. 동률은 티커 순으로 고정해 배치 결과가 흔들리지 않게 한다."""
@@ -59,14 +58,19 @@ def _ordinal_ranks(values: dict[str, float]) -> dict[str, int]:
     return {ticker: index + 1 for index, ticker in enumerate(ordered)}
 
 
-def score_universe(metrics_by_ticker: dict[str, Metrics]) -> dict[str, StyleScore]:
+def _score_universe(
+    metrics_by_ticker: dict[str, Metrics],
+    style: RankedStyle,
+    quality_value: Callable[[Metrics], float | None],
+    quality_description: Callable[[Metrics], str],
+) -> dict[str, StyleScore]:
     eligible = {
         ticker: metrics
         for ticker, metrics in metrics_by_ticker.items()
-        if metrics.roic_avg_5y is not None and metrics.earnings_yield is not None
+        if quality_value(metrics) is not None and metrics.earnings_yield is not None
     }
     quality_ranks = _ordinal_ranks(
-        {ticker: metrics.roic_avg_5y for ticker, metrics in eligible.items()}
+        {ticker: quality_value(metrics) for ticker, metrics in eligible.items()}
     )
     value_ranks = _ordinal_ranks(
         {ticker: metrics.earnings_yield for ticker, metrics in eligible.items()}
@@ -99,15 +103,15 @@ def score_universe(metrics_by_ticker: dict[str, Metrics]) -> dict[str, StyleScor
                     "상대 순위를 계산할 데이터가 부족합니다.",
                     criterion.detail,
                 )
-                for criterion in CRITERIA
+                for criterion in style.criteria
             ]
             scores[ticker] = StyleScore(
-                style_id=STYLE.id,
-                model_version=STYLE.model_version,
+                style_id=style.id,
+                model_version=style.model_version,
                 score=None,
                 passed=0,
                 total_judged=0,
-                total=len(CRITERIA),
+                total=len(style.criteria),
                 data_confidence="정보 부족",
                 criteria=criteria,
             )
@@ -119,27 +123,27 @@ def score_universe(metrics_by_ticker: dict[str, Metrics]) -> dict[str, StyleScor
         score = round((total - rank + 1) / total * 100) if total else None
         criteria = [
             CriterionResult(
-                CRITERIA[0].code,
-                CRITERIA[0].label,
-                CRITERIA[0].weight,
+                style.criteria[0].code,
+                style.criteria[0].label,
+                style.criteria[0].weight,
                 "pass" if quality_rank <= half else "fail",
                 f"두 지표를 모두 계산할 수 있는 {total}개 종목 중 자본수익률 {quality_rank}위입니다"
-                f"(5년 평균 {pct(metrics.roic_avg_5y, 1)}).",
-                CRITERIA[0].detail,
+                f"({quality_description(metrics)}).",
+                style.criteria[0].detail,
             ),
             CriterionResult(
-                CRITERIA[1].code,
-                CRITERIA[1].label,
-                CRITERIA[1].weight,
+                style.criteria[1].code,
+                style.criteria[1].label,
+                style.criteria[1].weight,
                 "pass" if value_rank <= half else "fail",
                 f"두 지표를 모두 계산할 수 있는 {total}개 종목 중 이익수익률 {value_rank}위입니다"
                 f"({pct(metrics.earnings_yield, 1)}).",
-                CRITERIA[1].detail,
+                style.criteria[1].detail,
             ),
         ]
         scores[ticker] = StyleScore(
-            style_id=STYLE.id,
-            model_version=STYLE.model_version,
+            style_id=style.id,
+            model_version=style.model_version,
             score=score,
             passed=sum(criterion.status == "pass" for criterion in criteria),
             total_judged=len(criteria),
@@ -151,3 +155,13 @@ def score_universe(metrics_by_ticker: dict[str, Metrics]) -> dict[str, StyleScor
         )
 
     return scores
+
+
+def score_universe(metrics_by_ticker: dict[str, Metrics]) -> dict[str, StyleScore]:
+    """원래 마법공식: 최신 세전 ROC와 이익수익률의 순위를 합산한다."""
+    return _score_universe(
+        metrics_by_ticker,
+        STYLE,
+        lambda metrics: metrics.magic_formula_roc,
+        lambda metrics: pct(metrics.magic_formula_roc, 1),
+    )

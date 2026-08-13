@@ -6,7 +6,8 @@ import { useEffect, useRef, useState } from "react";
 import MasterCharacter from "@/components/MasterCharacter";
 import { isCorrect } from "@/content/curriculum/grading";
 import { chapterSteps, stepLabel } from "@/content/curriculum/steps";
-import type { Exercise } from "@/content/curriculum/types";
+// SOURCE_KINDS는 값이지만 types.ts가 Master를 type import만 하므로 번들에 masters.ts가 실리지 않는다
+import { SOURCE_KINDS, type Exercise, type SourceNote } from "@/content/curriculum/types";
 import { moodFor } from "@/content/chapterMood";
 import { track } from "@/lib/analytics";
 import { markLessonDone, recordQuiz, saveJournalEntry } from "@/lib/store";
@@ -26,6 +27,7 @@ export default function ChapterExercises({
   chapterId,
   exercises,
   body,
+  sources,
   closing,
   initialStep = 0,
   syncStepToUrl = true,
@@ -35,6 +37,8 @@ export default function ChapterExercises({
   chapterId: string;
   exercises: Exercise[];
   body: string[];
+  /** 본문의 출처. 대가 챕터만 갖고 있어서 선택이다(비교 페이지에는 본문이 없다). */
+  sources?: SourceNote[];
   closing: string;
   initialStep?: number;
   /** 페이지가 `?step=`을 읽어 되돌릴 수 있을 때만 켠다. 읽지 않는 페이지에 켜면
@@ -168,6 +172,7 @@ export default function ChapterExercises({
             {body.map((paragraph, index) => (
               <p key={index}>{paragraph}</p>
             ))}
+            {sources && sources.length > 0 && <Sources sources={sources} />}
           </div>
         )}
 
@@ -361,6 +366,42 @@ function Guided({
         </div>
       )}
     </>
+  );
+}
+
+/** 본문 아래 접어 둔 각주.
+ *
+ * 펼치지 않아도 요약줄에서 원문·정리·창작 비율이 보이는 것이 핵심이다.
+ * 이 장의 서술 중 얼마가 대가 본인의 것인지를 읽기 전에 알 수 있어야 한다.
+ */
+function Sources({ sources }: { sources: SourceNote[] }) {
+  const tally = SOURCE_KINDS.map((kind) => ({
+    kind,
+    count: sources.filter((source) => source.kind === kind).length,
+  })).filter((entry) => entry.count > 0);
+
+  return (
+    <details className="source-note">
+      <summary>
+        <span>출처 {sources.length}개</span>
+        <span className="source-note-tally">
+          {tally.map((entry) => `${entry.kind} ${entry.count}`).join(" · ")}
+        </span>
+      </summary>
+      <ul>
+        {sources.map((source, index) => (
+          <li key={index}>
+            <span className="source-kind" data-kind={source.kind}>
+              {source.kind}
+            </span>
+            {source.paragraph !== undefined && (
+              <span className="source-para">{source.paragraph + 1}문단</span>
+            )}
+            <span className="source-text">{source.text}</span>
+          </li>
+        ))}
+      </ul>
+    </details>
   );
 }
 

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { dateRange, formatMetric } from "./format.ts";
+import { dateRange, displayModelVersion, formatMetric } from "./format.ts";
 import { METRIC_LABELS, indexNames } from "./scores.types.ts";
 
 test("지수 이름은 슬러그가 아니라 사람이 읽는 이름으로 쓴다", () => {
@@ -24,6 +24,11 @@ test("회계연도가 제각각이면 재무 기준일을 범위로 쓴다", () 
 
 test("기준일이 하나뿐이면 범위로 쓰지 않는다", () => {
   assert.equal(dateRange("2025-12-31", "2025-12-31"), "2025-12-31");
+});
+
+test("그린블랫 모델 버전은 화면에서 한글로 표시한다", () => {
+  assert.equal(displayModelVersion("Greenblatt 1.0"), "그린블랫 1.0");
+  assert.equal(displayModelVersion("Buffett 1.0"), "Buffett 1.0");
 });
 
 test("상한이 정해진 지표는 큰 값을 숫자 그대로 쓰지 않는다", () => {

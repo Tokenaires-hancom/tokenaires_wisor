@@ -130,9 +130,10 @@ export default function Scoring() {
       <ul className="reason-list">
         {COVERAGE.byStyle.map((s) => {
           const master = SCORABLE_MASTERS.find((m) => m.id === s.styleId);
+          const label = master?.name.split(" · ")[0] ?? s.styleId;
           return (
             <li key={s.styleId} data-kind={s.unscored === 0 ? "pass" : "unknown"}>
-              <Link href={`/screener/${s.styleId}`}>{master?.name.split(" · ")[0] ?? s.styleId}</Link>{" "}
+              <Link href={`/screener/${s.styleId}`}>{label}</Link>{" "}
               — {s.unscored === 0
                 ? "공통 출발점의 모든 종목을 판정했습니다."
                 : `${s.unscored}종목에서 점수를 만들지 않았습니다. 주로 ${s.topMissing
