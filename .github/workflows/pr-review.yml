@@ -21,12 +21,20 @@
 # 그중에서도 특히 더 약하게 다룬다 — 실패해도 이 워크플로 자체의 성패에
 # 반영하지 않는다(아래 "위반 있으면 실패로 표시"의 조건에서 뺐다). 형식은
 # 참고만 하고 항상 코멘트로만 알려준다.
+#
+# 불필요한 재실행을 두 가지로 막는다.
+# ① docs/**만 바뀐 PR은 아래 paths-ignore 때문에 이 워크플로 자체가 안 걸린다.
+# ② 이미 검사한 커밋 그대로 PR을 닫았다 다시 연 경우(reopened, 새 커밋 없음),
+#    check-if-needed 잡이 sticky 코멘트에 남은 reviewed-sha와 지금 head sha를
+#    비교해서 같으면 본 작업을 건너뛴다.
 
 name: PR 자동검사
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+    paths-ignore:
+      - "docs/**"
 
 permissions:
   pull-requests: write
@@ -39,7 +47,37 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  check-if-needed:
+    # reopened일 때만 돈다. opened·synchronize는 항상 새로 봐야 하므로 그대로
+    # 통과시킨다(아래 always()로 already_reviewed가 비어 있어도 본 잡이 돈다).
+    runs-on: ubuntu-latest
+    if: github.event.action == 'reopened'
+    permissions:
+      pull-requests: read
+    outputs:
+      already_reviewed: ${{ steps.check.outputs.already_reviewed }}
+    steps:
+      - name: 같은 커밋을 이미 검사했는지 확인
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          MARKER: "<!-- wisor-auto-checks -->"
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          REVIEWED_SHA=$(gh api "repos/$REPO/issues/$PR_NUMBER/comments" --paginate \
+            --jq "[.[] | select(.body | startswith(\"$MARKER\"))][0].body // empty" \
+            | grep -oP '(?<=<!-- reviewed-sha: )[0-9a-f]+(?= -->)' || true)
+          if [ "$REVIEWED_SHA" = "$HEAD_SHA" ]; then
+            echo "already_reviewed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "already_reviewed=false" >> "$GITHUB_OUTPUT"
+          fi
+
   auto-checks:
+    needs: check-if-needed
+    if: always() && needs.check-if-needed.outputs.already_reviewed != 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -141,6 +179,7 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
           MARKER: "<!-- wisor-auto-checks -->"
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           MERGE_CHECK: ${{ steps.merge_check.outcome }}
           DP_TEST: ${{ steps.dp_test.outcome }}
           WEB_BUILD: ${{ steps.web_build.outcome }}
@@ -171,6 +210,8 @@ jobs:
           BODY_FILE=$(mktemp)
           {
             echo "$MARKER"
+            # reopened 시 재실행 여부를 판단하는 근거(check-if-needed 잡)로 쓴다.
+            echo "<!-- reviewed-sha: $HEAD_SHA -->"
             echo "## PR 자동검사 결과"
             echo
             echo "| 항목 | 결과 |"

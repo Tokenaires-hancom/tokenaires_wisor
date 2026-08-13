@@ -3,15 +3,60 @@
 # CLAUDE.md 규칙과는 무관하게, 버그·비효율·이름 짓기 같은 일반적인 코드
 # 품질을 다룬다. rules-review와 완전히 별도 코멘트로 남는다. 프롬프트 본문은
 # .github/claude/quality-review-prompt.md에 있다.
+#
+# 이 레이어는 Claude 구독 사용량을 쓰므로 불필요한 재실행·재검토를 특히
+# 신경 쓴다.
+# ① docs/**만 바뀐 PR은 paths-ignore로 아예 안 걸린다.
+# ② 이미 리뷰한 커밋 그대로 reopened된 경우 resolve-review-scope 잡이 sticky
+#    코멘트의 reviewed-sha와 비교해서 같으면 리뷰를 건너뛴다.
+# ③ synchronize(새 커밋 push)일 때도 PR 전체 diff를 처음부터 다시 보지 않고,
+#    resolve-review-scope 잡이 찾아낸 이전 reviewed-sha부터 지금 head까지만
+#    보도록 프롬프트에 범위를 알려준다(.github/claude/quality-review-prompt.md
+#    "리뷰 범위" 절 참고). PR을 처음 여는 opened에는 이전 커밋이 없으므로
+#    지금까지처럼 전체 diff를 본다.
 
 name: Claude 학습 코드 품질 리뷰
 
 on:
   pull_request:
     types: [opened, synchronize, ready_for_review, reopened]
+    paths-ignore:
+      - "docs/**"
 
 jobs:
+  resolve-review-scope:
+    # 이전에 리뷰한 커밋(있다면)을 sticky 코멘트에서 읽어온다. reopened에서
+    # skip 여부를 정하는 데도, synchronize에서 diff 범위를 좁히는 데도 쓰인다.
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      skip: ${{ steps.check.outputs.skip }}
+      previous_sha: ${{ steps.check.outputs.previous_sha }}
+    steps:
+      - name: 이전 리뷰 커밋 확인
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          MARKER: "<!-- wisor-claude-quality -->"
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          EVENT_ACTION: ${{ github.event.action }}
+        run: |
+          PREVIOUS_SHA=$(gh api "repos/$REPO/issues/$PR_NUMBER/comments" --paginate \
+            --jq "[.[] | select(.body | startswith(\"$MARKER\"))][0].body // empty" \
+            | grep -oP '(?<=<!-- reviewed-sha: )[0-9a-f]+(?= -->)' || true)
+          echo "previous_sha=$PREVIOUS_SHA" >> "$GITHUB_OUTPUT"
+          if [ "$EVENT_ACTION" = "reopened" ] && [ -n "$PREVIOUS_SHA" ] && [ "$PREVIOUS_SHA" = "$HEAD_SHA" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
   claude-quality-review:
+    needs: resolve-review-scope
+    if: always() && needs.resolve-review-scope.outputs.skip != 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -55,3 +100,8 @@ jobs:
             저장소 루트의 .github/claude/quality-review-prompt.md 파일을 읽고,
             그 지침을 그대로 따라 이 PR을 리뷰하세요.
             리뷰 대상 PR: ${{ github.repository }}/pull/${{ github.event.pull_request.number }}
+            이 리뷰가 반영하는 head 커밋 SHA: ${{ github.event.pull_request.head.sha }}
+            이전에 리뷰한 커밋 SHA(없으면 빈 문자열): ${{ needs.resolve-review-scope.outputs.previous_sha }}
+            (프롬프트 파일의 "리뷰 범위" 절 지시를 그대로 따르세요. "형식" 절에
+            적힌 대로 sticky 코멘트 둘째 줄에 head 커밋 SHA를 reviewed-sha로
+            반드시 남기세요.)

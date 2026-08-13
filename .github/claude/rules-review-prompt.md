@@ -1,9 +1,5 @@
 <!--
-이 파일은 아직 어디에서도 자동으로 실행되지 않는다. `/install-github-app`으로
-Claude Code GitHub 연동을 설치한 뒤, 생성된 워크플로에 이 파일 내용을 프롬프트로
-쓰는 잡(또는 스텝)을 추가해서 연결해야 한다. 트리거는 pr-review.yml과 동일하게
-pull_request [opened, synchronize, reopened]로 맞춘다.
-
+.github/workflows/claude-rules-review.yml에 연결되어 실제로 실행 중이다.
 docs/superpowers/specs/2026-08-11-pr-review-system-design.md의 "3. Claude 의미
 리뷰 레이어" 절 참고.
 -->
@@ -30,6 +26,30 @@ docs/superpowers/specs/2026-08-11-pr-review-system-design.md의 "3. Claude 의�
 - 일반적인 코드 품질(버그·효율·변수명·성능)은 언급하지 않는다.
 - 병합을 막으라고 요구하지 않는다. 참고용이다.
 
+## 리뷰 범위
+
+이 프롬프트를 호출한 워크플로가 "이전에 리뷰한 커밋 SHA"를 알려준다.
+
+- **값이 있으면(비어 있지 않으면)**: 그 커밋부터 지금 head 커밋까지의 diff만
+  본다. `gh api repos/<owner>/<repo>/compare/<이전 SHA>...<head SHA> --header
+  "Accept: application/vnd.github.v3.diff"`로 diff 텍스트를 받는다. 판단에
+  diff 밖 문맥이 필요하면(예: 다른 파일에 정의된 함수, 이전 리뷰 대상이 아니던
+  코드와의 관계) 그 파일을 직접 열어 확인해도 된다 — diff를 좁히는 건 이미 본
+  코드를 반복 검토하지 않기 위함이지, 필요한 문맥 파악을 막는 게 아니다.
+- **값이 비어 있으면(이 PR의 첫 리뷰)**: 지금까지처럼 `gh pr diff <PR 번호>`로
+  PR 전체 diff를 본다.
+
+**이전 sticky 코멘트의 목차를 지우지 않는다.** 리뷰 범위를 좁혔다고 해서 이전에
+지적했지만 아직 안 고쳐진 항목까지 요약에서 사라지면 안 된다. 코멘트를 다시
+쓰기 전에 기존 sticky 코멘트를 먼저 읽고 다음 규칙으로 갱신한다.
+
+1. 이번 diff에 포함되지 않은 파일의 기존 항목은 그대로 목차에 유지한다.
+2. 이번 diff에 포함된 파일의 기존 항목은, 그 위반이 diff에서 실제로 고쳐졌으면
+   목차에서 뺀다. 그대로 남아 있으면 유지한다.
+3. 이번 diff에서 새로 찾은 위반을 추가한다.
+
+이렇게 갱신한 전체 목록을 sticky 코멘트에 다시 쓴다.
+
 ## 형식
 
 위반이 있으면 각 위반마다 `mcp__github_inline_comment__create_inline_comment`
@@ -46,3 +66,8 @@ PR 코멘트는 숨김 마커 `<!-- wisor-claude-rules -->`로 시작하는 **st
 (예: `apps/web/lib/scores.ts:12 — confidence 필드가 응답 스키마에 추가됨`),
 "자세한 내용은 인라인 코멘트를 확인하라"를 덧붙인다. 위반 설명 전체를 sticky
 코멘트에 다시 옮겨 적지 않는다 — 목차 한 줄까지만이다.
+
+마커 바로 다음 줄에는 `<!-- reviewed-sha: <head 커밋 SHA> -->`를 반드시 남긴다.
+SHA 값은 이 프롬프트를 호출한 워크플로가 알려준다. 이 줄은 PR이 새 커밋 없이
+다시 열렸을 때(reopened) 이미 이 커밋을 리뷰했는지 판단하는 근거로 쓰이므로,
+빠뜨리면 매번 다시 리뷰가 돈다.
