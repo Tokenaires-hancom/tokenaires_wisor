@@ -23,6 +23,10 @@ SEC_FACTS_URL = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json"
 # 업종(sicDescription)은 companyfacts에 없다. 여기에만 있다.
 SEC_SUBMISSIONS_URL = "https://data.sec.gov/submissions/CIK{cik}.json"
 TOSS_BASE = "https://openapi.tossinvest.com"
+NASDAQ_SCREENER_URL = (
+    "https://api.nasdaq.com/api/screener/stocks?"
+    "tableonly=true&limit=10000&offset=0&download=true"
+)
 
 # SEC는 초당 10회를 넘기지 말라고 요구한다. 종목당 companyfacts와 submissions
 # 두 번을 부르므로 호출 사이마다 쉰다. 500종목 규모에서는 이걸 지키지 않으면
@@ -32,6 +36,8 @@ SEC_REQUEST_INTERVAL = 0.15
 STOCKS_PER_REQUEST = 50
 # /api/v1/prices는 100종목을 한 번에 받는다. 380종목이 여덟 번 호출로 끝난다.
 PRICES_PER_REQUEST = 100
+
+MARKET_CAP_KEYS = ("marketCap", "marketCapitalization", "marketValue", "marketValueAmount")
 
 
 class ProviderDataError(RuntimeError):
@@ -75,6 +81,35 @@ def with_retry(call, attempts: int = 3, sleep=time.sleep):
             if not error.retryable or attempt == attempts:
                 raise
             sleep(2 ** attempt)
+
+
+def _parse_float(value) -> float | None:
+    if value is None:
+        return None
+    if isinstance(value, str):
+        value = value.replace(",", "").strip()
+        if not value:
+            return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _market_cap_from_stock(ticker: str, stock: dict) -> float:
+    """API가 준 USD 시가총액을 백만 USD 단위로 돌려준다."""
+    for key in MARKET_CAP_KEYS:
+        raw = _parse_float(stock.get(key))
+        if raw is None:
+            continue
+        if raw <= 0:
+            break
+        return raw / 1_000_000
+    raise ProviderDataError(
+        f"{ticker}: API 응답에 시가총액 필드가 없습니다.",
+        code="MISSING_FIELD",
+        detail="marketCap",
+    )
 
 
 def read_checkpoint(path: Path, price_date: str) -> dict[str, Fundamentals]:
@@ -335,6 +370,10 @@ def fundamentals_from_sec(
         "InterestExpenseNonoperating", "InterestExpense", "InterestAndDebtExpense",
     ), as_of, duration=True)
     current_assets = _value_at(company_facts, ("AssetsCurrent",), as_of)
+    net_fixed_assets = _value_at(company_facts, (
+        "PropertyPlantAndEquipmentNet",
+        "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAfterAccumulatedDepreciationAndAmortization",
+    ), as_of)
 
     return Fundamentals(
         ticker=ticker,
@@ -343,6 +382,7 @@ def fundamentals_from_sec(
         sic=submissions.get("sic") or None,
         price=float(price["closePrice"]),
         shares_out=float(stock["sharesOutstanding"]) / million,
+        market_cap=_market_cap_from_stock(ticker, stock),
         price_as_of=price["timestamp"][:10],
         financial_as_of=common_ends[-1],
         revenue=[revenue[end] / million for end in common_ends],
@@ -360,6 +400,7 @@ def fundamentals_from_sec(
         current_liabilities=(
             current_liabilities[as_of] / million if as_of in current_liabilities else None
         ),
+        net_fixed_assets=None if net_fixed_assets is None else net_fixed_assets / million,
     )
 
 
@@ -444,6 +485,32 @@ class SecTossProvider:
             time.sleep(SEC_REQUEST_INTERVAL)
         return found
 
+    def _market_caps(self) -> dict[str, float]:
+        """Nasdaq 종목 API에서 USD 시가총액을 한 번에 받는다."""
+        headers = {
+            "User-Agent": "Mozilla/5.0 (compatible; Wisor/0.1)",
+            "Accept": "application/json, text/plain, */*",
+            "Origin": "https://www.nasdaq.com",
+            "Referer": "https://www.nasdaq.com/",
+        }
+        payload = with_retry(lambda: self.get_json(NASDAQ_SCREENER_URL, headers))
+        rows = payload.get("data", {}).get("rows") or []
+        found: dict[str, float] = {}
+        for row in rows:
+            ticker = str(row.get("symbol", "")).upper()
+            raw = _parse_float(row.get("marketCap"))
+            if ticker and raw is not None and raw > 0:
+                found[ticker] = raw
+        return found
+
+    def _stocks_with_market_caps(self) -> dict[str, dict]:
+        stocks = self._stocks()
+        market_caps = self._market_caps()
+        for ticker, stock in stocks.items():
+            if ticker in market_caps:
+                stock["marketCap"] = market_caps[ticker]
+        return stocks
+
     def latest_prices(self) -> dict[str, float]:
         """마지막 체결가를 배치로 받는다. 380종목이 3초면 끝난다."""
         found: dict[str, float] = {}
@@ -458,8 +525,20 @@ class SecTossProvider:
             time.sleep(SEC_REQUEST_INTERVAL)
         return found
 
+    def latest_market_data(self) -> tuple[dict[str, float], dict[str, float]]:
+        """가격 갱신 모드에서 함께 필요한 가격과 API 시가총액을 받는다."""
+        prices = self.latest_prices()
+        stocks = self._stocks_with_market_caps()
+        market_caps: dict[str, float] = {}
+        for ticker, row in stocks.items():
+            try:
+                market_caps[ticker] = _market_cap_from_stock(ticker, row)
+            except ProviderDataError:
+                continue
+        return prices, market_caps
+
     def load(self) -> list[Fundamentals]:
-        stocks = self._stocks()
+        stocks = self._stocks_with_market_caps()
 
         ticker_rows = with_retry(lambda: self.get_json(SEC_TICKERS_URL, self.sec_headers))
         cik_by_ticker = {
@@ -538,8 +617,15 @@ class CachedPriceProvider:
 
     source_name = "sec-toss"
 
-    def __init__(self, prices: dict[str, float], companies: list[Fundamentals], price_at: str):
+    def __init__(
+        self,
+        prices: dict[str, float],
+        market_caps: dict[str, float],
+        companies: list[Fundamentals],
+        price_at: str,
+    ):
         self.prices = prices
+        self.market_caps = market_caps
         self.companies = companies
         #: 조회 시각. 종목별 시각이 아니라 이 값 하나를 파일 전체 기준으로 쓴다.
         self.price_at = price_at
@@ -559,10 +645,12 @@ class CachedPriceProvider:
         refreshed: list[Fundamentals] = []
         for company in self.companies:
             price = self.prices.get(company.ticker)
-            if price is None:
+            market_cap = self.market_caps.get(company.ticker)
+            if price is None or market_cap is None:
                 self._stale.append(company.ticker)
             else:
                 company.price = price
+                company.market_cap = market_cap
                 company.price_as_of = price_date
             refreshed.append(company)
 

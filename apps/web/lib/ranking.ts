@@ -19,7 +19,7 @@ export function rank(companies: Company[], styleId: string): Ranking {
 
   for (const c of companies) {
     const s = c.scores[styleId];
-    if (c.scorable === false) result.unscorable.push(c);
+    if (s?.dataConfidence === "판정 대상 아님" || c.scorable === false) result.unscorable.push(c);
     else if (!s || s.score === null) result.unscored.push(c);
     else result.scored.push(c);
   }

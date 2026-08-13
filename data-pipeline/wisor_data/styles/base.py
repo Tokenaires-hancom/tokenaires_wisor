@@ -98,6 +98,7 @@ class StyleScore:
     criteria: list[CriterionResult] = field(default_factory=list)
     rank: Optional[int] = None
     rank_components: dict[str, int] = field(default_factory=dict)
+    unscorable_reason: Optional[str] = None
 
     @property
     def reasons(self) -> list[str]:
@@ -123,6 +124,8 @@ class StyleScore:
         if self.rank is not None:
             result["rank"] = self.rank
             result["rankComponents"] = self.rank_components
+        if self.unscorable_reason:
+            result["unscorableReason"] = self.unscorable_reason
         return result
 
 
