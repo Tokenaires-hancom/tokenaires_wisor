@@ -36,7 +36,7 @@ jobs:
       - name: 이 PR을 올린 사람의 Claude 토큰 고르기
         id: pick_token
         run: |
-          case "${{ github.actor }}" in
+          case "${{ github.event.pull_request.user.login }}" in
             naemnaem99) TOKEN="$TOKEN_NAEMNAEM99" ;;
             limsojang-gif) TOKEN="$TOKEN_LIMSOJANG_GIF" ;;
             rainbow0291) TOKEN="$TOKEN_RAINBOW0291" ;;
