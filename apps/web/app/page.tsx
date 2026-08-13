@@ -62,6 +62,45 @@ export default function Home() {
 
       <hr className="rule" />
 
+      <section className="home-intro" aria-labelledby="home-intro-title">
+        <p className="eyebrow">AI 시대의 투자원칙</p>
+        <h2 id="home-intro-title" className="section">
+          흔들리는 시장에서, 원칙은 판단을 붙드는 기준입니다
+        </h2>
+        <p className="home-intro-lede">
+          가격과 분위기가 바뀔 때마다 확신도 쉽게 흔들립니다. 원칙은 무엇을 보고, 언제 생각을
+          바꾸며, 결과에서 무엇을 배울지 미리 정해 두어 AI가 내놓는 수많은 답에 끌려가지 않게 합니다.
+        </p>
+
+        <div className="home-principle-visual" aria-label="여러 정보를 나의 투자원칙으로 판단하는 과정">
+          <div className="home-information-stream">
+            <span>뉴스 요약</span>
+            <span>실적 해석</span>
+            <span>시장 전망</span>
+          </div>
+          <div className="home-principle-card">
+            <p>나의 투자원칙</p>
+            <strong>무엇을 볼까?</strong>
+            <strong>언제 다시 볼까?</strong>
+            <strong>무엇이 틀렸나?</strong>
+          </div>
+        </div>
+
+        <div className="home-intro-effect">
+          <div>
+            <p className="eyebrow">Wisor가 돕는 방식</p>
+            <h3>답 대신 판단하는 과정을 연습합니다</h3>
+          </div>
+          <ol>
+            <li>대가의 철학을 배우고</li>
+            <li>기업에 적용하고</li>
+            <li>내 판단을 기록합니다</li>
+          </ol>
+        </div>
+      </section>
+
+      <hr className="rule" />
+
       <p className="eyebrow">일곱 가지 투자 철학</p>
       <h2 className="section">어떤 기준으로 기업을 보시겠습니까?</h2>
       <p className="lede">

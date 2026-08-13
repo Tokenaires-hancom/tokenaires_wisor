@@ -27,7 +27,7 @@ export default function CoverageTable({
       <tbody>
         {coverage.byStyle.map((s) => {
           const name = MASTER_BY_ID[s.styleId as keyof typeof MASTER_BY_ID]?.name.split(" · ")[0];
-          const isRank = s.styleId === "greenblatt";
+          const isRank = s.styleId.startsWith("greenblatt");
           return (
             <tr key={s.styleId} aria-current={s.styleId === currentStyle ? "true" : undefined}>
               <th scope="row">{name ?? s.styleId}</th>
