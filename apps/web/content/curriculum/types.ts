@@ -37,14 +37,14 @@ export type Exercise = GradedExercise | GuidedExercise | JournalExercise;
 
 /** 주석의 세 유형. 어디까지가 대가의 말이고 어디부터가 이 과정의 서술인지 가른다.
  *  이 구분이 없으면 커리큘럼이 만든 표현을 그 사람이 실제로 한 말로 오해하게 된다. */
-export const SOURCE_KINDS = ["원전", "정리", "창작"] as const;
+export const SOURCE_KINDS = ["원문", "정리", "창작"] as const;
 
 export type SourceKind = (typeof SOURCE_KINDS)[number];
 
 export const SOURCE_KIND_MEANING: Record<SourceKind, string> = {
-  원전: "그 사람의 책·주주서한·인터뷰에 실제로 있는 내용",
+  원문: "그 사람의 책·주주서한·인터뷰에 실제로 있는 내용",
   정리: "취지는 맞지만 문장 자체는 이 과정이 요약·재구성한 것",
-  창작: "원전에 근거가 없고 교육을 위해 새로 만든 것",
+  창작: "원문에 근거가 없고 교육을 위해 새로 만든 것",
 };
 
 export type SourceNote = {
@@ -68,7 +68,6 @@ export type Curriculum = {
   masterId: Master["id"];
   sellType: string;
   sellTrigger: string;
-  currency: string;
   /** 이 철학의 1차 자료. 대가 개요 페이지에 나간다. */
   primarySources: string[];
   chapters: [Chapter, Chapter, Chapter, Chapter, Chapter];

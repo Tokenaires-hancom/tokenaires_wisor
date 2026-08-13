@@ -15,7 +15,7 @@ function chapter(overrides: Partial<Chapter> = {}): Chapter {
     title: "제목",
     lede: "인용구",
     body: ["본문 한 단락."],
-    sources: [{ kind: "원전", paragraph: 0, text: "어떤 책 1장." }],
+    sources: [{ kind: "원문", paragraph: 0, text: "어떤 책 1장." }],
     exercises: [],
     ...overrides,
   };
@@ -26,7 +26,6 @@ function curriculum(first: Chapter): Curriculum {
     masterId: "buffett",
     sellType: "논거 붕괴형",
     sellTrigger: "해자 침식",
-    currency: "학습 내용은 2026년 8월 기준입니다.",
     primarySources: ["어떤 책 (1949)"],
     chapters: [first, chapter(), chapter(), chapter(), chapter()],
   };
@@ -80,7 +79,7 @@ test("체크 포인트가 비면 잡는다", () => {
 
 test("본문이 비면 잡는다", () => {
   const problems = curriculumProblems([
-    curriculum(chapter({ body: [], sources: [{ kind: "원전", text: "어떤 책 1장." }] })),
+    curriculum(chapter({ body: [], sources: [{ kind: "원문", text: "어떤 책 1장." }] })),
   ]);
   assert.equal(problems.length, 1);
   assert.match(problems[0], /본문이 비어/);
@@ -108,7 +107,7 @@ test("각주가 가리키는 문단이 본문 범위 밖이면 잡는다", () =>
 
 test("문단 번호가 음수면 잡는다", () => {
   const problems = curriculumProblems([
-    curriculum(chapter({ sources: [{ kind: "원전", paragraph: -1, text: "출처." }] })),
+    curriculum(chapter({ sources: [{ kind: "원문", paragraph: -1, text: "출처." }] })),
   ]);
   assert.equal(problems.length, 1);
   assert.match(problems[0], /올바르지 않습니다/);
@@ -123,17 +122,17 @@ test("문단 번호를 생략한 각주는 장 전체에 붙으므로 통과한�
 
 test("출처 내용에 권유형 표현이 있으면 잡는다", () => {
   const problems = curriculumProblems([
-    curriculum(chapter({ sources: [{ kind: "원전", text: "지금 사야 합니다." }] })),
+    curriculum(chapter({ sources: [{ kind: "원문", text: "지금 사야 합니다." }] })),
   ]);
   assert.equal(problems.length, 1);
   assert.match(problems[0], /권유형 표현/);
 });
 
-test("원전 목록이 비면 잡는다", () => {
+test("근거 자료 목록이 비면 잡는다", () => {
   const base = curriculum(chapter());
   const problems = curriculumProblems([{ ...base, primarySources: [] }]);
   assert.equal(problems.length, 1);
-  assert.match(problems[0], /원전 목록이 비어/);
+  assert.match(problems[0], /근거 자료 목록이 비어/);
 });
 
 test("권유형 표현을 잡는다", () => {
@@ -257,7 +256,7 @@ test("문제를 전부 모아서 돌려준다 — 첫 개에서 멈추지 않는
     curriculum(
       chapter({
         body: [],
-        sources: [{ kind: "원전", text: "어떤 책 1장." }],
+        sources: [{ kind: "원문", text: "어떤 책 1장." }],
         exercises: [{ kind: "guided", prompt: "질문", checkpoints: [] }],
       }),
     ),

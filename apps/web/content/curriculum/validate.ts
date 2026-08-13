@@ -10,7 +10,7 @@ export function curriculumProblems(curricula: Curriculum[]): string[] {
 
   for (const curriculum of curricula) {
     if (curriculum.primarySources.length === 0) {
-      problems.push(`${curriculum.masterId}: 원전 목록이 비어 있습니다.`);
+      problems.push(`${curriculum.masterId}: 근거 자료 목록이 비어 있습니다.`);
     }
 
     curriculum.chapters.forEach((chapter, index) => {

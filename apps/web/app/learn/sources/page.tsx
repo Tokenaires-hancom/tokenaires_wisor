@@ -47,8 +47,8 @@ export default function SourcesPage() {
         ))}
       </ul>
       <p style={{ fontSize: "0.88rem", color: "var(--ink-soft)" }}>
-        투자 스타일의 이름과 매도 유형의 이름은 Wisor에서 <strong>창작</strong>했습니다.
-        학습의 편의와 편리한 비교를 위해 붙인 이름이지만 대가들이 자신의 투자 방식을 이렇게 부른 적은 없습니다.
+        투자 스타일의 이름과 매도 유형의 이름은 Wisor에서 붙인 이름입니다.
+        학습의 편의와 편리한 비교를 위해 붙인 이름입니다. 대가들이 자신의 투자 방식을 그렇게 부른 것은 아니며, 공식 명칭이 아닙니다.
       </p>
 
       <hr className="rule" />
