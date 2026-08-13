@@ -1,0 +1,6 @@
+# mock으로만 돌릴 거면 아무것도 필요 없다. 실제 OpenAI 호출에만 필요.
+openai>=1.0
+python-dotenv>=1.0
+
+# 테스트용
+pytest>=8.0
