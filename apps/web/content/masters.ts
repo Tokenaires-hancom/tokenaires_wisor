@@ -351,7 +351,7 @@ export const MASTERS: Master[] = [
         label: "1985",
         title: "고담 캐피털을 세워 가치투자를 실전에 적용했다",
         body: "특수상황과 저평가 기업을 분석하는 투자 파트너십을 설립해, 가격과 가치의 차이를 찾는 집중적인 리서치를 실제 운용으로 이어갔습니다.",
-        source: "Joel Greenblatt 공식 출판사 약력",
+        source: "조엘 그린블랫 공식 출판사 약력",
       },
       {
         label: "2005",
@@ -363,7 +363,7 @@ export const MASTERS: Master[] = [
         label: "공유",
         title: "투자 아이디어를 검증하는 공동체를 만들었다",
         body: "Value Investors Club을 공동 설립하고 컬럼비아 경영대학원에서 가치투자를 가르치며, 아이디어를 글로 설명하고 다른 투자자의 검토를 받는 문화를 넓혔습니다.",
-        source: "Joel Greenblatt 공식 출판사 약력",
+        source: "조엘 그린블랫 공식 출판사 약력",
       },
     ],
     principles: [

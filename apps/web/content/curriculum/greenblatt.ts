@@ -57,7 +57,7 @@ export const GREENBLATT: Curriculum = {
         {
           kind: "원문",
           paragraph: 0,
-          text: "'마법공식(magic formula)'은 EBIT/(순운전자본+순유형자산)와 EBIT/기업가치 두 지표의 순위를 합산한다. Greenblatt 1.0은 이 정의를 사용한다.",
+          text: "'마법공식(magic formula)'은 EBIT/(순운전자본+순유형자산)와 EBIT/기업가치 두 지표의 순위를 합산한다. 그린블랫 1.0은 이 정의를 사용한다.",
         },
         {
           kind: "원문",
@@ -71,7 +71,7 @@ export const GREENBLATT: Curriculum = {
         },
         {
           kind: "원문",
-          text: "원문의 스크리너에는 금융주와 유틸리티(공익사업) 제외, 초소형주 제외 같은 조건이 붙는다. Greenblatt 1.0은 금융·유틸리티를 제외하며, 현재 유니버스가 미국 중·대형주로 구성돼 초소형주가 들어오지 않는다.",
+          text: "원문의 스크리너에는 금융주와 유틸리티(공익사업) 제외, 초소형주 제외 같은 조건이 붙는다. 그린블랫 1.0은 금융·유틸리티를 제외하며, 현재 유니버스가 미국 중·대형주로 구성돼 초소형주가 들어오지 않는다.",
         },
       ],
       exercises: [

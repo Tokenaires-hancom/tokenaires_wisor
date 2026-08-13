@@ -5,7 +5,7 @@ import CriteriaBar from "./CriteriaBar";
 import { FinancialText } from "./FinancialTerm";
 import WatchButton from "./WatchButton";
 import { MASTER_BY_ID } from "@/content/masters";
-import { formatMetric } from "@/lib/format";
+import { displayModelVersion, formatMetric } from "@/lib/format";
 import { METRIC_LABELS, type Company } from "@/lib/scores.types";
 import { NOTE_STATUS_LABEL, getNote, saveNote, type NoteStatus } from "@/lib/store";
 import { track } from "@/lib/analytics";
@@ -37,6 +37,7 @@ export default function StockLenses({
   const [lens, setLens] = useState<Lens>("business");
   const [styleId, setStyleId] = useState(initialStyle);
   const score = company.scores[styleId];
+  const displayedModelVersion = score ? displayModelVersion(score.modelVersion) : "";
 
   return (
     <>
@@ -64,7 +65,7 @@ export default function StockLenses({
 
       {lens === "business" && score && (
         <p className="disclaimer">
-          이 결과는 {score.modelVersion} 모델이 공개된 재무데이터에 같은 규칙을 적용한 것입니다.
+          이 결과는 {displayedModelVersion} 모델이 공개된 재무데이터에 같은 규칙을 적용한 것입니다.
           기업을 좁히는 출발점이며, 매수·매도 판단이 아닙니다.
         </p>
       )}
@@ -83,6 +84,7 @@ function BusinessLens({
 }) {
   const score = company.scores[styleId];
   if (!score) return <p>이 철학의 점수가 없습니다.</p>;
+  const displayedModelVersion = displayModelVersion(score.modelVersion);
 
   const passed = score.criteria.filter((c) => c.status === "pass");
   const failed = score.criteria.filter((c) => c.status === "fail");
@@ -121,10 +123,10 @@ function BusinessLens({
       <div className="card">
         <p className="eyebrow">
           {unscorableReason
-            ? `${score.modelVersion} · 판정 대상 아님`
+            ? `${displayedModelVersion} · 판정 대상 아님`
             : rankModel
-            ? `${score.modelVersion} · 질 ${score.rankComponents?.quality}위 · 가격 ${score.rankComponents?.value}위`
-            : `${score.modelVersion} · 판정한 ${score.totalJudged}개 기준 중 ${score.passed}개 충족`}
+            ? `${displayedModelVersion} · 질 ${score.rankComponents?.quality}위 · 가격 ${score.rankComponents?.value}위`
+            : `${displayedModelVersion} · 판정한 ${score.totalJudged}개 기준 중 ${score.passed}개 충족`}
         </p>
         <div style={{ display: "flex", alignItems: "baseline", gap: "0.6rem", marginBottom: "1rem" }}>
           <span className="score-value" style={{ fontSize: "2.2rem" }}>
