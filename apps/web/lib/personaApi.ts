@@ -59,7 +59,9 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
     );
   }
   if (parseFailed) {
-    throw new PersonaApiError(res.status, "invalid_json", "응답을 해석할 수 없습니다");
+    // 여기서 res.status는 2xx(성공). 바디만 못 읽은 클라이언트측 실패이므로
+    // 성공 코드를 그대로 실으면 오해를 부른다. HTTP 상태 없음을 뜻하는 0으로 둔다.
+    throw new PersonaApiError(0, "invalid_json", "응답을 해석할 수 없습니다");
   }
   return data as T;
 }

@@ -122,6 +122,7 @@ export default function PersonaChatFab() {
   async function onSearch(value: string) {
     setQuery(value);
     if (!value.trim()) {
+      searchSeq.current += 1; // 리셋도 새 순번으로 — 늦게 온 이전 응답 무효화
       setHits([]);
       return;
     }
