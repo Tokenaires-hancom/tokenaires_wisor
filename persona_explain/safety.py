@@ -14,7 +14,7 @@ _RULES = [
     (r"저평가|고평가|투자\s*추천|매수\s*관점|수익\s*보장", "block"),
     (r"확실한\s*신호|반드시\s*오른", "block"),
 ]
-_COMPILED = [(re.compile(p), sev) for p, sev in _RULES]
+_COMPILED = [(re.compile(p, re.IGNORECASE), sev) for p, sev in _RULES]
 
 # 반환 verdict
 OK = "ok"                 # 위반 없음

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Nav from "@/components/Nav";
+import PersonaChatFab from "@/components/PersonaChatFab";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -39,6 +41,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
           </footer>
         </div>
+        <Suspense fallback={null}>
+          <PersonaChatFab />
+        </Suspense>
       </body>
     </html>
   );
