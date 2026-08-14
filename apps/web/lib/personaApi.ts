@@ -44,15 +44,22 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
     headers: body ? { "Content-Type": "application/json" } : undefined,
     body: body ? JSON.stringify(body) : undefined,
   });
+  let parseFailed = false;
   const data: { error?: { code?: string; message?: string } } = await res
     .json()
-    .catch(() => ({}));
+    .catch(() => {
+      parseFailed = true;
+      return {};
+    });
   if (!res.ok) {
     throw new PersonaApiError(
       res.status,
       data.error?.code ?? "http_error",
       data.error?.message ?? `요청이 실패했습니다 (${res.status})`,
     );
+  }
+  if (parseFailed) {
+    throw new PersonaApiError(res.status, "invalid_json", "응답을 해석할 수 없습니다");
   }
   return data as T;
 }

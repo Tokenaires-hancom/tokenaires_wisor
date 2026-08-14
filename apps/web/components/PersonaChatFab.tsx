@@ -28,7 +28,12 @@ const FAIL_COPY = "해설을 불러오지 못했습니다. 잠시 후 다시 시
 
 function tickerFromPath(pathname: string): string | null {
   const match = pathname.match(/^\/stocks\/([^/?#]+)/i);
-  return match ? decodeURIComponent(match[1]).toUpperCase() : null;
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]).toUpperCase() || null;
+  } catch {
+    return null;
+  }
 }
 
 function shortName(name: string): string {
@@ -54,6 +59,7 @@ export default function PersonaChatFab() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const logRef = useRef<HTMLDivElement>(null);
+  const searchSeq = useRef(0);
 
   useEffect(() => {
     setTicker(pathTicker);
@@ -67,12 +73,14 @@ export default function PersonaChatFab() {
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight });
   }, [messages, open]);
 
-  async function ensureHealth(): Promise<void> {
+  async function ensureHealth(): Promise<string> {
     const health = await getHealth();
     const list = (health.personas ?? []).filter((p) => CHATTABLE.has(p.id));
     const next = list.length ? list : FALLBACK_PERSONAS;
     setPersonas(next);
-    if (!next.some((p) => p.id === persona)) setPersona(next[0].id);
+    const resolved = next.some((p) => p.id === persona) ? persona : next[0].id;
+    if (resolved !== persona) setPersona(resolved);
+    return resolved;
   }
 
   async function start(nextTicker: string, nextPersona = persona) {
@@ -100,14 +108,15 @@ export default function PersonaChatFab() {
     setOpen(next);
     if (!next) return;
     setError(null);
+    let resolvedPersona: string;
     try {
-      await ensureHealth();
+      resolvedPersona = await ensureHealth();
     } catch (err) {
       console.debug("[wisor] persona chat health failed", err);
       setError(FAIL_COPY);
       return;
     }
-    if (pathTicker && !sessionId) void start(pathTicker);
+    if (pathTicker && !sessionId) void start(pathTicker, resolvedPersona);
   }
 
   async function onSearch(value: string) {
@@ -116,12 +125,13 @@ export default function PersonaChatFab() {
       setHits([]);
       return;
     }
+    const seq = ++searchSeq.current;
     try {
       const data = await searchCompanies(value.trim());
-      setHits(data.results);
+      if (seq === searchSeq.current) setHits(data.results);
     } catch (err) {
       console.debug("[wisor] persona chat search failed", err);
-      setHits([]);
+      if (seq === searchSeq.current) setHits([]);
     }
   }
 
