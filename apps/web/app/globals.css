@@ -1455,26 +1455,10 @@ h3.sub {
   color: var(--wine-deep);
 }
 
-.comparison-matrix td a,
-.comparison-matrix tbody th a {
-  text-decoration-color: var(--wine-line);
-  text-decoration-line: underline;
-  text-underline-offset: 0.18em;
-}
-
 .comparison-matrix td {
   color: var(--ink-soft);
   font-size: 0.84rem;
   line-height: 1.55;
-}
-
-.comparison-sell {
-  min-width: 620px;
-}
-
-.comparison-sell thead th:first-child,
-.comparison-sell tbody th {
-  width: auto;
 }
 
 .disclaimer {
@@ -2860,6 +2844,11 @@ body:has(.learn-page) .masthead-inner {
   transform-box: fill-box;
   transform-origin: center;
   animation: wisor-ribbon-arrow-float 1.8s ease-in-out infinite;
+}
+
+/* 대가 카드 그리드와 비교표 사이. 스크롤을 내리면 표가 다음 화면으로 이어진다 */
+.learn-page .style-comparison {
+  margin-top: 4.5rem;
 }
 
 .learn-sources-link {
