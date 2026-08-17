@@ -13,6 +13,7 @@ import { curriculumProblems } from "./validate.ts";
 function chapter(overrides: Partial<Chapter> = {}): Chapter {
   return {
     title: "제목",
+    oneLine: "비교표 한 줄",
     lede: "인용구",
     body: ["본문 한 단락."],
     sources: [{ kind: "원문", paragraph: 0, text: "어떤 책 1장." }],
@@ -27,7 +28,8 @@ function curriculum(first: Chapter): Curriculum {
     sellType: "논거 붕괴형",
     sellTrigger: "해자 침식",
     primarySources: ["어떤 책 (1949)"],
-    chapters: [first, chapter(), chapter(), chapter(), chapter()],
+    // 다섯째는 실패 장이다. 비교표에 나가지 않으므로 oneLine을 두지 않는다
+    chapters: [first, chapter(), chapter(), chapter(), chapter({ oneLine: undefined })],
   };
 }
 
@@ -267,4 +269,37 @@ test("문제를 전부 모아서 돌려준다 — 첫 개에서 멈추지 않는
 test("어느 대가의 몇 장인지 메시지에 담는다", () => {
   const problems = curriculumProblems([curriculum(chapter({ body: [] }))]);
   assert.match(problems[0], /buffett 1장/);
+});
+
+test("비교표에 나가는 칸에 oneLine이 없으면 잡는다", () => {
+  const problems = curriculumProblems([curriculum(chapter({ oneLine: undefined }))]);
+  assert.match(problems[0], /oneLine이 없습니다/);
+});
+
+test("비교표에 나가지 않는 실패 칸에 oneLine이 있으면 잡는다", () => {
+  const broken = curriculum(chapter());
+  broken.chapters[4] = chapter({ oneLine: "여기 있으면 안 된다" });
+  const problems = curriculumProblems([broken]);
+  assert.match(problems[0], /5장: 비교표에 나가지 않는 칸인데 oneLine이 있습니다/);
+});
+
+test("oneLine이 24자를 넘으면 잡는다", () => {
+  const problems = curriculumProblems([
+    curriculum(chapter({ oneLine: "가".repeat(25) })),
+  ]);
+  assert.match(problems[0], /25자로 24자를 넘습니다/);
+});
+
+test("oneLine이 딱 24자면 통과한다", () => {
+  assert.deepEqual(curriculumProblems([curriculum(chapter({ oneLine: "가".repeat(24) }))]), []);
+});
+
+test("oneLine이 마침표로 끝나면 잡는다", () => {
+  const problems = curriculumProblems([curriculum(chapter({ oneLine: "한 줄이다." }))]);
+  assert.match(problems[0], /마침표로 끝납니다/);
+});
+
+test("oneLine에 권유형 표현이 있으면 잡는다", () => {
+  const problems = curriculumProblems([curriculum(chapter({ oneLine: "지금 사야 한다" }))]);
+  assert.match(problems[0], /권유형 표현 '지금 사'/);
 });
