@@ -38,8 +38,6 @@ export default function StyleComparisonTable({
         당신은 어떤 기준을 따르고 있나요?
       </Heading>
       <p className="lede" style={{ maxWidth: "62ch" }}>
-        투자 대가들의 철학을 한눈에 보고 비교해 보세요.
-        <br />
         당신의 기준을 고르고 누구의 성향과 비슷한지 확인해 보세요.
       </p>
 
