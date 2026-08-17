@@ -1437,7 +1437,6 @@ h3.sub {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 14rem;
   gap: 1.5rem;
-  align-items: start;
 }
 
 .comparison-scroll {
@@ -1457,7 +1456,7 @@ h3.sub {
 
 .comparison-matrix th,
 .comparison-matrix td {
-  padding: 0.75rem;
+  padding: 0.5rem;
   border-right: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
   text-align: center;
@@ -1477,7 +1476,7 @@ h3.sub {
 .comparison-matrix thead th {
   background: var(--surface-sunk);
   color: var(--wine-deep);
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 400;
 }
 
@@ -1491,12 +1490,12 @@ h3.sub {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.3rem;
 }
 
 .comparison-master img {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   object-fit: cover;
   box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--bar);
@@ -1527,8 +1526,8 @@ h3.sub {
   padding: 0;
   height: inherit;
   color: var(--ink-soft);
-  font-size: 0.84rem;
-  line-height: 1.55;
+  font-size: 0.8rem;
+  line-height: 1.45;
 }
 
 /* 1px는 실제 높이가 아니라 자식이 height:100%를 계산할 수 있게 하는 기준값이다.
@@ -1544,7 +1543,7 @@ h3.sub {
   justify-content: center;
   width: 100%;
   height: 100%;
-  padding: 0.75rem;
+  padding: 0.5rem;
   border: 0;
   background: none;
   color: inherit;
@@ -1580,7 +1579,9 @@ h3.sub {
 
 /* 표 옆 레일. 폭을 늘 잡아 두므로 그래프가 열려도 표가 다시 흐르지 않는다 */
 .comparison-rail {
-  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
   padding: 1rem;
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -1588,7 +1589,8 @@ h3.sub {
 }
 
 .comparison-rail-title {
-  margin: 0 0 0.75rem;
+  margin: 0;
+  text-align: center;
   padding-bottom: 0.6rem;
   border-bottom: 1px solid var(--line);
   color: var(--ink);
@@ -1596,12 +1598,63 @@ h3.sub {
   font-weight: 800;
 }
 
-.comparison-rail-empty,
 .comparison-rail-count {
-  margin: 0 0 0.9rem;
+  margin: 0;
   color: var(--ink-soft);
   font-size: 0.8rem;
   line-height: 1.5;
+}
+
+/* 그래프를 열기 전까지 이 자리를 버핏이 채운다. 남는 높이를 다 먹되 안쪽은
+   가운데로 모은다 — 위로 붙이면 아래가, 아래로 붙이면 제목과의 사이가 통째로 빈다 */
+.comparison-guide {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+.comparison-bubble {
+  position: relative;
+  margin: 0 0 0.8rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-sunk);
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* 꼬리는 두 겹이다. 바깥이 테두리 색, 1px 위에 얹힌 안쪽이 배경 색 */
+.comparison-bubble::before,
+.comparison-bubble::after {
+  position: absolute;
+  left: 50%;
+  width: 0;
+  height: 0;
+  margin-left: -7px;
+  border-right: 7px solid transparent;
+  border-left: 7px solid transparent;
+  content: "";
+}
+
+.comparison-bubble::before {
+  top: 100%;
+  border-top: 8px solid var(--line);
+}
+
+.comparison-bubble::after {
+  top: calc(100% - 1px);
+  border-top: 8px solid var(--surface-sunk);
+}
+
+.comparison-guide .character img {
+  height: auto;
+  max-height: 150px;
 }
 
 .comparison-rail-count .mono {
@@ -1689,7 +1742,8 @@ h3.sub {
 }
 
 .comparison-reset {
-  margin-top: 1rem;
+  /* 남는 자리를 전부 위로 밀어 바닥에 붙인다. 자리가 없으면 gap이 받는다 */
+  margin-top: auto;
   padding: 0;
   border: 0;
   border-bottom: 1px solid var(--line);
@@ -3224,6 +3278,12 @@ body:has(.learn-page) .masthead-inner {
   margin-top: 3.5rem;
 }
 
+/* 링크로 건너뛴 뒤 제목·설명·표가 한 화면에 들어와야 한다. 표는 일곱 행이라
+   행마다 몇 px씩만 줄여도 크게 줄고, 제목 위아래 여백이 그다음으로 크다 */
+.style-comparison .lede {
+  margin-bottom: 1.1rem;
+}
+
 /* 리본 화살표에서 비교표로 넘어가는 자리. 앵커라 JS 없이 움직이고
    키보드·새 탭·뒤로가기가 전부 그대로 동작한다.
 
@@ -3284,7 +3344,7 @@ body:has(.learn-page) .masthead-inner {
 
 /* 이동한 뒤 제목이 60px짜리 masthead에 가리지 않게 한다 */
 .style-comparison {
-  scroll-margin-top: 5rem;
+  scroll-margin-top: 4.25rem;
 }
 
 .learn-sources-link {
