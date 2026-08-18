@@ -25,7 +25,9 @@ import os
 import re
 import sys
 import threading
+import time
 import traceback
+from collections import deque
 from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlsplit
@@ -44,6 +46,12 @@ MAX_QUESTION_CHARS = 500
 MAX_BODY_BYTES = 16 * 1024
 MAX_SEARCH_LIMIT = 50
 
+# 프로세스 전역 LLM 호출 상한(분당). IP 무관이라 X-Forwarded-For 스푸핑에 뚫리지
+# 않는 비용 회로차단이다. per-IP·토큰 제한은 신뢰 가능한 엣지(Netlify/Next)에서
+# 해야 정확하므로 여기 두지 않는다. 세션 보관소가 이미 프로세스 메모리인 것과 같은
+# 단일 프로세스 가정을 따른다.
+MAX_LLM_CALLS_PER_MINUTE = 60
+
 
 class HttpError(Exception):
     """그대로 응답으로 바뀌는 오류."""
@@ -53,6 +61,61 @@ class HttpError(Exception):
         self.status = status
         self.code = code
         self.message = message
+
+
+_RATE_LIMITED = "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요."
+
+
+class RateLimiter:
+    """프로세스 전역 슬라이딩 윈도우 호출 상한. 스레드 안전.
+
+    allow()가 True면 호출 1건을 기록하고 통과시키고, 윈도우 안 호출 수가 상한을
+    넘으면 False를 준다. RateLimitedAdapter가 실제 LLM 호출(adapter.chat)마다
+    소비하므로, HTTP 요청 수가 아니라 진짜 호출 수를 센다.
+    """
+
+    def __init__(self, max_calls: int, window_seconds: float = 60.0):
+        self.max_calls = max_calls
+        self.window_seconds = window_seconds
+        self._events: deque[float] = deque()
+        self._lock = threading.Lock()
+
+    def allow(self) -> bool:
+        now = time.monotonic()
+        with self._lock:
+            cutoff = now - self.window_seconds
+            while self._events and self._events[0] < cutoff:
+                self._events.popleft()
+            if len(self._events) >= self.max_calls:
+                return False
+            self._events.append(now)
+            return True
+
+
+class RateLimitedAdapter:
+    """어댑터를 감싸 실제 LLM 호출(chat)마다 상한을 확인한다.
+
+    상한을 HTTP 엔드포인트가 아니라 진짜 호출 지점에서 세야, ask()가 내부적으로
+    start()를 한 번 더 부르거나 generate()가 안전 재생성으로 두 번 부르는 경우까지
+    정확히 반영된다. 반대로 캐시된 응답처럼 실제 호출이 없는 경로는 예산을 깎지 않는다.
+    상한을 넘으면 HttpError(429)를 던져 그대로 응답이 된다.
+    """
+
+    def __init__(self, inner, limiter: RateLimiter):
+        self._inner = inner
+        self._limiter = limiter
+
+    def __getattr__(self, item):
+        # name·model·base_url 등은 감싼 어댑터로 위임한다.
+        return getattr(self._inner, item)
+
+    def chat(self, system: str, messages: list[dict], temperature: float = 0.0) -> str:
+        if not self._limiter.allow():
+            raise HttpError(429, "rate_limited", _RATE_LIMITED)
+        return self._inner.chat(system, messages, temperature)
+
+    def complete(self, system: str, user: str) -> str:
+        return self.chat(system, [{"role": "user", "content": user}])
 
 
 @dataclass
@@ -392,7 +455,8 @@ def _session_payload(chat: PersonaChat, reply) -> dict:
 
 
 def make_server(host: str = "127.0.0.1", port: int = 8000, force_mock: bool = False,
-                adapter=None, store: SessionStore | None = None):
+                adapter=None, store: SessionStore | None = None,
+                limiter: RateLimiter | None = None):
     """서버 객체를 만든다. 테스트는 port=0으로 불러 빈 포트를 받아 쓴다."""
     load_dotenv_file()
     data = scores_source.get_data()
@@ -402,6 +466,9 @@ def make_server(host: str = "127.0.0.1", port: int = 8000, force_mock: bool = Fa
         note = f"주입된 어댑터({adapter.name})"
     if store is None:
         store = SessionStore()
+    if limiter is None:
+        limiter = RateLimiter(MAX_LLM_CALLS_PER_MINUTE)
+    adapter = RateLimitedAdapter(adapter, limiter)
     allowed = os.getenv("ALLOWED_ORIGINS", "*")
 
     handler = make_handler(adapter, store, data, allowed)
@@ -411,6 +478,7 @@ def make_server(host: str = "127.0.0.1", port: int = 8000, force_mock: bool = Fa
     httpd.persona_adapter = adapter
     httpd.persona_store = store
     httpd.persona_data = data
+    httpd.persona_limiter = limiter
     httpd.persona_note = note
     return httpd
 
@@ -441,6 +509,9 @@ def main() -> None:
     print(f"           종목 {len(data)}개 · 관점 {[p['id'] for p in _supported_personas(data)]}")
     print(f"           기준일 가격 {data.as_of.get('price')} / 재무 {data.as_of.get('financial')}")
     print(f"  CORS     {os.getenv('ALLOWED_ORIGINS', '*')}")
+    print(f"  호출상한 분당 {MAX_LLM_CALLS_PER_MINUTE}회 (전역 LLM 비용 회로차단)")
+    if os.getenv("ALLOWED_ORIGINS", "*") == "*":
+        print("  ⚠ CORS가 * 입니다. 공개 배포 시 ALLOWED_ORIGINS를 프론트 출처로 잠그세요.")
     print("=" * 66)
     print("브라우저에서 위 주소를 여세요. 루트(/)는 연습장 화면, /health 는 JSON입니다.")
     print("종료는 Ctrl+C")
