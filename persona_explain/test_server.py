@@ -305,6 +305,36 @@ def test_expired_session_is_404():
 
 
 @needs_scores
+def test_rate_limit_blocks_excess_llm_calls():
+    # 전역 상한 1로 두면 두 번째 LLM 호출부터 429. IP 무관 비용 회로차단.
+    from server import RateLimiter
+
+    httpd = make_server("127.0.0.1", 0, adapter=MockAdapter(),
+                        limiter=RateLimiter(max_calls=1))
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    host, port = httpd.server_address[:2]
+    base = f"http://{host}:{port}"
+    try:
+        ticker = httpd.persona_data.tickers()[0]
+        # 1회차 LLM 호출은 통과
+        status, _, _ = _call(base, "POST", "/sessions",
+                             {"ticker": ticker, "persona": "buffett"})
+        assert status == 201
+        # 2회차는 상한 초과 → 429
+        status, body, _ = _call(base, "POST", "/sessions",
+                               {"ticker": ticker, "persona": "buffett"})
+        assert status == 429
+        assert body["error"]["code"] == "rate_limited"
+        # LLM을 부르지 않는 엔드포인트는 상한과 무관하게 계속 동작
+        status, _, _ = _call(base, "GET", "/health")
+        assert status == 200
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+
+
+@needs_scores
 def test_cors_preflight_and_get(live):
     status, _, headers = _call(
         live["base"], "OPTIONS", "/health",

@@ -25,7 +25,9 @@ import os
 import re
 import sys
 import threading
+import time
 import traceback
+from collections import deque
 from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlsplit
@@ -44,6 +46,12 @@ MAX_QUESTION_CHARS = 500
 MAX_BODY_BYTES = 16 * 1024
 MAX_SEARCH_LIMIT = 50
 
+# 프로세스 전역 LLM 호출 상한(분당). IP 무관이라 X-Forwarded-For 스푸핑에 뚫리지
+# 않는 비용 회로차단이다. per-IP·토큰 제한은 신뢰 가능한 엣지(Netlify/Next)에서
+# 해야 정확하므로 여기 두지 않는다. 세션 보관소가 이미 프로세스 메모리인 것과 같은
+# 단일 프로세스 가정을 따른다.
+MAX_LLM_CALLS_PER_MINUTE = 60
+
 
 class HttpError(Exception):
     """그대로 응답으로 바뀌는 오류."""
@@ -53,6 +61,35 @@ class HttpError(Exception):
         self.status = status
         self.code = code
         self.message = message
+
+
+_RATE_LIMITED = "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요."
+
+
+class RateLimiter:
+    """프로세스 전역 슬라이딩 윈도우 호출 상한. 스레드 안전.
+
+    allow()가 True면 호출 1건을 기록하고 통과시키고, 윈도우 안 호출 수가 상한을
+    넘으면 False를 준다. LLM을 실제로 부르는 엔드포인트에서만 소비해, 검증에서 걸린
+    요청은 예산을 깎지 않는다.
+    """
+
+    def __init__(self, max_calls: int, window_seconds: float = 60.0):
+        self.max_calls = max_calls
+        self.window_seconds = window_seconds
+        self._events: deque[float] = deque()
+        self._lock = threading.Lock()
+
+    def allow(self) -> bool:
+        now = time.monotonic()
+        with self._lock:
+            cutoff = now - self.window_seconds
+            while self._events and self._events[0] < cutoff:
+                self._events.popleft()
+            if len(self._events) >= self.max_calls:
+                return False
+            self._events.append(now)
+            return True
 
 
 @dataclass
@@ -109,7 +146,7 @@ def build_adapter(force_mock: bool = False):
 
 
 def make_handler(adapter, store: SessionStore, data: scores_source.ScoresData,
-                 allowed_origins: str):
+                 allowed_origins: str, limiter: RateLimiter):
     """공유 상태를 담은 핸들러 클래스를 만든다.
 
     BaseHTTPRequestHandler는 요청마다 새로 만들어지므로 상태를 클래스 쪽에 둔다.
@@ -217,6 +254,8 @@ def make_handler(adapter, store: SessionStore, data: scores_source.ScoresData,
                 criteria_spec=data.styles[persona].criteria,
                 adapter=adapter,
             )
+            if not limiter.allow():
+                raise HttpError(429, "rate_limited", _RATE_LIMITED)
             reply = _run(chat.start)
             session_id = store.create(Conversation(chat, threading.Lock()))
             payload = _session_payload(chat, reply)
@@ -230,6 +269,8 @@ def make_handler(adapter, store: SessionStore, data: scores_source.ScoresData,
             _check_fields(body, {"question"})
             question = _text_field(body, "question", MAX_QUESTION_CHARS)
 
+            if not limiter.allow():
+                raise HttpError(429, "rate_limited", _RATE_LIMITED)
             with conv.lock:
                 reply = _run(conv.chat.ask, question)
             return 200, {
@@ -251,6 +292,8 @@ def make_handler(adapter, store: SessionStore, data: scores_source.ScoresData,
             persona = _text_field(body, "persona", 32)
             _check_persona(persona, data)
 
+            if not limiter.allow():
+                raise HttpError(429, "rate_limited", _RATE_LIMITED)
             with conv.lock:
                 if persona != conv.chat.persona_key:
                     conv.chat.switch_persona(persona)
@@ -392,7 +435,8 @@ def _session_payload(chat: PersonaChat, reply) -> dict:
 
 
 def make_server(host: str = "127.0.0.1", port: int = 8000, force_mock: bool = False,
-                adapter=None, store: SessionStore | None = None):
+                adapter=None, store: SessionStore | None = None,
+                limiter: RateLimiter | None = None):
     """서버 객체를 만든다. 테스트는 port=0으로 불러 빈 포트를 받아 쓴다."""
     load_dotenv_file()
     data = scores_source.get_data()
@@ -402,15 +446,18 @@ def make_server(host: str = "127.0.0.1", port: int = 8000, force_mock: bool = Fa
         note = f"주입된 어댑터({adapter.name})"
     if store is None:
         store = SessionStore()
+    if limiter is None:
+        limiter = RateLimiter(MAX_LLM_CALLS_PER_MINUTE)
     allowed = os.getenv("ALLOWED_ORIGINS", "*")
 
-    handler = make_handler(adapter, store, data, allowed)
+    handler = make_handler(adapter, store, data, allowed, limiter)
     httpd = ThreadingHTTPServer((host, port), handler)
     httpd.daemon_threads = True
     # 띄운 뒤 확인·정리에 쓰라고 붙여 둔다
     httpd.persona_adapter = adapter
     httpd.persona_store = store
     httpd.persona_data = data
+    httpd.persona_limiter = limiter
     httpd.persona_note = note
     return httpd
 
@@ -441,6 +488,9 @@ def main() -> None:
     print(f"           종목 {len(data)}개 · 관점 {[p['id'] for p in _supported_personas(data)]}")
     print(f"           기준일 가격 {data.as_of.get('price')} / 재무 {data.as_of.get('financial')}")
     print(f"  CORS     {os.getenv('ALLOWED_ORIGINS', '*')}")
+    print(f"  호출상한 분당 {MAX_LLM_CALLS_PER_MINUTE}회 (전역 LLM 비용 회로차단)")
+    if os.getenv("ALLOWED_ORIGINS", "*") == "*":
+        print("  ⚠ CORS가 * 입니다. 공개 배포 시 ALLOWED_ORIGINS를 프론트 출처로 잠그세요.")
     print("=" * 66)
     print("브라우저에서 위 주소를 여세요. 루트(/)는 연습장 화면, /health 는 JSON입니다.")
     print("종료는 Ctrl+C")
