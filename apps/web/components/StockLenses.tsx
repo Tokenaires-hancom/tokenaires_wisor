@@ -146,7 +146,7 @@ function BusinessLens({
             <CriteriaBar criteria={score.criteria} showBreakdown showLegend />
             {score.modelVersion === "Buffett 1.0" && (
               <div className="score-model-note">
-                <h3>Buffett 1.0은 8개 기준, 총 {totalWeight}점입니다</h3>
+                <h3>{displayedModelVersion}은 8개 기준, 총 {totalWeight}점입니다</h3>
                 <p>
                   좋은 기업인지 10점, 재무가 버틸 수 있는지 3점, 성장이 이어지는지 2점,
                   가격이 과하지 않은지 3점으로 봅니다.
@@ -363,7 +363,7 @@ function NoteLens({ company, styleId }: { company: Company; styleId: string }) {
       </div>
 
       <p className="disclaimer">
-        학습노트는 지금 이 브라우저에만 저장됩니다. 계정 연동은 다음 단계에서 붙습니다.
+        학습노트는 지금 이 브라우저에만 저장됩니다. 계정 연동은 다음 단계에서 지원할 예정입니다.
       </p>
     </div>
   );
