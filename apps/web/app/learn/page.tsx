@@ -1,5 +1,6 @@
 import Link from "next/link";
 import MasterGrid from "@/components/MasterGrid";
+import StyleComparisonTable from "@/components/StyleComparisonTable";
 
 export default function LearnIndex() {
   return (
@@ -12,6 +13,8 @@ export default function LearnIndex() {
       </div>
 
       <MasterGrid />
+
+      <StyleComparisonTable />
 
       <div className="learn-sources-link">
         <Link href="/learn/sources">커리큘럼 참고문헌</Link>

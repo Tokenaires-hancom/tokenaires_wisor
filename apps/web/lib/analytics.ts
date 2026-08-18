@@ -9,7 +9,9 @@ export type WisorEvent =
   | "study_note_saved"
   | "watchlist_added"
   | "stock_basics_started"
-  | "stock_basics_completed";
+  | "stock_basics_completed"
+  | "persona_chat_opened"
+  | "persona_chat_asked";
 
 export function track(event: WisorEvent, props: Record<string, unknown> = {}): void {
   if (typeof window === "undefined") return;

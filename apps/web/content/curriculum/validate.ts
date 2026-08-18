@@ -1,4 +1,8 @@
-import { SOURCE_KINDS, type Curriculum } from "./types.ts";
+import { CHAPTER_SLOTS, SOURCE_KINDS, type Curriculum } from "./types.ts";
+
+/** 비교표 칸 하나에 들어가는 최대 길이. 넘으면 칸이 세 줄을 넘겨 표가 한 화면에
+ *  들어오지 않는다. 한눈에 견주는 것이 이 표의 전부라 길이가 곧 기능이다. */
+const ONE_LINE_MAX = 24;
 
 /** 사용자에게 보이는 문장에서 막는 표현.
  *  이 제품은 관찰과 확인 사항까지만 말한다. 권유하지 않는다. */
@@ -24,6 +28,33 @@ export function curriculumProblems(curricula: Curriculum[]): string[] {
       // 가려 주기로 한 약속이 여기서 강제된다.
       if (chapter.sources.length === 0) {
         problems.push(`${where}: 출처가 비어 있습니다.`);
+      }
+
+      // 비교표에 나가는 칸에만 oneLine이 있어야 한다. 짝이 어긋나면 표에 빈 칸이
+      // 생기거나, 아무 데도 안 쓰이는 문장이 남는다
+      const pickable = "picks" in CHAPTER_SLOTS[index];
+      if (pickable && chapter.oneLine === undefined) {
+        problems.push(`${where}: 비교표에 나가는 칸인데 oneLine이 없습니다.`);
+      }
+      if (!pickable && chapter.oneLine !== undefined) {
+        problems.push(`${where}: 비교표에 나가지 않는 칸인데 oneLine이 있습니다.`);
+      }
+
+      if (chapter.oneLine !== undefined) {
+        const at = `${where} oneLine`;
+
+        if (chapter.oneLine.trim() === "") {
+          problems.push(`${at}: 비어 있습니다.`);
+        }
+        if (chapter.oneLine.length > ONE_LINE_MAX) {
+          problems.push(
+            `${at}: ${chapter.oneLine.length}자로 ${ONE_LINE_MAX}자를 넘습니다.`,
+          );
+        }
+        // 표 안의 짧은 문장이라 마침표를 찍지 않는다. 스물여덟 칸이 섞이면 눈에 띈다
+        if (chapter.oneLine.endsWith(".")) {
+          problems.push(`${at}: 마침표로 끝납니다.`);
+        }
       }
 
       chapter.sources.forEach((source, order) => {
@@ -55,7 +86,7 @@ export function curriculumProblems(curricula: Curriculum[]): string[] {
         }
       });
 
-      const text = [chapter.title, chapter.lede, ...chapter.body].join(" ");
+      const text = [chapter.title, chapter.oneLine ?? "", chapter.lede, ...chapter.body].join(" ");
       for (const banned of BANNED) {
         if (text.includes(banned)) {
           problems.push(`${where}: 권유형 표현 '${banned}'가 본문에 있습니다.`);
