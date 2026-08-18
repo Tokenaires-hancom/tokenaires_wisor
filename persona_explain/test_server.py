@@ -335,6 +335,34 @@ def test_rate_limit_blocks_excess_llm_calls():
 
 
 @needs_scores
+def test_rate_limit_not_charged_for_noop_persona_switch():
+    # 같은 페르소나로 전환하면 캐시된 첫 해설을 돌려주고 LLM을 부르지 않는다.
+    # 실제 호출이 없는 경로이므로 상한을 깎지 않아야 한다(선차감 금지).
+    from server import RateLimiter
+
+    httpd = make_server("127.0.0.1", 0, adapter=MockAdapter(),
+                        limiter=RateLimiter(max_calls=1))
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    host, port = httpd.server_address[:2]
+    base = f"http://{host}:{port}"
+    try:
+        ticker = httpd.persona_data.tickers()[0]
+        # 세션 생성 = LLM 1회 → 상한 1 소진
+        status, created, _ = _call(base, "POST", "/sessions",
+                                   {"ticker": ticker, "persona": "buffett"})
+        assert status == 201
+        sid = created["sessionId"]
+        # 같은 페르소나로 전환 = 캐시 반환, LLM 0회 → 상한 안 깎임 → 200
+        status, _, _ = _call(base, "POST", f"/sessions/{sid}/persona",
+                             {"persona": "buffett"})
+        assert status == 200, "실제 호출 없는 no-op 전환은 상한을 깎지 않아야 한다"
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+
+
+@needs_scores
 def test_cors_preflight_and_get(live):
     status, _, headers = _call(
         live["base"], "OPTIONS", "/health",

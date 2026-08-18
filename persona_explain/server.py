@@ -70,8 +70,8 @@ class RateLimiter:
     """프로세스 전역 슬라이딩 윈도우 호출 상한. 스레드 안전.
 
     allow()가 True면 호출 1건을 기록하고 통과시키고, 윈도우 안 호출 수가 상한을
-    넘으면 False를 준다. LLM을 실제로 부르는 엔드포인트에서만 소비해, 검증에서 걸린
-    요청은 예산을 깎지 않는다.
+    넘으면 False를 준다. RateLimitedAdapter가 실제 LLM 호출(adapter.chat)마다
+    소비하므로, HTTP 요청 수가 아니라 진짜 호출 수를 센다.
     """
 
     def __init__(self, max_calls: int, window_seconds: float = 60.0):
@@ -90,6 +90,32 @@ class RateLimiter:
                 return False
             self._events.append(now)
             return True
+
+
+class RateLimitedAdapter:
+    """어댑터를 감싸 실제 LLM 호출(chat)마다 상한을 확인한다.
+
+    상한을 HTTP 엔드포인트가 아니라 진짜 호출 지점에서 세야, ask()가 내부적으로
+    start()를 한 번 더 부르거나 generate()가 안전 재생성으로 두 번 부르는 경우까지
+    정확히 반영된다. 반대로 캐시된 응답처럼 실제 호출이 없는 경로는 예산을 깎지 않는다.
+    상한을 넘으면 HttpError(429)를 던져 그대로 응답이 된다.
+    """
+
+    def __init__(self, inner, limiter: RateLimiter):
+        self._inner = inner
+        self._limiter = limiter
+
+    def __getattr__(self, item):
+        # name·model·base_url 등은 감싼 어댑터로 위임한다.
+        return getattr(self._inner, item)
+
+    def chat(self, system: str, messages: list[dict], temperature: float = 0.0) -> str:
+        if not self._limiter.allow():
+            raise HttpError(429, "rate_limited", _RATE_LIMITED)
+        return self._inner.chat(system, messages, temperature)
+
+    def complete(self, system: str, user: str) -> str:
+        return self.chat(system, [{"role": "user", "content": user}])
 
 
 @dataclass
@@ -146,7 +172,7 @@ def build_adapter(force_mock: bool = False):
 
 
 def make_handler(adapter, store: SessionStore, data: scores_source.ScoresData,
-                 allowed_origins: str, limiter: RateLimiter):
+                 allowed_origins: str):
     """공유 상태를 담은 핸들러 클래스를 만든다.
 
     BaseHTTPRequestHandler는 요청마다 새로 만들어지므로 상태를 클래스 쪽에 둔다.
@@ -254,8 +280,6 @@ def make_handler(adapter, store: SessionStore, data: scores_source.ScoresData,
                 criteria_spec=data.styles[persona].criteria,
                 adapter=adapter,
             )
-            if not limiter.allow():
-                raise HttpError(429, "rate_limited", _RATE_LIMITED)
             reply = _run(chat.start)
             session_id = store.create(Conversation(chat, threading.Lock()))
             payload = _session_payload(chat, reply)
@@ -269,8 +293,6 @@ def make_handler(adapter, store: SessionStore, data: scores_source.ScoresData,
             _check_fields(body, {"question"})
             question = _text_field(body, "question", MAX_QUESTION_CHARS)
 
-            if not limiter.allow():
-                raise HttpError(429, "rate_limited", _RATE_LIMITED)
             with conv.lock:
                 reply = _run(conv.chat.ask, question)
             return 200, {
@@ -292,8 +314,6 @@ def make_handler(adapter, store: SessionStore, data: scores_source.ScoresData,
             persona = _text_field(body, "persona", 32)
             _check_persona(persona, data)
 
-            if not limiter.allow():
-                raise HttpError(429, "rate_limited", _RATE_LIMITED)
             with conv.lock:
                 if persona != conv.chat.persona_key:
                     conv.chat.switch_persona(persona)
@@ -448,9 +468,10 @@ def make_server(host: str = "127.0.0.1", port: int = 8000, force_mock: bool = Fa
         store = SessionStore()
     if limiter is None:
         limiter = RateLimiter(MAX_LLM_CALLS_PER_MINUTE)
+    adapter = RateLimitedAdapter(adapter, limiter)
     allowed = os.getenv("ALLOWED_ORIGINS", "*")
 
-    handler = make_handler(adapter, store, data, allowed, limiter)
+    handler = make_handler(adapter, store, data, allowed)
     httpd = ThreadingHTTPServer((host, port), handler)
     httpd.daemon_threads = True
     # 띄운 뒤 확인·정리에 쓰라고 붙여 둔다
