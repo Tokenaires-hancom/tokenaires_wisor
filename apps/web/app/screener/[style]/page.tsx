@@ -32,9 +32,31 @@ export default async function Screener({ params }: { params: Promise<{ style: st
   return (
     <div className="wrap" style={{ paddingBlock: "3.5rem 5rem" }}>
       <p className="eyebrow">종목 찾기</p>
-      <p className="lede" style={{ marginBottom: "1.5rem" }}>
-        이 화면에서는 네 명의 투자 대가에서 만든 네 점수 모델을 같은 데이터로 보여줍니다.
+      <p className="lede screener-model-intro">
+        이 화면에서는 투자 대가 네 명의 원칙으로 만든 점수 모델 네 개를 같은 데이터로 보여줍니다.
       </p>
+
+      <section className="screener-model-boundary" aria-labelledby="unscored-philosophies-title">
+        <p className="eyebrow" id="unscored-philosophies-title">점수로 만들지 않은 철학</p>
+        <dl>
+          <div>
+            <dt>필립 피셔</dt>
+            <dd>탐문과 경영진의 정직성 같은 정성 판단</dd>
+          </div>
+          <div>
+            <dt>하워드 막스</dt>
+            <dd>개별 종목보다 시장 전체의 신용과 심리</dd>
+          </div>
+          <div>
+            <dt>조지 소로스</dt>
+            <dd>가격과 자금 흐름이 달라지는 과정</dd>
+          </div>
+        </dl>
+        <p>
+          기업 재무 데이터로 억지로 점수화하면 본래 질문을 왜곡합니다. 세 철학은 스크리너 대신
+          학습 화면의 자가진단으로 다룹니다.
+        </p>
+      </section>
 
       <nav className="screener-style-tabs" aria-label="투자 철학 선택">
         {DATA.styles
