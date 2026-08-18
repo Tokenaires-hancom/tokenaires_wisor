@@ -73,6 +73,18 @@ export default function PersonaChatFab() {
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight });
   }, [messages, open]);
 
+  // 챗봇은 별도 서비스라 유휴 상태에서 잠든다. 버튼을 누른 뒤에 깨우면 그 대기가
+  // 사용자에게 그대로 보이므로, 화면을 읽는 동안 미리 한 번 깨워 둔다.
+  // 실패해도 아무것도 하지 않는다 — 열 때 ensureHealth가 다시 확인하고 그때 안내한다.
+  useEffect(() => {
+    getHealth()
+      .then((health) => {
+        const list = (health.personas ?? []).filter((p) => CHATTABLE.has(p.id));
+        if (list.length) setPersonas(list);
+      })
+      .catch((err) => console.debug("[wisor] persona chat prewarm failed", err));
+  }, []);
+
   async function ensureHealth(): Promise<string> {
     const health = await getHealth();
     const list = (health.personas ?? []).filter((p) => CHATTABLE.has(p.id));
