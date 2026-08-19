@@ -24,3 +24,6 @@ tsconfig.tsbuildinfo
 
 # 브레인스토밍 목업 (superpowers)
 .superpowers/
+
+# git worktree 작업공간 (superpowers)
+.worktrees/
