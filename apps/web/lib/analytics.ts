@@ -8,8 +8,6 @@ export type WisorEvent =
   | "stock_detail_opened"
   | "study_note_saved"
   | "watchlist_added"
-  | "stock_basics_started"
-  | "stock_basics_completed"
   | "persona_chat_opened"
   | "persona_chat_asked";
 
