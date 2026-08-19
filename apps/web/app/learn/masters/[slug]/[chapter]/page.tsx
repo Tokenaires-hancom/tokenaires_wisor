@@ -89,9 +89,9 @@ export default async function ChapterPage({
           </ol>
         </nav>
 
+        <p className="lede">{slot.asks}</p>
         <h1 className="chapter-title">{chapter.title}</h1>
         <p className="chapter-lede">{chapter.lede}</p>
-        <p className="lede">{slot.asks}</p>
 
         <hr className="rule" />
       </div>

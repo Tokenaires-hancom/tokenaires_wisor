@@ -26,9 +26,11 @@ test("기준일이 하나뿐이면 범위로 쓰지 않는다", () => {
   assert.equal(dateRange("2025-12-31", "2025-12-31"), "2025-12-31");
 });
 
-test("그린블랫 모델 버전은 화면에서 한글로 표시한다", () => {
+test("모델 버전은 화면에서 한글로 표시한다", () => {
   assert.equal(displayModelVersion("Greenblatt 1.0"), "그린블랫 1.0");
-  assert.equal(displayModelVersion("Buffett 1.0"), "Buffett 1.0");
+  assert.equal(displayModelVersion("Buffett 1.0"), "버핏 1.0");
+  // 배치가 새 모델을 올려도 화면이 깨지지 않게, 모르는 버전은 그대로 쓴다
+  assert.equal(displayModelVersion("Fisher 1.0"), "Fisher 1.0");
 });
 
 test("상한이 정해진 지표는 큰 값을 숫자 그대로 쓰지 않는다", () => {

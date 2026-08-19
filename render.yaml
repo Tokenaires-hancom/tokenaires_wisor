@@ -1,0 +1,63 @@
+# Render 배포 설정 (Blueprint)
+#
+# 운영 배포는 Render의 별도 두 서비스다. 웹은 Node, 챗봇은 Python이라 한 서비스에
+# 넣으려면 두 런타임을 담은 Dockerfile과 프로세스 매니저가 필요하다. 나누는 쪽을 택했다.
+#
+# 이 파일은 두 서비스를 저장소에 명시해 두기 위한 것이다. 지금 도는 서비스는 Render
+# UI에서 손으로 만들었고, Blueprint는 사람이 명시적으로 동기화하기 전까지 아무것도
+# 하지 않는다. 동기화 전에 docs/deploy.md의 "Blueprint로 동기화하기 전에"를 읽을 것.
+#
+# 비밀값은 여기에 적지 않는다. sync: false인 항목은 Render UI에서 채운다.
+
+services:
+  # ---------------------------------------------------------------- 웹
+  - type: web
+    name: wisor
+    runtime: node
+    plan: free
+    # 저장소 루트에 package.json이 없다. 웹 앱은 apps/web 안에만 있고 락파일도
+    # 거기 하나뿐이다.
+    rootDir: apps/web
+    buildCommand: npm ci && npm run build
+    # next start -p 3000. Render가 열린 포트를 감지해 붙인다.
+    # $PORT로 명시하려면 `npx next start -p $PORT`로 바꾼다.
+    startCommand: npm run start
+    envVars:
+      # package.json의 engines가 node >=23이다. 플랫폼 기본값에 맡기지 않는다.
+      # .github/workflows/pr-review.yml의 setup-node 버전과 같은 값을 쓴다.
+      - key: NODE_VERSION
+        value: "24"
+      # 챗봇 서버 주소. next.config.mjs의 rewrite가 /api/persona/* 를 여기로 넘긴다.
+      # 서버 환경변수라 브라우저에 노출되지 않는다.
+      #
+      # 스킴까지 있어야 한다. rewrite가 `${origin}/:path*`로 이어 붙이기 때문이다.
+      # fromService의 host·hostport는 스킴이 없어 여기에 쓸 수 없다.
+      # 비면 127.0.0.1:8000으로 떨어져 배포 환경에서 /api/persona/*가 500이 된다.
+      - key: PERSONA_API_ORIGIN
+        value: https://tokenaires-wisor.onrender.com
+
+  # ---------------------------------------------------------------- 해설 챗봇
+  - type: web
+    name: tokenaires-wisor
+    runtime: python
+    plan: free
+    # 빌드·실행은 이 디렉터리에서 돌지만 저장소 전체가 체크아웃된다. 그래서
+    # scores_source.PATH_CANDIDATES의 ../apps/web/lib/generated/scores.json이
+    # 그대로 잡히고 SCORES_JSON_PATH를 따로 줄 필요가 없다.
+    rootDir: persona_explain
+    buildCommand: pip install -r requirements.txt
+    startCommand: python server.py
+    envVars:
+      # server.py의 기본값은 127.0.0.1이다. 그대로 두면 Render가 서비스에 붙지
+      # 못한다. 반드시 0.0.0.0이어야 한다.
+      - key: HOST
+        value: 0.0.0.0
+      # PORT는 Render가 주입한다. server.py가 os.getenv("PORT")로 읽으므로
+      # 여기에 적지 않는다. 적으면 플랫폼이 준 값을 덮어써서 붙지 못한다.
+      - key: ALLOWED_ORIGINS
+        value: https://wisor-w0fu.onrender.com
+      - key: PERSONA_MODEL
+        value: openai/gpt-5.4-mini
+      # 비밀값. Render UI에서 채운다.
+      - key: OPENROUTER_API_KEY
+        sync: false
