@@ -104,7 +104,6 @@ export default async function ChapterPage({
         closing={chapter.lede}
         initialStep={initialStep}
         next={next}
-        masterId={master.id}
       />
     </div>
   );
