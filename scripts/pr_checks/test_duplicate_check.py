@@ -70,7 +70,8 @@ def test_report_when_added_block_duplicates_existing_code(tmp_path):
     groups = duplicate_check.find_new_duplicates(tmp_path, _staged_diff(tmp_path))
 
     assert len(groups) == 1
-    assert set(groups[0]["locations"]) == {"a.py", "b.py"}
+    assert set(groups[0]["locations"]) == {"a.py:1", "b.py:1"}
+    assert groups[0]["lines"] == 6
 
 
 def test_report_when_added_block_duplicates_within_same_new_file(tmp_path):
@@ -84,7 +85,25 @@ def test_report_when_added_block_duplicates_within_same_new_file(tmp_path):
     groups = duplicate_check.find_new_duplicates(tmp_path, _staged_diff(tmp_path))
 
     assert len(groups) == 1
-    assert groups[0]["locations"] == ["b.py"]
+    # 실제 파일 줄번호 기준: BLOCK(6줄) + 빈 줄 1개 + BLOCK(6줄) → 두 번째는 8줄부터.
+    assert groups[0]["locations"] == ["b.py:1", "b.py:8"]
+
+
+def test_both_files_new_in_same_diff_not_double_counted(tmp_path):
+    # a.py, b.py 둘 다 이번 diff에서 처음 생긴다 — a가 b를 찾고, b도
+    # a를 찾으면서 같은 중복이 두 번 잡히기 쉬운 케이스다.
+    _init_repo(tmp_path)
+    _write(tmp_path, "seed.py", "print('seed')\n")
+    _commit_all(tmp_path, "init")
+
+    _write(tmp_path, "a.py", BLOCK)
+    _write(tmp_path, "b.py", BLOCK)
+    _git(tmp_path, "add", "-A")
+
+    groups = duplicate_check.find_new_duplicates(tmp_path, _staged_diff(tmp_path))
+
+    assert len(groups) == 1
+    assert set(groups[0]["locations"]) == {"a.py:1", "b.py:1"}
 
 
 def test_preexisting_duplication_untouched_by_diff_is_not_reported(tmp_path):
@@ -138,7 +157,23 @@ def test_find_all_duplicates_reports_preexisting_debt(tmp_path):
     groups = duplicate_check.find_all_duplicates(tmp_path)
 
     assert len(groups) == 1
-    assert set(groups[0]["locations"]) == {"a.py", "b.py"}
+    assert set(groups[0]["locations"]) == {"a.py:1", "b.py:1"}
+    assert groups[0]["lines"] == 6
+
+
+def test_long_duplicate_span_reported_as_one_group_not_many(tmp_path):
+    # 6줄 min_lines 기준으로 10줄짜리 통째 중복은 겹치는 윈도우가 5개
+    # (10-6+1) 나온다 — 이걸 "5건의 서로 다른 중복"이 아니라 "10줄짜리
+    # 중복 1건"으로 합쳐서 보고해야 한다. (실전에서 33줄 중복이 28건으로
+    # 잘못 보고됐던 문제의 회귀 테스트.)
+    long_block = "\n".join(f"    line_{i} = {i}" for i in range(10)) + "\n"
+    _write(tmp_path, "a.py", long_block)
+    _write(tmp_path, "b.py", long_block)
+
+    groups = duplicate_check.find_all_duplicates(tmp_path)
+
+    assert len(groups) == 1
+    assert groups[0]["lines"] == 10
 
 
 def test_find_all_duplicates_empty_when_no_duplication(tmp_path):
