@@ -45,8 +45,11 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          # data-pipeline은 표준 라이브러리만 쓴다. 설치할 의존성이 없다.
+          # 운영 코드는 표준 라이브러리만 쓰지만 검증에는 pytest가 필요하다.
           python-version: "3.12"
+
+      - name: 테스트 의존성 설치
+        run: python -m pip install pytest
 
       - name: 모드 정하기
         id: mode
@@ -65,7 +68,11 @@ jobs:
           TOSS_INVEST_CLIENT_SECRET: ${{ secrets.TOSS_INVEST_CLIENT_SECRET }}
           WISOR_SEC_USER_AGENT: ${{ secrets.WISOR_SEC_USER_AGENT }}
         working-directory: data-pipeline
-        run: python run_batch.py --provider sec-toss --mode "${{ steps.mode.outputs.value }}"
+        run: >-
+          python run_batch.py
+          --provider sec-toss
+          --mode "${{ steps.mode.outputs.value }}"
+          --universe data/universe_us.json
 
       - name: 점수 검사
         working-directory: data-pipeline
