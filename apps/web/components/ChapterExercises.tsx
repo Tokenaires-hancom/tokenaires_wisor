@@ -3,12 +3,10 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import MasterCharacter from "@/components/MasterCharacter";
 import { isCorrect } from "@/content/curriculum/grading";
 import { chapterSteps, stepLabel } from "@/content/curriculum/steps";
 // SOURCE_KINDS는 값이지만 types.ts가 Master를 type import만 하므로 번들에 masters.ts가 실리지 않는다
 import { SOURCE_KINDS, type Exercise, type SourceNote } from "@/content/curriculum/types";
-import { moodFor } from "@/content/chapterMood";
 import { track } from "@/lib/analytics";
 import { markLessonDone, recordQuiz, saveJournalEntry } from "@/lib/store";
 
@@ -32,7 +30,6 @@ export default function ChapterExercises({
   initialStep = 0,
   syncStepToUrl = true,
   next,
-  masterId,
 }: {
   chapterId: string;
   exercises: Exercise[];
@@ -47,7 +44,6 @@ export default function ChapterExercises({
   /** 마지막 스텝에서 '계속' 대신 보여줄 이동 대상. 없으면 마지막 스텝에서
    *  그냥 비활성화된다(예: compare 페이지의 최종 기록에는 다음 장이 없다). */
   next?: { href: string; label: string };
-  masterId?: string;
 }) {
   const steps = chapterSteps(exercises);
   const router = useRouter();
@@ -66,19 +62,6 @@ export default function ChapterExercises({
     currentExercise?.kind === "graded"
       ? picks[exerciseIndex!].length > 0
       : currentExercise !== undefined && texts[exerciseIndex!].trim() !== "";
-  const mood = moodFor({
-    stepKind: step.kind,
-    exerciseKind: currentExercise?.kind,
-    submitted: currentSubmitted,
-    correct:
-      currentExercise?.kind === "graded" && exerciseIndex !== undefined
-        ? isCorrect(
-            (exercises[exerciseIndex] as Extract<Exercise, { kind: "graded" }>).answers,
-            picks[exerciseIndex],
-          )
-        : false,
-  });
-
   // 스텝이 바뀔 때 포커스를 새 콘텐츠로 옮긴다. 경계 스텝에서는 눌렀던
   // 이전/계속 버튼이 disabled가 되며 포커스가 body로 떨어지는데, 그러면
   // 다음 Tab이 문서 맨 위부터 다시 시작한다. 첫 마운트에는 옮기지 않는다.
@@ -223,11 +206,6 @@ export default function ChapterExercises({
         )}
         </div>
 
-        {masterId && (
-          <div className="chapter-figure">
-            <MasterCharacter masterId={masterId} mood={mood} height={190} />
-          </div>
-        )}
       </div>
 
       <div className="step-nav">
