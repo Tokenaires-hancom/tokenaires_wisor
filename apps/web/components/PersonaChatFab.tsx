@@ -73,6 +73,18 @@ export default function PersonaChatFab() {
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight });
   }, [messages, open]);
 
+  // 챗봇은 별도 서비스라 유휴 상태에서 잠든다. 버튼을 누른 뒤에 깨우면 그 대기가
+  // 사용자에게 그대로 보이므로, 화면을 읽는 동안 미리 한 번 깨워 둔다.
+  // 실패해도 아무것도 하지 않는다 — 열 때 ensureHealth가 다시 확인하고 그때 안내한다.
+  useEffect(() => {
+    getHealth()
+      .then((health) => {
+        const list = (health.personas ?? []).filter((p) => CHATTABLE.has(p.id));
+        if (list.length) setPersonas(list);
+      })
+      .catch((err) => console.debug("[wisor] persona chat prewarm failed", err));
+  }, []);
+
   async function ensureHealth(): Promise<string> {
     const health = await getHealth();
     const list = (health.personas ?? []).filter((p) => CHATTABLE.has(p.id));
@@ -208,32 +220,33 @@ export default function PersonaChatFab() {
   return (
     <div className="persona-dock">
       {open && (
-        <section className="persona-panel" aria-label="숫자 해설">
+        <section className="persona-panel" aria-label="투자 대가에게 묻기">
           <header className="persona-panel-head">
-            <div>
-              <p className="eyebrow">해설 관점</p>
-              <h2>숫자는 이 철학으로 읽습니다</h2>
-            </div>
-            <button type="button" className="btn" data-variant="quiet" onClick={() => setOpen(false)}>
-              닫기
-            </button>
-          </header>
-
-          <div className="persona-personas" role="group" aria-label="해설 관점">
-            {personas.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                className="btn"
-                data-variant={item.id === persona ? undefined : "quiet"}
-                aria-pressed={item.id === persona}
-                disabled={busy}
-                onClick={() => void onPersona(item.id)}
-              >
-                {shortName(item.name)}
+            <div className="persona-panel-title">
+              <h2>투자 대가에게 묻기</h2>
+              <button type="button" className="btn" data-variant="quiet" onClick={() => setOpen(false)}>
+                닫기
               </button>
-            ))}
-          </div>
+            </div>
+
+            <div className="persona-personas" role="group" aria-label="투자 대가 선택">
+              {personas.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className="persona-master-option"
+                  aria-pressed={item.id === persona}
+                  disabled={busy}
+                  onClick={() => void onPersona(item.id)}
+                >
+                  <span className="persona-master-portrait" aria-hidden="true">
+                    <img src={`/investors/${item.id}.png`} alt="" />
+                  </span>
+                  <span className="persona-master-name">{shortName(item.name)}</span>
+                </button>
+              ))}
+            </div>
+          </header>
 
           {!pathTicker && (
             <div className="persona-search">

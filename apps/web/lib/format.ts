@@ -9,8 +9,15 @@ export function dateRange(from: string, to: string): string {
 }
 
 /** 배치의 영문 모델 버전은 호환성을 위해 유지하고, 화면에서는 한글 이름을 쓴다. */
+const MODEL_NAMES: Record<string, string> = {
+  "Buffett 1.0": "버핏 1.0",
+  "Graham 1.0": "그레이엄 1.0",
+  "Lynch 1.0": "린치 1.0",
+  "Greenblatt 1.0": "그린블랫 1.0",
+};
+
 export function displayModelVersion(modelVersion: string): string {
-  return modelVersion === "Greenblatt 1.0" ? "그린블랫 1.0" : modelVersion;
+  return MODEL_NAMES[modelVersion] ?? modelVersion;
 }
 
 export function pct(value: number | null | undefined, digits = 1): string {
@@ -30,11 +37,11 @@ export function plain(value: number | null | undefined, digits = 2): string {
   return value.toFixed(digits);
 }
 
+/** 입력은 백만 달러 단위다. 한국어는 십억·백만을 배수로 쓰지 않으므로 억·조로 옮긴다. */
 export function money(value: number | null | undefined): string {
   if (value === null || value === undefined) return "정보 없음";
   if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}조 달러`;
-  if (value >= 1_000) return `${(value / 1_000).toFixed(1)}십억 달러`;
-  return `${value.toFixed(0)}백만 달러`;
+  return `${(value / 100).toFixed(1)}억 달러`;
 }
 
 export function formatMetric(

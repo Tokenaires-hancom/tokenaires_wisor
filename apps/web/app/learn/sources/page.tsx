@@ -30,7 +30,7 @@ export default function SourcesPage() {
       </p>
       <h1 className="chapter-title">커리큘럼이 근거로 삼은 자료</h1>
       <p className="chapter-lede">
-        투자 대가의 실제 발언을 인용하고, 일부분 Wisor가 해석과 요약을 덧붙였습니다.
+        투자 대가의 실제 발언을 인용하고, 여기에 Wisor의 해석과 요약을 일부 덧붙였습니다.
       </p>
 
       <hr className="rule" />
@@ -47,8 +47,8 @@ export default function SourcesPage() {
         ))}
       </ul>
       <p style={{ fontSize: "0.88rem", color: "var(--ink-soft)" }}>
-        투자 스타일의 이름과 매도 유형의 이름은 Wisor에서 붙인 이름입니다.
-        학습의 편의와 편리한 비교를 위해 붙인 이름입니다. 대가들이 자신의 투자 방식을 그렇게 부른 것은 아니며, 공식 명칭이 아닙니다.
+        투자 철학과 매도 유형의 이름은 학습과 비교의 편의를 위해 Wisor가 붙인 것입니다.
+        대가들이 자신의 투자 방식을 그렇게 부른 것은 아니며, 공식 명칭이 아닙니다.
       </p>
 
       <hr className="rule" />

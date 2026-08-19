@@ -5,9 +5,12 @@
 #   3시간마다  체결가만 갱신한다. 캐시된 재무를 읽으므로 SEC를 부르지 않는다
 #   하루 1회   SEC 공시까지 다시 받아 재무 캐시를 새로 만든다
 #
-# 커밋이 생기면 Netlify가 재빌드한다. scores.json은 빌드 시점에 번들로 들어가므로
+# 커밋이 생기면 Render가 재빌드한다. scores.json은 빌드 시점에 번들로 들어가므로
 # 커밋 없이는 배포된 화면이 바뀌지 않는다. 그래서 값이 그대로면 커밋하지 않는다.
-# 빈 커밋 하나가 Netlify 빌드 1분을 쓴다.
+# 빈 커밋 하나가 빌드 시간을 쓴다.
+#
+# 챗봇 서버도 같은 scores.json을 런타임에 읽는다. 한쪽만 재배포되면 두 서비스가
+# 서로 다른 기준일 값을 낼 수 있다. docs/deploy.md 참고.
 
 name: scores 갱신
 
@@ -42,8 +45,11 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          # data-pipeline은 표준 라이브러리만 쓴다. 설치할 의존성이 없다.
+          # 운영 코드는 표준 라이브러리만 쓰지만 검증에는 pytest가 필요하다.
           python-version: "3.12"
+
+      - name: 테스트 의존성 설치
+        run: python -m pip install pytest
 
       - name: 모드 정하기
         id: mode
@@ -62,7 +68,11 @@ jobs:
           TOSS_INVEST_CLIENT_SECRET: ${{ secrets.TOSS_INVEST_CLIENT_SECRET }}
           WISOR_SEC_USER_AGENT: ${{ secrets.WISOR_SEC_USER_AGENT }}
         working-directory: data-pipeline
-        run: python run_batch.py --provider sec-toss --mode "${{ steps.mode.outputs.value }}"
+        run: >-
+          python run_batch.py
+          --provider sec-toss
+          --mode "${{ steps.mode.outputs.value }}"
+          --universe data/universe_us.json
 
       - name: 점수 검사
         working-directory: data-pipeline

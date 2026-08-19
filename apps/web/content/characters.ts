@@ -9,10 +9,11 @@
 
 export type CharacterMood = "guide" | "great" | "nope" | "proud" | "aha";
 
-const READY = ["buffett"];
+const STAND_READY = ["buffett", "graham", "lynch", "fisher", "greenblatt", "marks", "soros"];
+const MOOD_READY = ["buffett"];
 
 export function hasCharacter(id: string): boolean {
-  return READY.includes(id);
+  return STAND_READY.includes(id);
 }
 
 export function characterStand(id: string): string | null {
@@ -20,5 +21,5 @@ export function characterStand(id: string): string | null {
 }
 
 export function characterMood(id: string, mood: CharacterMood): string | null {
-  return hasCharacter(id) ? `/characters/${id}/${mood}.webp` : null;
+  return MOOD_READY.includes(id) ? `/characters/${id}/${mood}.webp` : null;
 }

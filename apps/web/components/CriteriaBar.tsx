@@ -32,7 +32,7 @@ export default function CriteriaBar({
         className="criteria-bar"
         data-size={size}
         role="list"
-        aria-label={`판정한 ${judged}개 기준 중 ${passed}개 통과, 전체 기준 ${criteria.length}개`}
+        aria-label={`판정한 ${judged}개 기준 중 ${passed}개 충족, 전체 기준 ${criteria.length}개`}
       >
         {criteria.map((c) => {
           const percent = weightLabel(c.weight);
@@ -69,17 +69,17 @@ export default function CriteriaBar({
       {showLegend && (
         <div className="criteria-legend">
           <span>
-            <i className="swatch" style={{ background: "var(--gold)" }} /> 통과
+            <i className="swatch" style={{ background: "var(--gold)" }} /> 충족
           </span>
           <span>
             <i
               className="swatch"
               style={{ background: "var(--ochre-soft)", border: "1px solid var(--ochre-line)" }}
             />{" "}
-            통과하지 못함
+            미충족
           </span>
           <span>
-            <i className="swatch" style={{ border: "1px dashed var(--line-strong)" }} /> 판정할 데이터 부족
+            <i className="swatch" style={{ border: "1px dashed var(--line-strong)" }} /> 판정 불가
           </span>
           <span>칸의 너비는 기준의 비중입니다.</span>
         </div>

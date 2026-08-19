@@ -3,6 +3,7 @@ import CriteriaBar from "@/components/CriteriaBar";
 import DataStamp, { SampleDataFlag } from "@/components/DataStamp";
 import { MASTERS } from "@/content/masters";
 import { CURRICULUM_BY_MASTER } from "@/content/curriculum";
+import { displayModelVersion } from "@/lib/format";
 import { ranked, styleMeta } from "@/lib/scores";
 
 /** 7명의 원형 아바타를 듀오링고 마스코트 무리처럼 겹쳐 배치한다.
@@ -169,7 +170,8 @@ export default function Home() {
               <div className="stock-score">
                 <div className="score-value">{sample.scores.buffett.score}</div>
                 <div className="score-of">
-                  {meta.modelVersion} · {sample.scores.buffett.passed}/{sample.scores.buffett.total} 기준
+                  {displayModelVersion(meta.modelVersion)} · {sample.scores.buffett.passed}/
+                  {sample.scores.buffett.total} 기준
                 </div>
               </div>
             </div>

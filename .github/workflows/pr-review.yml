@@ -129,7 +129,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          # netlify.toml의 NODE_VERSION과 맞춘다. CI가 통과해도 배포 버전이
+          # render.yaml의 NODE_VERSION과 맞춘다. CI가 통과해도 배포 버전이
           # 다르면 의미가 없다.
           node-version: "24"
 

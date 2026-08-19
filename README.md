@@ -4,6 +4,10 @@
 
 투자 대가의 판단 기준으로 종목을 좁히고, 확인한 것을 하나의 학습노트로 모읍니다. **매수·매도 판단, 목표가, 미래 가격 전망은 제공하지 않습니다.**
 
+**동작하는 서비스** — 웹 <https://wisor-w0fu.onrender.com> · 해설 챗봇 API <https://tokenaires-wisor.onrender.com>
+둘 다 Render의 별도 서비스입니다. 웹은 `PERSONA_API_ORIGIN`으로 챗봇 서버를 가리킵니다.
+배포 설정은 루트 `render.yaml`, 환경변수와 주의사항은 `docs/deploy.md`에 있습니다.
+
 ---
 
 ## 지금 구현된 것
@@ -13,6 +17,7 @@
 | 배우기 | 7명의 투자 대가 × 5장 · 확인 문항 · 철학 비교 · 업적과 근거 자료 |
 | 종목 찾기 | 버핏 1.0 / 그레이엄 1.0 / 린치 1.0 점수 · 그린블랫 1.0 마법공식 순위 |
 | 종목 상세 | 네 투자 철학 전환 · 기준별 실제 판정 데이터 · 가중치 · 재무 용어 설명 · 학습노트 |
+| 해설 챗봇 | 대가 페르소나로 지표를 해설. 금지표현 필터와 재생성. Render 배포·연결 완료 |
 | 데이터 | S&P 500·NASDAQ-100 중복 제거 유니버스 517개 중 품질 기준을 통과한 380개 종목 수록 |
 | Supabase | 스키마 작성 완료, 앱 연결은 미착수 (지금은 브라우저 저장) |
 | 실데이터 공급자 | 토스증권 가격 + Nasdaq 시가총액 + SEC Company Facts 최근 5개 회계연도 |
@@ -75,12 +80,13 @@ npm run build
 wisor/
 ├─ apps/web/            Next.js 15 · 화면 전체 (1번 담당)
 │   ├─ content/         투자 철학 7유형×5장 (정적 콘텐츠)
-│   ├─ lib/generated/   배치가 만든 scores.json — 화면은 이 파일만 읽는다
+│   ├─ lib/generated/   배치가 만든 scores.json
 │   └─ lib/store.ts     사용자 데이터 저장 (Supabase 교체 지점)
 ├─ data-pipeline/       Python 배치 · 재무데이터 → 투자 철학 점수 (3번 담당)
 │   └─ data/            종목 유니버스와 재무 캐시
 ├─ docs/                설계, 구현 계획, 출처와 작업 인계
-└─ supabase/schema.sql  사용자 데이터 스키마 (2번 담당)
+├─ supabase/schema.sql  사용자 데이터 스키마 (2번 담당)
+└─ render.yaml          Render 두 서비스 배포 설정 (2번 담당)
 ```
 
 경계 규칙:
