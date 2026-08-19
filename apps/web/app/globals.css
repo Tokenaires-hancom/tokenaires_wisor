@@ -916,6 +916,114 @@ h3.sub {
 
 /* ---------- 종목 찾기: 투자 스타일 전환 ---------- */
 
+.magic-formula-explainer {
+  margin: 1.5rem 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--gold);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.magic-formula-copy {
+  display: grid;
+  grid-template-columns: minmax(12rem, 0.75fr) minmax(18rem, 1.25fr);
+  gap: 0.75rem 2rem;
+  padding: 1.35rem 1.5rem 1.25rem;
+}
+
+.magic-formula-copy .eyebrow {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--gold-deep);
+}
+
+.magic-formula-copy h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(1.15rem, 2vw, 1.45rem);
+  line-height: 1.3;
+}
+
+.magic-formula-copy > p:last-child {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+}
+
+.magic-formula-flow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  list-style: none;
+  counter-reset: magic-formula-step;
+}
+
+.magic-formula-flow li {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 1.2rem 1.25rem;
+  background: var(--surface-sunk);
+  counter-increment: magic-formula-step;
+}
+
+.magic-formula-flow li + li {
+  border-left: 1px solid var(--line);
+}
+
+.magic-formula-step {
+  color: var(--gold-deep);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.magic-formula-step::before {
+  content: "0" counter(magic-formula-step) " · ";
+}
+
+.magic-formula-flow strong {
+  color: var(--ink);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.magic-formula-flow li > span:last-child {
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.magic-formula-note {
+  margin: 0;
+  padding: 0.9rem 1.5rem;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+}
+
+@media (max-width: 720px) {
+  .magic-formula-copy {
+    grid-template-columns: 1fr;
+    padding: 1.15rem 1rem;
+  }
+
+  .magic-formula-flow {
+    grid-template-columns: 1fr;
+  }
+
+  .magic-formula-flow li {
+    padding: 1rem;
+  }
+
+  .magic-formula-flow li + li {
 .screener-model-intro {
   margin-bottom: 1rem;
 }
@@ -1045,6 +1153,8 @@ h3.sub {
     border-left: 0;
   }
 
+  .magic-formula-note {
+    padding: 0.85rem 1rem;
   .screener-model-boundary dl > div:first-child {
     padding-top: 0;
     border-top: 0;
