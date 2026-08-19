@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+# 터미널에서 직접 git commit해도 걸리는 로컬 하드블록.
+#
+# Claude Code를 거치지 않은 커밋을 위한 최소 방어선이다. 결정론적인 것만
+# 본다 — 테스트 실패와 문자 그대로의 중복(루트 CLAUDE.md "클린 코드 원칙"
+# 참고). 자동 수정은 AI가 필요해서 여기선 안 한다 — 막고 Claude Code에서
+# 고치라고 안내한다.
+#
+# .claude/hooks/require-review-before-commit.sh와 같은 상태 파일
+# (.git/claude-review-state)을 공유한다. Claude Code로 커밋하면 그쪽
+# PreToolUse 훅과 이 git 훅이 이중으로 걸리는데, 먼저 통과한 쪽이 상태
+# 파일에 diff 해시를 남겨서 같은 검사를 두 번 돌리지 않는다.
+#
+# 설정: 저장소 루트에서 한 번만 `git config core.hooksPath .githooks`
+# (4명 각자 로컬에서 실행해야 한다 — 자동 적용 안 됨).
+
+set -uo pipefail
+
+if python3 -c "print(1)" >/dev/null 2>&1; then
+  py=python3
+else
+  py=python
+fi
+
+root="$(git rev-parse --show-toplevel)"
+state_file="$root/.git/claude-review-state"
+override_file="$root/.git/claude-review-override"
+
+staged_diff=$(cd "$root" && git diff --cached)
+if [ -z "$staged_diff" ]; then
+  exit 0
+fi
+
+current_hash=$(printf '%s' "$staged_diff" | sha256sum | cut -d' ' -f1)
+reviewed_hash=$(cat "$state_file" 2>/dev/null || true)
+
+if [ "$current_hash" = "$reviewed_hash" ]; then
+  exit 0
+fi
+
+override_line=$(cat "$override_file" 2>/dev/null || true)
+if [ "${override_line%% *}" = "$current_hash" ]; then
+  printf '%s' "$current_hash" > "$state_file"
+  exit 0
+fi
+
+fail=0
+changed_files=$(cd "$root" && git diff --cached --name-only)
+
+if printf '%s\n' "$changed_files" | grep -q '^data-pipeline/'; then
+  echo "[pre-commit] data-pipeline 테스트 실행 중..."
+  if ! (cd "$root/data-pipeline" && "$py" -m pytest -q); then
+    echo "[pre-commit] data-pipeline 테스트 실패"
+    fail=1
+  fi
+fi
+
+if printf '%s\n' "$changed_files" | grep -q '^apps/web/'; then
+  echo "[pre-commit] apps/web 테스트 실행 중..."
+  if ! (cd "$root/apps/web" && npm test); then
+    echo "[pre-commit] apps/web 테스트 실패"
+    fail=1
+  fi
+fi
+
+echo "[pre-commit] 문자 그대로의 중복 검사 중..."
+if ! (cd "$root" && "$py" scripts/pr_checks/duplicate_check.py); then
+  fail=1
+fi
+
+if [ "$fail" -ne 0 ]; then
+  echo
+  echo "커밋이 차단됐습니다."
+  echo "Claude Code에서 이어서 작업하면 2회까지 자동으로 고쳐줍니다."
+  echo "터미널에서 계속하려면 문제를 직접 고친 뒤 다시 커밋하세요."
+  echo "정말 이대로 진행해야 한다면 Claude Code에서 오버라이드하세요(사유가 PR에 기록됩니다)."
+  exit 1
+fi
+
+printf '%s' "$current_hash" > "$state_file"
+exit 0
