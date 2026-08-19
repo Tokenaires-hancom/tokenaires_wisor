@@ -243,15 +243,14 @@ apps/web && .next/static/ 에 "evEbitMedian5y" 가 있으면 실패
 
 **develop에 합치지 않는다.** 브랜치는 지우지 말고 남긴다(비용 0, 나중에 참고).
 
-다만 문서 5개는 새 브랜치로 가져온다 — 왜 이렇게 갔다가 왜 접었는지의 기록이고, 그게 원칙 5 그 자체다.
+다만 설계 문서 2개는 새 브랜치로 가져온다 — 왜 이렇게 갔다가 왜 접었는지의 기록이고, 그게 원칙 5 그 자체다.
 
 ```
-docs/pr-review-system/01-기획서.md
-docs/pr-review-system/02-시스템설계도.md
-docs/pr-review-system/03-유저시나리오.md
 docs/superpowers/specs/2026-08-18-precommit-clean-code-gate-design.md
 docs/superpowers/specs/2026-08-11-pr-review-system-design.md (수정분)
 ```
+
+`docs/pr-review-system/`의 기획서·시스템설계도·유저시나리오 3개는 **가져오지 않는다.** 셋 다 2026-08-18 설계를 전제로 쓰였는데, 이 설계가 그걸 뒤집는다. 설계도가 근거로 든 `.githooks/pre-commit`·`require-review-before-commit.sh`는 존재한 적이 없고 `scripts/pr_checks/`·`pr-review.yml`은 여기서 지운다 — 어디에도 대응되지 않는 그림과 시나리오만 남는다. 접은 이유는 위 설계 문서 2개가 이미 담고 있다.
 
 `duplicate_check.py`(305줄 + 테스트 196줄)도 그 브랜치에 남아 있다. 필요해지면 되살리는 데 5분이면 된다.
 
