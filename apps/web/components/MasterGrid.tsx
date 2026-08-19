@@ -75,8 +75,8 @@ export default function MasterGrid() {
                     {String(index + 1).padStart(2, "0")}
                   </span>
                   <img
-                    className={featured ? "master-card-main-character" : "master-card-portrait"}
-                    src={featured ? "/characters/buffett/main.png" : `/investors/${master.id}.png`}
+                    className="master-card-portrait"
+                    src={`/investors/${master.id}.png`}
                     alt=""
                   />
                 </span>

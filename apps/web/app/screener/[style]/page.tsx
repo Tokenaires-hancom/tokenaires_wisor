@@ -36,27 +36,32 @@ export default async function Screener({ params }: { params: Promise<{ style: st
         이 화면에서는 투자 대가 네 명의 원칙으로 만든 점수 모델 네 개를 같은 데이터로 보여줍니다.
       </p>
 
-      <section className="screener-model-boundary" aria-labelledby="unscored-philosophies-title">
-        <p className="eyebrow" id="unscored-philosophies-title">점수로 만들지 않은 철학</p>
-        <dl>
-          <div>
-            <dt>필립 피셔</dt>
-            <dd>탐문과 경영진의 정직성 같은 정성 판단</dd>
-          </div>
-          <div>
-            <dt>하워드 막스</dt>
-            <dd>개별 종목보다 시장 전체의 신용과 심리</dd>
-          </div>
-          <div>
-            <dt>조지 소로스</dt>
-            <dd>가격과 자금 흐름이 달라지는 과정</dd>
-          </div>
-        </dl>
-        <p>
-          기업 재무 데이터로 억지로 점수화하면 본래 질문을 왜곡합니다. 세 철학은 스크리너 대신
-          학습 화면의 자가진단으로 다룹니다.
-        </p>
-      </section>
+      <details className="screener-model-boundary">
+        <summary>
+          <span className="eyebrow">점수로 만들지 않은 철학</span>
+          <span className="screener-model-boundary-hint">세부 내용</span>
+        </summary>
+        <div className="screener-model-boundary-content">
+          <dl>
+            <div>
+              <dt>필립 피셔</dt>
+              <dd>탐문과 경영진의 정직성 같은 정성 판단</dd>
+            </div>
+            <div>
+              <dt>하워드 막스</dt>
+              <dd>개별 종목보다 시장 전체의 신용과 심리</dd>
+            </div>
+            <div>
+              <dt>조지 소로스</dt>
+              <dd>가격과 자금 흐름이 달라지는 과정</dd>
+            </div>
+          </dl>
+          <p>
+            기업 재무 데이터로 억지로 점수화하면 본래 질문을 왜곡합니다. 세 철학은 스크리너 대신
+            학습 화면의 자가진단으로 다룹니다.
+          </p>
+        </div>
+      </details>
 
       <nav className="screener-style-tabs" aria-label="투자 철학 선택">
         {DATA.styles
@@ -85,6 +90,45 @@ export default async function Screener({ params }: { params: Promise<{ style: st
         {master.name.split(" · ")[0]}의 투자 철학
       </h1>
       <p className="lede">{master.oneLine}</p>
+
+      {style === "greenblatt" && (
+        <section className="magic-formula-explainer" aria-labelledby="magic-formula-title">
+          <div className="magic-formula-copy">
+            <p className="eyebrow">마법공식 이해하기</p>
+            <h2 id="magic-formula-title">좋은 기업을, 싼 가격에 찾는 두 개의 순위표</h2>
+            <p>
+              그린블랫은 새로운 원리를 발명하기보다 벤저민 그레이엄의 &lsquo;싸게 사라&rsquo;는
+              원칙에 워런 버핏의 &lsquo;좋은 기업을 사라&rsquo;는 생각을 결합했습니다. 자신이 오랫동안
+              투자하고 컬럼비아대에서 가르쳐 온 이 방식을 2000년대 초 컴퓨터로 검증한 뒤, 누구나
+              반복할 수 있도록 사업의 질과 가격을 나타내는 두 순위로 단순화했습니다. 마법공식은
+              기업의 절대 점수를 정하지 않고, 두 순위를 더해 함께 앞선 기업부터 살펴봅니다.
+            </p>
+          </div>
+
+          <ol className="magic-formula-flow">
+            <li>
+              <span className="magic-formula-step">질 순위</span>
+              <strong>투입한 자본으로 이익을 잘 내는가</strong>
+              <span>자본수익률 = EBIT ÷ (순운전자본 + 순유형자산)</span>
+            </li>
+            <li>
+              <span className="magic-formula-step">가격 순위</span>
+              <strong>기업 전체 가격에 비해 이익이 많은가</strong>
+              <span>이익수익률 = EBIT ÷ 기업가치</span>
+            </li>
+            <li>
+              <span className="magic-formula-step">합산 순위</span>
+              <strong>두 순위의 합이 작은 기업부터 본다</strong>
+              <span>한쪽만 앞선 기업보다 질과 가격이 함께 앞선 기업이 위로 갑니다.</span>
+            </li>
+          </ol>
+
+          <p className="magic-formula-note">
+            금융·보험·부동산과 유틸리티는 같은 방식으로 비교하기 어려워 순위에서 제외합니다.
+            순위는 매수 신호가 아니라 추가로 살펴볼 순서입니다.
+          </p>
+        </section>
+      )}
 
       <Link href={`/learn/masters/${master.id}`} className="btn" data-variant="quiet" style={{ marginBottom: "1.5rem" }}>
         투자 철학 배우러 가기
