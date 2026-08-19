@@ -916,6 +916,145 @@ h3.sub {
 
 /* ---------- 종목 찾기: 투자 스타일 전환 ---------- */
 
+.screener-model-intro {
+  margin-bottom: 1rem;
+}
+
+.screener-model-boundary {
+  margin-bottom: 2rem;
+  border: 1px dashed var(--line-strong);
+  border-left: 4px solid var(--gold);
+  border-radius: var(--radius);
+  background: var(--surface-sunk);
+}
+
+.screener-model-boundary summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.05rem 1.25rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.screener-model-boundary summary::-webkit-details-marker {
+  display: none;
+}
+
+.screener-model-boundary summary:focus-visible {
+  outline: 2px solid var(--gold-deep);
+  outline-offset: 3px;
+}
+
+.screener-model-boundary summary .eyebrow {
+  margin: 0;
+  color: var(--gold-deep);
+}
+
+.screener-model-boundary-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.screener-model-boundary-hint::after {
+  content: "";
+  width: 0.45rem;
+  height: 0.45rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-0.12rem) rotate(45deg);
+  transition: transform 0.15s ease;
+}
+
+.screener-model-boundary[open] .screener-model-boundary-hint::after {
+  transform: translateY(0.12rem) rotate(225deg);
+}
+
+.screener-model-boundary-content {
+  padding: 0 1.25rem 1.15rem;
+}
+
+.screener-model-boundary dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+}
+
+.screener-model-boundary dl > div {
+  min-width: 0;
+  padding: 0 1rem;
+  border-left: 1px solid var(--line);
+}
+
+.screener-model-boundary dl > div:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.screener-model-boundary dl > div:last-child {
+  padding-right: 0;
+}
+
+.screener-model-boundary dt {
+  color: var(--ink);
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.screener-model-boundary dd {
+  margin: 0.2rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.screener-model-boundary-content > p:last-child {
+  margin: 1rem 0 0;
+  padding-top: 0.85rem;
+  border-top: 1px dotted var(--line-strong);
+  color: var(--ink-soft);
+  font-size: 0.84rem;
+}
+
+@media (max-width: 640px) {
+  .screener-model-boundary {
+    border-left-width: 3px;
+  }
+
+  .screener-model-boundary summary {
+    padding: 1rem;
+  }
+
+  .screener-model-boundary-content {
+    padding: 0 1rem 1rem;
+  }
+
+  .screener-model-boundary dl {
+    grid-template-columns: 1fr;
+  }
+
+  .screener-model-boundary dl > div {
+    padding: 0.65rem 0;
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+
+  .screener-model-boundary dl > div:first-child {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .screener-model-boundary dl > div:last-child {
+    padding-bottom: 0;
+  }
+}
+
 .screener-style-tabs {
   display: flex;
   margin: 0 0 2.5rem;
