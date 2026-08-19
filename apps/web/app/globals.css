@@ -3506,15 +3506,6 @@ body:has(.learn-page) .masthead-inner {
   box-shadow: 0 4px 0 var(--gold-deep);
 }
 
-.master-card-main-character {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  /* 원본 842×1264에서 머리 위 여백을 조금 더 남긴다. 얼굴과 양 어깨를 남기고
-   * 하체를 덜어 전신 이미지 특유의 좌우 공백을 없앤다. */
-  object-position: center 6%;
-}
-
 .master-card-portrait {
   width: 148px;
   height: 148px;
@@ -3574,43 +3565,6 @@ body:has(.learn-page) .masthead-inner {
   margin-top: 0;
   opacity: 1;
   transform: translateY(0);
-}
-
-/* 중간 폭에서는 4:3 프레임의 직선 크롭이 버핏의 허리를 자르는 듯 보인다.
- * 원본 전신을 카드 전체 높이에 유지하고 정보 패널이 하반신을 서서히 덮게 해
- * 이미지 자체의 절단선 대신 자연스러운 깊이감으로 마감한다. */
-@media (min-width: 641px) and (max-width: 1400px) {
-  .master-card[data-featured="true"] .master-card-art {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    aspect-ratio: auto;
-  }
-
-  .master-card[data-featured="true"] .master-card-main-character {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    object-position: center top;
-  }
-
-  .master-card[data-featured="true"] .master-card-body {
-    padding-top: 1.65rem;
-    border-top: 0;
-    background: linear-gradient(
-      to bottom,
-      transparent 0,
-      color-mix(in srgb, var(--surface) 84%, transparent) 1.45rem,
-      var(--surface) 2.55rem
-    );
-    backdrop-filter: none;
-  }
-
-  .master-card[data-featured="true"]:hover .master-card-body,
-  .master-card[data-featured="true"]:focus-visible .master-card-body {
-    box-shadow: none;
-  }
 }
 
 @media (max-width: 900px) {
