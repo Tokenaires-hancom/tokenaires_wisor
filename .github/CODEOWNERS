@@ -6,11 +6,11 @@
 # 사람에게 리뷰 요청이 자동으로 가지 않는다. 수락 후 별도 조치 없이 동작한다.
 * @chrusterd @rainbow0291 @naemnaem99 @limsojang-gif
 
-# 클린 코드 검수 시스템 자체(2026-08-18 설계)의 설정 파일은 chrusterd(게이트
+# 클린 코드 검수 시스템 자체(2026-08-18 설계)의 설정 파일은 naemnaem99(게이트
 # 키퍼)만 소유한다. 뒤에 나오는 규칙이 앞의 `*`보다 우선하므로, 이 경로들은
-# branch protection의 "코드오너 리뷰 필수" 옵션과 합쳐지면 chrusterd 승인
+# branch protection의 "코드오너 리뷰 필수" 옵션과 합쳐지면 naemnaem99 승인
 # 없이는 병합할 수 없다 — 이 파일들을 아무나 조용히 완화하는 걸 막기 위해서다.
-.claude/** @chrusterd
-.githooks/** @chrusterd
-CLAUDE.md @chrusterd
-scripts/pr_checks/** @chrusterd
+.claude/** @naemnaem99
+.githooks/** @naemnaem99
+CLAUDE.md @naemnaem99
+scripts/pr_checks/** @naemnaem99

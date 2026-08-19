@@ -186,7 +186,7 @@ jobs:
         continue-on-error: true
         # 하드블록을 사유를 남기고 강행한 적이 있으면(CLAUDE.md "push 시
         # 오버라이드 흔적 남기기" 참고), push 시 세션이 <!-- wisor-override -->
-        # 코멘트를 남긴다. 그 마커가 있는 PR은 chrusterd가 승인하기 전까지
+        # 코멘트를 남긴다. 그 마커가 있는 PR은 naemnaem99가 승인하기 전까지
         # 이 스텝이 계속 실패해서 병합을 막는다 — CODEOWNERS 경로 기반으로는
         # 표현이 안 되는, 흔적 기반 게이트라 여기서 따로 확인한다.
         env:
@@ -204,14 +204,14 @@ jobs:
             fi
 
             APPROVED=$(gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" --paginate \
-              --jq '[.[] | select(.user.login == "chrusterd" and .state == "APPROVED")] | length > 0')
+              --jq '[.[] | select(.user.login == "naemnaem99" and .state == "APPROVED")] | length > 0')
 
             if [ "$APPROVED" = "true" ]; then
-              echo "오버라이드 흔적 있음. chrusterd 승인 완료."
+              echo "오버라이드 흔적 있음. naemnaem99 승인 완료."
               exit 0
             fi
 
-            echo "오버라이드 흔적이 있는데 chrusterd(게이트키퍼) 승인이 아직 없습니다."
+            echo "오버라이드 흔적이 있는데 naemnaem99(게이트키퍼) 승인이 아직 없습니다."
             exit 1
           } | tee override_check_output.txt
 

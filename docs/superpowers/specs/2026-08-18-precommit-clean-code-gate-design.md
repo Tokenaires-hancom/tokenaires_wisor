@@ -102,23 +102,23 @@ gh api repos/Tokenaires-hancom/tokenaires_wisor/branches/develop/protection \
 
 ### 5. 거버넌스
 
-**게이트키퍼**: chrusterd
+**게이트키퍼**: naemnaem99 (2026-08-19 변경, 원래 chrusterd로 설계했었다 — 아래 참고)
 
 **경로 기반 (CODEOWNERS 확장, GitHub 기본 기능으로 해결)**
 
 ```
 * @chrusterd @rainbow0291 @naemnaem99 @limsojang-gif
-.claude/** @chrusterd
-.githooks/** @chrusterd
-CLAUDE.md @chrusterd
-scripts/pr_checks/** @chrusterd
+.claude/** @naemnaem99
+.githooks/** @naemnaem99
+CLAUDE.md @naemnaem99
+scripts/pr_checks/** @naemnaem99
 ```
 
-branch protection에서 `require_code_owner_reviews: true`로 켜면, 이 경로들을 건드리는 PR은 chrusterd 승인 없이 병합할 수 없다. 커스텀 스크립트 불필요.
+branch protection에서 `require_code_owner_reviews: true`로 켜면, 이 경로들을 건드리는 PR은 naemnaem99 승인 없이 병합할 수 없다. 커스텀 스크립트 불필요.
 
 **오버라이드 흔적 기반 (경로로 못 잡으므로 별도 체크 필요)**
 
-오버라이드 흔적이 있는 PR은 경로와 무관하게 chrusterd 승인이 필요하다. 이건 CODEOWNERS로 표현이 안 되므로, PR 코멘트/커밋 메시지에서 오버라이드 마커를 찾아 chrusterd를 리뷰어로 지정하는 작은 체크를 `pr-review.yml`에 추가한다.
+오버라이드 흔적이 있는 PR은 경로와 무관하게 naemnaem99 승인이 필요하다. 이건 CODEOWNERS로 표현이 안 되므로, PR 코멘트/커밋 메시지에서 오버라이드 마커를 찾아 naemnaem99를 리뷰어로 지정하는 작은 체크를 `pr-review.yml`에 추가한다.
 
 **평소 PR**: 4명 상호 승인 (지금은 승인 0명이어도 병합 가능한 상태 — `required_approving_review_count`를 1 이상으로 새로 설정하는 것이니 기존 관행을 유지하는 게 아니라 새로 도입하는 규칙이다)
 
@@ -145,7 +145,7 @@ branch protection에서 `require_code_owner_reviews: true`로 켜면, 이 경로
 8. CODEOWNERS 경로 확장
 9. branch protection 설정 (필수 상태 검사 + 코드오너 리뷰 + 승인 1명 이상)
 10. `2026-08-11-pr-review-system-design.md`의 "목표가 아닌 것"·"범위 밖"에 갱신 이력 추가 (이 문서가 그 결정을 뒤집었음을 기록)
-11. **확인 필요(구현 중 발견, 2026-08-19)**: `/code-review`·`/simplify`가 이 저장소의 `.claude/settings.json`에 선언돼 있지 않다 — chrusterd 개인 환경에 설치된 플러그인 마켓플레이스(`claude-plugins-official`)에서 나온 것으로 보인다. 나머지 3명(`rainbow0291`·`naemnaem99`·`limsojang-gif`) 각자의 Claude Code 환경에서 `/code-review`가 인식되는지 확인 필요 — 안 되면 ②(push 전 검수)가 그 사람에게는 아예 작동하지 않는다.
+11. **확인 필요(구현 중 발견, 2026-08-19)**: `/code-review`·`/simplify`가 이 저장소의 `.claude/settings.json`에 선언돼 있지 않다 — naemnaem99 개인 환경에 설치된 플러그인 마켓플레이스(`claude-plugins-official`)에서 나온 것으로 보인다. 나머지 3명(`rainbow0291`·`chrusterd`·`limsojang-gif`) 각자의 Claude Code 환경에서 `/code-review`가 인식되는지 확인 필요 — 안 되면 ②(push 전 검수)가 그 사람에게는 아예 작동하지 않는다.
 
 ## 에러 처리
 

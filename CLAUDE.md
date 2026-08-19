@@ -184,7 +184,7 @@ PR마다 자동검사가 제목·본문 형식을 확인하고 코멘트를 남�
 `git push`를 시도하면 그 전에 `/code-review`와 `/simplify`가 루트 `CLAUDE.md` 전체(클린 코드 원칙 + 도메인 규칙 + 일반 품질)를 감사 근거로 자동 실행됩니다. 발견 사항이 있으면 고칠지 물어보고, 승인하면 그 자리에서 고칩니다. push 완료 후 이 결과가 PR에 `<!-- wisor-local-review -->` sticky 코멘트로 남습니다. 병합을 막지는 않습니다.
 
 **push 시 오버라이드 흔적 남기기**
-push하기 전에 `.git/claude-review-override` 파일이 있는지 확인하세요. 있으면(하드블록을 사유를 남기고 강행한 적이 있다는 뜻) push 후 PR에 `<!-- wisor-override -->`로 시작하는 코멘트를 남기세요 — 어떤 검사를, 왜 우회했는지 그 파일의 사유를 그대로 적습니다. `pr-review.yml`이 이 마커를 찾아서, chrusterd(게이트키퍼) 승인 전까지 병합을 막습니다.
+push하기 전에 `.git/claude-review-override` 파일이 있는지 확인하세요. 있으면(하드블록을 사유를 남기고 강행한 적이 있다는 뜻) push 후 PR에 `<!-- wisor-override -->`로 시작하는 코멘트를 남기세요 — 어떤 검사를, 왜 우회했는지 그 파일의 사유를 그대로 적습니다. `pr-review.yml`이 이 마커를 찾아서, naemnaem99(게이트키퍼) 승인 전까지 병합을 막습니다.
 
 **공유 훅**
 `.claude/settings.json`에 `PostToolUse` 훅이 하나 걸려 있습니다. 점수 모델 파일을 고치면 곧바로 해당 테스트를 돌리고, `scores.json`을 손으로 고치려 하면 경고합니다 — 이건 여전히 작업을 막지 않습니다. 위 "로컬 하드블록"은 별개의 `PreToolUse` 훅으로, 이건 막습니다.
