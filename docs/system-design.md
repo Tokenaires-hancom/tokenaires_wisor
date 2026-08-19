@@ -244,7 +244,7 @@ sequenceDiagram
 LLM 어댑터는 OpenAI 호환 엔드포인트를 부르는 `OpenAIAdapter`와, 키 없이 도는
 `MockAdapter` 둘입니다. 테스트는 Mock으로 돕니다.
 
-### 4.5 사용자 데이터
+### 4.4 사용자 데이터
 
 ```mermaid
 flowchart LR
@@ -341,7 +341,7 @@ wisor/
 │   │   ├─ screener/[style]/    4개 정량 모델 결과
 │   │   ├─ stocks/[ticker]/     기업별 판정 + 학습노트
 │   │   └─ me/                  내 학습
-│   ├─ components/              16개가 "use client", 나머지는 서버
+│   ├─ components/              15개가 "use client", 나머지는 서버
 │   ├─ content/                 커리큘럼 (정적 TS · 빌드 시점 검증)
 │   └─ lib/
 │       ├─ generated/           ← 배치 산출물. 손대지 않음
@@ -420,19 +420,21 @@ cd apps/web && npm run build
 서비스 이름·플랜은 URL에서 추론한 값이라 **Blueprint 동기화 전에 대조가 필요하고**,
 **main 병합 전에 Netlify 사이트의 자동 배포를 끊어야 합니다** ([배포 문서](./deploy.md)).
 
-아래 세 건은 **기록만 하고 고치지 않았습니다.**
+아래 네 건은 **기록만 하고 고치지 않았습니다.**
 
 | 항목 | 실제 | 저장소가 말하는 것 |
 |---|---|---|
 | `scores.yml` 유니버스 | 실데이터는 `--universe data/universe_us.json` 필요 | 워크플로 65행이 이 옵션 없이 부름 → 예시 12종목으로 돌게 됨. 이 워크플로가 만든 커밋이 아직 없어 드러나지 않음 |
 | 루트 `CLAUDE.md` "예시 데이터" | `dataSource`는 `sec-toss` | 손으로 만든 예시 데이터라고 기술 |
 | 루트 `CLAUDE.md` 커밋 전 명령 | `python run_batch.py`는 기본값이 `--provider sample` · `--universe universe_sample.json`이고 출력이 `scores.json` | **그대로 따르면 380종목 실데이터가 예시 12종목으로 덮입니다.** `scores.yml` 유니버스 문제와 같은 뿌리인데, 이쪽은 모든 기여자가 매번 돌리라고 안내된 명령이라 더 위험합니다 |
+| 점수 JSON ↔ 챗봇 지표 변환표 | `scores.json`에는 `magicFormulaRoc`가 있음 | `persona_explain/scores_source.py`의 변환표에 키가 없어 계약 테스트 1건 실패. 웹·배치에는 영향 없지만 해당 지표를 챗봇 앵커에 싣지 못함 |
 
 미결 작업.
 
 - [ ] Supabase 연결 — `lib/store.ts` 함수 본문 교체
 - [ ] 점수 문구를 코드+값으로 분리 (5장 참고)
 - [ ] 프론트엔드 스모크 테스트 1개 (학습 → 퀴즈 → 스크리너 → 상세 → 노트 저장)
+- [ ] `magicFormulaRoc`를 챗봇 지표 변환표와 사용자 라벨에 연결하고 `persona_explain` 테스트 복구
 - [ ] `render.yaml`의 서비스 이름·플랜을 Render 대시보드와 대조 — 2번
 - [ ] main 병합 전 Netlify 사이트 자동 배포 해제 — 2번
 
