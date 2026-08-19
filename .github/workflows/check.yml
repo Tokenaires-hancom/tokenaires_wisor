@@ -1,0 +1,66 @@
+# PR 필수 검사 — 기계가 판정하는 사실만 본다.
+#
+# 여기 있는 건 전부 통과/실패가 명확하고 틀릴 수 없는 것들이라, 실패하면
+# 병합을 막는다(branch protection의 필수 상태 검사로 등록돼 있다).
+#
+# 판단이 필요한 것 — 클린 코드 5원칙 중 파급범위·중복·패턴·의도 — 은 여기서
+# 다루지 않는다. push 전에 .claude/skills/clean-check/SKILL.md 가 로컬에서
+# 판정하고 코멘트만 남긴다. LLM 판단은 틀릴 수 있고 이 팀은 반박할 수단이
+# 없어서, 사실과 판단을 같은 곳에서 섞지 않는다.
+#
+# 설계: docs/superpowers/specs/2026-08-19-clean-code-check-skill-design.md
+
+name: PR 필수 검사
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths-ignore:
+      - "docs/**"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install pytest
+
+      - name: data-pipeline 테스트
+        working-directory: data-pipeline
+        run: python -m pytest -q
+
+      - uses: actions/setup-node@v4
+        with:
+          # netlify.toml의 NODE_VERSION과 맞춘다. CI가 통과해도 배포 버전이
+          # 다르면 의미가 없다.
+          node-version: "24"
+
+      - name: web 의존성
+        working-directory: apps/web
+        run: npm ci
+
+      - name: web 빌드
+        working-directory: apps/web
+        run: npm run build
+
+      - name: web 타입 검사
+        working-directory: apps/web
+        # npm run build는 앱 빌드 그래프 밖의 *.test.ts 타입 오류를 못 잡는다.
+        run: npx tsc --noEmit
+
+      - name: 재무데이터 유출 검사
+        working-directory: apps/web
+        # 클라이언트 컴포넌트가 lib/scores.ts를 import하면 scores.json 전체가
+        # 브라우저 번들에 실린다(루트 CLAUDE.md "절대 하지 말 것" 참고).
+        # 빌드 결과물을 보므로 중간 모듈을 거친 간접 유출까지 잡힌다.
+        run: |
+          if grep -rl "evEbitMedian5y" .next/static/; then
+            echo "재무데이터가 브라우저 번들에 실렸습니다. 위 파일을 확인하세요."
+            exit 1
+          fi
+          echo "번들에 재무데이터 누출 없음."
