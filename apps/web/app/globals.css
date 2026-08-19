@@ -3806,7 +3806,7 @@ body:has(.learn-page) .masthead-inner {
   }
 }
 
-/* ---------- 챕터 단계: 본문 + 캐릭터 ---------- */
+/* ---------- 챕터 단계 ---------- */
 
 .chapter-page {
   --chapter-gutter: 176px;
@@ -3846,18 +3846,8 @@ body:has(.learn-page) .masthead-inner {
 }
 
 .chapter-stage {
-  display: grid;
-  grid-template-columns: calc(var(--chapter-gutter) - 24px) minmax(0, 720px);
-  gap: 1.5rem;
-  align-items: end;
-}
-
-.chapter-figure {
-  position: sticky;
-  bottom: 1.5rem;
-  flex: none;
-  order: -1;
-  justify-self: start;
+  max-width: 720px;
+  margin-left: var(--chapter-gutter);
 }
 
 @media (max-width: 860px) {
@@ -3865,27 +3855,15 @@ body:has(.learn-page) .masthead-inner {
     --chapter-gutter: 0px;
   }
 
-  .chapter-page-copy,
-  .chapter-page .step-bar,
-  .chapter-page .step-nav,
+    .chapter-page-copy,
+    .chapter-stage,
+    .chapter-page .step-bar,
+    .chapter-page .step-nav,
   .chapter-page .disclaimer {
     margin-left: 0;
   }
 
-  .chapter-stage {
-    grid-template-columns: minmax(0, 1fr);
   }
-
-  .chapter-figure {
-    position: static;
-    order: -1;
-    justify-self: center;
-  }
-
-  .chapter-figure img {
-    height: 110px !important;
-  }
-}
 
 /* ---------- 페르소나 해설 플로팅 ---------- */
 
