@@ -129,6 +129,24 @@ def test_diff_args_uses_base_ref_range_when_given():
     ]
 
 
+def test_find_all_duplicates_reports_preexisting_debt(tmp_path):
+    # find_new_duplicates(게이트용)는 손 안 댄 기존 빚을 안 보지만,
+    # find_all_duplicates(감사용)는 diff와 무관하게 저장소 전체를 본다.
+    _write(tmp_path, "a.py", BLOCK)
+    _write(tmp_path, "b.py", BLOCK)
+
+    groups = duplicate_check.find_all_duplicates(tmp_path)
+
+    assert len(groups) == 1
+    assert set(groups[0]["locations"]) == {"a.py", "b.py"}
+
+
+def test_find_all_duplicates_empty_when_no_duplication(tmp_path):
+    _write(tmp_path, "a.py", "def foo():\n    return 1\n")
+
+    assert duplicate_check.find_all_duplicates(tmp_path) == []
+
+
 def test_short_block_below_minimum_not_flagged(tmp_path):
     _init_repo(tmp_path)
     short = "def foo():\n    x = 1\n    return x\n"

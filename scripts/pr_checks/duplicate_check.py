@@ -148,10 +148,60 @@ def _diff_args(argv: list[str]) -> list[str]:
     return ["diff", "--cached"]
 
 
+def find_all_duplicates(root: Path, min_lines: int = MIN_BLOCK_LINES) -> list[dict]:
+    """저장소 전체를 스캔해서 신규·기존 구분 없이 모든 중복 블록을 낸다.
+
+    게이트가 아니라 **감사(audit)용**이다 — 어떤 훅에도 안 걸려 있고 병합을
+    막지 않는다. `find_new_duplicates`가 "이번 diff가 새로 만든 것"만 보는
+    것과 달리, 이건 이미 있던 부채까지 전부 보여준다. 필요할 때 수동으로
+    `python scripts/pr_checks/duplicate_check.py --audit`로 돌린다.
+    """
+    occurrences: dict[str, list[Path]] = defaultdict(list)
+    for path in iter_source_files(root):
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        for body in extract_blocks(text, min_lines):
+            occurrences[body].append(path)
+
+    groups = []
+    for body, locations in occurrences.items():
+        if len(locations) < 2:
+            continue
+        groups.append({
+            "lines": body.count("\n") + 1,
+            "locations": sorted({str(p.relative_to(root)) for p in locations}),
+        })
+    return groups
+
+
+def _report(groups: list[dict], *, audit: bool) -> int:
+    if not groups:
+        label = "저장소 전체" if audit else "이번 변경이 새로 만든"
+        print(f"중복 검사 통과: {label} 문자 그대로의 중복 없음.")
+        return 0
+
+    label = "저장소 전체에 있는" if audit else "이번 변경이 새로 만든"
+    print(f"{label} 중복 코드가 {len(groups)}건 있습니다.")
+    for group in groups:
+        print(f"  - {group['lines']}줄 블록, {len(group['locations'])}곳:")
+        for path in group["locations"]:
+            print(f"      {path}")
+    if audit:
+        print("게이트를 막는 건 아닙니다 — 정리가 필요하면 별도 리팩터링 PR로 처리하세요.")
+    else:
+        print("같은 로직이면 함수로 뽑아 재사용하세요. 의도적으로 남기려면 오버라이드하세요.")
+    return 1
+
+
 def main() -> int:
     repo_root = Path(__file__).resolve().parents[2]
+    argv = sys.argv[1:]
+
+    if argv and argv[0] == "--audit":
+        groups = find_all_duplicates(repo_root)
+        return _report(groups, audit=True)
+
     diff_text = subprocess.run(
-        ["git", *_diff_args(sys.argv[1:])],
+        ["git", *_diff_args(argv)],
         cwd=repo_root,
         capture_output=True,
         text=True,
@@ -161,18 +211,7 @@ def main() -> int:
     ).stdout
 
     groups = find_new_duplicates(repo_root, diff_text)
-
-    if groups:
-        print(f"이번 변경이 새로 만든 중복 코드가 {len(groups)}건 있습니다.")
-        for group in groups:
-            print(f"  - {group['lines']}줄 블록:")
-            for path in group["locations"]:
-                print(f"      {path}")
-        print("같은 로직이면 함수로 뽑아 재사용하세요. 의도적으로 남기려면 오버라이드하세요.")
-        return 1
-
-    print("중복 검사 통과: 이번 변경이 새로 만든 문자 그대로의 중복 없음.")
-    return 0
+    return _report(groups, audit=False)
 
 
 if __name__ == "__main__":
