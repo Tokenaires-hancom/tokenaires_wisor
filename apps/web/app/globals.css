@@ -1024,6 +1024,15 @@ h3.sub {
   }
 
   .magic-formula-flow li + li {
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+
+  .magic-formula-note {
+    padding: 0.85rem 1rem;
+  }
+}
+
 .screener-model-intro {
   margin-bottom: 1rem;
 }
@@ -1153,8 +1162,6 @@ h3.sub {
     border-left: 0;
   }
 
-  .magic-formula-note {
-    padding: 0.85rem 1rem;
   .screener-model-boundary dl > div:first-child {
     padding-top: 0;
     border-top: 0;
@@ -3887,8 +3894,6 @@ body:has(.learn-page) .masthead-inner {
     .chapter-page .step-nav,
   .chapter-page .disclaimer {
     margin-left: 0;
-  }
-
   }
 
   .chapter-figure img {
