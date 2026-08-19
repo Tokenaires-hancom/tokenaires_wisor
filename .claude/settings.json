@@ -20,6 +20,11 @@
             "type": "command",
             "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/require-review-before-commit.sh",
             "if": "Bash(git commit*)"
+          },
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/require-review-before-push.sh",
+            "if": "Bash(git push*)"
           }
         ]
       }
