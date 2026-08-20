@@ -75,6 +75,10 @@ cd apps/web && npm run build      # 커밋 전 반드시 통과
 
 push 전에 `/code-review`를 돌리면 지적이 덜 나옵니다. 필수는 아닙니다.
 
+이 검수는 **이번에 나갈 변경**만 봅니다. 저장소 전체가 지금 어떤 상태인지는
+`.claude/skills/whole-check/SKILL.md`가 봅니다 — "전체 점검해줘"라고 하면 돌고,
+결과는 `docs/audit/YYYY-MM-DD.md`에 남습니다. 자동으로 돌지 않습니다.
+
 ---
 
 ## 절대 하지 말 것
