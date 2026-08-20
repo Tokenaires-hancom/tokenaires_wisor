@@ -3,12 +3,12 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash",
+        "$comment": "matcher에 PowerShell을 넣지 않으면 그 도구로 push할 때 훅이 아예 안 돈다. if는 권한 규칙 하나만 받아서 두 도구를 동시에 가리킬 수 없으므로, 어떤 명령인지는 스크립트가 판단한다.",
+        "matcher": "Bash|PowerShell",
         "hooks": [
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/pre-push-check.sh",
-            "if": "Bash(git push*)"
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/pre-push-check.sh"
           }
         ]
       }
