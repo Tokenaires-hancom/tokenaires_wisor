@@ -43,10 +43,13 @@ cd data-pipeline && python run_batch.py && pytest -q
 
 # 웹
 cd apps/web && npm run dev
+cd apps/web && npm test           # 커밋 전 반드시 통과
 cd apps/web && npm run build      # 커밋 전 반드시 통과
 ```
 
-**커밋 전 두 가지를 모두 통과해야 합니다.** 어느 영역을 고쳤든 전부 돌립니다. 점수 모델을 바꾸면 화면이 깨집니다.
+**커밋 전 셋을 모두 통과해야 합니다** — `pytest` · `npm test` · `npm run build`. 어느 영역을 고쳤든 전부 돌립니다. 점수 모델을 바꾸면 화면이 깨집니다.
+
+같은 셋을 PR에서 `check.yml`이 다시 돌립니다. 로컬에서 빼먹어도 병합이 막히므로 여기 목록과 `check.yml`은 항상 같아야 합니다.
 
 ---
 
