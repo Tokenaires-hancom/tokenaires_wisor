@@ -42,6 +42,10 @@ fi
 
 payload=$(cat)
 
+# settings.json의 if 조건을 뺐으므로(PowerShell까지 걸려면 뺄 수밖에 없다) 이 훅은
+# 모든 셸 명령에 대해 돈다. 관계없는 명령에서 python을 띄우지 않도록 먼저 거른다.
+printf '%s' "$payload" | grep -q "push\|pr create" || exit 0
+
 if python3 -c "print(1)" >/dev/null 2>&1; then
   py=python3
 else
@@ -50,8 +54,9 @@ fi
 
 command=$(printf '%s' "$payload" | "$py" -c "import json,sys; print(json.load(sys.stdin).get('tool_input',{}).get('command',''))" 2>/dev/null)
 
-# git push가 아니면 관여하지 않는다.
-printf '%s' "$command" | grep -Eq '(^|&&|;|\|)[[:space:]]*git[[:space:]]+push([[:space:]]|$)' || exit 0
+# push하는 명령이 아니면 관여하지 않는다. gh pr create를 같이 보는 이유는, 원격에
+# 없는 브랜치로 PR을 열면 gh가 push까지 하기 때문이다. git push만 보면 그 경로가 샌다.
+printf '%s' "$command" | grep -Eq '(^|&&|;|\|)[[:space:]]*(git[[:space:]]+push|gh[[:space:]]+pr[[:space:]]+create)([[:space:]]|$)' || exit 0
 
 diff_text=$(push_diff)
 
