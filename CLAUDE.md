@@ -38,18 +38,22 @@ wisor/
 ## 명령
 
 ```bash
-# 점수 배치 (재무데이터 → scores.json)
-cd data-pipeline && python run_batch.py && pytest -q
+# 커밋 전 — 어느 영역을 고쳤든 셋 다 돌립니다
+cd data-pipeline && pytest -q
+cd apps/web && npm test
+cd apps/web && npm run build
 
-# 웹
+# 웹 개발 서버
 cd apps/web && npm run dev
-cd apps/web && npm test           # 커밋 전 반드시 통과
-cd apps/web && npm run build      # 커밋 전 반드시 통과
 ```
 
-**커밋 전 셋을 모두 통과해야 합니다** — `pytest` · `npm test` · `npm run build`. 어느 영역을 고쳤든 전부 돌립니다. 점수 모델을 바꾸면 화면이 깨집니다.
+**셋이 다 통과해야 커밋합니다.** 점수 모델을 바꾸면 화면이 깨지므로 영역과 무관하게 전부 돌립니다. 같은 셋을 PR에서 `check.yml`이 다시 돌리니, 이 목록과 `check.yml`은 항상 같아야 합니다.
 
-같은 셋을 PR에서 `check.yml`이 다시 돌립니다. 로컬에서 빼먹어도 병합이 막히므로 여기 목록과 `check.yml`은 항상 같아야 합니다.
+**점수 배치는 커밋 전 절차가 아닙니다.** 자격증명이 필요하고 `scores.json`을 새로 쓰므로 3번 담당만 돌립니다.
+
+```bash
+cd data-pipeline && python run_batch.py --provider sec-toss --universe data/universe_us.json
+```
 
 ---
 
@@ -253,13 +257,14 @@ PR을 열면 `.github/workflows/check.yml`이 테스트·빌드·타입 검사·
 
 ---
 
-## 예시 데이터에 대해
+## 재무데이터에 대해
 
-지금 저장소의 재무수치는 **손으로 만든 예시 데이터**입니다(`data-pipeline/data/universe_sample.json`). 실제 기업 재무제표가 아닙니다.
+화면이 읽는 `scores.json`은 **실데이터**입니다 — SEC 공시와 토스증권 체결가로 만든 S&P 500·NASDAQ-100 **380종목**(`dataSource: "sec-toss"`). 2026-08-06에 예시 데이터에서 바뀌었습니다.
 
-- 이 데이터를 근거로 종목에 대한 판단을 쓰지 않습니다
-- 화면의 "예시 데이터" 표시를 지우지 않습니다
-- 실데이터가 붙으면 `dataSource`가 `vendor`로 바뀌며 표시가 자동으로 사라집니다
+- **실데이터라도 종목에 대한 판단을 쓰지 않습니다.** 데이터가 진짜냐 아니냐의 문제가 아니라 제품 원칙입니다
+- **재무 기준일이 종목마다 다릅니다**(2025-03-29 ~ 2026-07-03). 화면에는 항상 가격 기준일·재무 기준일을 함께 내보냅니다
+- `universe_sample.json` 12종목은 **테스트 입력으로만** 남아 있습니다. 배치가 이걸로 `scores.json`을 덮을 수 없습니다(`--provider sample`이면 `--out`을 따로 줘야 합니다)
+- 화면의 "예시 데이터" 배지는 `dataSource`가 `sample`일 때만 뜹니다. **지금은 안 뜨는 게 정상이고, 뜨면 사고 신호입니다** — 실데이터가 예시로 덮였다는 뜻이니 배지를 지우지 말고 원인을 찾으세요
 
 ---
 

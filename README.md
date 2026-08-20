@@ -45,7 +45,8 @@ python -m venv .venv
 # macOS/Linux: source .venv/bin/activate
 # Windows PowerShell: .\.venv\Scripts\Activate.ps1
 pip install pytest
-python run_batch.py          # 예시 데이터 → apps/web/lib/generated/scores.json
+# 예시 데이터로 배치가 도는지만 확인한다. 화면이 읽는 scores.json에는 쓸 수 없다
+python run_batch.py --provider sample --universe data/universe_sample.json --out /tmp/sample-scores.json
 python -m pytest -q
 ```
 
