@@ -15,12 +15,26 @@ description: 저장소 전체가 지금 루트 CLAUDE.md의 "절대 하지 말 �
 
 diff만 보는 검수는 "지금 전체가 어떤 상태인가"를 영원히 볼 수 없다. 그 구멍을 메우는 것이 이 스킬의 전부다.
 
+## 검사 범위
+
+**여기 적힌 곳만 본다. 회차마다 볼 곳이 달라지면 ❌·⚠️ 개수가 실제 변화 없이 흔들려서, 맨 윗줄 숫자를 비교하는 의미가 사라진다.** 범위를 바꾸려면 이 목록을 먼저 고치고, 보고서에 "이번 회차부터 범위가 바뀌었다"고 적는다.
+
+| | 경로 |
+|---|---|
+| **본다** | `apps/web/` · `data-pipeline/` · `persona_explain/` · `supabase/` |
+| **안 본다** | `.claude/` · `docs/` · `.github/` · `apps/web/lib/generated/` |
+
+안 보는 쪽의 이유는 하나다. **파일이 몇 개뿐이라 사람이 통째로 읽을 수 있고, 바뀔 때마다 전부 diff에 나타나 `clean-check`가 본다.** 이 스킬의 존재 이유는 "어느 diff에도 안 나타나는 것"이라 여기엔 해당하지 않는다. `lib/generated/`는 배치가 만드는 산출물이라 사람이 쓴 코드가 아니다.
+
 ## 절대 규칙
 
-- **고치지 않는다.** 보고서만 쓰고 멈춘다. 사람이 읽고 "3번 고쳐줘"라고 하면 그때 고친다.
+**공통 규칙은 루트 `CLAUDE.md`의 "검수 등급" 절에 있다** — 고치지 않는다, 항목을 전부 출력한다, 근거 없이 ❌를 달지 않는다. 여기에 옮겨 적지 않는다.
+
+이 검수에만 해당하는 규칙은 아래다.
+
 - **테스트를 돌리지 않는다.** 배치도 빌드도 돌리지 않는다. "통과하나"는 `check.yml`이 본다.
 - **사실과 판단을 섞지 않는다.** 1부는 기계가 센 것(틀리지 않음), 2부는 AI 판정(틀릴 수 있음). 한 항목 안에서도 섞지 않는다.
-- **항목을 전부 출력한다.** 1부 7개, 2부 5개. 문제가 없어도 적는다. 침묵하면 "깨끗함"인지 "안 돌았음"인지 구별되지 않는다.
+- **항목 개수가 고정이다.** 1부 7개, 2부 5개. 늘리지도 줄이지도 않는다.
 - **개수를 세 곳에 적는다** — 맨 윗줄 표에 두 줄, 그리고 1부·2부 제목 바로 아래에
 그 부의 개수 한 줄씩. 보고서가 길어서 2부만 펼쳐 보는 사람이 그 부의 상태를
 제목 옆에서 바로 알 수 있어야 한다.
@@ -86,11 +100,16 @@ echo "== [원칙1] 짝이 되는 테스트 파일이 없는 소스 =="
 for s in $(git ls-files "$web/lib/*.ts" "$web/content/*.ts" "$web/content/curriculum/*.ts" | grep -v '\.test\.ts$'); do
   [ -f "${s%.ts}.test.ts" ] || echo "  $s"
 done
+# persona_explain은 파일 옆에 test_<이름>.py를 두는 방식이라 짝 규칙이 다르다.
+for s in $(git ls-files 'persona_explain/*.py' | grep -v '/test_'); do
+  d=$(dirname "$s"); b=$(basename "$s" .py)
+  [ -f "$d/test_$b.py" ] || echo "  $s"
+done
 echo "  --- 지금 있는 테스트 파일 (한 파일이 위 여러 개를 한꺼번에 볼 수도 있다) ---"
-git ls-files "$web/lib/*.test.ts" "$web/content/*.test.ts" "$web/content/curriculum/*.test.ts" | sed 's|^|    |'
+git ls-files "$web/lib/*.test.ts" "$web/content/*.test.ts" "$web/content/curriculum/*.test.ts" 'persona_explain/test_*.py' | sed 's|^|    |'
 
 echo "== [원칙2] 큰 파일과 많이 쓰이는 모듈 =="
-git ls-files "$web/**/*.ts" "$web/**/*.tsx" 'data-pipeline/**/*.py' | grep -vE '\.test\.|test_' | xargs wc -l 2>/dev/null | sort -rn | sed -n '2,9p'
+git ls-files "$web/**/*.ts" "$web/**/*.tsx" 'data-pipeline/**/*.py' 'persona_explain/*.py' | grep -vE '\.test\.|test_' | xargs wc -l 2>/dev/null | sort -rn | sed -n '2,9p'
 for m in $(git ls-files "$web/lib/*.ts" | grep -v '\.test\.ts$'); do
   b=$(basename "$m" .ts)
   echo "  $(grep -rl "/$b\"\|/$b'" $web/app $web/components $web/lib 2>/dev/null | wc -l)곳이 import  lib/$b"
@@ -109,13 +128,7 @@ git ls-files 'docs/superpowers/specs/*.md' | sed 's|.*/[0-9-]*||;s|-design.md||;
 
 **1부는 판정하지 않는다.** 위 출력을 그대로 옮긴다. 숫자가 0이면 ✅, 아니면 걸린 것을 적고 2부로 넘긴다.
 
-**2부만 판정한다.** 등급 규칙은 `clean-check`와 같다.
-
-- **❌ — `CLAUDE.md`에 근거가 있는 위반.** 어느 문장을 근거로 삼았는지 괄호에 인용한다.
-- **⚠️ — 근거가 문서에 없는 일반론, 또는 확신이 없는 지적.**
-- **✅ — 문제 없음.**
-
-근거 없이 ❌를 달지 않는다. 비개발자는 애매한 지적을 판단할 수 없어서 무조건 "고쳐줘"라고 하게 되고, 필요 없는 수정이 또 파급을 만든다.
+**2부만 판정한다.** 등급은 루트 `CLAUDE.md`의 "검수 등급" 절을 따른다 — 2단계에서 이미 읽은 그 파일이고, `clean-check`도 같은 절을 본다.
 
 전체 점검에서 원칙 2와 5는 diff 때와 읽는 각도가 다르다.
 
