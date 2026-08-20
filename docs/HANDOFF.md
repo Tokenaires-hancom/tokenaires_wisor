@@ -1,5 +1,10 @@
 # 인계 노트
 
+## 2026-08-20 · Codex · 자동 점수 배치 Environment 연결
+
+- `scores` GitHub Actions job에 `environment: env`를 지정해 `env` Environment에 개별 등록된 `TOSS_INVEST_CLIENT_ID`, `TOSS_INVEST_CLIENT_SECRET`, `WISOR_SEC_USER_AGENT` Secret을 읽도록 연결했습니다.
+- 예약 주기와 배치 명령은 바꾸지 않았습니다. `develop` 머지 후 `prices` 수동 실행으로 자격증명과 실제 갱신을 확인합니다.
+
 ## 2026-08-19 · Codex · 기획서·시스템 설계도·유저 시나리오 교차 검증
 
 - 프로젝트 전반의 현재 코드, `scores.json`, 배포 설정, 저장소 경계, 화면 링크를 기준으로 `docs/service-plan-wisor-2026-08-18.md`, `docs/system-design.md`, `docs/user-scenarios.md`를 교차 확인했습니다. 세 문서는 현재 구현과 미래 계획을 분리하며, 매수·매도 판단을 기능으로 서술하지 않습니다.
