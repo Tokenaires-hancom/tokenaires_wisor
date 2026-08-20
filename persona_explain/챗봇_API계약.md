@@ -26,9 +26,27 @@
 
 ## 페르소나 id
 
-`buffett` · `graham` · `lynch` · `greenblatt`
+일곱이고 두 갈래다. `personas[].evaluation`이 어느 쪽인지 알려준다.
 
-지원 목록은 `GET /meta`의 `personas`가 진실이다.
+| evaluation | id | 답변 |
+|---|---|---|
+| `score` | `buffett` · `graham` · `lynch` · `greenblatt` | 지표와 기준 판정을 읽어 준다 |
+| `checklist` | `marks` · `fisher` · `soros` | 점수를 내지 않는다. 무엇을 확인할지 알려 준다 |
+
+대가는 모두 **1인칭으로 말한다**("나는…"). 화면에서 대가 이름과 초상을 함께 보여 주면
+말하는 주체가 분명해진다.
+
+`checklist` 관점의 답변에는 `[주어진 것]` `[업종 통례]` `[내 기억]` 같은 출처 표시가
+문장에 섞여 나온다. 회사에 대한 주장이 어디서 나왔는지 사용자가 가려 볼 수 있게 한
+장치이므로 **화면에서 지우지 않는다.** `[내 기억]`은 모델이 학습 자료에서 기억한 것으로
+확인되지 않은 내용이고, 답변에 확인할 곳이 함께 나온다.
+
+`checklist` 관점은 `scores.json`에 채점 스타일이 없다. 그래서 응답의 `judgement`가
+`null`이고 `modelVersion`도 없다. 숫자를 말하지 않으니 화면에서 점수·기준 막대를
+함께 그리지 않는다.
+
+지원 목록과 **순서**는 `GET /meta`의 `personas`가 진실이다. 순서는 배우기 화면의
+대가 순서(`content/masters.ts`)와 같으므로 받은 대로 그리면 된다.
 
 ## 요청 / 응답
 
@@ -45,6 +63,7 @@
   "sessionId": "…",
   "persona": "buffett",
   "personaName": "워런 버핏·찰리 멍거",
+  "evaluation": "score",
   "company": { "ticker": "AAPL", "name": "애플", "sector": "…", "styles": ["buffett", "graham", "lynch", "greenblatt"] },
   "asOf": { "price": "2026-08-05", "financial": "2025-09-27" },
   "judgement": {
@@ -61,6 +80,9 @@
   "disclaimer": "이 설명은 교육용이며 투자 조언이 아닙니다."
 }
 ```
+
+`checklist` 관점이면 같은 형태에서 `evaluation`이 `"checklist"`, `judgement`가 `null`이다.
+`company`와 `asOf`는 그대로 온다.
 
 없는 종목 → 404 `{ "error": { "code": "unknown_ticker" } }`  
 없는 관점 → 400 `{ "error": { "code": "unknown_persona" } }`
@@ -87,6 +109,9 @@
 
 200 형태는 세션 생성과 같다(`opening`이 새 관점의 첫 해설). 앞 대화는 버린다.
 
+점수 관점과 확인 관점을 오갈 수 있다. 갈아탈 때마다 `evaluation`과 `judgement`가
+함께 바뀌므로, 앞 관점의 점수를 화면에 남겨 두지 않는다.
+
 ### GET `/companies?q=애플&limit=10`
 
 ```json
@@ -110,6 +135,7 @@
 ## 지표 키 (참고)
 
 프론트가 지표를 보낼 일은 없다. 서버가 `scores.json`의 camelCase를 아래 내부 키로 바꿔 프롬프트에 넣는다.
+`checklist` 관점에는 이 표가 쓰이지 않는다 — 지표 블록 자체를 싣지 않는다.
 
 | scores.json | 내부 키 | 화면 라벨 |
 |---|---|---|

@@ -393,3 +393,50 @@ def test_method_not_allowed(live):
     status, body, _ = _call(live["base"], "GET", "/sessions")
     assert status == 405
     assert body["error"]["code"] == "method_not_allowed"
+
+
+# ---- 채점하지 않는 대가 ------------------------------------------------------
+
+@needs_scores
+def test_meta_lists_every_persona_in_site_order(live):
+    status, body, _ = _call(live["base"], "GET", "/meta")
+    assert status == 200
+    ids = [p["id"] for p in body["personas"]]
+    # apps/web/content/masters.ts의 MASTERS 순서. 화면 선택기가 받은 순서로 그린다.
+    assert ids == ["buffett", "graham", "lynch", "marks",
+                   "fisher", "greenblatt", "soros"]
+    by_id = {p["id"]: p for p in body["personas"]}
+    assert by_id["buffett"]["evaluation"] == "score"
+    assert by_id["buffett"]["modelVersion"]
+    assert by_id["fisher"]["evaluation"] == "checklist"
+    # 채점 모델이 없는 대가에게 버전을 지어내지 않는다
+    assert "modelVersion" not in by_id["fisher"]
+
+
+@needs_scores
+def test_checklist_session_has_no_judgement(live):
+    ticker = _ticker(live)
+    status, created, _ = _call(live["base"], "POST", "/sessions",
+                               {"ticker": ticker, "persona": "fisher"})
+    assert status == 201
+    assert created["evaluation"] == "checklist"
+    assert created["judgement"] is None
+    assert created["company"]["ticker"] == ticker
+    assert created["opening"]
+    assert created["blocked"] is False
+    return_id = created["sessionId"]
+
+    # 관점을 오가도 판정이 섞이지 않는다. 이 왕복이 화면에서 초상을 누르는 동작이다.
+    status, switched, _ = _call(live["base"], "POST",
+                                f"/sessions/{return_id}/persona",
+                                {"persona": "buffett"})
+    assert status == 200
+    assert switched["evaluation"] == "score"
+    assert switched["judgement"]["style"] == "buffett"
+
+    status, back, _ = _call(live["base"], "POST",
+                            f"/sessions/{return_id}/persona",
+                            {"persona": "soros"})
+    assert status == 200
+    assert back["evaluation"] == "checklist"
+    assert back["judgement"] is None
