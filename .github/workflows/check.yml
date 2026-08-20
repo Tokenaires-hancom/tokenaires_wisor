@@ -44,6 +44,13 @@ jobs:
         working-directory: apps/web
         run: npm ci
 
+      - name: web 테스트
+        working-directory: apps/web
+        # 이게 없으면 apps/web 테스트는 아무도 안 돌린다. 로컬 훅은 push를 막지
+        # 않고 clean-check도 "테스트가 있나"만 보므로, 여기가 유일하게 "통과하나"를
+        # 보는 자리다. data-pipeline은 위 pytest가 같은 역할을 한다.
+        run: npm test
+
       - name: web 빌드
         working-directory: apps/web
         run: npm run build
