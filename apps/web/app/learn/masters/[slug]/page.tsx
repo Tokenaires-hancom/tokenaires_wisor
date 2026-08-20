@@ -1,7 +1,9 @@
+import "../../../master-tabs.css";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import MasterPath from "@/components/MasterPath";
 import MobileMasterDock from "@/components/MobileMasterDock";
+import MasterTabs, { type MasterTab } from "@/components/MasterTabs";
 import { CURRICULUM_BY_MASTER } from "@/content/curriculum";
 import { MASTERS, MASTER_BY_ID, type Master } from "@/content/masters";
 import { styleMeta } from "@/lib/scores";
@@ -17,6 +19,122 @@ export default async function MasterLesson({ params }: { params: Promise<{ slug:
 
   const meta = styleMeta(master.id);
   const curriculum = CURRICULUM_BY_MASTER[master.id];
+
+  const masterTabs: MasterTab[] = [
+    {
+      id: "achievements",
+      label: "업적",
+      shortLabel: "업적",
+      description: "이 투자자가 시장과 투자사에 남긴 기록",
+      kind: "achievements",
+      content: (
+        <ol className="achievement-records">
+          {master.achievements.map((achievement) => (
+            <li key={`${achievement.label}-${achievement.title}`}>
+              <span className="achievement-label">{achievement.label}</span>
+              <div className="achievement-body">
+                <h4>{achievement.title}</h4>
+                <p>{achievement.body}</p>
+                <small>근거 · {achievement.source}</small>
+              </div>
+            </li>
+          ))}
+        </ol>
+      ),
+    },
+    {
+      id: "principles",
+      label: "원칙",
+      shortLabel: "원칙",
+      description: "이 철학이 기업을 바라보는 기준",
+      content: (
+        <ul className="master-list">
+          {master.principles.map((p) => (
+            <li key={p.title}>
+              <strong>{p.title}</strong> — {p.body}
+            </li>
+          ))}
+        </ul>
+      ),
+    },
+    {
+      id: "likes",
+      label: "기업 조건",
+      shortLabel: "조건",
+      description: "이 철학이 선호하는 기업의 조건",
+      content: (
+        <ul className="reason-list">
+          {master.likes.map((l, i) => (
+            <li key={i} data-kind="pass">
+              {l}
+            </li>
+          ))}
+        </ul>
+      ),
+    },
+    {
+      id: "sources",
+      label: "근거",
+      shortLabel: "근거",
+      description: "판단의 바탕이 된 자료와 출처",
+      content: (
+        // 개수를 세지 않는다. primarySources에는 자료 외에 앞 항목의 세부·배경 사실·
+        // 주의문이 섞여 있어서, 배열 길이가 자료 종수와 일치하지 않는다
+        <>
+          <ul className="master-list">
+            {curriculum.primarySources.map((source) => (
+              <li key={source}>{source}</li>
+            ))}
+          </ul>
+          <p className="master-note">
+            각 장의 본문 아래에 문단별 출처가 접혀 있습니다.{" "}
+            <Link href="/learn/sources">전체 참고문헌</Link>
+          </p>
+        </>
+      ),
+    },
+    {
+      id: "fails",
+      label: "한계",
+      shortLabel: "한계",
+      description: "이 철학이 잘 통하지 않거나 추가 확인이 필요한 상황",
+      kind: "limits",
+      content: (
+        <ul className="reason-list">
+          {master.failsWhen.map((f, i) => (
+            <li key={i} data-kind="fail">
+              {f}
+            </li>
+          ))}
+        </ul>
+      ),
+    },
+  ];
+
+  if (!meta) {
+    masterTabs.push({
+      id: "diagnosis",
+      label: "자가진단",
+      shortLabel: "진단",
+      description: "공시 숫자만으로 판정할 수 없는 확인 항목",
+      kind: "diagnosis",
+      content: (
+        <>
+          <p className="master-note">
+            이 항목들은 공시 숫자만으로 판정할 수 없습니다. 답을 알고 있는지보다 근거를 직접
+            구할 수 있는지가 중요합니다.
+          </p>
+          <ul className="reason-list">
+            {master.principles.map((p) => (
+              <li key={p.title} data-kind="unknown">
+                {p.title}
+              </li>
+            ))}
+          </ul>
+        </>
+      ),
+    });
+  }
 
   return (
     <div className="wrap master-page">
@@ -65,101 +183,18 @@ export default async function MasterLesson({ params }: { params: Promise<{ slug:
           />
 
           <section className="master-achievements" id="achievements" aria-labelledby="achievements-title">
-            <div className="master-achievements-head">
-              <div>
-                <p className="eyebrow">투자사에 남긴 것</p>
-                <h2 id="achievements-title">{master.name}의 업적</h2>
-              </div>
-              <p>
-                수익률 숫자보다 오래 남은 질문과 도구를 중심으로 봅니다. 무엇을 해냈는지와 오늘의
-                투자자가 무엇을 이어받았는지를 함께 정리했습니다.
-              </p>
-            </div>
-
-            <ol className="achievement-records">
-              {master.achievements.map((achievement) => (
-                <li key={`${achievement.label}-${achievement.title}`}>
-                  <span className="achievement-label">{achievement.label}</span>
-                  <h3>{achievement.title}</h3>
-                  <p>{achievement.body}</p>
-                  <small>근거 · {achievement.source}</small>
-                </li>
-              ))}
-            </ol>
-          </section>
-
-          <hr className="rule" />
-
-          <div className="master-tips">
-            <details id="principles">
-              <summary>
-                {master.name} 철학 원칙 {master.principles.length}가지
-              </summary>
-              <ul style={{ margin: "0.65rem 0 0", paddingLeft: "1.1rem", fontSize: "0.88rem" }}>
-                {master.principles.map((p) => (
-                  <li key={p.title} style={{ color: "var(--ink-soft)", padding: "0.15rem 0" }}>
-                    <strong style={{ color: "var(--ink)" }}>{p.title}</strong> — {p.body}
-                  </li>
-                ))}
-              </ul>
-            </details>
-
-            <details>
-              <summary>선호하는 기업</summary>
-              <ul className="reason-list">
-                {master.likes.map((l, i) => (
-                  <li key={i} data-kind="pass">
-                    {l}
-                  </li>
-                ))}
-              </ul>
-            </details>
-
-            <details>
-              {/* 개수를 세지 않는다. primarySources에는 자료 외에 앞 항목의 세부·배경 사실·
-                  주의문이 섞여 있어서, 배열 길이가 자료 종수와 일치하지 않는다 */}
-              <summary>이 철학이 근거로 삼은 자료</summary>
-              <ul style={{ margin: "0.65rem 0 0", paddingLeft: "1.1rem", fontSize: "0.85rem" }}>
-                {curriculum.primarySources.map((source) => (
-                  <li key={source} style={{ color: "var(--ink-soft)", padding: "0.15rem 0" }}>
-                    {source}
-                  </li>
-                ))}
-              </ul>
-              <p style={{ fontSize: "0.82rem", color: "var(--ink-soft)", marginBottom: 0 }}>
-                각 장의 본문 아래에 문단별 출처가 접혀 있습니다.{" "}
-                <Link href="/learn/sources">전체 참고문헌</Link>
-              </p>
-            </details>
-
-            <details>
-              <summary>실패하는 경우</summary>
-              <ul className="reason-list">
-                {master.failsWhen.map((f, i) => (
-                  <li key={i} data-kind="fail">
-                    {f}
-                  </li>
-                ))}
-              </ul>
-            </details>
-
-            {!meta && (
-              <details>
-                <summary>자가진단 · 점수 없음</summary>
-                <p style={{ fontSize: "0.85rem", color: "var(--ink-soft)", marginTop: 0 }}>
-                  이 항목들은 공시 숫자만으로 판정할 수 없습니다. 답을 알고 있는지보다 근거를 직접
-                  구할 수 있는지가 중요합니다.
+            <MasterTabs
+              tabs={masterTabs}
+              title={`${master.name}의 투자 파일`}
+              headingId="achievements-title"
+              footer={
+                <p>
+                  수익률 숫자보다 오래 남은 질문과 도구를 중심으로 봅니다. 무엇을 해냈는지와
+                  오늘의 투자자가 무엇을 이어받았는지를 함께 정리했습니다.
                 </p>
-                <ul className="reason-list">
-                  {master.principles.map((p) => (
-                    <li key={p.title} data-kind="unknown">
-                      {p.title}
-                    </li>
-                  ))}
-                </ul>
-              </details>
-            )}
-          </div>
+              }
+            />
+          </section>
         </div>
       </div>
     </div>
