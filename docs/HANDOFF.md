@@ -1,5 +1,10 @@
 # 인계 노트
 
+## 2026-08-20 · Codex · 학습노트 저장 안내 수정
+
+- 종목 상세의 학습노트 안내를 실제 인증 저장 흐름에 맞춰, 비회원 임시 저장 후 로그인·가입 시 계정 기록과 병합된다고 수정했습니다.
+- 이 브랜치는 `feat/auth-learning-storage` 위에 쌓여 있습니다.
+
 ## 2026-08-20 · Codex · 자동 점수 배치 Environment 연결
 
 - `scores` GitHub Actions job에 `environment: env`를 지정해 `env` Environment에 개별 등록된 `TOSS_INVEST_CLIENT_ID`, `TOSS_INVEST_CLIENT_SECRET`, `WISOR_SEC_USER_AGENT` Secret을 읽도록 연결했습니다.
