@@ -1,0 +1,1666 @@
+@import url("https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;700&display=swap");
+
+/* ==========================================================================
+   홈 v5 — Detail & Motion
+   피그마 프레임 101:11(1440 × 4310)을 옮긴 것이다.
+
+   좌표는 전부 cqw다. 각 씬이 container-type: inline-size를 갖고 최대 1440px에서
+   멈추므로, 1cqw는 화면이 넓을 때 정확히 14.4px이고 좁아지면 같은 비율로 줄어든다.
+   피그마의 px을 14.4로 나눈 값이 그대로 들어간다. 1024px 아래에서는 이 좌표계를
+   버리고 흐름 배치로 바꾼다 — 그대로 줄이면 본문이 11px까지 내려가 읽을 수 없다.
+   ========================================================================== */
+
+.hv-home {
+  --hv-yellow: #ffc72d;
+  --hv-card: #ffc928;
+  --hv-wine: #c2183c;
+  --hv-ink: #1f1c19;
+  --hv-ink-2: #37322c;
+  --hv-ink-3: #625c56;
+  --hv-muted: #77716a;
+  --hv-panel-line: #e7e9ed;
+  --hv-display: "Jua", var(--sans);
+  --hv-body: "Noto Sans KR", var(--sans);
+
+  background: #ffffff;
+  overflow-x: clip;
+}
+
+.hv-scene {
+  container-type: inline-size;
+  position: relative;
+  width: 100%;
+  /* 콘텐츠 폭은 디자인 원본(1440)에 고정한다. 폭이 넓어지면 모든 크기(cqw)가 같이
+     커지고 히어로 높이도 비례로 늘어 낮은 화면에서 인물이 fold 밑으로 잘린다.
+     노란 무대는 .hv-hero의 overflow:visible로 화면 끝까지 뚫고 나가므로, 폭을
+     1440으로 좁혀도 좌우 흰 여백은 생기지 않는다. */
+  max-width: 1440px;
+  margin-inline: auto;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+/* ---------- 한 화면씩 멈추는 스크롤 ----------
+
+   섹션마다 하나씩 서고, masters 안에서는 카드 한 장씩 선다. 스크롤을 가로채지 않고
+   브라우저의 스크롤 스냅에 맡긴다 — 휠·트랙패드·키보드·스크롤바가 평소대로 동작하고,
+   멈추는 자리만 정해 준다. 전환이 부드러운 것은 html의 scroll-behavior: smooth 덕이다.
+
+   좁은 화면(모바일)에서는 걸지 않는다. 세로로 쌓인 긴 섹션에 한 화면씩 서면
+   내용이 가려진다. 세로가 짧은 화면에서는 mandatory 대신 proximity로 낮춰
+   섹션이 화면보다 높을 때 아래쪽에 손이 닿게 남겨 둔다. */
+@media (min-width: 1200px) and (prefers-reduced-motion: no-preference) {
+  html.hv-home-active {
+    scroll-snap-type: y proximity;
+  }
+
+  @media (min-height: 800px) {
+    html.hv-home-active {
+      scroll-snap-type: y mandatory;
+    }
+  }
+
+  .hv-scene {
+    scroll-snap-align: start;
+    /* scroll-snap-stop: always는 쓰지 않는다. 매 지점마다 관성을 끊어 세워서
+       한 화면씩 서기는 해도 손맛이 뻑뻑해진다. 관성이 지나가게 두고 멈추는
+       자리만 정해 준다. */
+    /* 상단 고정 헤더(61px)에 섹션 머리가 가리지 않도록 그만큼 위에서 선다. */
+    scroll-margin-top: 61px;
+  }
+
+  /* masters는 붙잡는 통 안에 있다. 섹션째로 서면 카드가 흐를 자리가 없어지므로
+     여기서는 통 안의 카드 정지점(.hv-masters-stop)이 대신 선다. */
+  .hv-masters,
+  .hv-masters-pin-outer {
+    scroll-snap-align: none;
+  }
+}
+
+.hv-home :where(h1, h2, .hv-display) {
+  font-family: var(--hv-display);
+  font-weight: 400;
+  letter-spacing: normal;
+}
+
+/* ---------- Scene 01 · 히어로 ---------- */
+
+.hv-hero {
+  aspect-ratio: 1440 / 860;
+  /* 무대(노란 띠)는 width:100vw로 화면 끝까지 그려진다. .hv-scene의 overflow:hidden이
+     1760에서 잘라 좌우 흰 여백을 만들던 걸 히어로에서만 푼다 — 페이지 가로 넘침은
+     .hv-home의 overflow:clip이 막아준다. */
+  overflow: visible;
+}
+
+.hv-hero-stage {
+  position: absolute;
+  left: 50%;
+  margin-left: -50vw;
+  top: 41.753cqw;
+  width: 100vw;
+  height: 17.969cqw;
+}
+
+.hv-hero-coin {
+  position: absolute;
+  pointer-events: none;
+}
+
+.hv-hero-coin img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hv-hero-coin-left {
+  left: 8.069cqw;
+  top: 10.931cqw;
+  width: 16.528cqw;
+  height: 16.528cqw;
+  opacity: 0.9;
+}
+
+.hv-hero-coin-top {
+  left: 45.056cqw;
+  top: -4.25cqw;
+  width: 21.528cqw;
+  height: 21.736cqw;
+}
+
+.hv-hero-coin-right {
+  left: 73.611cqw;
+  top: 20.469cqw;
+  width: 23.611cqw;
+  height: 23.611cqw;
+}
+
+.hv-hero-title {
+  position: absolute;
+  left: 20.834cqw;
+  top: 17.222cqw;
+  width: 58.333cqw;
+  margin: 0;
+  text-align: center;
+  font-size: 4.722cqw;
+  line-height: 5.417cqw;
+  letter-spacing: -0.094cqw;
+  color: var(--hv-ink);
+}
+
+.hv-hero-lede {
+  position: absolute;
+  left: 26.389cqw;
+  top: 30.139cqw;
+  width: 47.222cqw;
+  margin: 0;
+  text-align: center;
+  font-family: var(--hv-body);
+  font-size: max(15px, 1.25cqw);
+  line-height: 2.083cqw;
+  color: var(--hv-ink-2);
+}
+
+.hv-hero-cta {
+  position: absolute;
+  left: 41.944cqw;
+  top: 34.306cqw;
+  width: 16.111cqw;
+}
+
+.hv-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 4.722cqw;
+  border-radius: 2.361cqw;
+  background: var(--hv-wine);
+  color: #fffffe;
+  font-family: var(--hv-body);
+  font-weight: 700;
+  font-size: max(14px, 1.181cqw);
+  box-shadow: 0 0.972cqw 2.083cqw rgba(31, 28, 25, 0.18);
+  transition: transform 120ms ease, background 120ms ease;
+}
+
+.hv-btn:hover {
+  background: var(--hv-wine);
+  transform: translateY(-2px);
+}
+
+/* 일곱 명이 무대 위에 어깨를 겹치고 선다. 음수 여백이 그 겹침이다.
+   무대 폭 전체를 쓰고 바닥선에 맞춰 세운다 — 키가 제각각인 것은 사람이라 그렇다.
+   맞춘 것은 키가 아니라 얼굴 크기다. */
+.hv-hero-masters {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 19.722cqw;
+}
+
+.hv-hero-masters img {
+  position: absolute;
+  bottom: 0;
+  height: 100%;
+  width: auto;
+}
+
+/* ---------- Scene 02 · AI 시대 투자 원칙 ---------- */
+
+.hv-principles {
+  aspect-ratio: 1440 / 852;
+  /* 노란 패널 SVG는 오른쪽 변이 직선이다(H715.938V0) — 화면 밖으로 이어지라고 그린 모양이다.
+     .hv-scene의 overflow:hidden이 1440에서 잘라 오른쪽에 흰 띠를 만들던 걸 히어로와 같은
+     방식으로 이 섹션에서만 푼다. 페이지 가로 넘침은 .hv-home의 overflow:clip이 막는다. */
+  overflow: visible;
+  /* 히어로의 노란 무대는 아래로 72px 더 내려오는데 .hv-scene의 흰 배경이 그걸 덮어
+     히어로와 이 섹션 사이에 흰 띠를 만든다. 배경을 비워 노랑이 이어지게 한다
+     (.hv-home이 흰색이라 나머지 영역은 그대로 흰색으로 보인다). */
+  background: transparent;
+}
+
+.hv-principles-field,
+.hv-principles-field-shadow {
+  position: absolute;
+  /* 원래 46.528cqw(670px). 카드 바닥과 다음 섹션 사이 흰 띠를 없애려고 섹션 바닥까지
+     늘린다 — 5cqw(위) + 54.167cqw = 59.167cqw = 섹션 높이(852/1440). SVG는
+     preserveAspectRatio="none"이라 왼쪽 곡선이 같이 늘어난다. 안쪽 텍스트 위치는 그대로다. */
+  height: 54.167cqw;
+}
+
+.hv-principles-field svg,
+.hv-principles-field-shadow svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hv-principles-field-shadow {
+  left: 49.033cqw;
+  /* 히어로 무대 바닥에 딱 붙여 노랑이 끊기지 않게 한다(원래 7.222cqw, 12px 위로). */
+  top: 6.389cqw;
+  right: calc((100cqw - 100vw) / 2);
+}
+
+.hv-principles-field {
+  left: 50.282cqw;
+  top: 5cqw;
+  right: calc((100cqw - 100vw) / 2);
+}
+
+.hv-principles-eyebrow {
+  position: absolute;
+  left: 5cqw;
+  top: 5.139cqw;
+  margin: 0;
+  font-size: 3.611cqw;
+  line-height: 4.444cqw;
+  color: var(--hv-ink);
+}
+
+.hv-principles-underline {
+  position: absolute;
+  left: 5.069cqw;
+  top: 9.444cqw;
+  height: 0.556cqw;
+  border-radius: 0.278cqw;
+  background: var(--hv-yellow);
+}
+
+.hv-principles-line {
+  position: absolute;
+  left: 5cqw;
+  top: 11.111cqw;
+  margin: 0;
+  font-family: var(--hv-display);
+  font-size: 2.639cqw;
+  line-height: 3.472cqw;
+  color: var(--hv-ink);
+}
+
+.hv-principles-line-accent {
+  top: 14.375cqw;
+  color: var(--hv-wine);
+  /* 한 줄로 둔다. 노란 패널 왼쪽 곡선까지 여유가 있어 접히지 않는다. */
+  white-space: nowrap;
+}
+
+.hv-principles-intro {
+  position: absolute;
+  left: 5.208cqw;
+  top: 20.5cqw;
+  width: 38cqw;
+  margin: 0;
+  font-family: var(--hv-body);
+  font-size: max(14px, 1.181cqw);
+  line-height: 2.014cqw;
+  color: var(--hv-ink-3);
+}
+
+/* 흔들리는 쪽. 기울기가 서로 다르고 바닥선이 맞지 않는다 — 오른쪽 패널의 정렬과
+   대비되어 "답은 흔들리고 원칙은 고정된다"는 말을 배치 자체로 한다. */
+.hv-principles-drifts {
+  position: absolute;
+  left: 5.5cqw;
+  /* 오른쪽 가운데 질문("언제 다시 볼까?")과 같은 높이에 오도록 내렸다. */
+  top: 31cqw;
+  display: flex;
+  align-items: center;
+  gap: 1.9cqw;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hv-principles-drift {
+  padding: 1.45cqw 2.4cqw;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid var(--hv-panel-line);
+  box-shadow: 0 1.1cqw 2.2cqw rgba(31, 28, 25, 0.1);
+  font-family: var(--hv-body);
+  font-weight: 700;
+  font-size: max(15px, 1.389cqw);
+  line-height: 1;
+  color: var(--hv-ink-2);
+  white-space: nowrap;
+}
+
+/* 흔들리는 쪽에서 고정된 쪽으로 건너가는 실. 곡선 점선이 패널 쪽으로 흘러 "이어지는 중"을 보인다. */
+.hv-principles-thread {
+  position: absolute;
+  /* "시장 전망" 알약(마지막) 오른쪽에서 시작해, 선이 알약 세로 중앙에서 나오게 한다.
+     알약 세로 중앙 ≈ drifts top(31cqw) + 알약 높이 절반(≈2.2cqw) = 33.2cqw.
+     선은 박스 top + 2cqw(viewBox 중앙)에 오므로 박스 top = 31.2cqw. */
+  left: 43cqw;
+  top: 31.2cqw;
+  width: 10cqw;
+  height: 4cqw;
+  overflow: visible;
+}
+
+.hv-principles-thread path {
+  fill: none;
+  stroke: var(--hv-yellow);
+  stroke-width: 2.6px;
+  stroke-linecap: round;
+  stroke-dasharray: 5 5;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hv-principles-thread path {
+    animation: hv-thread-flow 1.1s linear infinite;
+  }
+}
+
+@keyframes hv-thread-flow {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+/* 라벨 — 제목이 아니라 라벨이다. 패널 위쪽에 올리고 작은 칩으로 둔다. */
+.hv-principles-anchor-label {
+  position: absolute;
+  left: 57.292cqw;
+  /* 왼쪽 "흔들리는 시장에서,"(.hv-principles-line, top 11.111cqw)와 같은 선상에 맞춘다. */
+  top: 11.111cqw;
+  margin: 0;
+  padding: 0.8cqw 1.7cqw;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.24);
+  font-family: var(--hv-body);
+  font-weight: 700;
+  font-size: max(15px, 1.35cqw);
+  letter-spacing: 0.02em;
+  line-height: 1;
+  color: #ffffff;
+}
+
+/* 세 질문 — 점만 두고 잇는 선은 없다. 라벨과 벌려 가운데로 내린다. */
+.hv-principles-anchor-list {
+  position: absolute;
+  left: 57.292cqw;
+  top: 19cqw;
+  width: 33.333cqw;
+  display: flex;
+  flex-direction: column;
+  gap: 4.3cqw;
+  margin: 0;
+  padding-left: 2.8cqw;
+  list-style: none;
+}
+
+.hv-principles-anchor-item {
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+
+/* 고정점(dot). 잇는 선(스파인)은 없다. */
+.hv-principles-anchor-item::before {
+  content: "";
+  position: absolute;
+  left: -2.6cqw;
+  top: 0.9cqw;
+  width: 1cqw;
+  height: 1cqw;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 0 0.4cqw rgba(255, 255, 255, 0.22);
+}
+
+.hv-principles-anchor-q {
+  margin: 0;
+  font-family: var(--hv-body);
+  font-weight: 800;
+  font-size: max(24px, 2.85cqw);
+  line-height: 1.2;
+  color: #ffffff;
+}
+
+.hv-principles-anchor-sub {
+  margin: 0.6cqw 0 0;
+  font-family: var(--hv-body);
+  font-weight: 500;
+  font-size: max(15px, 1.35cqw);
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ---------- Scene 03 · 일곱 철학 카드 ---------- */
+
+.hv-masters {
+  /* 원래 900. 기울어진 카드의 실제 바닥은 834px이라 journey와의 흰 띠가 128px로
+     다른 이음새(72px)보다 넓었다. 844로 줄여 10 + journey의 62 = 72로 맞춘다.
+     인물 이미지는 카드의 overflow:hidden에 잘리므로 기준이 되지 못한다 — 카드 바닥이 기준이다.
+     안쪽은 전부 cqw(폭 기준)라 높이를 바꿔도 요소 위치는 그대로다. */
+  aspect-ratio: 1440 / 844;
+  /* 카드가 1440에서 잘려 좌우에 흰 여백이 남던 것을 히어로와 같은 방식으로 푼다 —
+     카드가 화면 끝까지 흘러나온다. 페이지 가로 넘침은 .hv-home의 overflow:clip이 막는다. */
+  overflow: visible;
+}
+
+.hv-masters-title {
+  position: absolute;
+  left: 7.5cqw;
+  top: 5.139cqw;
+  width: 62.5cqw;
+  margin: 0;
+  font-size: 3.75cqw;
+  line-height: 4.583cqw;
+  color: var(--hv-ink);
+}
+
+.hv-masters-lede {
+  position: absolute;
+  left: 7.778cqw;
+  top: 10.417cqw;
+  width: 52.778cqw;
+  margin: 0;
+  font-family: var(--hv-body);
+  font-size: max(14px, 1.181cqw);
+  line-height: 1.944cqw;
+  color: var(--hv-ink);
+  opacity: 0.72;
+}
+
+/* 스크롤에 붙잡아 두고 카드를 미는 통. 높이와 --hv-pin-top은 JS가 잰 값으로 채운다.
+   data-pinned가 없으면(좁은 화면·움직임 최소화·JS 실패) 평범한 div로 남고
+   트랙은 손으로 미는 방식 그대로다. */
+/* 카드 정지점을 통 안에 절대 배치하려면 통이 기준이 되어야 한다. */
+.hv-masters-pin-outer {
+  position: relative;
+}
+
+.hv-masters-pin-outer[data-pinned] .hv-masters-pin {
+  position: sticky;
+  top: var(--hv-pin-top, 0px);
+}
+
+/* 카드가 한 장씩 서는 자리. 보이지 않는 점이고, 스크롤이 여기에 맞춰 멈춘다.
+   위치는 JS가 잰 값(카드가 화면 가운데 오는 스크롤 지점)으로 채운다. */
+.hv-masters-stop {
+  position: absolute;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+  scroll-snap-align: start;
+}
+
+/* 붙잡힌 동안 트랙은 스크롤 컨테이너가 아니라 transform으로 움직이는 판이 된다. */
+.hv-masters-pin-outer[data-pinned] .hv-masters-track {
+  overflow: visible;
+  scroll-snap-type: none;
+  /* 붙잡힌 동안에도 손으로 끌 수 있다 — 끈 거리를 페이지 스크롤로 바꾼다. */
+  cursor: grab;
+  will-change: transform;
+  user-select: none;
+}
+
+.hv-masters-pin-outer[data-pinned] .hv-masters-track.is-dragging {
+  cursor: grabbing;
+}
+
+.hv-masters-pin-outer[data-pinned] .hv-master-card {
+  scroll-snap-align: none;
+}
+
+.hv-masters-progress {
+  position: absolute;
+  left: 73.056cqw;
+  top: 13.542cqw;
+  width: 19.444cqw;
+  height: 0.208cqw;
+  border-radius: 0.139cqw;
+  background: rgba(255, 201, 40, 0.28);
+}
+
+.hv-masters-progress span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--hv-wine);
+  transform-origin: left center;
+  /* 스크롤을 따라 연속으로 차므로 전환 시간을 두지 않는다 — 두면 손보다 늦게 따라온다.
+     JS가 값을 넣기 전에는 비어 있다. */
+  transform: scaleX(0);
+}
+
+/* 넘기는 자리다. 스크롤 스냅으로 카드가 한 장씩 서고, 포인터로도 끌 수 있다. */
+.hv-masters-track {
+  position: absolute;
+  left: 0;
+  top: 17.5cqw;
+  width: 100%;
+  height: 42cqw;
+  display: flex;
+  align-items: center;
+  gap: 3.333cqw;
+  padding-inline: 32.5cqw;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.hv-masters-track::-webkit-scrollbar {
+  display: none;
+}
+
+.hv-masters-track:active {
+  cursor: grabbing;
+}
+
+.hv-masters-track.is-dragging {
+  scroll-snap-type: none;
+}
+
+.hv-master-card {
+  position: relative;
+  flex: none;
+  width: 28.472cqw;
+  height: 36.111cqw;
+  border-radius: 1.944cqw;
+  background: var(--hv-card);
+  overflow: hidden;
+  scroll-snap-align: center;
+  box-shadow: 0 1.25cqw 2.639cqw rgba(31, 28, 25, 0.12);
+  transition: box-shadow 160ms ease;
+}
+
+.hv-master-card:hover {
+  box-shadow: 0 1.667cqw 3.472cqw rgba(31, 28, 25, 0.2);
+}
+
+.hv-master-tag {
+  position: absolute;
+  left: 2.5cqw;
+  top: 2.5cqw;
+  display: flex;
+  align-items: center;
+  height: 2.5cqw;
+  padding-inline: 1.111cqw;
+  border-radius: 1.25cqw;
+  background: var(--hv-wine);
+  color: #ffffff;
+  font-family: var(--hv-body);
+  font-weight: 700;
+  font-size: max(13px, 0.972cqw);
+  white-space: nowrap;
+}
+
+.hv-master-name {
+  position: absolute;
+  left: 2.639cqw;
+  top: 7.778cqw;
+  font-family: var(--hv-display);
+  font-size: 2.361cqw;
+  line-height: 3.056cqw;
+  color: var(--hv-ink);
+  white-space: nowrap;
+}
+
+.hv-master-line {
+  position: absolute;
+  left: 2.778cqw;
+  top: 12.778cqw;
+  width: 14.306cqw;
+  font-family: var(--hv-body);
+  font-weight: 700;
+  font-size: max(13px, 1.042cqw);
+  line-height: 1.875cqw;
+  color: #ffffff;
+  opacity: 0.92;
+}
+
+.hv-master-portrait {
+  position: absolute;
+  right: -1.4cqw;
+  bottom: -6cqw;
+  /* webp 일곱 장은 높이가 852로 같고 폭이 779~1112로 제각각이다. 폭을 고정하면
+     폭 넓은 그림(그레이엄 1112)일수록 인물이 작아진다 — 그려진 높이가 225 대 299였다.
+     히어로와 같이 높이를 고정해 인물 크기를 맞춘다. 20.6cqw는 버핏·린치의 기존 크기다. */
+  height: 20.6cqw;
+  width: auto;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* ---------- Scene 04 · 배움에서 판단까지 ---------- */
+
+.hv-journey {
+  /* 콘텐츠는 714px까지. 아래 죽은 여백을 줄인다(cqw 위치는 폭 기준이라 안 밀림). */
+  aspect-ratio: 1440 / 745;
+}
+
+.hv-journey-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 4.306cqw;
+  margin: 0;
+  text-align: center;
+  font-size: 3.611cqw;
+  line-height: 4.444cqw;
+  color: var(--hv-ink);
+  white-space: nowrap;
+}
+
+.hv-journey-title span {
+  display: block;
+  color: var(--hv-wine);
+}
+
+.hv-journey-path {
+  position: absolute;
+  left: 9.722cqw;
+  top: 27.083cqw;
+  width: 80.417cqw;
+  height: 17.361cqw;
+}
+
+.hv-journey-curve {
+  position: absolute;
+  left: 2.25%;
+  right: 2.25%;
+  top: 40.4%;
+  bottom: 20%;
+  width: 95.5%;
+  height: 39.6%;
+  overflow: visible;
+}
+
+.hv-journey-node {
+  position: absolute;
+  width: 1.038cqw;
+  height: 1.111cqw;
+  border-radius: 50%;
+  background: var(--hv-wine);
+}
+
+.hv-journey-node-1 {
+  left: 5.08%;
+  top: 56.4%;
+}
+
+.hv-journey-node-2 {
+  left: 45.51%;
+  top: 62.8%;
+}
+
+.hv-journey-point {
+  position: absolute;
+  left: 4.028cqw;
+  top: 51.4%;
+  width: 1.25cqw;
+  height: 1.25cqw;
+  border-radius: 50%;
+  background: var(--hv-wine);
+  box-shadow: 0 0.556cqw 1.111cqw rgba(194, 24, 60, 0.35);
+}
+
+.hv-journey-pin {
+  position: absolute;
+  left: 38%;
+  top: 4%;
+  width: 14.25%;
+  height: 70.8%;
+  object-fit: contain;
+}
+
+.hv-journey-pencil {
+  position: absolute;
+  left: 0.57%;
+  top: 50%;
+  width: 16.16cqw;
+  height: 16.12cqw;
+  object-fit: contain;
+}
+
+.hv-journey-mobile {
+  position: absolute;
+  left: 75.347cqw;
+  top: 28.383cqw;
+  width: 12.885cqw;
+  height: 11.68cqw;
+  object-fit: contain;
+  rotate: -2deg;
+}
+
+.hv-journey-steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hv-journey-step {
+  position: absolute;
+}
+
+.hv-journey-step-head {
+  margin: 0;
+  font-family: var(--hv-display);
+  font-size: 2.153cqw;
+  line-height: 5.972cqw;
+  color: var(--hv-ink);
+  white-space: nowrap;
+}
+
+.hv-journey-step-head strong {
+  font-weight: 400;
+  font-size: 5.694cqw;
+  margin-right: 1.2cqw;
+}
+
+.hv-journey-step-body {
+  position: absolute;
+  display: block;
+  width: 18.75cqw;
+  font-family: var(--hv-body);
+  font-size: max(14px, 1.111cqw);
+  line-height: 1.875cqw;
+  color: var(--hv-ink);
+}
+
+.hv-journey-step-1 {
+  left: 8.333cqw;
+  top: 16.528cqw;
+}
+
+.hv-journey-step-1 .hv-journey-step-body {
+  left: 6.528cqw;
+  top: 6.736cqw;
+}
+
+.hv-journey-step-2 {
+  left: 42.361cqw;
+  top: 39.931cqw;
+}
+
+.hv-journey-step-2 .hv-journey-step-body {
+  left: 2.778cqw;
+  top: 6.458cqw;
+}
+
+.hv-journey-step-3 {
+  left: 71.181cqw;
+  top: 16.528cqw;
+}
+
+.hv-journey-step-3 .hv-journey-step-body {
+  left: 2.222cqw;
+  top: 7.083cqw;
+}
+
+/* ---------- Scene 05 · 결과 스택 ---------- */
+
+.hv-result {
+  /* 원래 790. 이 프레임만 위 여백이 123px로 유별나게 커서 journey와의 흰 띠가 146px이었다
+     (다른 이음새는 72px). 직계 자식 다섯을 5.139cqw(=74px) 위로 올리고 높이도 그만큼
+     줄여 아래에 죽은 공간이 생기지 않게 한다. */
+  aspect-ratio: 1440 / 716;
+}
+
+.hv-result-title {
+  position: absolute;
+  left: 28.368cqw;
+  top: 3.403cqw;
+  width: 43.264cqw;
+  margin: 0;
+  text-align: center;
+  font-size: 3.75cqw;
+  line-height: 4.444cqw;
+  letter-spacing: -0.075cqw;
+  color: #403e3b;
+}
+
+.hv-result-panel {
+  position: absolute;
+  width: 76.389cqw;
+  height: 29.167cqw;
+  border-radius: 1.389cqw;
+  padding: 3.056cqw;
+  font-family: var(--hv-body);
+}
+
+.hv-result-panel-back {
+  left: 13.194cqw;
+  top: 18.973cqw;
+  background: #f1f1ef;
+  opacity: 0.7;
+  rotate: -1.5deg;
+  font-weight: 700;
+  font-size: max(15px, 1.25cqw);
+  color: var(--hv-ink);
+}
+
+.hv-result-panel-mid {
+  left: 12.083cqw;
+  top: 16.18cqw;
+  background: #f7f7f5;
+  rotate: 0.8deg;
+  display: flex;
+  flex-direction: column;
+  gap: 0.556cqw;
+  color: var(--hv-ink);
+}
+
+.hv-result-panel-mid strong {
+  font-family: var(--hv-display);
+  font-weight: 400;
+  font-size: 2.083cqw;
+}
+
+.hv-result-panel-mid span {
+  font-weight: 700;
+  font-size: max(13px, 1.042cqw);
+  opacity: 0.64;
+}
+
+.hv-result-card {
+  position: absolute;
+  left: 11.806cqw;
+  top: 13.333cqw;
+  width: 76.389cqw;
+  height: 29.167cqw;
+  border: 2px solid var(--hv-panel-line);
+  border-radius: 1.389cqw;
+  background: #ffffff;
+  box-shadow: 0 1.528cqw 3.75cqw rgba(31, 28, 25, 0.14);
+  font-family: var(--hv-body);
+}
+
+.hv-result-name {
+  position: absolute;
+  left: 2.917cqw;
+  top: 2.917cqw;
+  margin: 0;
+  font-family: var(--hv-display);
+  font-size: 1.944cqw;
+  color: #403e3b;
+}
+
+.hv-result-ticker {
+  margin-left: 0.833cqw;
+  font-family: var(--hv-body);
+  font-size: max(13px, 1.042cqw);
+  color: var(--hv-muted);
+}
+
+.hv-result-score {
+  position: absolute;
+  left: 54.236cqw;
+  top: 2.5cqw;
+  margin: 0;
+  font-family: var(--hv-display);
+  font-size: 3.056cqw;
+  color: var(--hv-wine);
+  transform-origin: right center;
+}
+
+.hv-result-model {
+  position: absolute;
+  left: 45.069cqw;
+  top: 6.25cqw;
+  margin: 0;
+  font-size: max(12px, 0.903cqw);
+  color: var(--hv-muted);
+}
+
+.hv-result-bars {
+  position: absolute;
+  left: 2.917cqw;
+  top: 10.139cqw;
+  width: 54.722cqw;
+}
+
+.hv-result-reasons {
+  position: absolute;
+  left: 2.917cqw;
+  top: 16.389cqw;
+  right: 2.917cqw;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7cqw;
+}
+
+.hv-result-reasons li {
+  position: relative;
+  padding-left: 1.528cqw;
+  font-size: max(13px, 0.972cqw);
+  line-height: 1.6;
+  color: #403e3b;
+  transform-origin: left center;
+}
+
+.hv-result-reasons li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.45cqw;
+  width: 0.764cqw;
+  height: 0.764cqw;
+  border-radius: 50%;
+}
+
+.hv-result-reasons li[data-kind="pass"]::before {
+  background: var(--hv-yellow);
+}
+
+.hv-result-reasons li[data-kind="fail"]::before {
+  background: rgba(194, 24, 60, 0.12);
+  border: 1px solid var(--hv-wine);
+}
+
+.hv-result-card .stamp {
+  position: absolute;
+  left: 2.917cqw;
+  right: 2.917cqw;
+  top: 24.861cqw;
+  margin: 0;
+  font-size: max(11px, 0.833cqw);
+}
+
+.hv-result-cta {
+  position: absolute;
+  right: 8.889cqw;
+  top: 46.111cqw;
+  font-family: var(--hv-body);
+  font-weight: 700;
+  font-size: max(14px, 1.111cqw);
+  color: var(--hv-wine);
+}
+
+
+/* ---------- 좁은 화면 ---------- */
+
+@media (max-width: 1199px) {
+  .hv-scene {
+    container-type: normal;
+    aspect-ratio: auto;
+    height: auto;
+    padding: 3rem 1.25rem;
+  }
+
+  .hv-home :where(h1, h2) {
+    font-size: 1.9rem;
+    line-height: 1.35;
+  }
+
+  .hv-home :where(p, span, li) {
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  /* 좌표로 세운 것들을 전부 흐름 배치로 되돌린다. */
+  .hv-home :where(.hv-hero-title, .hv-hero-lede, .hv-hero-cta, .hv-hero-masters, .hv-hero-stage,
+    .hv-principles-eyebrow, .hv-principles-underline, .hv-principles-line, .hv-principles-intro,
+    .hv-principles-drifts, .hv-principles-anchor, .hv-masters-title, .hv-masters-lede,
+    .hv-masters-progress, .hv-masters-track,
+    .hv-journey-title, .hv-journey-path, .hv-journey-steps, .hv-result-title,
+    .hv-result-card, .hv-result-cta) {
+    position: static;
+    inset: auto;
+    translate: none;
+    width: auto;
+    max-width: none;
+    margin-inline: 0;
+  }
+
+  .hv-hero,
+  .hv-principles,
+  .hv-masters,
+  .hv-journey,
+  .hv-result {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .hv-hero-title,
+  .hv-journey-title,
+  .hv-result-title {
+    white-space: normal;
+  }
+
+  .hv-hero-stage,
+  .hv-hero-coin,
+  .hv-principles-field,
+  .hv-principles-field-shadow,
+  .hv-journey-pencil,
+  .hv-journey-mobile,
+  .hv-result-panel {
+    display: none;
+  }
+
+  .hv-hero-masters {
+    height: auto;
+    padding: 1rem 0;
+    border-radius: 16px;
+    background: var(--hv-yellow);
+  }
+
+  /* 폭이 비율이라 좁은 화면에서도 얼굴 크기가 서로 맞는다. 따로 손댈 것이 없다. */
+
+  .hv-hero-cta .hv-btn {
+    height: 52px;
+    max-width: 240px;
+    border-radius: 26px;
+    font-size: 1rem;
+    box-shadow: none;
+  }
+
+  .hv-principles-underline {
+    width: 96px !important;
+    height: 6px;
+  }
+
+  /* 넓은 화면에서는 한 줄로 두지만, 좁아지면 접히게 풀어준다 — 320px에서 넘치지 않게. */
+  .hv-principles-line-accent {
+    white-space: normal;
+  }
+
+  /* 좁은 화면에서는 노란 패널 SVG가 사라지므로 원칙 묶음이 스스로 노란 바탕을 갖는다. */
+  .hv-principles-drifts {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .hv-principles-drift {
+    padding: 0.6rem 1rem;
+    font-size: 0.9375rem;
+    box-shadow: 0 6px 14px rgba(31, 28, 25, 0.09);
+  }
+
+  /* 실은 가로로 건너가는 그림이다. 세로로 쌓이면 뜻이 없어져 뺀다. */
+  .hv-principles-thread {
+    display: none;
+  }
+
+  .hv-principles-anchor {
+    gap: 1.5rem;
+    padding: 1.75rem 1.5rem;
+    border-radius: 16px;
+    background: var(--hv-yellow);
+  }
+
+  .hv-principles-anchor-title {
+    font-size: 0.8125rem;
+  }
+
+  .hv-principles-anchor-list {
+    gap: 1.25rem;
+  }
+
+  .hv-principles-anchor-item {
+    font-size: 1.5rem;
+  }
+
+  .hv-masters-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .hv-masters-meta .hv-masters-progress {
+    flex: 1;
+  }
+
+  .hv-masters-track {
+    height: auto;
+    gap: 1rem;
+    padding-inline: 0;
+    scroll-snap-type: x proximity;
+  }
+
+  .hv-master-card {
+    width: 17rem;
+    height: 21rem;
+    border-radius: 20px;
+    rotate: none !important;
+  }
+
+  .hv-master-tag {
+    left: 1.25rem;
+    top: 1.25rem;
+    height: 28px;
+    padding-inline: 0.75rem;
+    border-radius: 14px;
+    font-size: 0.8rem;
+  }
+
+  .hv-master-name {
+    left: 1.25rem;
+    top: 4rem;
+    font-size: 1.4rem;
+    line-height: 1.3;
+  }
+
+  .hv-master-line {
+    left: 1.25rem;
+    top: 6.5rem;
+    width: 9rem;
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+
+  .hv-master-portrait {
+    right: -1rem;
+    bottom: -3rem;
+    width: 11rem;
+  }
+
+  .hv-masters-progress {
+    height: 3px;
+    border-radius: 2px;
+  }
+
+  /* 곡선과 그 위의 표시는 세 걸음의 좌표에 맞춰 그린 것이다. 흐름 배치에서는
+     가리키는 자리가 사라져 선만 남으므로 통째로 뺀다. 3D 아이콘 하나만 남겨
+     이 구간의 성격은 유지한다. */
+  .hv-journey-path {
+    display: none;
+  }
+
+  .hv-journey-steps {
+    counter-reset: none;
+  }
+
+  .hv-journey-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .hv-journey-step,
+  .hv-journey-step-body {
+    position: static;
+    width: auto;
+  }
+
+  .hv-journey-step-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    font-size: 1.15rem;
+    line-height: 1.3;
+  }
+
+  .hv-journey-step-head strong {
+    font-size: 2.4rem;
+    margin-right: 0;
+  }
+
+  .hv-result-card {
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: none;
+  }
+
+  .hv-result-name {
+    font-size: 1.4rem;
+  }
+
+  .hv-result-name,
+  .hv-result-score,
+  .hv-result-model,
+  .hv-result-bars,
+  .hv-result-reasons,
+  .hv-result-card .stamp {
+    position: static;
+    width: auto;
+    text-align: left;
+  }
+
+  .hv-result-card {
+    height: auto;
+  }
+
+  .hv-result-score {
+    font-size: 2.2rem;
+  }
+
+  .hv-result-bars {
+    margin-top: 1rem;
+  }
+
+  .hv-result-reasons {
+    margin-top: 1.25rem;
+    gap: 0.5rem;
+  }
+
+  .hv-result-reasons li {
+    padding-left: 1.1rem;
+    font-size: 0.95rem;
+  }
+
+  .hv-result-reasons li::before {
+    top: 0.5rem;
+    width: 8px;
+    height: 8px;
+  }
+
+  .hv-result-card .stamp {
+    margin-top: 1.25rem;
+    font-size: 0.75rem;
+  }
+}
+
+
+/* ==========================================================================
+   홈 v5 — 모션
+
+   전부 CSS 애니메이션이다. 이유는 하나 — 진입 동작이 자바스크립트에 걸려 있으면
+   그게 안 돌 때 화면이 비어 버린다. 여기서는 평상 상태가 곧 보이는 상태이고,
+   애니메이션은 그 위에 얹힌다. 모션을 줄인 설정에서는 아래 블록이 통째로 꺼지고
+   화면은 완성된 모습 그대로 보인다.
+
+   시간과 이징은 피그마 타임라인(101:11)에서 가져왔다. 피그마의 스프링은
+   1 - e^(-7.6657t)(cos 6.7605t + 1.1339 sin 6.7605t)를 24등분해 linear()로 옮겼다 —
+   2.8%까지 넘어갔다 돌아오는 그 움직임이 그대로 남는다.
+   ========================================================================== */
+
+.hv-home {
+  --hv-spring: linear(0, 0.073, 0.234, 0.4201, 0.5949, 0.7407, 0.8519, 0.9301, 0.9807, 1.0099, 1.024, 1.0283, 1.0268, 1.0225, 1.0173, 1.0122, 1.0079, 1.0046, 1.0023, 1.0007, 0.9998, 0.9994, 0.9992, 0.9992, 0.9993);
+  --hv-pop: cubic-bezier(0.45, 1.45, 0.8, 1);
+}
+
+/* 동전은 기울기와 뒤집기가 평상 상태에 들어 있다. 회전을 움직여야 해서
+   CSS의 scale/rotate 속성 대신 transform 하나로 합쳐 둔다. */
+.hv-hero-coin-left {
+  transform: rotate(-169deg) scaleY(-1);
+}
+
+.hv-hero-coin-top {
+  transform: rotate(178.37deg) scaleY(-1);
+}
+
+.hv-hero-coin-right {
+  transform: rotate(-8deg);
+}
+
+.hv-journey-pencil {
+  transform: rotate(18deg);
+}
+
+.hv-journey-point {
+  transform: translate(74.028cqw, 0);
+}
+
+@keyframes hv-rise {
+  from {
+    opacity: 0;
+    translate: 0 var(--hv-rise, 1.25cqw);
+  }
+}
+
+@keyframes hv-pop-in {
+  from {
+    opacity: 0;
+    scale: var(--hv-pop-from, 0.96);
+  }
+}
+
+@keyframes hv-stage-in {
+  from {
+    opacity: 0.35;
+    translate: 0 5cqw;
+  }
+}
+
+@keyframes hv-slide-in {
+  from {
+    opacity: var(--hv-fade-from, 0.4);
+    translate: var(--hv-slide-from, 7.639cqw) 0;
+  }
+}
+
+@keyframes hv-underline {
+  from {
+    width: 0.833cqw;
+  }
+}
+
+@keyframes hv-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+
+@keyframes hv-dim-in {
+  from {
+    opacity: var(--hv-dim-from, 0.34);
+    translate: 0 0.972cqw;
+  }
+}
+
+@keyframes hv-float-left {
+  50% {
+    transform: rotate(-167deg) scaleY(-1) translateY(0.833cqw);
+  }
+}
+
+@keyframes hv-float-top {
+  50% {
+    transform: rotate(175.37deg) scaleY(-1) translateY(1.25cqw);
+  }
+}
+
+@keyframes hv-float-right {
+  50% {
+    transform: rotate(-6deg) translate(-1.389cqw, 0.972cqw);
+  }
+}
+
+@keyframes hv-travel {
+  0% { transform: translate(0, 0); opacity: 0; }
+  5% { opacity: 0; }
+  11.11% { transform: translate(0, 0); opacity: 1; }
+  13.5% { transform: translate(2.278cqw, -1.833cqw); }
+  18.22% { transform: translate(6.764cqw, -2.111cqw); }
+  22.5% { transform: translate(10.84cqw, -1.299cqw); }
+  26.53% { transform: translate(14.674cqw, 0.139cqw); }
+  30.48% { transform: translate(18.438cqw, 1.743cqw); }
+  34.53% { transform: translate(22.292cqw, 3.042cqw); }
+  38.86% { transform: translate(26.41cqw, 3.576cqw); }
+  43.63% { transform: translate(30.951cqw, 2.882cqw); }
+  49.1% { transform: translate(36.16cqw, 1.229cqw); }
+  54.29% { transform: translate(41.097cqw, -0.368cqw); }
+  59.35% { transform: translate(45.917cqw, -1.757cqw); }
+  64.48% { transform: translate(50.792cqw, -2.785cqw); }
+  69.82% { transform: translate(55.875cqw, -3.278cqw); }
+  75.55% { transform: translate(61.333cqw, -3.083cqw); }
+  81.85% { transform: translate(67.326cqw, -2.049cqw); }
+  /* 끝에서 사라지지 않는다 — 이 점이 곡선 끝의 세 번째 점을 대신한다. */
+  88.89% { transform: translate(74.028cqw, 0); opacity: 1; }
+  100% { transform: translate(74.028cqw, 0); opacity: 1; }
+}
+
+/* 곡선 위 점은 움직이는 점이 지나갈 때 생긴다. 기본값은 보이는 상태다 —
+   애니메이션이 없는 환경(움직임 최소화·JS 실패)에서는 그냥 처음부터 놓여 있다. */
+@keyframes hv-node-in {
+  from {
+    opacity: 0;
+    scale: 0.3;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+/* 알약은 rotate를 인라인으로 갖고 있다. translate만 움직여 기울기를 건드리지 않는다. */
+@keyframes hv-drift-in {
+  from {
+    opacity: 0;
+    translate: 0 1.4cqw;
+  }
+}
+
+/* 들어온 뒤에는 쉬지 않고 조금씩 흔들린다 — 이 섹션이 하는 말이 그것이다.
+   진입 동작과 같은 translate를 쓰므로 진입이 끝난 뒤에 시작하도록 지연을 준다. */
+@keyframes hv-sway {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -0.55cqw;
+  }
+}
+
+@keyframes hv-thread-in {
+  from {
+    opacity: 0;
+    scale: 0 1;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* ---------- 히어로 · 로드 직후 한 번 ---------- */
+
+  .hv-hero-stage {
+    animation: hv-stage-in 0.75s ease-out backwards;
+  }
+
+  .hv-hero-title {
+    --hv-rise: 1.25cqw;
+    animation: hv-rise 0.5s 0.08s ease-out backwards;
+  }
+
+  .hv-hero-lede {
+    --hv-rise: 0.833cqw;
+    animation: hv-rise 0.44s 0.28s ease-out backwards;
+  }
+
+  .hv-hero-cta {
+    --hv-rise: 0.972cqw;
+    --hv-pop-from: 0.96;
+    animation: hv-rise 0.4s 0.48s ease-out backwards, hv-pop-in 0.4s 0.48s var(--hv-spring) backwards;
+  }
+
+  .hv-hero-masters img {
+    --hv-rise: 1.944cqw;
+    --hv-pop-from: 0.975;
+    animation: hv-rise 0.46s ease-out backwards, hv-pop-in 0.46s var(--hv-spring) backwards;
+    animation-delay: inherit;
+  }
+
+  .hv-hero-coin-left {
+    animation: hv-float-left 3.6s ease-in-out infinite;
+  }
+
+  .hv-hero-coin-top {
+    animation: hv-float-top 3.6s ease-in-out infinite;
+  }
+
+  .hv-hero-coin-right {
+    animation: hv-float-right 3.6s ease-in-out infinite;
+  }
+
+  /* ---------- AI 시대 투자 원칙 · 화면에 들어올 때 ---------- */
+
+  .hv-principles[data-in] .hv-principles-field {
+    --hv-fade-from: 0.4;
+    --hv-slide-from: 7.639cqw;
+    animation: hv-slide-in 0.72s 0.05s ease-out backwards;
+  }
+
+  .hv-principles[data-in] .hv-principles-field-shadow {
+    --hv-fade-from: 0;
+    --hv-slide-from: 6.25cqw;
+    animation: hv-slide-in 0.68s ease-out backwards;
+  }
+
+  .hv-principles[data-in] .hv-principles-eyebrow {
+    --hv-rise: 1.111cqw;
+    animation: hv-rise 0.45s ease-out backwards;
+  }
+
+  .hv-principles[data-in] .hv-principles-underline {
+    animation: hv-underline 0.5s 0.15s ease-out backwards;
+  }
+
+  .hv-principles[data-in] .hv-principles-line {
+    --hv-rise: 0.972cqw;
+    animation: hv-rise 0.45s 0.12s ease-out backwards;
+  }
+
+  .hv-principles[data-in] .hv-principles-line-accent {
+    animation-delay: 0.22s;
+  }
+
+  .hv-principles[data-in] .hv-principles-line-last {
+    animation-delay: 0.3s;
+  }
+
+  .hv-principles[data-in] .hv-principles-intro {
+    --hv-rise: 0.972cqw;
+    animation: hv-rise 0.45s 0.42s ease-out backwards;
+  }
+
+  /* 이 섹션의 논지를 순서로 재생한다 — 답들이 흔들리며 들어오고, 실이 그어지고,
+     원칙이 하나씩 자리에 박힌다. 이 구간 말고는 움직임을 더하지 않는다. */
+  .hv-principles[data-in] .hv-principles-drift:nth-child(1) {
+    animation: hv-drift-in 0.5s 0.62s ease-out backwards, hv-sway 3.4s 1.12s ease-in-out infinite;
+  }
+
+  .hv-principles[data-in] .hv-principles-drift:nth-child(2) {
+    animation: hv-drift-in 0.5s 0.74s ease-out backwards, hv-sway 4.1s 1.5s ease-in-out infinite;
+  }
+
+  .hv-principles[data-in] .hv-principles-drift:nth-child(3) {
+    animation: hv-drift-in 0.5s 0.86s ease-out backwards, hv-sway 3.7s 1.32s ease-in-out infinite;
+  }
+
+  .hv-principles[data-in] .hv-principles-thread {
+    animation: hv-thread-in 0.45s 1s ease-out backwards;
+  }
+
+  .hv-principles[data-in] .hv-principles-anchor-title {
+    --hv-rise: 0.833cqw;
+    animation: hv-rise 0.42s 1.02s ease-out backwards;
+  }
+
+  .hv-principles[data-in] .hv-principles-anchor-item {
+    --hv-rise: 0.694cqw;
+    animation: hv-rise 0.42s ease-out backwards;
+  }
+
+  .hv-principles[data-in] .hv-principles-anchor-item:nth-child(1) { animation-delay: 1.2s; }
+  .hv-principles[data-in] .hv-principles-anchor-item:nth-child(2) { animation-delay: 1.42s; }
+  .hv-principles[data-in] .hv-principles-anchor-item:nth-child(3) { animation-delay: 1.64s; }
+
+  /* ---------- 학습 여정 · 화면에 들어올 때 ---------- */
+
+  .hv-journey[data-in] .hv-journey-title {
+    --hv-rise: 1.111cqw;
+    animation: hv-rise 0.5s ease-out backwards;
+  }
+
+  .hv-journey[data-in] .hv-journey-curve path {
+    stroke-dasharray: 1;
+    animation: hv-draw 2.9s 0.3s ease-in-out backwards;
+  }
+
+  .hv-journey[data-in] .hv-journey-pin {
+    --hv-rise: 1.389cqw;
+    --hv-pop-from: 0.9;
+    animation: hv-rise 0.65s 0.8s ease-out backwards, hv-pop-in 0.65s 0.8s ease-out backwards;
+  }
+
+  .hv-journey[data-in] .hv-journey-pencil {
+    animation: hv-pencil-in 0.75s ease-out backwards;
+  }
+
+  .hv-journey[data-in] .hv-journey-mobile {
+    --hv-pop-from: 0.9;
+    animation: hv-mobile-in 0.7s 1.5s ease-out backwards;
+  }
+
+  .hv-journey[data-in] .hv-journey-point {
+    animation: hv-travel 3.6s linear backwards;
+  }
+
+  /* 움직이는 점이 그 자리를 지나는 순간에 맞춰 켠다. hv-travel 3.6s 기준으로
+     첫째는 점이 나타나는 11.11%(0.4s), 둘째는 46.15% 지점을 지나는 45.2%(1.63s)다. */
+  .hv-journey[data-in] .hv-journey-node-1 {
+    animation: hv-node-in 0.28s 0.4s ease-out backwards;
+  }
+
+  .hv-journey[data-in] .hv-journey-node-2 {
+    animation: hv-node-in 0.28s 1.63s ease-out backwards;
+  }
+
+  .hv-journey[data-in] .hv-journey-step-head {
+    --hv-dim-from: 0.34;
+    animation: hv-dim-in 0.24s 0.28s ease-out backwards;
+  }
+
+  .hv-journey[data-in] .hv-journey-step-body {
+    --hv-dim-from: 0.25;
+    animation: hv-dim-in 0.32s 0.36s ease-out backwards;
+  }
+
+  .hv-journey[data-in] .hv-journey-step-2 .hv-journey-step-head {
+    animation-delay: 1.22s;
+  }
+
+  .hv-journey[data-in] .hv-journey-step-2 .hv-journey-step-body {
+    animation-delay: 1.3s;
+  }
+
+  .hv-journey[data-in] .hv-journey-step-3 .hv-journey-step-head {
+    animation-delay: 2.18s;
+  }
+
+  .hv-journey[data-in] .hv-journey-step-3 .hv-journey-step-body {
+    animation-delay: 2.26s;
+  }
+
+  /* ---------- 결과 스택 · 화면에 들어올 때 ---------- */
+
+  .hv-result[data-in] .hv-result-panel-back {
+    --hv-rise: 1.806cqw;
+    animation: hv-rise 3.2s ease-out backwards;
+  }
+
+  .hv-result[data-in] .hv-result-panel-mid {
+    --hv-rise: 1.944cqw;
+    animation: hv-rise 0.7s 2.5s ease-out backwards;
+  }
+
+  .hv-result[data-in] .hv-result-score {
+    --hv-pop-from: 0.6;
+    animation: hv-pop-in 0.55s 1.55s var(--hv-pop) backwards;
+  }
+
+  .hv-result[data-in] .hv-result-reasons li {
+    --hv-pop-from: 0.3;
+    animation: hv-pop-in 0.4s var(--hv-pop) backwards;
+    animation-delay: inherit;
+  }
+
+  .hv-result[data-in] .criteria-bar .tick {
+    transform-origin: left center;
+    animation: hv-tick-in 0.4s ease-out backwards;
+  }
+
+  .hv-result[data-in] .criteria-bar .tick:nth-child(1) { animation-delay: 0.5s; }
+  .hv-result[data-in] .criteria-bar .tick:nth-child(2) { animation-delay: 0.63s; }
+  .hv-result[data-in] .criteria-bar .tick:nth-child(3) { animation-delay: 0.76s; }
+  .hv-result[data-in] .criteria-bar .tick:nth-child(4) { animation-delay: 0.89s; }
+  .hv-result[data-in] .criteria-bar .tick:nth-child(5) { animation-delay: 1.02s; }
+  .hv-result[data-in] .criteria-bar .tick:nth-child(6) { animation-delay: 1.15s; }
+  .hv-result[data-in] .criteria-bar .tick:nth-child(7) { animation-delay: 1.28s; }
+  .hv-result[data-in] .criteria-bar .tick:nth-child(8) { animation-delay: 1.41s; }
+  .hv-result[data-in] .criteria-bar .tick:nth-child(n + 9) { animation-delay: 1.54s; }
+}
+
+@keyframes hv-pencil-in {
+  from {
+    transform: rotate(22deg) translateX(-1.667cqw);
+  }
+}
+
+@keyframes hv-mobile-in {
+  from {
+    transform: translateX(1.667cqw);
+    scale: 0.9;
+  }
+}
+
+@keyframes hv-tick-in {
+  from {
+    opacity: 0;
+    transform: scaleX(0.02);
+  }
+}
