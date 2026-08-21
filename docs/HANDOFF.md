@@ -1,5 +1,12 @@
 # 인계 노트
 
+## 2026-08-20 · Codex · 체크리스트 기반 페르소나 채팅 확장
+
+- 점수식이 없는 하워드 막스, 필립 피셔, 조지 소로스도 페르소나 채팅에서 선택할 수 있도록 체크리스트 평가 방식을 추가했습니다.
+- 체크리스트형 답변은 점수나 매수·매도 판단을 만들지 않고, 확인할 질문과 근거 자료의 위치를 제시합니다. 기존 점수형 대가의 응답 계약은 유지합니다.
+- 플로팅 채팅 UI를 긴 대화와 모바일 화면에 맞게 확장하고, 종목 문맥·대화 작성 영역·응답자 표시를 분명하게 정리했습니다.
+- 상세 설계는 `docs/superpowers/specs/2026-08-20-checklist-persona-chat-design.md`에 기록했습니다.
+
 ## 2026-08-20 · Codex · 자동 점수 배치 Environment 연결
 
 - `scores` GitHub Actions job에 `environment: env`를 지정해 `env` Environment에 개별 등록된 `TOSS_INVEST_CLIENT_ID`, `TOSS_INVEST_CLIENT_SECRET`, `WISOR_SEC_USER_AGENT` Secret을 읽도록 연결했습니다.

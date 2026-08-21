@@ -14,7 +14,8 @@ import os
 import re
 from dataclasses import dataclass
 
-from personas import build_system_prompt, PERSONAS
+from personas import (PERSONAS, SCORE_PERSONAS, build_system_prompt,
+                      is_checklist)
 import safety
 
 # 지표 필드 → 사람이 읽을 라벨 (해설 프롬프트 가독성용)
@@ -90,6 +91,33 @@ def format_metrics_block(metrics: dict, name: str | None = None) -> str:
     return render_metrics_block(pairs, name)
 
 
+# 확인질문 대가의 앵커에 함께 싣는 못박기. 같은 취지가 시스템 프롬프트에도 있지만,
+# 앵커는 대화 내내 첫 user 메시지로 남아 규칙보다 가까이 읽힌다.
+_NO_SCORE_NOTE = [
+    "이 관점은 재무 지표로 채점하지 않는다. 그래서 지표도 기준 판정도 주지 않는다.",
+    "이 블록에 적힌 것 외에 이 회사에 대해 말할 때는 어디서 나온 말인지 함께 밝힌다.",
+]
+
+
+def format_company_block(name: str | None = None, ticker: str | None = None,
+                         sector: str | None = None) -> str:
+    """<회사> 블록. 채점하지 않는 대가와의 대화에서 <지표> 블록을 대신한다.
+
+    숫자를 싣지 않는다. 이 관점은 지표로 판정하지 않는데 지표를 함께 실으면
+    모델이 그 숫자로 판정하려 들기 때문이다.
+    """
+    lines = []
+    if name or ticker:
+        label = f"{name} ({ticker})" if name and ticker else (name or ticker)
+        lines.append(f"종목명(표시용): {label}")
+    else:
+        lines.append("종목이 지정되지 않았다. 특정 회사를 가정하지 않는다.")
+    if sector:
+        lines.append(f"업종: {sector}")
+    lines.extend(_NO_SCORE_NOTE)
+    return "<회사>\n" + "\n".join(lines) + "\n</회사>"
+
+
 def format_criteria_block(judgement) -> str:
     """페르소나별 기준 판정 → <기준판정> 블록.
 
@@ -161,7 +189,7 @@ class MockAdapter:
             head = "다음은 제공된 지표에 대한 설명입니다."
             body = "\n".join(f"{l} — (mock 해설)" for l in metric_lines)
         else:
-            head = "제공된 지표 범위 안에서만 설명합니다."
+            head = "주어진 블록 범위 안에서만 설명합니다."
             body = f"- 질문 \"{last_user.strip()}\" — (mock 후속 답변)"
         return f"{head}\n{body}\n\n이 설명은 교육용이며 투자 조언이 아닙니다."
 
@@ -344,6 +372,10 @@ class ExplainResult:
 def explain(persona_key: str, metrics: dict, name: str | None = None,
             adapter=None) -> ExplainResult:
     """한 페르소나로 지표를 해설한다. block 위반 시 1회 재생성 후 실패면 차단."""
+    if is_checklist(persona_key):
+        raise ValueError(
+            f"{persona_key}는 지표로 채점하지 않는 대가라 지표 해설을 만들 수 없습니다. "
+            "chat.PersonaChat으로 확인 질문을 받으세요.")
     adapter = adapter or MockAdapter()
     system = build_system_prompt(persona_key)
     messages = [{"role": "user", "content": format_metrics_block(metrics, name)}]
@@ -353,8 +385,8 @@ def explain(persona_key: str, metrics: dict, name: str | None = None,
 
 
 def explain_all(metrics: dict, name: str | None = None, adapter=None):
-    """세 페르소나 전부로 해설."""
-    return {k: explain(k, metrics, name, adapter) for k in PERSONAS}
+    """점수를 내는 대가 전부로 해설. 채점하지 않는 대가는 지표 해설 자체가 없다."""
+    return {k: explain(k, metrics, name, adapter) for k in SCORE_PERSONAS}
 
 
 if __name__ == "__main__":

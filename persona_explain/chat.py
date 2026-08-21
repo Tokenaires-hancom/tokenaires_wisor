@@ -8,6 +8,13 @@ HTTP 프레임워크에 의존하지 않는다. cli.py와 server.py가 같은 �
     [assistant] 첫 해설
     [user]      후속 질문 …
 
+채점하지 않는 대가(personas의 kind="checklist")는 앵커가 다르다. 지표도 기준 판정도
+없으므로 <회사> 블록 하나만 싣고, 첫 응답은 해설이 아니라 확인 질문 목록이다.
+
+    [system]    확인질문 규칙 + 대가 프롬프트 + CHECKLIST_CHAT_RULES
+    [user]      <회사> 블록                    ← 앵커
+    [assistant] 확인 질문 목록
+
 지표를 넣는 길이 둘이다.
 
 - 손으로 넣기: PersonaChat("buffett", {"PER": 18, ...}, name="Adobe")
@@ -19,9 +26,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import safety
-from explain import (MockAdapter, format_criteria_block, format_metrics_block,
-                     generate)
-from personas import PERSONAS, build_system_prompt
+from explain import (MockAdapter, format_company_block, format_criteria_block,
+                     format_metrics_block, generate)
+from personas import PERSONAS, build_system_prompt, is_checklist
 
 
 @dataclass
@@ -57,8 +64,11 @@ class PersonaChat:
         self.company = company
         self.metrics = dict(metrics) if metrics is not None else None
         self.name = name if company is None else company.name
-        self._judgement = judgement
-        self._criteria_spec = tuple(criteria_spec or ())
+        # 채점하지 않는 대가는 판정을 쓰지 않는다. 넘어와도 들고 있지 않는다 —
+        # 남겨 두면 페르소나를 되돌릴 때 남의 관점의 판정이 되살아난다.
+        checklist = is_checklist(persona_key)
+        self._judgement = None if checklist else judgement
+        self._criteria_spec = () if checklist else tuple(criteria_spec or ())
         self._opening: str | None = None
         self._followups: list[dict] = []
         self._rebuild_anchor()
@@ -85,14 +95,22 @@ class PersonaChat:
         """지금까지의 대화. HTTP 계층이 그대로 직렬화해 쓸 수 있다."""
         return self._build_messages()
 
-    def metrics_block(self) -> str:
+    def metrics_block(self) -> str | None:
+        """<지표> 블록. 채점하지 않는 대가와의 대화에는 없다."""
         return self._metrics_block
+
+    def company_block(self) -> str | None:
+        """<회사> 블록. 채점하는 대가와의 대화에는 없다."""
+        return self._company_block
 
     def criteria_block(self) -> str | None:
         return self._criteria_block
 
     def anchor(self) -> str:
-        """대화 첫 user 메시지 전문. 지표와 기준 판정이 한 덩어리로 들어간다."""
+        """대화 첫 user 메시지 전문.
+
+        채점하는 대가는 지표와 기준 판정이, 채점하지 않는 대가는 <회사> 블록이 들어간다.
+        """
         return self._anchor
 
     # ---- 대화 --------------------------------------------------------------
@@ -138,7 +156,14 @@ class PersonaChat:
             raise ValueError(
                 f"unknown persona: {persona_key} (choose from {list(PERSONAS)})")
 
-        if judgement is None and self.company is not None:
+        if is_checklist(persona_key):
+            # 판정을 찾아오면 안 된다. scores.json에 이 관점의 스타일 자체가 없어
+            # data.judgement()가 UnknownStyle로 터진다. 앞 대가의 판정을 그대로
+            # 들고 가는 것도 안 된다 — 다른 관점의 채점 결과가 된다.
+            judgement, criteria_spec = None, ()
+            self._judgement = None
+            self._criteria_spec = ()
+        elif judgement is None and self.company is not None:
             import scores_source  # 손으로 넣는 경로에서는 필요 없어 여기서 임포트한다
 
             data = scores_source.get_data()
@@ -171,8 +196,9 @@ class PersonaChat:
         self.company = company
         self.metrics = None
         self.name = company.name
-        self._judgement = judgement
-        self._criteria_spec = tuple(criteria_spec or ())
+        checklist = is_checklist(self.persona_key)
+        self._judgement = None if checklist else judgement
+        self._criteria_spec = () if checklist else tuple(criteria_spec or ())
         self._rebuild_anchor()
         self.reset()
 
@@ -183,7 +209,22 @@ class PersonaChat:
     # ---- 내부 --------------------------------------------------------------
 
     def _rebuild_anchor(self) -> None:
-        """지표 블록과 기준판정 블록을 다시 만들어 앵커를 조립한다."""
+        """앵커를 다시 만든다.
+
+        채점하는 대가는 <지표> 블록(+ 있으면 <기준판정>)을 받는다. 채점하지 않는
+        대가는 <회사> 블록만 받는다. 판정에 쓰지도 않을 지표를 함께 실으면 모델이
+        그 숫자로 판정하려 들기 때문이다.
+        """
+        if is_checklist(self.persona_key):
+            self._metrics_block = None
+            self._criteria_block = None
+            self._company_block = format_company_block(
+                self.name, self.ticker,
+                self.company.sector if self.company is not None else None)
+            self._anchor = self._company_block
+            return
+
+        self._company_block = None
         if self.company is not None:
             self._metrics_block = self.company.metrics_block()
         else:
