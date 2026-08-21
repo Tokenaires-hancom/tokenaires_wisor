@@ -178,18 +178,18 @@ button {
   display: none;
 }
 
-.nav a {
+.nav a:not(.nav-account) {
   color: var(--ink-soft);
   padding-block: 0.35rem;
   border-bottom: 2px solid transparent;
   white-space: nowrap;
 }
 
-.nav a:hover {
+.nav a:not(.nav-account):hover {
   color: var(--ink);
 }
 
-.nav a[data-active="true"] {
+.nav a:not(.nav-account)[data-active="true"] {
   color: var(--wine);
   border-bottom-color: var(--wine);
 }
@@ -1681,10 +1681,10 @@ h3.sub {
 .style-comparison [data-master="greenblatt"] { --bar: var(--master-greenblatt); --bar-deep: var(--master-greenblatt-deep); }
 .style-comparison [data-master="soros"] { --bar: var(--master-soros); --bar-deep: var(--master-soros-deep); }
 
-/* wrap(1080px) 밖으로 넓힌다. 표가 이 화면의 본문이라 wrap 폭에 갇힐 이유가 없다.
+/* 공통 wrap과 같은 1080px을 상한으로 삼는다.
    100%는 wrap의 내용 폭이므로 음수 마진이 좌우로 같은 만큼 밀어낸다 */
 .style-comparison {
-  --breakout: min(1280px, calc(100vw - 2 * var(--gutter)));
+  --breakout: min(1080px, calc(100vw - 2 * var(--gutter)));
   width: var(--breakout);
   margin-inline: calc((100% - var(--breakout)) / 2);
 }
@@ -3254,12 +3254,8 @@ h3.sub {
 /* ---------- 대가 선택 그리드 ---------- */
 
 .learn-page {
-  max-width: 1440px;
+  max-width: 1080px;
   padding-block: 2.5rem 5rem;
-}
-
-body:has(.learn-page) .masthead-inner {
-  max-width: 1440px;
 }
 
 .learn-page-header {
