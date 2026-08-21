@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import AccountSettings from "@/components/AccountSettings";
 import { CHAPTER_SLOTS } from "@/content/curriculum/types";
 import { MASTERS, MASTER_BY_ID } from "@/content/masters";
 import { money } from "@/lib/format";
@@ -11,9 +12,11 @@ import {
   dueJournalEntries,
   getNotes,
   getProgress,
+  getStorageMode,
   getWatchlist,
   saveJournalEntry,
   type JournalEntry,
+  type LearningStorageMode,
   type Progress,
   type StudyNote,
 } from "@/lib/store";
@@ -41,22 +44,25 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
   const [notes, setNotes] = useState<StudyNote[]>([]);
   const [due, setDue] = useState<JournalEntry[]>([]);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [storageMode, setStorageMode] = useState<LearningStorageMode>("browser");
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     let alive = true;
     async function refresh() {
-      const [p, w, n, j] = await Promise.all([
+      const [p, w, n, j, mode] = await Promise.all([
         getProgress(),
         getWatchlist(),
         getNotes(),
         dueJournalEntries(),
+        getStorageMode(),
       ]);
       if (!alive) return;
       setProgress(p);
       setWatchlist(w);
       setNotes(n);
       setDue(j);
+      setStorageMode(mode);
       setReady(true);
     }
     void refresh();
@@ -480,9 +486,18 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
       )}
 
       <p className="disclaimer">
-        학습 기록은 지금 이 브라우저에만 저장됩니다. 다른 기기에서는 보이지 않으며, 브라우저
-        데이터를 지우면 함께 사라집니다.
+        {storageMode === "account"
+          ? "학습 기록은 현재 로그인한 계정에 저장됩니다. 같은 계정으로 로그인하면 다른 기기에서도 이어서 볼 수 있습니다."
+          : "학습 기록은 회원가입 전까지 이 브라우저에 임시 저장됩니다. 로그인하거나 가입하면 계정 기록과 합쳐져 이동합니다."}
       </p>
+
+      <hr className="rule" />
+
+      <section aria-labelledby="account-settings-title">
+        <p className="eyebrow">내 계정</p>
+        <h2 id="account-settings-title" className="section">계정 설정</h2>
+        <AccountSettings />
+      </section>
     </div>
   );
 }

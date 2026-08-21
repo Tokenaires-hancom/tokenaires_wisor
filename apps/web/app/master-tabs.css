@@ -1,0 +1,455 @@
+.master-achievements {
+  scroll-margin-top: 5rem;
+  margin: 2.75rem 0 2.5rem;
+}
+
+.achievement-records {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 라벨은 왼쪽 고정 폭, 본문은 오른쪽. 세 항목이 같은 줄에서 시작해
+ * 다른 탭의 목록과 같은 리듬으로 읽힌다. */
+.achievement-records li {
+  display: grid;
+  grid-template-columns: 3.4rem minmax(0, 1fr);
+  gap: 1.1rem;
+  padding: 1.15rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.achievement-records li:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.achievement-label {
+  align-self: start;
+  justify-self: start;
+  display: grid;
+  place-items: center;
+  width: 3.2rem;
+  min-width: 3.2rem;
+  aspect-ratio: 1;
+  padding: 0.35rem;
+  border: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 28%,
+    var(--surface) 0 16%,
+    var(--gold-soft) 46%,
+    color-mix(in srgb, var(--gold) 42%, var(--surface)) 100%
+  );
+  box-shadow: 0 0.28rem 0.7rem color-mix(in srgb, var(--gold-deep) 18%, transparent),
+    inset 0 0 0 2px var(--surface), inset 0 0 0 4px var(--gold-deep);
+  color: var(--gold-deep);
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
+  word-break: keep-all;
+}
+
+.achievement-records h4 {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  letter-spacing: -0.02em;
+  word-break: keep-all;
+}
+
+.achievement-records p {
+  margin: 0 0 0.5rem;
+  color: var(--file-muted, var(--ink-soft));
+  font-size: 0.86rem;
+  line-height: 1.7;
+  word-break: keep-all;
+}
+
+.achievement-records small {
+  display: block;
+  color: var(--file-muted, var(--ink-soft));
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 760px) {
+  .achievement-records li {
+    grid-template-columns: 3.2rem minmax(0, 1fr);
+    gap: 0.8rem;
+  }
+}
+
+/* 노란 서류철 한 장. 윗변에 인덱스가 꽂히고, 안에 흰 기록지가 든다.
+ * 그림자는 파일 몸통 하나에만 둔다. 층마다 그림자를 주면 한 물건이 아니라
+ * 겹쳐 둔 여러 장으로 읽힌다. */
+.master-file {
+  /* 경사 폭은 px로 고정한다. %로 두면 넓은 탭은 완만하고 좁은 탭은 급해져
+   * 각도가 제각각이 된다. */
+  --tab-slope: 15px;
+  --tab-sink: 1rem;
+  --file-tab: color-mix(in srgb, var(--gold) 55%, var(--surface));
+  /* 호버는 몸통 금색이 아니라 선택색인 버건디 쪽으로 옮긴다. 금색으로
+   * 가면 몸통과 같은 색이 되어 오히려 탭이 사라진다. */
+  --file-tab-hover: color-mix(in srgb, var(--wine) 18%, var(--file-tab));
+  --file-muted: color-mix(in srgb, var(--ink) 74%, var(--ink-soft));
+  position: relative;
+  min-width: 0;
+  isolation: isolate;
+}
+
+/* 파일 윗변. 몸통보다 먼저 그려져 밑동이 몸통에 덮인다. */
+.master-file-edge {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  min-width: 0;
+  /* 왼쪽은 몸통과 같은 선에서 시작한다. 안쪽으로 들이면 인덱스가 파일에
+   * 붙은 게 아니라 위에 얹힌 별개 줄로 읽힌다.
+   * 오른쪽 끝은 조금 비워 둔다. 끝까지 꽉 채우면 서류철 인덱스가 아니라
+   * 화면 상단 탭 바처럼 읽힌다. */
+  padding: 0 3.5rem 0 0;
+}
+
+.master-tablist {
+  display: flex;
+  align-items: flex-end;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+/* 왼쪽 모서리는 수직, 오른쪽만 경사진 한쪽 사다리꼴. 서로 겹쳐 꽂히도록
+ * 경사 폭만큼 당겨 붙인다. */
+.master-tab {
+  appearance: none;
+  position: relative;
+  /* 이름 길이에 비례해 늘어나며 윗변을 채운다. */
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-right: calc(var(--tab-slope) * -1);
+  padding: 0.62rem 1.5rem calc(var(--tab-sink) + 0.5rem) 0.95rem;
+  border: 0;
+  border-radius: 0.6rem 0 0 0;
+  /* 경사가 시작되는 어깨는 clip-path의 꼭짓점이라 칼같이 각진다.
+   * border-radius는 이미 잘려 나간 자리라 듣지 않는다. 꼭짓점 하나를 세
+   * 점으로 쪼개 6px짜리 곡선을 근사한다. */
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--tab-slope) - 6px) 0,
+    calc(100% - var(--tab-slope) - 1px) 1.5px,
+    calc(100% - var(--tab-slope) + 1.5px) 6px,
+    100% 100%,
+    0 100%
+  );
+  background: var(--file-tab);
+  color: var(--wine-deep);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  text-align: left;
+  cursor: pointer;
+  /* border는 경사면을 따라가지 못한다. drop-shadow는 clip-path 모양을
+   * 따르므로, 겹친 자리에 종이 두께가 생긴다. */
+  filter: drop-shadow(2px 0 2px color-mix(in srgb, var(--gold-deep) 45%, transparent));
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), background-color 180ms ease,
+    color 180ms ease;
+}
+
+/* 왼쪽 탭이 오른쪽 탭 위로 겹쳐야 경사 끝이 가려지지 않는다. 탭은 최대 6개다. */
+.master-tab:nth-child(1) {
+  z-index: 6;
+}
+.master-tab:nth-child(2) {
+  z-index: 5;
+}
+.master-tab:nth-child(3) {
+  z-index: 4;
+}
+.master-tab:nth-child(4) {
+  z-index: 3;
+}
+.master-tab:nth-child(5) {
+  z-index: 2;
+}
+.master-tab:nth-child(6) {
+  z-index: 1;
+}
+
+@media (hover: hover) {
+  .master-tab:hover {
+    background: var(--file-tab-hover);
+    transform: translateY(-0.22rem);
+  }
+}
+
+/* 고른 인덱스만 버건디로 바뀌며 더 뽑혀 올라온다. 색과 높이 두 가지로
+ * 표시해야 색만으로 상태를 전달하지 않는다.
+ * z-index는 올리지 않는다. 앞으로 끌어내면 왼쪽 탭의 경사면을 이 탭의
+ * 수직 왼쪽 모서리가 덮어서, 그 자리만 겹침이 사라지고 직사각형이 얹힌
+ * 것처럼 보인다. 뒤에 둔 채로 뽑혀 올라오는 편이 서류철에 가깝다. */
+.master-tab[aria-selected="true"] {
+  background: var(--wine);
+  color: var(--surface);
+  transform: translateY(-0.5rem);
+}
+
+@media (hover: hover) {
+  .master-tab[aria-selected="true"]:hover {
+    background: var(--wine);
+    transform: translateY(-0.5rem);
+  }
+}
+
+/* 파일 몸통. 위로 올라가 인덱스의 밑동을 덮는다. */
+.master-tabs {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin-top: calc(var(--tab-sink) * -1);
+  padding: 0.62rem 0.62rem 1.55rem;
+  background: var(--gold);
+  /* 위쪽 두 모서리는 인덱스가 붙는 변이라 탭 모서리와 같은 반경으로 맞춘다.
+   * 몸통만 크게 굴리면 첫 탭의 밑동이 그 곡선 밖으로 튀어나와 층이 진다. */
+  border-radius: 0.6rem 0.6rem 1.4rem 1.4rem;
+  box-shadow: 0 4px 0 var(--gold-deep), 0 0.9rem 2.2rem color-mix(in srgb, var(--ink) 10%, transparent);
+}
+
+/* 파일에 든 기록지가 한 장이 아니라는 표시. 흰 면 아래로 두 장의 끝이
+ * 조금씩 어긋나 비친다. 깊은 장일수록 좁고 어둡다. */
+.master-tabs::before,
+.master-tabs::after {
+  content: "";
+  position: absolute;
+  height: 1.2rem;
+  border-radius: 0 0 0.85rem 0.85rem;
+}
+
+.master-tabs::before {
+  right: 2.3rem;
+  bottom: 0.42rem;
+  left: 2.3rem;
+  background: color-mix(in srgb, var(--surface) 68%, var(--gold));
+}
+
+.master-tabs::after {
+  right: 1.45rem;
+  bottom: 0.78rem;
+  left: 1.45rem;
+  background: color-mix(in srgb, var(--surface) 85%, var(--gold));
+}
+
+/* 파일에 든 흰 기록지. 겹친 종이 끝보다 앞에 서야 한다. ::after는 DOM
+ * 순서상 이 뒤라서, z-index를 주지 않으면 기록지를 덮는다. */
+.master-folder {
+  position: relative;
+  z-index: 1;
+  border-radius: 1rem;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+/* 폴더에 든 장. 탭이 바뀌면 아래에서 새로 올라온다. */
+.master-tabpanel {
+  padding: 1.35rem clamp(1.15rem, 3vw, 2rem) 1.5rem;
+  animation: master-sheet-in 240ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.master-tab-name-short {
+  display: none;
+}
+
+.master-tabpanel-header {
+  max-width: 46rem;
+  margin-bottom: 1.05rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.master-tabpanel-header h3 {
+  margin: 0 0 0.2rem;
+  color: var(--ink);
+  font-size: 1rem;
+  line-height: 1.35;
+  letter-spacing: -0.025em;
+}
+
+.master-tabpanel-header p {
+  margin: 0;
+  color: var(--file-muted);
+  font-size: 0.8rem;
+  line-height: 1.55;
+  word-break: keep-all;
+}
+
+.master-tabpanel-content {
+  max-width: 46rem;
+}
+
+.master-tabpanel .reason-list {
+  margin: 0;
+}
+
+.master-tabpanel-content .master-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.85rem;
+}
+
+.master-tabpanel-content .master-list li {
+  padding: 0.15rem 0;
+  color: var(--file-muted);
+}
+
+.master-tabpanel-content .master-list strong {
+  color: var(--ink);
+}
+
+.master-tabpanel-content .master-note {
+  margin: 0;
+  color: var(--file-muted);
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+.master-tabpanel-content .master-list + .master-note,
+.master-tabpanel-content .master-note + .master-list {
+  margin-top: 0.65rem;
+}
+
+.master-file-footer {
+  margin: 0 clamp(1.15rem, 3vw, 2rem);
+  padding: 0.9rem 0 1.15rem;
+  border-top: 1px solid var(--line);
+  color: var(--file-muted);
+  font-size: 0.78rem;
+  line-height: 1.65;
+  word-break: keep-all;
+}
+
+.master-file-footer p {
+  max-width: 46rem;
+  margin: 0;
+}
+
+/* 폴더에서 새 종이를 꺼내 올리는 움직임. 어느 쪽 인덱스를 골랐는지에 따라
+ * 들어오는 방향이 갈린다. hidden이 풀릴 때 display가 바뀌므로 애니메이션은
+ * 탭을 바꿀 때마다 다시 돈다. */
+@keyframes master-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes master-sheet-next {
+  from {
+    opacity: 0;
+    transform: translate(20px, 6px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes master-sheet-prev {
+  from {
+    opacity: 0;
+    transform: translate(-20px, 6px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+
+.master-file[data-dir="next"] .master-tabpanel {
+  animation-name: master-sheet-next;
+}
+
+.master-file[data-dir="prev"] .master-tabpanel {
+  animation-name: master-sheet-prev;
+}
+
+@media (max-width: 760px) {
+  .master-achievements {
+    scroll-margin-top: 7rem;
+  }
+
+  .master-file {
+    --tab-slope: 11px;
+    --tab-sink: 0.8rem;
+  }
+
+  .master-file-edge {
+    padding: 0 1.2rem 0 0.7rem;
+  }
+
+  .master-tabs {
+    padding: 0.4rem;
+    border-radius: 1.1rem;
+  }
+
+  /* 짧은 이름으로 바꿔야 여섯 탭이 한 줄에 들어간다. 그래도 넘치는
+   * 좁은 화면에서는 스크롤하되, 두꺼운 스크롤바는 띄우지 않는다.
+   * overflow-x는 세로도 함께 자르므로, 뽑혀 올라온 탭의 머리가 깎이지
+   * 않게 그만큼 위를 비워 둔다. */
+  .master-tablist {
+    padding-top: 0.6rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .master-tablist::-webkit-scrollbar {
+    display: none;
+  }
+
+  .master-tab-name-full {
+    display: none;
+  }
+
+  .master-tab-name-short {
+    display: inline;
+  }
+
+  /* 손가락 기준 높이 44px는 지키되, 짧은 이름 두세 글자만 담는다. */
+  .master-tab {
+    flex: none;
+    min-height: 44px;
+    padding: 0.45rem 1.15rem calc(var(--tab-sink) + 0.4rem) 0.7rem;
+    font-size: 0.85rem;
+  }
+
+  .master-folder {
+    border-radius: 0.85rem;
+  }
+
+  .master-tabpanel {
+    padding: 1.1rem 1rem 1.2rem;
+  }
+
+  .master-file-footer {
+    margin-inline: 1rem;
+    padding-bottom: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .master-tab,
+  .master-tabpanel {
+    animation: none;
+    transition: none;
+  }
+}

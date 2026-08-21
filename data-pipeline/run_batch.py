@@ -201,7 +201,10 @@ def build(provider, universe_meta: dict | None = None, price_at: str | None = No
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--provider", choices=("sample", "sec-toss"), default="sample")
+    # 기본값을 두지 않는다. 예전엔 sample이 기본이라, 옵션 없이 python run_batch.py를
+    # 치면 실데이터 380종목이 예시 12종목으로 덮였다. 루트 CLAUDE.md가 그 명령을
+    # "커밋 전 반드시"로 안내하고 있어서, 규칙을 지키려는 사람이 정확히 그 함정에 들어갔다.
+    parser.add_argument("--provider", choices=("sample", "sec-toss"), required=True)
     parser.add_argument(
         "--mode",
         choices=("full", "prices"),
@@ -213,7 +216,7 @@ def main() -> None:
         default=str(ROOT / "data" / "fundamentals.json"),
         help="full 실행이 남기고 prices 실행이 읽는 재무 캐시. 저장소에 커밋한다",
     )
-    parser.add_argument("--universe", default=str(ROOT / "data" / "universe_sample.json"))
+    parser.add_argument("--universe", required=True)
     parser.add_argument("--out", default=str(DEFAULT_OUT))
     parser.add_argument(
         "--checkpoint",
@@ -231,6 +234,11 @@ def main() -> None:
     }
     price_at = None
     if args.provider == "sample":
+        if Path(args.out) == DEFAULT_OUT:
+            parser.error(
+                "예시 데이터를 화면이 읽는 scores.json에 쓸 수 없습니다. "
+                "--out으로 다른 경로를 주세요. 화면에 나가는 파일은 실데이터 배치만 씁니다."
+            )
         if args.mode == "prices":
             parser.error("예시 데이터에는 갱신할 체결가가 없습니다. --provider sec-toss와 함께 쓰세요.")
         provider = SampleProvider(universe_path)

@@ -378,21 +378,21 @@ flowchart TB
     DIFF -->|"예"| CM["scores.json 커밋"] --> RB["재빌드"]
     DIFF -->|"아니오"| SKIP["커밋 안 함"]
 
-    P1["pr-review.yml · 병합 가능 · 두 영역 테스트 · 경계 검사"]
-    P2["claude-rules-review.yml · 원칙·문구·경계 (판단)"]
-    P3["claude-quality-review.yml · 일반 코드 품질"]
-    P4["claude.yml · @claude 멘션 응답"]
+    P1["check.yml · 두 영역 테스트 · 빌드 · 타입 · 유출 검사 (사실)"]
+    P2["clean-check · push 전 로컬 · 클린 코드 5원칙 (판단)"]
 ```
 
-세 리뷰 레이어 전부 **병합을 막지 않습니다.** 브랜치 보호에 연결하지 않았고,
-사람이 코멘트를 보고 고칠지 정합니다. `docs/**`만 바뀐 PR은 `paths-ignore`로 건너뜁니다.
+**`check.yml`은 병합을 막습니다.** 브랜치 보호의 필수 상태 검사(`check`)로 등록돼
+있고, 기계가 판정하는 사실만 봅니다. `docs/**`만 바뀐 PR은 `paths-ignore`로 건너뜁니다.
 
-커밋 전 필수는 두 가지이고, **어느 영역을 고쳤든 전부 돌립니다.**
+**판단은 push 전 로컬에서 합니다.** `.claude/hooks/pre-push-check.sh`가 `git push`를
+한 번 막고 `clean-check`가 5원칙을 항목별로 판정합니다. **판정 결과는 아무것도 막지
+않습니다** — 사람이 보고 고칠지 정합니다. LLM 판단은 틀릴 수 있고 이 팀은 반박할
+수단이 없어서, 사실과 판단을 같은 곳에서 섞지 않습니다.
 
-```bash
-cd data-pipeline && python run_batch.py && pytest -q
-cd apps/web && npm run build
-```
+커밋 전 필수는 세 가지이고, **어느 영역을 고쳤든 전부 돌립니다.** 명령은 루트
+`CLAUDE.md`의 "명령" 절에 있습니다 — 여기 옮겨 적으면 한쪽만 고쳐집니다. `check.yml`이
+PR에서 같은 셋을 다시 돌립니다.
 
 ---
 
@@ -420,13 +420,10 @@ cd apps/web && npm run build
 서비스 이름·플랜은 URL에서 추론한 값이라 **Blueprint 동기화 전에 대조가 필요하고**,
 **main 병합 전에 Netlify 사이트의 자동 배포를 끊어야 합니다** ([배포 문서](./deploy.md)).
 
-아래 네 건은 **기록만 하고 고치지 않았습니다.**
+아래 한 건은 **기록만 하고 고치지 않았습니다.**
 
 | 항목 | 실제 | 저장소가 말하는 것 |
 |---|---|---|
-| `scores.yml` 유니버스 | 실데이터는 `--universe data/universe_us.json` 필요 | 워크플로 65행이 이 옵션 없이 부름 → 예시 12종목으로 돌게 됨. 이 워크플로가 만든 커밋이 아직 없어 드러나지 않음 |
-| 루트 `CLAUDE.md` "예시 데이터" | `dataSource`는 `sec-toss` | 손으로 만든 예시 데이터라고 기술 |
-| 루트 `CLAUDE.md` 커밋 전 명령 | `python run_batch.py`는 기본값이 `--provider sample` · `--universe universe_sample.json`이고 출력이 `scores.json` | **그대로 따르면 380종목 실데이터가 예시 12종목으로 덮입니다.** `scores.yml` 유니버스 문제와 같은 뿌리인데, 이쪽은 모든 기여자가 매번 돌리라고 안내된 명령이라 더 위험합니다 |
 | 점수 JSON ↔ 챗봇 지표 변환표 | `scores.json`에는 `magicFormulaRoc`가 있음 | `persona_explain/scores_source.py`의 변환표에 키가 없어 계약 테스트 1건 실패. 웹·배치에는 영향 없지만 해당 지표를 챗봇 앵커에 싣지 못함 |
 
 미결 작업.

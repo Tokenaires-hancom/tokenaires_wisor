@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import AuthNav from "./AuthNav";
 
 const ITEMS = [
   { href: "/learn", label: "배우기" },
   { href: "/screener/buffett", label: "종목 찾기", match: "/screener" },
-  { href: "/me", label: "내 학습" },
+  { href: "/me", label: "마이페이지" },
 ];
 
 export default function Nav() {
@@ -28,6 +29,7 @@ export default function Nav() {
               </Link>
             );
           })}
+          <AuthNav />
         </nav>
       </div>
     </header>

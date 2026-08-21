@@ -1,5 +1,10 @@
 # 인계 노트
 
+## 2026-08-20 · Codex · 자동 점수 배치 Environment 연결
+
+- `scores` GitHub Actions job에 `environment: env`를 지정해 `env` Environment에 개별 등록된 `TOSS_INVEST_CLIENT_ID`, `TOSS_INVEST_CLIENT_SECRET`, `WISOR_SEC_USER_AGENT` Secret을 읽도록 연결했습니다.
+- 예약 주기와 배치 명령은 바꾸지 않았습니다. `develop` 머지 후 `prices` 수동 실행으로 자격증명과 실제 갱신을 확인합니다.
+
 ## 2026-08-19 · Codex · 기획서·시스템 설계도·유저 시나리오 교차 검증
 
 - 프로젝트 전반의 현재 코드, `scores.json`, 배포 설정, 저장소 경계, 화면 링크를 기준으로 `docs/service-plan-wisor-2026-08-18.md`, `docs/system-design.md`, `docs/user-scenarios.md`를 교차 확인했습니다. 세 문서는 현재 구현과 미래 계획을 분리하며, 매수·매도 판단을 기능으로 서술하지 않습니다.
@@ -564,3 +569,11 @@
 - 사람을 고르는 탭·버튼은 `그린블랫`, 모델 버전을 밝히는 설명·기준일은 `그린블랫 1.0`으로 구분했습니다.
 - 배치와 생성 데이터의 `Greenblatt 1.0` 값은 호환성을 위한 내부 값으로 유지하고, 공통 표시 함수에서 한글로 변환합니다.
 - README, 학습 각주와 업적 출처의 사용자용 영문 이름도 한글 표기로 통일했습니다.
+
+## 2026-08-20 · Codex · 로그인과 계정 학습 저장 연결
+
+- Supabase Auth를 쿠키 기반 PKCE로 연결하고 `/login`, `/auth/callback`, `/reset-password`를 추가했습니다. Google OAuth와 이메일 가입·로그인·비밀번호 재설정을 지원합니다.
+- 비회원의 관심종목·학습노트·진도·퀴즈·기록형 답은 브라우저에 임시 저장하고, 로그인하면 `import_learning_state` RPC로 계정 데이터와 병합합니다. 서버 반영 성공 뒤에만 로컬 원본을 지웁니다.
+- 회원 데이터는 RLS가 적용된 `watchlist`, `study_notes`, `lesson_progress`, `quiz_results`, `journal_entries`에 저장합니다. 증분 SQL은 `supabase/migrations/20260820_account_learning_storage.sql`입니다.
+- 마이페이지에서 저장 위치와 계정 설정을 확인하고 비밀번호 재설정·로그아웃·계정 삭제를 실행할 수 있습니다. 계정 삭제 API는 `SUPABASE_SECRET_KEY`가 필요합니다.
+- 배포 전 Supabase 프로젝트에 마이그레이션을 적용하고 `docs/auth-setup.md`의 OAuth·환경변수를 설정해야 합니다.
