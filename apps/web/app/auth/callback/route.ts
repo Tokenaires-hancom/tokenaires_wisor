@@ -1,5 +1,4 @@
-import { NextResponse } from "next/server";
-import { safeNextPath } from "@/lib/auth";
+import { relativeRedirect, safeNextPath } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
@@ -10,10 +9,8 @@ export async function GET(request: Request) {
 
   if (code && supabase) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) return NextResponse.redirect(new URL(next, url.origin));
+    if (!error) return relativeRedirect(next);
   }
 
-  const loginUrl = new URL("/login", url.origin);
-  loginUrl.searchParams.set("error", "callback");
-  return NextResponse.redirect(loginUrl);
+  return relativeRedirect("/login?error=callback");
 }

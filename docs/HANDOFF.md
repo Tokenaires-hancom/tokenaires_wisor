@@ -577,3 +577,8 @@
 - 회원 데이터는 RLS가 적용된 `watchlist`, `study_notes`, `lesson_progress`, `quiz_results`, `journal_entries`에 저장합니다. 증분 SQL은 `supabase/migrations/20260820_account_learning_storage.sql`입니다.
 - 마이페이지에서 저장 위치와 계정 설정을 확인하고 비밀번호 재설정·로그아웃·계정 삭제를 실행할 수 있습니다. 계정 삭제 API는 `SUPABASE_SECRET_KEY`가 필요합니다.
 - 배포 전 Supabase 프로젝트에 마이그레이션을 적용하고 `docs/auth-setup.md`의 OAuth·환경변수를 설정해야 합니다.
+
+## 2026-08-21 · Codex · OAuth 콜백의 운영 주소 유지
+
+- Render 내부 프록시 주소가 `request.url`에 `localhost:3000`으로 반영되므로, 인증 콜백의 성공·실패 응답은 절대 URL 대신 상대 `Location`을 반환합니다.
+- 상대 리다이렉트 응답 테스트를 추가했습니다. `python -m pytest -q` 132개와 `npm test` 101개가 통과했고 `npm run build`도 성공했습니다.

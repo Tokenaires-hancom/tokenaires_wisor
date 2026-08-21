@@ -1,6 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { authErrorMessage, safeNextPath } from "./auth.ts";
+import { authErrorMessage, relativeRedirect, safeNextPath } from "./auth.ts";
+
+test("relativeRedirect는 현재 origin을 유지하는 상대 경로를 반환한다", () => {
+  const response = relativeRedirect("/login?error=callback");
+
+  assert.equal(response.status, 307);
+  assert.equal(response.headers.get("location"), "/login?error=callback");
+});
 
 test("safeNextPath는 앱 내부 경로만 허용한다", () => {
   assert.equal(safeNextPath("/learn/masters/buffett"), "/learn/masters/buffett");
