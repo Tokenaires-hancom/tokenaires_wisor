@@ -214,6 +214,308 @@ button {
   }
 }
 
+/* ---------- 마이페이지: 개인 학습 장부 ---------- */
+
+.my-page-shell {
+  display: grid;
+  grid-template-columns: 13.5rem minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 4.5rem);
+  padding-block: 3.5rem 5rem;
+}
+
+.my-page-sidebar {
+  align-self: start;
+  position: sticky;
+  top: calc(60px + 2rem);
+}
+
+.my-page-sidebar h1 {
+  margin: 0.25rem 0 1.8rem;
+  color: var(--ink);
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  line-height: 1.08;
+}
+
+.my-page-menu {
+  border-top: 1px solid var(--line-strong);
+}
+
+.my-page-menu a {
+  display: grid;
+  grid-template-columns: 1.6rem minmax(0, 1fr);
+  gap: 0.7rem;
+  padding: 1rem 0.8rem 1rem 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-soft);
+}
+
+.my-page-menu a[data-active="true"] {
+  border-left: 4px solid var(--gold);
+  padding-left: 0.75rem;
+  background: linear-gradient(90deg, var(--gold-soft), transparent 86%);
+  color: var(--ink);
+}
+
+.my-page-menu a:hover,
+.my-page-menu a:focus-visible {
+  background-color: var(--surface-sunk);
+  color: var(--ink);
+}
+
+.my-page-menu-index {
+  padding-top: 0.16rem;
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+}
+
+.my-page-menu strong,
+.my-page-menu small {
+  display: block;
+}
+
+.my-page-menu strong {
+  font-size: 0.95rem;
+}
+
+.my-page-menu small {
+  margin-top: 0.28rem;
+  color: var(--ink-faint);
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.my-page-content {
+  min-width: 0;
+}
+
+.my-page-anchor-marker,
+.my-page-anchor-section {
+  scroll-margin-top: 5.5rem;
+}
+
+.my-page-anchor-marker {
+  display: block;
+  height: 0;
+}
+
+.account-empty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.25rem;
+  border: 1px dashed var(--line-strong);
+  background: var(--surface-sunk);
+}
+
+.account-empty strong {
+  color: var(--ink);
+}
+
+.account-empty p {
+  margin: 0.35rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.86rem;
+}
+
+.account-settings-card {
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--gold);
+  background: var(--surface);
+}
+
+.account-settings-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.account-settings-facts > div {
+  min-width: 0;
+  padding: 0.2rem 1.25rem 1rem 0;
+}
+
+.account-settings-facts > div + div {
+  padding-left: 1.25rem;
+  border-left: 1px solid var(--line);
+}
+
+.account-settings-facts dt {
+  color: var(--ink-faint);
+  font-size: 0.72rem;
+}
+
+.account-settings-facts dd {
+  overflow-wrap: anywhere;
+  margin: 0.3rem 0 0;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.account-settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.account-storage-note {
+  margin: 1rem 0 0;
+  color: var(--ink-faint);
+  font-size: 0.76rem;
+  line-height: 1.6;
+}
+
+.account-danger-zone {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px dashed var(--line-strong);
+}
+
+.account-danger-zone > div:first-child {
+  max-width: 34rem;
+}
+
+.account-danger-zone > div:first-child > strong {
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+
+.account-danger-zone p {
+  margin: 0.35rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.account-delete-trigger,
+.account-delete-submit,
+.account-delete-cancel {
+  flex: none;
+  min-height: 2.35rem;
+  padding: 0.55rem 0.8rem;
+  border-radius: 7px;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.account-delete-trigger {
+  border: 1px solid var(--wine-line);
+  background: var(--surface);
+  color: var(--wine-deep);
+}
+
+.account-delete-confirmation {
+  width: min(100%, 21rem);
+  padding: 0.9rem;
+  border: 1px solid var(--wine-line);
+  background: var(--wine-soft);
+}
+
+.account-delete-confirmation label {
+  display: block;
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.account-delete-confirmation input {
+  width: 100%;
+  min-height: 2.45rem;
+  margin-top: 0.55rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+
+.account-delete-confirmation input:focus {
+  border-color: var(--gold-deep);
+  outline: 2px solid var(--gold-soft);
+}
+
+.account-delete-confirmation > div {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+}
+
+.account-delete-submit {
+  border: 1px solid var(--wine-deep);
+  background: var(--wine-deep);
+  color: var(--surface);
+}
+
+.account-delete-cancel {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-soft);
+}
+
+.account-delete-trigger:disabled,
+.account-delete-submit:disabled,
+.account-delete-cancel:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+@media (max-width: 760px) {
+  .my-page-shell {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+    padding-block: 2rem 4rem;
+  }
+
+  .my-page-sidebar {
+    position: static;
+  }
+
+  .my-page-sidebar h1 {
+    margin-bottom: 1.1rem;
+  }
+
+  .my-page-menu a {
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+    max-width: 28rem;
+  }
+
+  .account-empty {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .account-danger-zone {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 520px) {
+  .account-settings-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .account-settings-facts > div {
+    padding: 0.35rem 0 0.85rem;
+  }
+
+  .account-settings-facts > div + div {
+    padding: 0.85rem 0 0.35rem;
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+}
+
 .foot {
   margin-top: auto;
   border-top: 1px solid var(--line);
@@ -4849,20 +5151,26 @@ a.watch-company-card:hover {
   }
 }
 
-/* ---------- 계정과 학습 기록 저장 ---------- */
+/* ---------- 계정: 학습 기록 장부 ---------- */
 
 .nav-account {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.38rem 0.72rem;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--surface);
   color: var(--ink-soft);
+  font: inherit;
   font-size: 0.82rem;
   font-weight: 700;
   line-height: 1.2;
+}
+
+.nav a.nav-account,
+.nav .nav-account-user {
+  padding: 0.38rem 0.72rem;
+  border-bottom: 1px solid var(--line);
 }
 
 .nav a.nav-account:hover,
@@ -4890,7 +5198,9 @@ a.watch-company-card:hover {
   display: grid;
   align-items: center;
   padding-block: clamp(2rem, 7vw, 5.5rem);
-  background: var(--surface-sunk);
+  background:
+    linear-gradient(90deg, transparent 49.92%, var(--line) 50%, transparent 50.08%),
+    var(--surface-sunk);
 }
 
 .auth-layout {
@@ -4938,6 +5248,7 @@ a.watch-company-card:hover {
   margin: 1.35rem 0 1.75rem;
   color: var(--ink-soft);
   font-size: 0.92rem;
+  line-height: 1.75;
 }
 
 .auth-ledger dl {
@@ -4954,6 +5265,7 @@ a.watch-company-card:hover {
 }
 
 .auth-ledger dt {
+  color: var(--ink);
   font-size: 0.82rem;
   font-weight: 800;
 }
@@ -4964,7 +5276,7 @@ a.watch-company-card:hover {
   font-size: 0.8rem;
 }
 
-.auth-ledger-note {
+.auth-ledger .auth-ledger-note {
   margin: 1rem 0 0;
   color: var(--ink-faint);
   font-size: 0.72rem;
@@ -4991,6 +5303,7 @@ a.watch-company-card:hover {
   border-bottom: 3px solid transparent;
   background: transparent;
   color: var(--ink-soft);
+  font-size: 0.84rem;
   font-weight: 800;
 }
 
@@ -5010,8 +5323,10 @@ a.watch-company-card:hover {
 
 .auth-panel h1 {
   margin: 0;
+  color: var(--ink);
   font-size: clamp(1.55rem, 3vw, 2.15rem);
   font-weight: 800;
+  letter-spacing: -0.045em;
   line-height: 1.25;
 }
 
@@ -5049,6 +5364,8 @@ a.watch-company-card:hover {
   border: 1px solid var(--line);
   border-radius: 50%;
   background: var(--surface);
+  color: var(--ink);
+  font-family: Arial, sans-serif;
   font-size: 0.78rem;
 }
 
@@ -5082,8 +5399,7 @@ a.watch-company-card:hover {
 }
 
 .auth-form input,
-.auth-reset input,
-.account-delete-confirmation input {
+.auth-reset input {
   width: 100%;
   min-height: 2.9rem;
   padding: 0.68rem 0.8rem;
@@ -5095,8 +5411,7 @@ a.watch-company-card:hover {
 }
 
 .auth-form input:focus,
-.auth-reset input:focus,
-.account-delete-confirmation input:focus {
+.auth-reset input:focus {
   border-color: var(--gold-deep);
   outline: 2px solid var(--gold-soft);
 }
@@ -5116,6 +5431,7 @@ a.watch-company-card:hover {
   color: var(--ink-soft);
   font-size: 0.72rem;
   text-decoration: underline;
+  text-underline-offset: 0.2em;
 }
 
 .auth-message {
@@ -5126,6 +5442,7 @@ a.watch-company-card:hover {
   background: var(--ochre-soft);
   color: var(--ochre);
   font-size: 0.78rem;
+  line-height: 1.5;
 }
 
 .auth-message[data-kind="success"] {
@@ -5149,131 +5466,21 @@ a.watch-company-card:hover {
   max-width: 34rem;
 }
 
-.auth-reset,
-.auth-reset input {
+.auth-reset {
   display: block;
 }
 
 .auth-reset input {
+  display: block;
   margin-top: 0.35rem;
 }
 
-.account-empty,
-.account-settings-card {
-  padding: 1.25rem;
-  border: 1px solid var(--line);
-  background: var(--surface);
-}
-
-.account-empty {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-  border-style: dashed;
-  background: var(--surface-sunk);
-}
-
-.account-empty p,
-.account-storage-note,
-.account-danger-zone p {
-  margin: 0.35rem 0 0;
-  color: var(--ink-soft);
-  font-size: 0.8rem;
-}
-
-.account-settings-card {
-  border-top: 4px solid var(--gold);
-}
-
-.account-settings-facts {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin: 0;
-}
-
-.account-settings-facts > div {
-  min-width: 0;
-  padding: 0.2rem 1.25rem 1rem 0;
-}
-
-.account-settings-facts > div + div {
-  padding-left: 1.25rem;
-  border-left: 1px solid var(--line);
-}
-
-.account-settings-facts dt {
-  color: var(--ink-faint);
-  font-size: 0.72rem;
-}
-
-.account-settings-facts dd {
-  overflow-wrap: anywhere;
-  margin: 0.3rem 0 0;
-  font-weight: 700;
-}
-
-.account-settings-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.7rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--line);
-}
-
-.account-danger-zone {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1.5rem;
-  margin-top: 1.25rem;
-  padding-top: 1.25rem;
-  border-top: 1px dashed var(--line-strong);
-}
-
-.account-delete-confirmation {
-  width: min(100%, 21rem);
-  padding: 0.9rem;
-  border: 1px solid var(--wine-line);
-  background: var(--wine-soft);
-}
-
-.account-delete-confirmation > div {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.65rem;
-}
-
-.account-delete-trigger,
-.account-delete-submit,
-.account-delete-cancel {
-  min-height: 2.35rem;
-  padding: 0.55rem 0.8rem;
-  border-radius: 7px;
-  font: inherit;
-  font-size: 0.78rem;
-  font-weight: 800;
-}
-
-.account-delete-trigger {
-  border: 1px solid var(--wine-line);
-  background: var(--surface);
-  color: var(--wine-deep);
-}
-
-.account-delete-submit {
-  border: 1px solid var(--wine-deep);
-  background: var(--wine-deep);
-  color: var(--surface);
-}
-
-.account-delete-cancel {
-  border: 1px solid var(--line);
-  background: var(--surface);
-  color: var(--ink-soft);
-}
-
 @media (max-width: 760px) {
+  .auth-page {
+    align-items: start;
+    background: var(--surface-sunk);
+  }
+
   .auth-layout {
     grid-template-columns: 1fr;
     gap: 1.5rem;
@@ -5283,10 +5490,16 @@ a.watch-company-card:hover {
     padding: 1.4rem 1.25rem 1.25rem 2.5rem;
   }
 
-  .account-empty,
-  .account-danger-zone {
-    align-items: flex-start;
-    flex-direction: column;
+  .auth-ledger h2 {
+    font-size: 2rem;
+  }
+
+  .auth-ledger h2 br {
+    display: none;
+  }
+
+  .auth-ledger > p:not(.eyebrow):not(.auth-ledger-note) {
+    margin-block: 0.8rem 1rem;
   }
 }
 
@@ -5295,26 +5508,20 @@ a.watch-company-card:hover {
     font-size: 0;
   }
 
+  .nav-account-user span {
+    font-size: 0.65rem;
+  }
+
   .auth-page {
     padding-block: 1rem 2.5rem;
   }
 
   .auth-ledger dl,
-  .auth-ledger-note {
+  .auth-ledger .auth-ledger-note {
     display: none;
   }
 
-  .account-settings-facts {
-    grid-template-columns: 1fr;
-  }
-
-  .account-settings-facts > div,
-  .account-settings-facts > div + div {
-    padding: 0.65rem 0;
-    border-left: 0;
-  }
-
-  .account-settings-facts > div + div {
-    border-top: 1px solid var(--line);
+  .auth-panel {
+    box-shadow: 0 5px 0 var(--ink);
   }
 }
