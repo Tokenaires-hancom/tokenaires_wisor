@@ -1,5 +1,12 @@
 export type AuthMode = "signin" | "signup";
 
+export function relativeRedirect(path: string): Response {
+  return new Response(null, {
+    status: 307,
+    headers: { Location: path },
+  });
+}
+
 export function safeNextPath(value: string | null | undefined): string {
   if (!value || !value.startsWith("/") || value.startsWith("//")) return "/me";
   return value;
