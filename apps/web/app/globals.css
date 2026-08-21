@@ -2687,6 +2687,70 @@ h3.sub {
   border-left: 2px solid var(--wine-line);
 }
 
+/* 철학별 채점 종목 수 비교표 — 스크리너와 /learn/scoring이 함께 쓴다 */
+.coverage-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  margin: 1rem 0 0;
+}
+
+.coverage-table th,
+.coverage-table td {
+  padding: 0.55rem 0.4rem;
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+}
+
+.coverage-table th[scope="col"] {
+  font-weight: 500;
+  color: var(--ink-faint);
+  font-size: 0.8rem;
+}
+
+.coverage-table th[scope="row"],
+.coverage-table th[scope="col"]:first-child {
+  text-align: left;
+}
+
+.coverage-table th[scope="row"] {
+  font-weight: 500;
+}
+
+/* 지금 보고 있는 철학. 색만으로 구분하지 않도록 굵기와 여백을 함께 쓴다 */
+.coverage-table tr[aria-current] th[scope="row"] {
+  font-weight: 700;
+  border-left: 3px solid var(--wine);
+  padding-left: 0.5rem;
+}
+
+.coverage-table tr[aria-current] td {
+  color: var(--ink);
+}
+
+.coverage-table tbody tr:last-child th,
+.coverage-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* /learn/scoring 단계 목록 */
+.scoring-steps {
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+  counter-reset: step;
+}
+
+.scoring-steps li {
+  padding: 1.25rem 0;
+  border-top: 1px solid var(--line);
+  max-width: 68ch;
+}
+
+.scoring-steps li:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
 /* ---------- 투자자 초상 ---------- */
 
 .investor-avatar {
