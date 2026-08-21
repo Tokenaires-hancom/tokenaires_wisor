@@ -13,6 +13,12 @@
 - 계정·인증 화면 CSS를 이 구조에 맞춘 한 벌로 교체했습니다. develop의 `계정과 학습 기록 저장` 블록과 함께 두면 같은 셀렉터가 57건 겹치기 때문에 대체하는 형태입니다.
 - 컴포넌트가 쓰는 `my-page-*`·`account-*`·`auth-*`·`watch-*`·`quiz-*` 클래스 67개가 모두 정의돼 있고 과잉 중복 정의가 0건인 것을 확인했습니다. 브라우저로 `/me`(사이드바 216px + 본문 684px, 여섯 섹션)와 `/login` 렌더링을 확인했습니다.
 
+## 2026-08-20 · Codex · 인증·학습 저장 문서 동기화
+
+- 서비스 기획서, 시스템 설계도, 유저 시나리오를 `feat/auth-learning-storage`의 실제 구현에 맞췄습니다.
+- 비회원 localStorage 임시 기록, 로그인 뒤 Supabase 병합, 사용자별 RLS 저장 흐름과 아직 필요한 원격 마이그레이션·테스트 계정 검증을 구분해 기록했습니다.
+- 이 문서 브랜치는 인증 구현 브랜치 위에 쌓여 있으므로, 인증 변경이 먼저 반영된 뒤 병합합니다.
+
 ## 2026-08-20 · Codex · 자동 점수 배치 Environment 연결
 
 - `scores` GitHub Actions job에 `environment: env`를 지정해 `env` Environment에 개별 등록된 `TOSS_INVEST_CLIENT_ID`, `TOSS_INVEST_CLIENT_SECRET`, `WISOR_SEC_USER_AGENT` Secret을 읽도록 연결했습니다.

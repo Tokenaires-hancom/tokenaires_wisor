@@ -12,7 +12,7 @@ Wisor는 **파이썬 배치가 만든 JSON 하나를 Next.js가 빌드 시점에
 런타임에 살아 움직이는 부분은 해설 챗봇 API 하나뿐입니다.
 
 이 한 문장이 아래 모든 설계 판단의 이유입니다. 재무데이터가 브라우저로 나가지 않는 것도,
-점수가 바뀌려면 커밋이 필요한 것도, 사용자 데이터가 아직 브라우저에만 있는 것도 여기서 나옵니다.
+점수가 바뀌려면 커밋이 필요한 것과, 비회원 기록이 인증 뒤 계정 데이터로 병합되는 방식도 여기서 나옵니다.
 
 ---
 
@@ -52,7 +52,7 @@ flowchart TB
 
     BROWSER(["브라우저"])
     LS[("localStorage")]
-    SB[("Supabase · 스키마만 존재")]
+    SB[("Supabase · 사용자 계정 데이터")]
 
     SEC --> PROV
     TOSS --> PROV
@@ -67,8 +67,10 @@ flowchart TB
     CLI --> BROWSER
     BROWSER -->|/api/persona/*| PS
     PS --> LLM --> SAFE
-    BROWSER --> STORE --> LS
-    STORE -. 교체 예정 .-> SB
+    BROWSER --> STORE
+    STORE -->|"비회원 임시 저장"| LS
+    STORE -->|"회원 RLS 저장"| SB
+    LS -->|"인증 시 병합 후 삭제"| SB
 ```
 
 ---
@@ -80,8 +82,8 @@ flowchart TB
 | 웹 | Node.js 23+ / Next.js 15 App Router | `apps/web/` | 화면 전체. 페이지가 전부 정적 생성 | 1번 |
 | 점수 배치 | Python 3.11+ | `data-pipeline/` | 재무 원천 → 지표 → 스타일 점수 → `scores.json` | 3번 |
 | 해설 챗봇 API | Python 3.11+ (표준 라이브러리 `ThreadingHTTPServer`) | `persona_explain/` | 대가 페르소나로 지표 해설. 세션은 메모리 | — |
-| 사용자 데이터 | 브라우저 localStorage | `apps/web/lib/store.ts` | 학습 진도·퀴즈·관심종목·학습노트 | 2번 |
-| 사용자 DB | PostgreSQL (Supabase) | `supabase/schema.sql` | **스키마만 작성. 앱 연결 미착수** | 2번 |
+| 사용자 데이터 | 브라우저 + Supabase | `apps/web/lib/store.ts` | 비회원 임시 저장, 회원 계정 저장과 자동 이전 | 2번 |
+| 사용자 DB | PostgreSQL (Supabase) | `supabase/schema.sql`, `supabase/migrations/` | 진도·퀴즈·관심종목·학습노트·기록형 답, 사용자별 RLS | 2번 |
 | PR 자동검사 | GitHub Actions | `.github/workflows/`, `scripts/pr_checks/` | 경계 검사·형식 검사·Claude 리뷰 2종 | 2번 |
 
 의존성은 웹이 `next`·`react`·`react-dom` 셋뿐이고, 배치는 표준 라이브러리 + `pytest`뿐입니다.
@@ -249,15 +251,18 @@ LLM 어댑터는 OpenAI 호환 엔드포인트를 부르는 `OpenAIAdapter`와, 
 ```mermaid
 flowchart LR
     C["컴포넌트 · WatchButton · MyLearning · Quiz"] -->|"전부 async"| S["lib/store.ts"]
-    S -->|"지금"| LS[("localStorage")]
-    S -.->|"함수 본문만 교체"| SB[("Supabase · schema.sql")]
+    S -->|"비회원"| LS[("localStorage · 임시 기록")]
+    S -->|"회원"| SB[("Supabase · RLS")]
+    LS -->|"인증 직후 병합"| SB
 ```
 
 **컴포넌트는 `localStorage`를 직접 부르지 않습니다.** 전부 `apps/web/lib/store.ts`를 거칩니다.
 
-`store.ts`의 함수는 전부 `Promise`를 돌려줍니다. localStorage는 동기지만 Supabase는
-비동기라서, 교체 시점에 모든 호출부를 열지 않도록 시그니처를 미리 맞춰 둔 것입니다.
-**편의상 동기로 되돌리면 그 준비가 무너집니다.**
+`store.ts`의 함수는 전부 `Promise`를 돌려줍니다. 로그인 전에는 기존 localStorage 키에
+임시 저장하고, 인증 직후 `import_learning_state` RPC가 계정의 기존 기록과 병합합니다.
+완료 챕터·관심 종목은 합집합, 퀴즈·노트·기록형 답은 더 최근 항목을 남깁니다. RPC가
+성공한 뒤에만 로컬 원본을 지우며, 이후 읽기·쓰기는 사용자별 RLS가 적용된 Supabase
+테이블을 사용합니다.
 
 `supabase/schema.sql`에 저장하는 것과 저장하지 않는 것이 명시돼 있습니다 —
 보유 수량·평가금액·증권사 정보는 스키마에 자리 자체가 없습니다.
