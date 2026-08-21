@@ -6,6 +6,7 @@ import AccountSettings from "@/components/AccountSettings";
 import { CHAPTER_SLOTS } from "@/content/curriculum/types";
 import { MASTERS, MASTER_BY_ID } from "@/content/masters";
 import { money } from "@/lib/format";
+import { daysSince } from "@/lib/journalDue";
 import {
   NOTE_STATUS_LABEL,
   deleteNote,
@@ -20,6 +21,12 @@ import {
   type Progress,
   type StudyNote,
 } from "@/lib/store";
+
+/** 며칠 지났는지 못 세면 아무 말도 하지 않는다. 틀린 경과일은 없는 것보다 나쁘다. */
+function passedLabel(at: string): string {
+  const days = daysSince(at, Date.now());
+  return days === null ? "" : ` (${days}일 지났습니다)`;
+}
 
 export type WatchCompanyInfo = {
   name: string;
@@ -280,7 +287,7 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
       {due.length > 0 && (
         <>
           <p className="eyebrow">되돌아볼 기록</p>
-          <h2 className="section">90일 전에 쓴 답입니다</h2>
+          <h2 className="section">90일이 지난 답입니다</h2>
           <p className="lede">
             그때의 답과 지금의 생각이 다르면, 무엇이 바뀌었는지가 배운 것입니다.
           </p>
@@ -289,7 +296,7 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
               <div key={entry.id} className="card">
                 <h3 className="sub">{entry.prompt}</h3>
                 <p style={{ fontSize: "0.9rem", color: "var(--ink-soft)" }}>
-                  {entry.at.slice(0, 10)}에 쓴 답 — {entry.text}
+                  {entry.at.slice(0, 10)}에 쓴 답{passedLabel(entry.at)} — {entry.text}
                 </p>
                 <label className="field">
                   <span>지금의 답</span>
