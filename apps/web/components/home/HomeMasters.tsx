@@ -14,8 +14,20 @@ export type MasterCard = {
 /** 피그마가 카드마다 다르게 준 기울기. 무대에 흩어 놓은 느낌을 이 값이 만든다. */
 const TILT = [2, 6, -3, 3, -4, 4, -6];
 
-/** 이 폭 아래로는 섹션이 세로 배치로 바뀐다. 붙잡지 않고 손으로 미는 방식을 그대로 둔다. */
-const PIN_FROM = "(min-width: 1200px)";
+/** 붙잡기를 켜는 조건.
+ *
+ *  폭이 아니라 입력장치로 가른다. 막히는 건 좁은 화면이 아니라 '마우스인데 붙잡기가 꺼진'
+ *  경우였다 — 트랙은 가로 스크롤 컨테이너인데 스크롤바를 숨겨 두었고 휠은 세로로만 구르니,
+ *  창을 줄인 데스크톱에서는 카드를 움직일 방법이 없었다.
+ *
+ *  손가락(pointer: coarse)은 옆으로 쓸면 브라우저가 알아서 넘겨 준다. 거기까지 붙잡으면
+ *  잘 되던 것을 건드리는 셈이라 그대로 둔다.
+ *
+ *  1200px 아래는 좌표 무대가 흐름 배치로 풀린 폭이다. 거기서 붙잡으면 카드가 가는
+ *  거리(약 1000px)의 1.35배만큼 페이지가 제자리에 서 있는 구간이 생겨, 내려가다
+ *  걸리는 느낌이 난다. 붙잡지 않으면 트랙이 평범한 가로 스크롤 컨테이너로 남고
+ *  끌기도 그대로 열려 있어(listenDrag) 카드를 못 움직이는 일은 없다. */
+const PIN_WHEN = "(pointer: fine) and (min-width: 1200px)";
 
 export default function HomeMasters({ masters }: { masters: MasterCard[] }) {
   const outer = useRef<HTMLDivElement>(null);
@@ -38,7 +50,7 @@ export default function HomeMasters({ masters }: { masters: MasterCard[] }) {
     const trackEl = track.current;
     if (!outerEl || !sceneEl || !trackEl) return;
 
-    const wide = window.matchMedia(PIN_FROM);
+    const mouse = window.matchMedia(PIN_WHEN);
     const still = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     /** 카드 한 장을 넘기는 데 드는 스크롤을, 카드가 실제로 가는 거리보다 길게 잡는다.
@@ -49,6 +61,8 @@ export default function HomeMasters({ masters }: { masters: MasterCard[] }) {
     const GLIDE = 0.19;
     /** 이만큼 끌면 넘기려는 뜻으로 보고, 그 위의 링크는 열지 않는다(px). */
     const SLOP = 6;
+    /** 위에 고정된 머리띠 높이(px). 붙잡는 자리를 그 아래로 내린다. */
+    const HEADER = 61;
     /** 이보다 가까우면 붙은 것으로 보고 프레임을 멈춘다(px). */
     const CLOSE = 0.5;
 
@@ -60,6 +74,7 @@ export default function HomeMasters({ masters }: { masters: MasterCard[] }) {
     let dragging = false;
     let lastX = 0;
     let dragged = 0; /* 끈 거리의 합 — 링크를 열지 말지 가른다 */
+    let pinned = false; /* 지금 붙잡는 방식인가 — 끄는 힘을 어디로 보낼지 가른다 */
 
     const fill = (p: number) => {
       if (bar.current) bar.current.style.transform = `scaleX(${p})`;
@@ -110,6 +125,10 @@ export default function HomeMasters({ masters }: { masters: MasterCard[] }) {
      *  끄는 동안에는 instant로 즉시 옮긴다. */
     const grab = (e: PointerEvent) => {
       if (e.button !== 0) return;
+      /* 붙잡지 않을 때는 트랙이 스스로 가로 스크롤 컨테이너다. 손가락은 브라우저가
+         이미 끌어 주므로(touch-action: pan-x) 여기서는 마우스만 받는다 — 둘 다 받으면
+         한 번 끌 때 두 번 움직인다. */
+      if (!pinned && e.pointerType !== "mouse") return;
       dragging = true;
       lastX = e.clientX;
       dragged = 0;
@@ -122,7 +141,14 @@ export default function HomeMasters({ masters }: { masters: MasterCard[] }) {
       const dx = e.clientX - lastX;
       lastX = e.clientX;
       dragged += Math.abs(dx);
-      window.scrollBy({ top: -dx * SLOW, behavior: "instant" });
+      /* 붙잡힌 동안에는 트랙을 직접 스크롤시킬 수 없어(transform으로 움직이는 판이다)
+         끈 거리를 페이지 스크롤로 바꾼다. 붙잡지 않을 때는 트랙이 진짜 스크롤
+         컨테이너라 그대로 밀면 된다 — 넓은 화면과 같은 손맛이 좁은 화면에도 남는다. */
+      if (pinned) {
+        window.scrollBy({ top: -dx * SLOW, behavior: "instant" });
+      } else {
+        trackEl.scrollLeft -= dx;
+      }
     };
 
     const drop = (e: PointerEvent) => {
@@ -195,10 +221,12 @@ export default function HomeMasters({ masters }: { masters: MasterCard[] }) {
         mark();
       }
       outerEl.style.height = `${sceneEl.offsetHeight + pinnable}px`;
-      /* 섹션이 화면보다 높으면(노트북) 아래를 화면 바닥에 맞춰 카드가 잘리지 않게 한다. */
+      /* 위에 61px 머리띠가 붙어 있다. 0에 세우면 섹션 제목이 그 아래로 들어가 잘린다.
+         섹션이 화면보다 높으면(노트북) 아래를 화면 바닥에 맞춰 카드가 잘리지 않게 한다 —
+         그때는 제목이 위로 밀려 나가는 편이 카드가 잘리는 것보다 낫다. */
       outerEl.style.setProperty(
         "--hv-pin-top",
-        `${Math.min(0, window.innerHeight - sceneEl.offsetHeight)}px`,
+        `${Math.min(HEADER, window.innerHeight - sceneEl.offsetHeight)}px`,
       );
       /* 다시 잰 직후에는 미끄러질 이유가 없다 — 목표에 바로 세워 둔다. */
       aim();
@@ -233,16 +261,21 @@ export default function HomeMasters({ masters }: { masters: MasterCard[] }) {
     };
 
     const apply = () => {
-      if (!(wide.matches && !still.matches)) {
+      if (!(mouse.matches && !still.matches)) {
+        pinned = false;
         watching?.disconnect();
         watching = null;
         window.removeEventListener("scroll", ask);
-        listenDrag(false);
         release();
         trackEl.addEventListener("scroll", readTrack, { passive: true });
         readTrack();
+        /* 끄는 길은 여기서도 열어 둔다. 스크롤바를 숨겨 두었기 때문에, 이게 없으면
+           마우스 쓰는 좁은 창에서는 카드를 움직일 방법이 아예 없다. */
+        listenDrag(false);
+        listenDrag(true);
         return;
       }
+      pinned = true;
       trackEl.removeEventListener("scroll", readTrack);
       outerEl.setAttribute("data-pinned", "true");
       measure();
@@ -256,11 +289,11 @@ export default function HomeMasters({ masters }: { masters: MasterCard[] }) {
     };
 
     apply();
-    wide.addEventListener("change", apply);
+    mouse.addEventListener("change", apply);
     still.addEventListener("change", apply);
 
     return () => {
-      wide.removeEventListener("change", apply);
+      mouse.removeEventListener("change", apply);
       still.removeEventListener("change", apply);
       window.removeEventListener("scroll", ask);
       trackEl.removeEventListener("scroll", readTrack);

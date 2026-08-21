@@ -58,11 +58,43 @@ export default function HomeHero() {
       </div>
 
       <div className="hv-hero-masters" aria-hidden="true">
+        {/* 좁은 화면용 무대. 데스크톱은 화면을 가로지르는 .hv-hero-stage가 맡지만 그건
+            좌표가 cqw라 흐름 배치에서는 쓸 수 없다. 파도 모양은 같은 path를 그대로 쓴다 —
+            인물 상자를 데스크톱과 같은 비율로 잡아 두면 눌리거나 늘어나지 않는다.
+            인물보다 먼저 와야 한다. 둘 다 z-index가 없어 DOM 순서가 곧 그리는 순서다. */}
+        <svg
+          className="hv-hero-masters-wave"
+          viewBox="0 0 1440 258.753"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M0 50.7531C232 -19.2469 454 -11.2469 686 40.7531C914 92.7531 1160 0.753078 1440 14.7531V258.753H0V50.7531Z"
+            fill="#FFC72D"
+          />
+        </svg>
+        {/* 두 줄로 세우는 좁은 화면용. 같은 곡선인데 담는 상자만 높다.
+            노란 바닥이 두 줄을 다 받쳐야 해서 높이가 필요한데, 위 SVG를 그대로 늘이면
+            preserveAspectRatio="none" 때문에 곡선까지 같이 늘어나 파도가 과장된다.
+            viewBox를 507로 키우면 곡선이 상자에서 차지하는 몫이 줄어, 늘여도 데스크톱과
+            같은 완만함이 나온다. 채움도 그 바닥(V507)까지 내린다. */}
+        <svg
+          className="hv-hero-masters-wave-tall"
+          viewBox="0 0 1440 507"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M0 50.7531C232 -19.2469 454 -11.2469 686 40.7531C914 92.7531 1160 0.753078 1440 14.7531V507H0V50.7531Z"
+            fill="#FFC72D"
+          />
+        </svg>
         {MASTERS.map((m) => {
           const s = m.scale ?? 1;
           return (
             <img
               key={m.id}
+              data-master={m.id}
               src={`/home/masters/${m.id}.webp`}
               alt=""
               style={{

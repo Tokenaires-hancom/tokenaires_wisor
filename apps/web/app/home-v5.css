@@ -42,19 +42,27 @@
 
 /* ---------- 한 화면씩 멈추는 스크롤 ----------
 
-   섹션마다 하나씩 서고, masters 안에서는 카드 한 장씩 선다. 스크롤을 가로채지 않고
-   브라우저의 스크롤 스냅에 맡긴다 — 휠·트랙패드·키보드·스크롤바가 평소대로 동작하고,
-   멈추는 자리만 정해 준다. 전환이 부드러운 것은 html의 scroll-behavior: smooth 덕이다.
+   섹션마다 하나씩 서고, masters를 붙잡는 폭(마우스 1200px 이상, HomeMasters.tsx의
+   PIN_WHEN)에서는 카드 한 장씩 선다. 스크롤을 가로채지 않고 브라우저의 스크롤
+   스냅에 맡긴다 — 휠·트랙패드·키보드·스크롤바가 평소대로 동작하고, 멈추는
+   자리만 정해 준다. 전환이 부드러운 것은 html의 scroll-behavior: smooth 덕이다.
 
-   좁은 화면(모바일)에서는 걸지 않는다. 세로로 쌓인 긴 섹션에 한 화면씩 서면
-   내용이 가려진다. 세로가 짧은 화면에서는 mandatory 대신 proximity로 낮춰
-   섹션이 화면보다 높을 때 아래쪽에 손이 닿게 남겨 둔다. */
-@media (min-width: 1200px) and (prefers-reduced-motion: no-preference) {
+   태블릿(768~1199px)과 손가락 환경은 이 스냅이 없으면 momentum 스크롤이 아무
+   데서나 멈춘다 — masters 제목이 고정 머리띠(61px) 밑에 반쯤 걸린 채 서는 것도
+   그래서다. 세 폭 모두 같은 규칙을 쓰되, masters 자신이 정지점이 되는지만
+   갈린다: 카드를 붙잡는 동안에는(pointer:fine, ≥1200px) 카드 정지점
+   (.hv-masters-stop)이 대신 서므로 섹션째로 서면 카드가 흐를 자리가 없어진다.
+   그 조건 밖에서는(태블릿·손가락) 붙잡기 자체가 안 켜지므로 masters도 다른
+   섹션과 똑같이 선다.
+
+   세로가 짧은 화면에서는 mandatory 대신 proximity로 낮춰 섹션이 화면보다 높을
+   때 아래쪽에 손이 닿게 남겨 둔다. */
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
   html.hv-home-active {
     scroll-snap-type: y proximity;
   }
 
-  @media (min-height: 800px) {
+  @media (min-width: 1200px) and (min-height: 800px) {
     html.hv-home-active {
       scroll-snap-type: y mandatory;
     }
@@ -68,9 +76,11 @@
     /* 상단 고정 헤더(61px)에 섹션 머리가 가리지 않도록 그만큼 위에서 선다. */
     scroll-margin-top: 61px;
   }
+}
 
-  /* masters는 붙잡는 통 안에 있다. 섹션째로 서면 카드가 흐를 자리가 없어지므로
-     여기서는 통 안의 카드 정지점(.hv-masters-stop)이 대신 선다. */
+/* masters가 붙잡히는 폭·입력장치에서만 섹션째로 서는 것을 끈다 — HomeMasters.tsx의
+   PIN_WHEN과 정확히 같은 조건이어야 한다. 여기서만 통 안의 카드 정지점이 대신 선다. */
+@media (min-width: 1200px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   .hv-masters,
   .hv-masters-pin-outer {
     scroll-snap-align: none;
@@ -173,19 +183,40 @@
   align-items: center;
   justify-content: center;
   height: 4.722cqw;
+  /* 넓은 화면에서는 .hv-hero-cta가 폭을 정해 주므로 이 여백이 드러나지 않는다.
+     좁은 화면에서는 버튼이 글자 크기만큼만 커지는 flex 항목이 되는데, 여백이 없으면
+     "배우러 가기"가 알약 가장자리에 붙는다. */
+  padding-inline: 1.75rem;
   border-radius: 2.361cqw;
   background: var(--hv-wine);
   color: #fffffe;
   font-family: var(--hv-body);
   font-weight: 700;
   font-size: max(14px, 1.181cqw);
-  box-shadow: 0 0.972cqw 2.083cqw rgba(31, 28, 25, 0.18);
-  transition: transform 120ms ease, background 120ms ease;
+  /* 흐린 그림자가 아니라 같은 색 계열의 단단한 턱이다. 누르면 이 턱이 줄고 버튼이
+     그만큼 내려앉아 전체 높이는 그대로 — 움직임이 아니라 형태라서 모션을 끈 환경에서도
+     촉감이 남는다. globals.css의 .btn이 쓰는 방식과 같다.
+     px로 두는 것은 cqw가 1199px 아래에서 화면 폭 기준으로 풀려, 턱이 창 크기를 따라
+     커지기 때문이다. */
+  box-shadow: 0 4px 0 var(--wine-deep);
+  transition: transform 120ms ease, box-shadow 120ms ease;
 }
 
-.hv-btn:hover {
-  background: var(--hv-wine);
-  transform: translateY(-2px);
+/* 마우스가 있는 환경에서만 건다. 손가락으로 탭하면 :hover가 눌린 채로 남아
+   버튼이 계속 떠 있는 것처럼 보인다.
+   색은 그대로 두고 턱만 키워 버튼이 살짝 떠오르게 한다 — 아랫변은 제자리다. */
+@media (hover: hover) {
+  .hv-hero-cta .hv-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 var(--wine-deep);
+  }
+}
+
+/* 누르는 촉감은 손가락에도 필요하다 — hover 조건 밖에 둔다.
+   :hover와 무게가 같고 뒤에 오므로, 올린 채 누르면 눌린 쪽이 이긴다. */
+.hv-hero-cta .hv-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 var(--wine-deep);
 }
 
 /* 일곱 명이 무대 위에 어깨를 겹치고 선다. 음수 여백이 그 겹침이다.
@@ -204,6 +235,13 @@
   bottom: 0;
   height: 100%;
   width: auto;
+}
+
+/* 넓은 화면에서는 .hv-hero-stage가 무대를 그린다. 둘 다 흐름 배치로 바뀌는
+   좁은 화면 전용이라 여기서는 꺼 둔다. */
+.hv-hero-masters-wave,
+.hv-hero-masters-wave-tall {
+  display: none;
 }
 
 /* ---------- Scene 02 · AI 시대 투자 원칙 ---------- */
@@ -273,7 +311,10 @@
   left: 5cqw;
   top: 11.111cqw;
   margin: 0;
-  font-family: var(--hv-display);
+  /* "무엇을 볼까?"(.hv-principles-anchor-q)와 같은 글씨체다. Jua는 굵기가 하나뿐이라
+     같은 자리에 두면 질문 목록보다 가벼워 보였다. 굵기까지 그쪽에 맞춘다. */
+  font-family: var(--hv-body);
+  font-weight: 800;
   font-size: 2.639cqw;
   line-height: 3.472cqw;
   color: var(--hv-ink);
@@ -488,20 +529,21 @@
   height: 1px;
   pointer-events: none;
   scroll-snap-align: start;
+  /* .hv-scene과 같은 이유다 — 이 점에 맞춰 서면 그 자리가 머리띠(61px) 아래로 들어간다. */
+  scroll-margin-top: 61px;
 }
 
 /* 붙잡힌 동안 트랙은 스크롤 컨테이너가 아니라 transform으로 움직이는 판이 된다. */
 .hv-masters-pin-outer[data-pinned] .hv-masters-track {
   overflow: visible;
   scroll-snap-type: none;
+  /* 붙잡는 동안 가로 움직임은 JS가 페이지 스크롤로 바꿔 받는다. 브라우저가 먼저
+     가로로 밀어 버리면 둘이 겹쳐 두 배로 나간다. */
+  touch-action: pan-y;
   /* 붙잡힌 동안에도 손으로 끌 수 있다 — 끈 거리를 페이지 스크롤로 바꾼다. */
   cursor: grab;
   will-change: transform;
   user-select: none;
-}
-
-.hv-masters-pin-outer[data-pinned] .hv-masters-track.is-dragging {
-  cursor: grabbing;
 }
 
 .hv-masters-pin-outer[data-pinned] .hv-master-card {
@@ -545,7 +587,10 @@
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
   cursor: grab;
-  touch-action: pan-y;
+  /* 붙잡지 않을 때는 트랙 자체가 가로 스크롤 컨테이너다 — 손가락으로 옆으로 쓸어 넘길 수
+     있어야 한다. 스크롤바를 숨겨 두었기 때문에 이걸 막으면 움직일 방법이 아예 없어진다.
+     붙잡는 동안에만 아래에서 pan-y로 좁힌다. */
+  touch-action: pan-x pan-y;
 }
 
 .hv-masters-track::-webkit-scrollbar {
@@ -556,8 +601,13 @@
   cursor: grabbing;
 }
 
+/* 붙잡는 폭이든 아니든 끄는 동안은 같다. 스냅은 끄는 중에만 풀어 둔다 — 켜 둔 채로
+   scrollLeft를 밀면 브라우저가 곧바로 되돌려 끈 만큼 안 나간다. 손을 떼면 다시 걸려
+   가까운 카드에 선다. 글자·그림이 딸려 선택되는 것도 이때만 막는다. */
 .hv-masters-track.is-dragging {
   scroll-snap-type: none;
+  cursor: grabbing;
+  user-select: none;
 }
 
 .hv-master-card {
@@ -1001,11 +1051,10 @@
   }
 
   /* 좌표로 세운 것들을 전부 흐름 배치로 되돌린다. */
-  .hv-home :where(.hv-hero-title, .hv-hero-lede, .hv-hero-cta, .hv-hero-masters, .hv-hero-stage,
+  .hv-home :where(.hv-hero-title, .hv-hero-lede, .hv-hero-cta, .hv-hero-stage,
     .hv-principles-eyebrow, .hv-principles-underline, .hv-principles-line, .hv-principles-intro,
-    .hv-principles-drifts, .hv-principles-anchor, .hv-masters-title, .hv-masters-lede,
-    .hv-masters-progress, .hv-masters-track,
-    .hv-journey-title, .hv-journey-path, .hv-journey-steps, .hv-result-title,
+    .hv-principles-drifts, .hv-principles-anchor-label, .hv-principles-anchor-list, .hv-masters-title, .hv-masters-lede,
+    .hv-masters-progress, .hv-masters-track, .hv-result-title,
     .hv-result-card, .hv-result-cta) {
     position: static;
     inset: auto;
@@ -1018,7 +1067,6 @@
   .hv-hero,
   .hv-principles,
   .hv-masters,
-  .hv-journey,
   .hv-result {
     display: flex;
     flex-direction: column;
@@ -1026,36 +1074,90 @@
   }
 
   .hv-hero-title,
-  .hv-journey-title,
   .hv-result-title {
     white-space: normal;
   }
 
   .hv-hero-stage,
-  .hv-hero-coin,
   .hv-principles-field,
   .hv-principles-field-shadow,
-  .hv-journey-pencil,
-  .hv-journey-mobile,
   .hv-result-panel {
     display: none;
   }
 
-  .hv-hero-masters {
+  /* 동전·지폐는 남긴다. 좌표가 cqw라 이 폭에서는 화면 폭 기준으로 풀려 제자리를
+     잃으므로, 히어로 기준 %로 다시 놓는다(top은 히어로 높이, left·width는 폭 기준).
+     글 위쪽 빈 자리에 두어 본문과 겹치지 않게 한다. */
+  .hv-hero-coin {
     height: auto;
-    padding: 1rem 0;
-    border-radius: 16px;
-    background: var(--hv-yellow);
+    aspect-ratio: 1;
   }
 
-  /* 폭이 비율이라 좁은 화면에서도 얼굴 크기가 서로 맞는다. 따로 손댈 것이 없다. */
+  .hv-hero-coin-left {
+    left: 3%;
+    top: 8%;
+    width: 19%;
+  }
 
+  .hv-hero-coin-top {
+    left: 41%;
+    top: 2%;
+    width: 21%;
+  }
+
+  .hv-hero-coin-right {
+    left: 75%;
+    top: 11%;
+    width: 21%;
+  }
+
+  /* static이 아니라 relative로 남겨 둔다 — 자식 이미지(height:100%)가 이 상자를
+     기준 삼아야 크기가 맞다. static이 되면 기준이 .hv-hero 전체로 튀어 얼굴이
+     화면 높이만큼 커지고 제목·버튼을 덮는다.
+
+     높이는 직접 정하지 않고 폭에서 끌어낸다. 인물은 left/width가 전부 %(상자 폭 기준)
+     인데 높이만 따로 정하면 둘이 어긋나 — 폭이 넓어질수록 인물이 상대적으로 좁아지고
+     어깨가 벌어진다. 데스크톱과 같은 비율(폭 100 : 높이 19.722)로 묶어 두면 어느 폭에서나
+     겹침 정도가 데스크톱과 같다.
+
+     배경은 SVG(.hv-hero-masters-wave)가 그린다 — 여기에 색을 깔면 파도 뒤로
+     사각형이 남는다. 데스크톱 무대처럼 화면 끝까지 뻗도록 .hv-scene의 좌우 padding을
+     음수 여백으로 되돌린다. */
+  .hv-hero-masters {
+    position: relative;
+    aspect-ratio: 100 / 19.722;
+    height: auto;
+    width: calc(100% + 2.5rem);
+    margin-inline: -1.25rem;
+    background: none;
+  }
+
+  .hv-hero-masters-wave {
+    display: block;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    /* 데스크톱에서 무대(256px)가 인물 상자(281px)의 91.1%다. 그 차이만큼 인물이
+       파도 위로 솟는다. */
+    height: 91.1%;
+    width: 100%;
+  }
+
+  /* 제목·부제와 같은 중앙정렬. 버튼(.hv-btn)이 display:flex라 text-align은
+     안 먹는다 — flex로 감싸고 justify-content로 가운데 놓는다. */
+  .hv-hero-cta {
+    display: flex;
+    justify-content: center;
+  }
+
+  /* box-shadow는 넘겨받는다. 예전엔 여기서 none으로 지웠지만, 이제 그 자리는 흐린
+     그림자가 아니라 누르는 촉감을 만드는 턱이라 좁은 화면에서도 있어야 한다. */
   .hv-hero-cta .hv-btn {
     height: 52px;
     max-width: 240px;
     border-radius: 26px;
     font-size: 1rem;
-    box-shadow: none;
   }
 
   .hv-principles-underline {
@@ -1085,23 +1187,47 @@
     display: none;
   }
 
-  .hv-principles-anchor {
-    gap: 1.5rem;
-    padding: 1.75rem 1.5rem;
-    border-radius: 16px;
-    background: var(--hv-yellow);
-  }
-
-  .hv-principles-anchor-title {
-    font-size: 0.8125rem;
+  /* 노란 패널 SVG(.hv-principles-field)가 모바일에서 display:none이라, 라벨·질문
+     묶음이 스스로 배경을 가져야 한다. 라벨은 작은 칩으로 위에, 질문 목록은
+     노란 카드로 아래에 — 형제 요소라 하나의 박스로는 안 묶이지만 순서대로
+     쌓으면 카드처럼 보인다. 원래 색(흰 글씨 + 흰 반투명 배경)은 노란 카드 위 기준이라
+     흰 페이지 배경에선 안 보여 진한 배경으로 바꿨다. align-self는 부모가
+     flex-column(기본 stretch)이라 안 주면 칩이 가로 전체로 늘어나서 필요하다. */
+  .hv-principles-anchor-label {
+    display: inline-flex;
+    align-self: flex-start;
+    margin: 0 0 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: var(--hv-wine);
+    font-size: 0.8rem;
   }
 
   .hv-principles-anchor-list {
-    gap: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    padding: 1.75rem 1.5rem 1.75rem 2.5rem;
+    border-radius: 16px;
+    background: var(--hv-yellow);
+    list-style: none;
   }
 
-  .hv-principles-anchor-item {
+  .hv-principles-anchor-item::before {
+    left: -1.25rem;
+    top: 0.35rem;
+    width: 8px;
+    height: 8px;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.22);
+  }
+
+  .hv-principles-anchor-q {
     font-size: 1.5rem;
+  }
+
+  .hv-principles-anchor-sub {
+    margin-top: 0.4rem;
+    font-size: 0.9rem;
   }
 
   .hv-masters-meta {
@@ -1152,51 +1278,22 @@
     line-height: 1.5;
   }
 
+  /* 데스크톱과 같이 '높이'로 세운다. webp 일곱 장은 높이가 852로 같고 폭이 779~1112로
+     제각각이라, 폭을 고정하면 폭 넓은 그림일수록 인물이 작게 그려진다.
+     높이를 다시 정하지 않으면 데스크톱의 height: 20.6cqw가 그대로 남는데, 이 폭에서는
+     .hv-scene의 container-type이 normal이라 cqw가 화면 폭 기준으로 풀린다 — 창을 줄이면
+     높이만 따라 줄고 폭(11rem)은 그대로라 인물이 납작하게 눌렸다.
+     12rem은 카드 높이(21rem) 대비 0.57로, 데스크톱 비율(20.6/36.111)과 같다. */
   .hv-master-portrait {
-    right: -1rem;
-    bottom: -3rem;
-    width: 11rem;
+    right: -0.85rem;
+    bottom: -3.5rem;
+    height: 12rem;
+    width: auto;
   }
 
   .hv-masters-progress {
     height: 3px;
     border-radius: 2px;
-  }
-
-  /* 곡선과 그 위의 표시는 세 걸음의 좌표에 맞춰 그린 것이다. 흐름 배치에서는
-     가리키는 자리가 사라져 선만 남으므로 통째로 뺀다. 3D 아이콘 하나만 남겨
-     이 구간의 성격은 유지한다. */
-  .hv-journey-path {
-    display: none;
-  }
-
-  .hv-journey-steps {
-    counter-reset: none;
-  }
-
-  .hv-journey-steps {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .hv-journey-step,
-  .hv-journey-step-body {
-    position: static;
-    width: auto;
-  }
-
-  .hv-journey-step-head {
-    display: flex;
-    align-items: baseline;
-    gap: 0.6rem;
-    font-size: 1.15rem;
-    line-height: 1.3;
-  }
-
-  .hv-journey-step-head strong {
-    font-size: 2.4rem;
-    margin-right: 0;
   }
 
   .hv-result-card {
@@ -1251,6 +1348,249 @@
   .hv-result-card .stamp {
     margin-top: 1.25rem;
     font-size: 0.75rem;
+  }
+}
+
+/* ---------- 태블릿: 여정 섹션만 데스크톱 그림을 유지한다 ----------
+
+   이 섹션은 곡선 위에 세 걸음을 놓은 그림 자체가 내용이다. 세로로 쌓으면 "퍼진다"는
+   말이 사라지고 번호 붙은 목록만 남는다. 그래서 다른 섹션과 달리 태블릿 폭까지
+   좌표계를 그대로 쓴다.
+
+   위의 .hv-scene 규칙이 흐름 배치로 바꿔 놓은 것을 이 섹션에서만 되돌린다.
+   나머지 섹션은 본문이 길어 폭에 비례해 줄이면 읽을 수 없으므로 손대지 않는다.
+
+   768px 아래로는 이 그림이 더는 버티지 못한다 — 본문이 최소 크기에 걸리는데
+   담을 폭이 모자라 걸음끼리 겹친다. 거기서는 아래 블록이 세로 배치로 넘긴다. */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .hv-scene.hv-journey {
+    container-type: inline-size;
+    aspect-ratio: 1440 / 745;
+    height: auto;
+    padding: 0;
+  }
+
+  /* 위에서 :where(h1, h2)와 :where(p, span, li)로 rem 크기를 못 박아 둔 것이 좌표 그림의
+     글자까지 덮는다. 이 섹션은 cqw로 크기를 잡으므로 그 지정을 물린다 — 안 그러면 제목이
+     폭과 무관하게 30.4px로 고정돼, nowrap인 채로 768px에서 화면 폭을 꽉 채운다. */
+  .hv-journey :where(h1, h2),
+  .hv-journey :where(p, span, li) {
+    font-size: inherit;
+    line-height: inherit;
+  }
+
+  .hv-journey-title {
+    font-size: 3.611cqw;
+    line-height: 4.444cqw;
+  }
+
+  /* 폭이 줄면 cqw 글자가 읽을 수 없을 만큼 작아진다. 최소 크기를 두되, 글자만 커지고
+     담는 상자는 그대로면 넘치므로 상자 폭과 줄간격에도 같은 바닥을 깔아 준다. */
+  .hv-journey-step-head {
+    font-size: max(15px, 2.153cqw);
+    line-height: max(30px, 5.972cqw);
+  }
+
+  .hv-journey-step-head strong {
+    font-size: max(34px, 5.694cqw);
+  }
+
+  .hv-journey-step-body {
+    /* 세 번째 걸음이 오른쪽 끝(71.181cqw)에서 시작하므로, 폭을 넓힐 수 있는 여지는
+       768px에서 195px뿐이다. 본문 두 줄(<br/>로 직접 끊어 둔 그대로)이 그 안에 들어가도록
+       글자 바닥을 12px로 잡았다. */
+    width: max(195px, 18.75cqw);
+    font-size: max(12px, 1.111cqw);
+    line-height: max(18px, 1.875cqw);
+  }
+
+  /* 동전·지폐는 좁은 화면 공통 규칙(19~21%)을 그대로 물려받으면 지폐가 제목 위에 얹힌다 —
+     글 묶음이 폭의 32.9~67.1%를 쓰고 좌우 여백만 비어 있기 때문이다. 셋을 그 여백으로
+     옮기고 크기도 여백 폭에 맞춰 줄인다. */
+  .hv-hero-coin-left {
+    left: 3%;
+    top: 14%;
+    width: 15%;
+  }
+
+  .hv-hero-coin-top {
+    left: 70%;
+    top: 4%;
+    width: 14%;
+  }
+
+  .hv-hero-coin-right {
+    left: 82%;
+    top: 26%;
+    width: 15%;
+  }
+}
+
+/* 좁은 화면: 여정 섹션도 흐름 배치로 넘긴다. */
+@media (max-width: 767px) {
+  .hv-home :where(.hv-journey-title, .hv-journey-path, .hv-journey-steps) {
+    position: static;
+    inset: auto;
+    translate: none;
+    width: auto;
+    max-width: none;
+    margin-inline: 0;
+  }
+
+  .hv-journey {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .hv-journey-title {
+    white-space: normal;
+  }
+
+  /* 곡선과 그 위의 표시는 세 걸음의 좌표에 맞춰 그린 것이다. 흐름 배치에서는
+     가리키는 자리가 사라져 선만 남으므로 통째로 뺀다. */
+  .hv-journey-path,
+  .hv-journey-pencil,
+  .hv-journey-mobile {
+    display: none;
+  }
+
+  .hv-journey-steps {
+    counter-reset: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .hv-journey-step,
+  .hv-journey-step-body {
+    position: static;
+    width: auto;
+  }
+
+  .hv-journey-step-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    font-size: 1.15rem;
+    line-height: 1.3;
+  }
+
+  .hv-journey-step-head strong {
+    font-size: 2.4rem;
+    margin-right: 0;
+  }
+}
+
+/* ---------- 좁은 화면: 한 섹션이 한 화면을 차지한다 ----------
+
+   섹션 높이가 내용에 따라 정해지다 보니 히어로가 화면의 절반밖에 안 됐다
+   (390×844에서 47%). 그래서 스크롤을 멈추면 히어로 아래로 다음 섹션 머리가 같이 보였다.
+   최소 높이를 화면만큼 주어 짧은 섹션이 화면을 채우게 한다.
+
+   100svh는 주소창이 접혔다 펴질 때 높이가 튀지 않게 한다. 지원하지 않는 브라우저를
+   위해 100vh를 먼저 둔다. 61px은 위에 고정된 머리띠 높이다. */
+@media (max-width: 767px) {
+  .hv-scene {
+    min-height: calc(100vh - 61px);
+    min-height: calc(100svh - 61px);
+  }
+
+  /* 히어로가 화면만큼 커지면 남는 공간이 생긴다. 그 공간을 제목 위와 무대 위로 반씩
+     나눠, 글 묶음이 화면 가운데 서고 무대는 바닥에 붙는다 — 데스크톱의 세로 배치와
+     같은 모양이다. auto 여백을 한쪽에만 주면 남는 공간을 전부 그쪽이 먹어서
+     글이 천장에 붙고 아래가 통째로 빈다.
+     무대의 음수 아래 여백은 .hv-scene의 padding(3rem)을 되돌려 무대가 화면 바닥에
+     닿게 한다 — 안 그러면 한 화면의 끝이 노란 무대가 아니라 흰 띠로 끝난다. */
+  .hv-hero-title {
+    margin-top: auto;
+  }
+
+  .hv-hero-masters {
+    margin-top: auto;
+    margin-bottom: -3rem;
+  }
+
+  /* ---------- 일곱 명을 두 줄로 세운다 ----------
+
+     한 줄로는 얼굴을 키울 수 없다. 390px에 일곱이면 1인당 가로 56px이고, 인물만
+     확대하면 겹침이 같이 커져 1.6배만 돼도 머리 폭이 얼굴 간격을 넘어 서로 가린다.
+     네 명씩 나누면 1인당 가로가 98px로 늘어 머리가 38px에서 66px이 된다.
+
+     앞줄 넷은 바닥에, 뒷줄 셋은 앞줄 사이로 조금 작게 올려 세운다. 뒷줄 허리는
+     앞줄에 가려 단체사진처럼 보인다. 좌표는 각자의 그림 비율로 계산해 마지막 사람의
+     오른끝이 100%에 서도록 맞춘 값이다.
+
+     폭이 아니라 높이로 세우는 이유: webp 일곱 장은 높이가 852로 같고 폭이 779~1112로
+     제각각이라, 폭을 고정하면 폭 넓은 그림일수록 인물이 작게 그려진다. */
+  .hv-hero-masters {
+    aspect-ratio: 100 / 44;
+  }
+
+  /* 노란 바닥은 두 줄을 다 받쳐야 한다. 61%였을 때는 뒷줄 상체가 노랑 밖 흰 배경에
+     떠서 사람만 공중에 뜬 것처럼 보였다. 데스크톱은 노랑이 인물 높이의 91%를 덮고
+     머리만 9% 솟는다 — 그 비율을 뒷줄 기준으로 맞춘 값이다.
+     한 줄로 서는 태블릿은 기존 파도를 그대로 쓰므로 여기서만 바꿔 끼운다. */
+  .hv-hero-masters-wave {
+    display: none;
+  }
+
+  .hv-hero-masters-wave-tall {
+    display: block;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 80%;
+  }
+
+  /* 인라인 style이 left·width를 %로 박아 두어 !important 없이는 못 이긴다. */
+  .hv-hero-masters img {
+    width: auto !important;
+    z-index: 1;
+  }
+
+  .hv-hero-masters img[data-master="buffett"] { left: 0 !important; height: 70%; }
+  .hv-hero-masters img[data-master="lynch"] { left: 24% !important; height: 70%; }
+  .hv-hero-masters img[data-master="fisher"] { left: 42% !important; height: 70%; }
+  .hv-hero-masters img[data-master="soros"] { left: 65% !important; height: 70%; }
+
+  /* 뒷줄. z-index로 앞줄 뒤에 둔다 — 마크업 순서가 좌우로 섞여 있어 그냥 두면
+     뒷줄 사람이 바로 앞 사람 위에 그려진다.
+     앞줄의 84%(56%)까지 줄였더니 멀리 있는 작은 사람처럼 보였다. 97%까지 올리고
+     띄운 높이도 낮춰 앞줄과 같은 무리로 읽히게 한다. 좌표는 커진 폭에 맞춰
+     앞줄 사람 사이 빈틈의 한가운데에 다시 놓은 값이다. */
+  .hv-hero-masters img[data-master="graham"],
+  .hv-hero-masters img[data-master="marks"],
+  .hv-hero-masters img[data-master="greenblatt"] {
+    height: 69%;
+    bottom: 23%;
+    z-index: 0;
+  }
+
+  .hv-hero-masters img[data-master="graham"] { left: 4.5% !important; }
+  .hv-hero-masters img[data-master="marks"] { left: 29% !important; }
+  .hv-hero-masters img[data-master="greenblatt"] { left: 51% !important; }
+}
+
+/* 멈추는 자리를 섹션 머리에 맞춘다. mandatory가 아니라 proximity인 이유는,
+   원칙 섹션이 어느 폰에서도 화면보다 크고(390×667에서 131%) 결과 섹션도 작은 폰에서는
+   넘치기 때문이다. mandatory면 그 안에서 아래로 못 내려가 아랫부분을 읽을 수 없다.
+   proximity는 경계 근처에서만 서고 섹션 안에서는 평소대로 스크롤된다.
+   넓은 화면과 같은 이유로 모션을 끈 환경에서는 걸지 않는다.
+
+   손가락 환경은 PIN_WHEN(pointer: fine)에 걸리지 않아 masters를 붙잡지 않는다 —
+   위 태블릿·데스크톱 블록과 달리 여기서는 masters를 뺄 이유가 없다. .hv-scene이
+   이미 masters(.hv-scene.hv-masters)를 포함하므로 따로 적지 않아도 선다. */
+@media (max-width: 767px) and (prefers-reduced-motion: no-preference) {
+  html.hv-home-active {
+    scroll-snap-type: y proximity;
+  }
+
+  .hv-scene {
+    scroll-snap-align: start;
+    scroll-margin-top: 61px;
   }
 }
 
