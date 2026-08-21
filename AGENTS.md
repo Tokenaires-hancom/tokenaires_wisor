@@ -41,6 +41,31 @@ powershell -Command "Get-NetTCPConnection -LocalPort 3000 -State Listen | ForEac
 - **의존성을 마음대로 추가하지 않습니다.** 지금 웹은 Next와 React뿐입니다. 정말 필요하면 먼저 물어보세요.
 - **`git push`는 사람이 시켰을 때만.** 기본 브랜치는 `develop`이고, 작업은 `feat/…` `fix/…` 브랜치에서 합니다.
 
+## push 전 검수
+
+Claude Code에는 `git push`를 한 번 막고 검수를 거치게 하는 훅이 있습니다(`.claude/hooks/pre-push-check.sh`).
+**Codex에는 그 자동 차단이 없으므로 직접 해야 합니다.** push하기 전에 이 파일을 읽고 그대로 수행하세요.
+
+```
+.claude/skills/clean-check/SKILL.md
+```
+
+이번에 push될 diff를 클린 코드 5원칙 항목별로 판정해서 알려줍니다.
+**결과는 아무것도 막지 않습니다** — 지적을 보고 고칠지 그대로 갈지는 사람이 정합니다.
+마지막 단계의 `--mark`는 Claude Code 훅의 상태 파일을 갱신하는 것이라 Codex에서는 건너뜁니다.
+
+저장소 **전체** 상태를 보는 검수는 따로 있고, 사람이 시킬 때만 돕니다.
+
+```
+.claude/skills/whole-check/SKILL.md
+```
+
+결과는 `docs/audit/YYYY-MM-DD.md`에 남습니다. 회차끼리 비교하는 것이 목적이라 형식이 고정입니다.
+
+**두 파일은 Claude Code와 Codex가 같이 씁니다. Codex용 사본을 따로 만들지 마세요.**
+두 벌이 되면 갈라지고, 그러면 같은 코드가 누가 검수했느냐에 따라 다르게 판정됩니다.
+판정 기준(❌ · ⚠️ · ✅ · 해당 없음)은 `CLAUDE.md`의 「검수 등급」 절 한 곳에만 있습니다.
+
 ## 인계
 
 에이전트가 바뀔 때 [`docs/HANDOFF.md`](docs/HANDOFF.md)를 읽고, 작업을 마치면 갱신하세요.

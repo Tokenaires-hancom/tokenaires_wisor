@@ -87,7 +87,8 @@ Nasdaq 스크리너(시가총액). 공급자를 새로 만들면 아래를 지�
 ## 확인
 
 ```bash
-python run_batch.py     # 예시 데이터 12종목. 품질 리포트와 스타일별 상위 3종목이 출력된다
+# 예시 데이터 12종목. 품질 리포트와 스타일별 상위 3종목이 출력된다
+python run_batch.py --provider sample --universe data/universe_sample.json --out /tmp/sample-scores.json
 
 # 실데이터. 전체 수집. 캐시를 새로 만든다
 python run_batch.py --provider sec-toss --universe data/universe_us.json
@@ -97,11 +98,16 @@ python run_batch.py --provider sec-toss --universe data/universe_us.json --mode 
 pytest -q
 ```
 
-**`--universe`를 빼면 예시 유니버스 12종목으로 돕니다.** 기본값이
-`data/universe_sample.json`이라서입니다. `full`이면 그 12종목만 수집해 `scores.json`을
-덮고, `prices`면 그중 캐시에 있는 종목만 가격이 갱신되고 나머지는 조용히 옛 값을
-유지합니다(`CachedPriceProvider.stale`). 실데이터는 항상
-`--universe data/universe_us.json`을 붙입니다.
+**`--provider`와 `--universe`는 기본값이 없습니다.** 둘 다 안 주면 배치가 아예 시작하지
+않습니다. 예전에는 `sample`과 `universe_sample.json`이 기본값이라, 옵션 없이 `run_batch.py`를
+치면 실데이터 380종목이 예시 12종목으로 조용히 덮였습니다.
+
+**예시 데이터는 `scores.json`에 쓸 수 없습니다.** `--provider sample`인데 `--out`이 화면이 읽는
+경로면 배치가 거부합니다. 화면에 나가는 파일은 실데이터 배치만 씁니다.
+
+실데이터는 항상 `--universe data/universe_us.json`을 붙입니다. `universe_sample.json`을 주면
+`full`은 12종목만 수집하고, `prices`는 그중 캐시에 있는 종목만 갱신한 뒤 나머지는 조용히
+옛 값을 유지합니다(`CachedPriceProvider.stale`).
 
 `.github/workflows/scores.yml`은 지금 이 옵션 없이 배치를 부릅니다. 아직 한 번도
 실행된 적이 없어(`wisor-batch` 커밋 없음) 문제가 드러나지 않았을 뿐입니다.
