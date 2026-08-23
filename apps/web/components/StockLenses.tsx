@@ -363,7 +363,7 @@ function NoteLens({ company, styleId }: { company: Company; styleId: string }) {
       </div>
 
       <p className="disclaimer">
-        학습노트는 지금 이 브라우저에만 저장됩니다. 계정 연동은 다음 단계에서 지원할 예정입니다.
+        로그인 전에는 이 브라우저에 임시 저장되고, 로그인하거나 가입하면 계정 기록과 합쳐집니다.
       </p>
     </div>
   );
