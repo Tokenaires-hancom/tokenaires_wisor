@@ -31,13 +31,17 @@ export type ChatMessage = {
 };
 
 export class PersonaApiError extends Error {
-  constructor(
-    public status: number,
-    public code: string,
-    message: string,
-  ) {
+  /** 필드를 따로 선언하고 생성자에서 넣는다. `constructor(public status: ...)`로 줄이면
+   *  npm test가 쓰는 `node --test`가 이 파일을 못 읽는다 — 타입을 지우기만 할 뿐
+   *  파라미터 프로퍼티가 만들어내는 대입문을 생성하지 못한다. */
+  status: number;
+  code: string;
+
+  constructor(status: number, code: string, message: string) {
     super(message);
     this.name = "PersonaApiError";
+    this.status = status;
+    this.code = code;
   }
 }
 
