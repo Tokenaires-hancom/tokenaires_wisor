@@ -23,9 +23,13 @@
 wisor/
 ├─ apps/web/            Next.js 15 · 화면 전체          → apps/web/CLAUDE.md
 ├─ data-pipeline/       Python 배치 · 스타일 점수        → data-pipeline/CLAUDE.md
+├─ persona_explain/     Python 서버 · 대가 페르소나 설명·챗봇
 ├─ supabase/schema.sql  사용자 데이터 스키마
 └─ docs/                결정 기록
 ```
+
+`persona_explain/`에는 이 파일의 자매 격인 `CLAUDE.md`가 없고 담당도 정해져 있지 않습니다.
+화면에서는 `apps/web/lib/personaApi.ts`가 HTTP로 부릅니다.
 
 경계는 하나뿐이고, 이 경계는 절대 넘지 않습니다.
 
@@ -147,7 +151,7 @@ push 전에 `/code-review`를 돌리면 지적이 덜 나옵니다. 필수는 �
 - ❌ **`scores.json` 직접 수정.** 배치를 다시 돌립니다.
 - ❌ **컴포넌트에서 `localStorage` 직접 호출.** 저장은 `apps/web/lib/store.ts`를 거칩니다. Supabase 교체 지점이기 때문입니다. 이 함수들은 전부 `Promise`를 돌려줍니다.
 - ❌ **클라이언트 컴포넌트에서 `lib/scores.ts` import.** scores.json 전체가 브라우저 번들에 실립니다. 타입과 라벨은 `lib/scores.types.ts`에서 가져오고, 데이터는 서버 컴포넌트에서 props로 내려보냅니다.
-- ❌ **의존성 추가.** 새 패키지가 정말 필요하면 먼저 물어보세요. 지금 웹은 Next·React뿐이고 그 상태를 유지합니다.
+- ❌ **의존성 추가.** 새 패키지가 정말 필요하면 먼저 물어보세요. 지금 웹이 쓰는 것은 `next`·`react`·`react-dom`과 Supabase 클라이언트 둘(`@supabase/ssr`·`@supabase/supabase-js`)입니다. Supabase는 2번 담당의 계정·학습기록 저장에 필요해서 들어왔습니다 — **규칙 위반이 아니니 지우지 마세요.** 이 목록을 더 늘리지 않는다는 뜻입니다.
 - ❌ **"~하면 좋습니다", "지금이 기회입니다" 류 UI 문구.** 사용자에게 보이는 문장은 관찰과 확인 사항까지입니다.
 
 ---
@@ -196,8 +200,12 @@ push 전에 `/code-review`를 돌리면 지적이 덜 나옵니다. 필수는 �
 | **2번** | 백엔드·Supabase·통합 | `supabase/`, `apps/web/lib/store.ts`, 배포·환경변수 |
 | **3번** | 재무데이터·스타일 점수 | `data-pipeline/` |
 | **4번** | (차트 교육·비전 LLM 기능 제거로 공석 — 다음 담당 재배정 필요) | — |
+| **없음** | 대가 페르소나 설명·챗봇 | `persona_explain/` |
 
 **남의 영역 파일을 고쳐야 하면 직접 고치지 말고 이슈로 넘깁니다.** 예외는 명백한 오타와 타입 오류입니다.
+
+`persona_explain/`은 담당이 비어 있어서 이 규칙이 적용되지 않습니다. 누가 고쳐도 막는 사람이 없고,
+반대로 리뷰할 사람도 없습니다. 이 영역을 만지면 PR에서 리뷰어를 직접 지목하세요.
 
 리뷰 담당(설계 가이드 12장):
 
