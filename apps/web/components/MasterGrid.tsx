@@ -93,7 +93,7 @@ export default function MasterGrid() {
 
       {/* 리본 화살표 꼭지 바로 아래에 선다. 화살표가 그리드 상자 안에서 끝나므로
        *  이 링크도 같은 상자 안에 절대 위치로 둬야 4px 간격이 지켜진다.
-       *  좌표는 globals.css의 --arrow-x/--arrow-y에 있고 위 path와 짝이다. */}
+       *  좌표는 app/styles/learn-masters.css의 --arrow-x/--arrow-y에 있고 위 path와 짝이다. */}
       <a className="compare-jump" href="#compare">
         <span>투자 철학</span>
         <span>한눈에 비교하기</span>

@@ -313,7 +313,7 @@ Gold 위의 흰 글자는 대비가 낮으므로 16px 이상·700 이상인 주 
 
 ## 11. 구현 참조
 
-- 전역 토큰·배우기 스타일: `apps/web/app/globals.css`
+- 전역 토큰: `apps/web/app/styles/tokens.css` · 배우기 스타일: `apps/web/app/styles/learn-*.css`
 - 배우기 목록: `apps/web/app/learn/page.tsx`
 - 대가 여정 그리드: `apps/web/components/MasterGrid.tsx`
 - 대가 경로: `apps/web/components/MasterPath.tsx`

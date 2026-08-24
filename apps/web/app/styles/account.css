@@ -1,0 +1,469 @@
+/* ---------- 계정과 학습 기록 저장 ---------- */
+
+.nav-account {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.38rem 0.72rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.nav a.nav-account:hover,
+.nav .nav-account-user:hover,
+.nav a.nav-account[data-active="true"] {
+  border-color: var(--gold-line);
+  background: var(--gold-soft);
+  color: var(--ink);
+}
+
+.nav-account-user span {
+  display: grid;
+  width: 1.25rem;
+  height: 1.25rem;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--surface);
+  font-size: 0.65rem;
+  font-weight: 800;
+}
+
+.auth-page {
+  min-height: calc(100vh - 60px);
+  display: grid;
+  align-items: center;
+  padding-block: clamp(2rem, 7vw, 5.5rem);
+  background: var(--surface-sunk);
+}
+
+.auth-layout {
+  display: grid;
+  grid-template-columns: minmax(18rem, 0.82fr) minmax(22rem, 1fr);
+  gap: clamp(2rem, 6vw, 5rem);
+  align-items: center;
+}
+
+.auth-ledger {
+  position: relative;
+  padding: 2rem 2rem 1.75rem 3.25rem;
+  border: 1px solid var(--line);
+  border-left: 0;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--surface);
+  box-shadow: 0 5px 0 var(--line);
+}
+
+.auth-ledger::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 1rem;
+  width: 1px;
+  background: var(--gold-line);
+  box-shadow: 0.28rem 0 0 var(--gold-line);
+}
+
+.auth-ledger .eyebrow,
+.auth-panel .eyebrow {
+  color: var(--gold-deep);
+}
+
+.auth-ledger h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(2rem, 4vw, 3.35rem);
+  font-weight: 800;
+  letter-spacing: -0.055em;
+  line-height: 1.08;
+}
+
+.auth-ledger > p:not(.eyebrow):not(.auth-ledger-note) {
+  max-width: 27rem;
+  margin: 1.35rem 0 1.75rem;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+}
+
+.auth-ledger dl {
+  margin: 0;
+  border-top: 1px solid var(--line);
+}
+
+.auth-ledger dl > div {
+  display: grid;
+  grid-template-columns: 5.8rem 1fr;
+  gap: 1rem;
+  padding: 0.72rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.auth-ledger dt {
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.auth-ledger dd {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+}
+
+.auth-ledger-note {
+  margin: 1rem 0 0;
+  color: var(--ink-faint);
+  font-size: 0.72rem;
+}
+
+.auth-panel {
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: calc(var(--radius) + 4px);
+  background: var(--surface);
+  box-shadow: 0 8px 0 var(--ink);
+}
+
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-sunk);
+}
+
+.auth-tabs button {
+  padding: 0.85rem 1rem;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: var(--ink-soft);
+  font-weight: 800;
+}
+
+.auth-tabs button + button {
+  border-left: 1px solid var(--line);
+}
+
+.auth-tabs button[aria-selected="true"] {
+  border-bottom-color: var(--gold);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.auth-panel-body {
+  padding: clamp(1.5rem, 4vw, 2.4rem);
+}
+
+.auth-panel h1 {
+  margin: 0;
+  font-size: clamp(1.55rem, 3vw, 2.15rem);
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.auth-intro {
+  margin: 0.55rem 0 1.5rem;
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+}
+
+.auth-google {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  padding: 0.72rem 1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 800;
+  box-shadow: 0 3px 0 var(--line);
+}
+
+.auth-google:hover:not(:disabled) {
+  border-color: var(--gold-deep);
+  background: var(--gold-soft);
+}
+
+.auth-google span {
+  display: grid;
+  width: 1.45rem;
+  height: 1.45rem;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
+  font-size: 0.78rem;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin: 1.35rem 0;
+  color: var(--ink-faint);
+  font-size: 0.72rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: var(--line);
+}
+
+.auth-form {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.auth-form label,
+.auth-reset label {
+  color: var(--ink);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.auth-form input,
+.auth-reset input,
+.account-delete-confirmation input {
+  width: 100%;
+  min-height: 2.9rem;
+  padding: 0.68rem 0.8rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+
+.auth-form input:focus,
+.auth-reset input:focus,
+.account-delete-confirmation input:focus {
+  border-color: var(--gold-deep);
+  outline: 2px solid var(--gold-soft);
+}
+
+.auth-password-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.45rem;
+}
+
+.auth-password-label button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  text-decoration: underline;
+}
+
+.auth-message {
+  margin: 0.45rem 0 0;
+  padding: 0.65rem 0.75rem;
+  border: 1px dashed var(--ochre-line);
+  border-radius: 8px;
+  background: var(--ochre-soft);
+  color: var(--ochre);
+  font-size: 0.78rem;
+}
+
+.auth-message[data-kind="success"] {
+  border-style: solid;
+  border-color: var(--gold-line);
+  background: var(--gold-soft);
+  color: var(--ink);
+}
+
+.auth-submit {
+  width: 100%;
+  margin-top: 0.65rem;
+}
+
+.auth-panel button:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
+
+.auth-reset-layout {
+  max-width: 34rem;
+}
+
+.auth-reset,
+.auth-reset input {
+  display: block;
+}
+
+.auth-reset input {
+  margin-top: 0.35rem;
+}
+
+.account-empty,
+.account-settings-card {
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.account-empty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  border-style: dashed;
+  background: var(--surface-sunk);
+}
+
+.account-empty p,
+.account-storage-note,
+.account-danger-zone p {
+  margin: 0.35rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+}
+
+.account-settings-card {
+  border-top: 4px solid var(--gold);
+}
+
+.account-settings-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.account-settings-facts > div {
+  min-width: 0;
+  padding: 0.2rem 1.25rem 1rem 0;
+}
+
+.account-settings-facts > div + div {
+  padding-left: 1.25rem;
+  border-left: 1px solid var(--line);
+}
+
+.account-settings-facts dt {
+  color: var(--ink-faint);
+  font-size: 0.72rem;
+}
+
+.account-settings-facts dd {
+  overflow-wrap: anywhere;
+  margin: 0.3rem 0 0;
+  font-weight: 700;
+}
+
+.account-settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.account-danger-zone {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px dashed var(--line-strong);
+}
+
+.account-delete-confirmation {
+  width: min(100%, 21rem);
+  padding: 0.9rem;
+  border: 1px solid var(--wine-line);
+  background: var(--wine-soft);
+}
+
+.account-delete-confirmation > div {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+}
+
+.account-delete-trigger,
+.account-delete-submit,
+.account-delete-cancel {
+  min-height: 2.35rem;
+  padding: 0.55rem 0.8rem;
+  border-radius: 7px;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.account-delete-trigger {
+  border: 1px solid var(--wine-line);
+  background: var(--surface);
+  color: var(--wine-deep);
+}
+
+.account-delete-submit {
+  border: 1px solid var(--wine-deep);
+  background: var(--wine-deep);
+  color: var(--surface);
+}
+
+.account-delete-cancel {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-soft);
+}
+
+@media (max-width: 760px) {
+  .auth-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .auth-ledger {
+    padding: 1.4rem 1.25rem 1.25rem 2.5rem;
+  }
+
+  .account-empty,
+  .account-danger-zone {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 520px) {
+  .nav-account-user {
+    font-size: 0;
+  }
+
+  .auth-page {
+    padding-block: 1rem 2.5rem;
+  }
+
+  .auth-ledger dl,
+  .auth-ledger-note {
+    display: none;
+  }
+
+  .account-settings-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .account-settings-facts > div,
+  .account-settings-facts > div + div {
+    padding: 0.65rem 0;
+    border-left: 0;
+  }
+
+  .account-settings-facts > div + div {
+    border-top: 1px solid var(--line);
+  }
+}

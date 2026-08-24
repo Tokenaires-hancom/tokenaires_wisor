@@ -1,0 +1,116 @@
+/* Wisor 디자인 토큰
+ *
+ * 듀오링고를 레퍼런스로 삼는다. 듀오링고가 초록(--color-owl #58CC02)을
+ * 쓰는 자리를 골드가 받고, 버건디는 포인트에만 쓴다.
+ *
+ * 골드 #FFA000의 흰 글씨 대비는 2.05:1로 듀오링고 초록(2.06:1)과 사실상
+ * 같다. 레퍼런스와 동일한 조건이므로 흰 글씨를 얹되, 같은 조건을 따라
+ * 16px 이상 굵기 700 이상으로만 쓴다. 작은 설명 문구는 올리지 않는다.
+ *
+ * 회색 계열은 듀오링고 값을 그대로 가져왔다 (snow/polar/eel/wolf/swan).
+ */
+
+:root {
+  --paper: #ffffff;
+  --surface: #ffffff;
+  --surface-sunk: #f7f7f7;
+  --ink: #4b4b4b;
+  --ink-soft: #777777;
+  --ink-faint: #afafaf;
+  --line: #e5e5e5;
+  --line-strong: #cfcfcf;
+
+  --gold: #ffa000;
+  --gold-deep: #c67b00;
+  --gold-soft: #fff4e0;
+  --gold-line: #ffd08a;
+
+  --wine: #c2183c;
+  --wine-deep: #92102c;
+  --wine-soft: #fce9ed;
+  --wine-line: #efa9b7;
+
+  /* 대가별 색. 비교표 그래프에서만 쓴다 — 이 색으로 종목의 충족·미충족이나
+     가격 방향을 표시하지 않는다.
+     public/investors/<id>.png 초상에서 뽑은 대표색을 출발점으로 삼고, 일곱 개가
+     서로 구별되도록 명도를 벌렸다. dataviz 검증기(전체 쌍) 통과:
+     명도대 PASS · 채도 PASS · 대비 PASS · 정상시야 최소 ΔE 16.3 ·
+     색각이상 최소 ΔE 7.2(6–8 대역이라 이름·퍼센트·얼굴을 함께 붙이는 것이 조건이다) */
+  --master-buffett: #ec5163;
+  --master-graham: #7f8ada;
+  --master-lynch: #6d27a6;
+  --master-marks: #00957c;
+  --master-fisher: #906d03;
+  --master-greenblatt: #952c33;
+  --master-soros: #2369a3;
+
+  /* 고른 칸을 채우고 그 위에 흰 글씨를 얹는 자리. 위 색 그대로 쓰면 셋이
+     본문 크기 기준 4.5:1에 못 미친다. 색상각과 채도는 두고 명도만 내렸다 */
+  --master-buffett-deep: #d53a51; /* 흰글씨 4.61:1 */
+  --master-graham-deep: #656ebc; /* 4.66:1 */
+  --master-lynch-deep: #6d27a6; /* 8.43:1 */
+  --master-marks-deep: #01836d; /* 4.70:1 */
+  --master-fisher-deep: #906d03; /* 4.80:1 */
+  --master-greenblatt-deep: #952c33; /* 7.82:1 */
+  --master-soros-deep: #2369a3; /* 5.80:1 */
+
+  --ochre: #8a5a17;
+  --ochre-soft: #f5ecdd;
+  --ochre-line: #dcc49a;
+
+  --sans: "Pretendard Variable", Pretendard, -apple-system, system-ui, sans-serif;
+  --mono: "Pretendard Variable", Pretendard, -apple-system, system-ui, sans-serif;
+
+  --gutter: clamp(1.25rem, 5vw, 4rem);
+  --radius: 12px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* 비교표로 건너뛸 때 튀지 않게 한다. 움직임을 꺼 달라고 한 사용자에게는
+   즉시 이동한다 */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--wine);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+

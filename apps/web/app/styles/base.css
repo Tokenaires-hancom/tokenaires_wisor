@@ -1,0 +1,269 @@
+/* ---------- 레이아웃 ---------- */
+
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-inline: var(--gutter);
+}
+
+.wrap-narrow {
+  max-width: 720px;
+}
+
+.masthead {
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.masthead-inner {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  height: 60px;
+}
+
+.wordmark {
+  font-size: 1.6rem;
+  letter-spacing: 0.02em;
+  color: var(--wine-deep);
+  transform: translateY(2px);
+}
+
+.wordmark span {
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  margin-left: 0.5rem;
+  text-transform: uppercase;
+}
+
+.nav {
+  display: flex;
+  gap: 1.5rem;
+  margin-left: auto;
+  font-size: 0.98rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  transform: translateY(2px);
+}
+
+.nav::-webkit-scrollbar {
+  display: none;
+}
+
+.nav a:not(.nav-account) {
+  color: var(--ink-soft);
+  padding-block: 0.35rem;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+
+.nav a:not(.nav-account):hover {
+  color: var(--ink);
+}
+
+.nav a:not(.nav-account)[data-active="true"] {
+  color: var(--wine);
+  border-bottom-color: var(--wine);
+}
+
+@media (max-width: 640px) {
+  .masthead-inner {
+    gap: 1rem;
+  }
+
+  .wordmark {
+    flex: none;
+    font-size: 1.45rem;
+  }
+
+  .wordmark span {
+    display: none;
+  }
+
+  .nav {
+    gap: 1.15rem;
+    font-size: 0.9rem;
+  }
+}
+
+.foot {
+  margin-top: auto;
+  border-top: 1px solid var(--line);
+  padding-block: 2rem 3rem;
+  color: var(--ink-faint);
+  font-size: 0.8rem;
+}
+
+.foot p {
+  margin: 0.2rem 0;
+  max-width: 60ch;
+}
+
+/* ---------- 활자 ---------- */
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 0 0 0.75rem;
+}
+
+.thesis {
+  font-size: clamp(1.9rem, 4.4vw, 3rem);
+  line-height: 1.35;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0 0 1.25rem;
+  /* 산세리프 굵은 제목 기준으로 줄바꿈 폭을 좁혔다. 한글 약 11~12자 */
+  max-width: 20ch;
+  /* 한글 기본 줄바꿈은 글자 단위라 "배웁니다"가 "배 / 웁니다"로 쪼개진다. 어절에서만 끊는다 */
+  word-break: keep-all;
+}
+
+.thesis em {
+  font-style: normal;
+  color: var(--wine);
+  box-shadow: inset 0 -0.35em 0 var(--wine-soft);
+}
+
+h2.section {
+  font-size: 1.45rem;
+  font-weight: 800;
+  margin: 0 0 0.35rem;
+}
+
+h3.sub {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+
+.lede {
+  color: var(--ink-soft);
+  max-width: 62ch;
+  margin: 0 0 2rem;
+}
+
+.mono {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+}
+
+/* ---------- 재무 용어 설명 ---------- */
+
+.financial-term {
+  display: inline-flex;
+  position: relative;
+  vertical-align: baseline;
+}
+
+.financial-term-trigger {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.22em;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px dashed var(--ink-faint);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  text-align: inherit;
+  cursor: help;
+}
+
+.financial-term-trigger:hover,
+.financial-term-trigger:focus-visible {
+  border-bottom-color: var(--wine);
+  color: var(--wine-deep);
+}
+
+.financial-term-mark {
+  display: inline-grid;
+  width: 1.05em;
+  height: 1.05em;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 0.66em;
+  font-weight: 800;
+  line-height: 1;
+  transform: translateY(-0.08em);
+}
+
+.financial-term-tooltip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  z-index: 30;
+  width: min(19rem, calc(100vw - 2rem));
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--surface);
+  box-shadow: 0 3px 0 var(--line-strong);
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.5;
+  opacity: 0;
+  pointer-events: none;
+  text-align: left;
+  transform: translate(-50%, 4px);
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.financial-term-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  border: 6px solid transparent;
+  border-top-color: var(--ink);
+  transform: translateX(-50%);
+}
+
+.financial-term:hover .financial-term-tooltip,
+.financial-term:focus-within .financial-term-tooltip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@media (max-width: 860px) {
+  .financial-term-tooltip {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    left: 1rem;
+    width: auto;
+    transform: translateY(6px);
+  }
+
+  .financial-term-tooltip::after {
+    display: none;
+  }
+
+  .financial-term:hover .financial-term-tooltip,
+  .financial-term:focus-within .financial-term-tooltip {
+    transform: translateY(0);
+  }
+}
+

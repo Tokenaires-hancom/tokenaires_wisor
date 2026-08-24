@@ -1,0 +1,817 @@
+/* ---------- 학습 경로: 지그재그 노드 ---------- */
+
+.path-shell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.path {
+  list-style: none;
+  margin: 0 0 2rem;
+  padding: 0;
+  width: 100%;
+  max-width: 460px;
+}
+
+.path-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 92px;
+  padding-left: calc(50% - 34px + var(--sway, 0px));
+}
+
+.path-node {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: var(--line);
+  box-shadow: 0 5px 0 var(--line-strong);
+  color: #fff;
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.path-node:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 var(--line-strong);
+}
+
+.path-node[data-state="done"] {
+  background: var(--gold);
+  box-shadow: 0 5px 0 var(--gold-deep);
+}
+
+.path-node[data-state="done"]:active {
+  box-shadow: 0 2px 0 var(--gold-deep);
+}
+
+.path-node[data-state="current"] {
+  background: var(--gold);
+  border: 4px solid var(--wine);
+  box-shadow: 0 5px 0 var(--gold-deep);
+}
+
+.path-node[data-state="current"]:active {
+  box-shadow: 0 2px 0 var(--gold-deep);
+}
+
+.path-node[data-state="todo"] .path-node-mark {
+  color: var(--ink-faint);
+}
+
+.path-bubble {
+  position: absolute;
+  top: 2px;
+  left: calc(50% - 34px + var(--sway, 0px));
+  transform: translateY(-50%);
+  background: var(--surface);
+  border: 2px solid var(--wine);
+  border-radius: 999px;
+  color: var(--wine);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 0.25rem 0.7rem;
+  white-space: nowrap;
+}
+
+.path-label {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.path-label-slot {
+  color: var(--ink-faint);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+}
+
+.path-label-title {
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 700;
+  word-break: keep-all;
+}
+
+.path-figure {
+  position: absolute;
+  right: calc(50% + 34px - var(--sway, 0px) + 20px);
+  bottom: 16px;
+  pointer-events: auto;
+}
+
+.path-figure[data-anchor="2"] {
+  right: calc(50% + 34px - var(--sway, 0px) + 88px);
+  bottom: -26px;
+}
+
+.path-figure[data-anchor="3"] {
+  right: calc(50% + 34px - var(--sway, 0px) + 40px);
+  bottom: -50px;
+}
+
+.path-figure .character img {
+  height: 190px !important;
+  image-rendering: auto;
+  transform: scaleX(-1);
+}
+
+.path-cta {
+  width: min(100%, 460px);
+}
+
+.path-restart {
+  margin-top: 0.75rem;
+  border: 0;
+  background: transparent;
+  color: var(--ink-faint);
+  font: inherit;
+  font-size: 0.82rem;
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+  cursor: pointer;
+}
+
+.path-restart:hover,
+.path-restart:focus-visible {
+  color: var(--wine);
+}
+
+.path-guide-cta {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 12px);
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0.35rem 0.7rem;
+  border: 2px solid var(--wine);
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: 0 3px 0 var(--wine-line);
+  color: var(--wine);
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+  transition: transform 180ms ease-out, box-shadow 180ms ease-out, background 180ms ease-out;
+}
+
+.path-figure:hover .path-guide-cta,
+.path-guide-cta:hover,
+.path-guide-cta:focus-visible {
+  transform: translateX(-50%) translateY(-2px);
+  background: var(--wine-soft);
+  box-shadow: 0 5px 0 var(--wine-line);
+}
+
+.path-guide-cta::after {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid var(--wine);
+  border-bottom: 2px solid var(--wine);
+  background: var(--surface);
+  content: "";
+  transform: translateX(-50%) rotate(45deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .path-guide-cta[data-resume="true"] {
+    animation: path-guide-prompt 1.8s ease-in-out infinite;
+  }
+
+  .path-cta-mobile[data-resume="true"] {
+    animation: path-guide-prompt-mobile 1.8s ease-in-out infinite;
+  }
+}
+
+@keyframes path-guide-prompt {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-3px);
+  }
+}
+
+@keyframes path-guide-prompt-mobile {
+  0%,
+  100% {
+    transform: translate(-50%, -50%);
+  }
+  50% {
+    transform: translate(-50%, calc(-50% - 3px));
+  }
+}
+
+.path-guide-cta[data-resume="true"]:hover,
+.path-guide-cta[data-resume="true"]:focus-visible {
+  animation: none;
+}
+
+.path-cta-mobile {
+  display: none;
+}
+
+@media (max-width: 1100px) {
+  .path-figure {
+    right: calc(50% + 34px - var(--sway, 0px) + 20px);
+    pointer-events: none;
+  }
+
+  .path-figure[data-anchor="2"] {
+    right: calc(50% + 34px - var(--sway, 0px) + 88px);
+    bottom: -14px;
+  }
+
+  .path-figure[data-anchor="3"] {
+    right: calc(50% + 34px - var(--sway, 0px) + 40px);
+  }
+
+  .path-figure .character img {
+    height: 150px !important;
+  }
+
+  .path-guide-cta {
+    display: none;
+  }
+
+  .path-bubble {
+    display: none;
+  }
+
+  .path-cta-mobile {
+    position: absolute;
+    top: 2px;
+    left: calc(50% + var(--sway, 0px) + 12px);
+    z-index: 1;
+    display: inline-flex;
+    min-height: 34px;
+    width: max-content;
+    max-width: calc(100% - 1rem);
+    padding: 0.35rem 0.7rem;
+    border: 2px solid var(--wine);
+    border-radius: 999px;
+    background: var(--surface);
+    box-shadow: 0 3px 0 var(--wine-line);
+    color: var(--wine);
+    font-size: 0.78rem;
+    transform: translate(-50%, -50%);
+  }
+
+  .path-cta-mobile:hover,
+  .path-cta-mobile:focus-visible {
+    background: var(--wine-soft);
+    box-shadow: 0 4px 0 var(--wine-line);
+  }
+}
+
+@media (max-width: 640px) {
+  .path-row {
+    min-height: 84px;
+    padding-left: calc(50% - 34px + var(--sway, 0px) * 0.5);
+  }
+
+  .path-cta-mobile {
+    left: calc(50% + var(--sway, 0px) * 0.5 + 12px);
+  }
+
+  .path-figure {
+    right: calc(50% + 34px - var(--sway, 0px) * 0.5 + 14px);
+    bottom: 16px;
+  }
+
+  .path-figure[data-anchor="2"] {
+    right: calc(50% + 34px - var(--sway, 0px) * 0.5 + 58px);
+  }
+
+  .path-figure[data-anchor="3"] {
+    right: calc(50% + 34px - var(--sway, 0px) * 0.5 + 34px);
+  }
+
+  .path-figure .character img {
+    height: 124px !important;
+  }
+
+  .path-label-title {
+    font-size: 0.82rem;
+  }
+}
+
+.master-shell {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+.master-page {
+  padding-block: 3rem 5rem;
+}
+
+.master-rail {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  flex-shrink: 0;
+  width: 50px;
+  margin-left: -1.5rem;
+  padding-top: 7.5rem;
+  padding-right: 2.5rem;
+}
+
+.master-rail::after {
+  position: absolute;
+  top: 7.5rem;
+  right: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--line);
+  content: "";
+  pointer-events: none;
+}
+
+/* 넓은 화면에서 레일을 뷰포트 진짜 왼쪽 끝에 고정했던 적이 있다. 콘텐츠는
+ * .wrap으로 가운데 정렬돼 있어서 화면이 넓어질수록 레일과 본문 사이 여백만
+ * 커졌다(1920px에서 481px). 문서 흐름 안에 그대로 둔다. */
+
+.master-rail-item {
+  display: block;
+  position: relative;
+  z-index: 1;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  line-height: 0;
+}
+
+.master-rail-item:hover {
+  z-index: 2;
+}
+
+.master-rail-name {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 0.5rem;
+  padding: 0.2rem 0.5rem;
+  background: var(--ink);
+  color: #fff;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  white-space: nowrap;
+  border-radius: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.master-rail-item:hover .master-rail-name {
+  opacity: 1;
+}
+
+.master-rail-item img {
+  display: block;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 6px rgba(27, 23, 32, 0.12);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transform-origin: center;
+}
+
+/* width/height 대신 transform으로 키운다 — 박스 크기가 바뀌면 flex 레이아웃이
+ * 다시 계산되면서 옆에 있는 경로 카드까지 흔들린다. transform은 레이아웃에
+ * 영향을 안 준다. */
+.master-rail-item[data-current="true"] img {
+  transform: scale(1.2);
+  box-shadow: 0 4px 14px rgba(27, 23, 32, 0.22);
+  /* outline은 hover 규칙의 box-shadow와 겹쳐도 사라지지 않는다 — 호버 중에도
+   * '지금 이 페이지'라는 표시가 계속 남아야 한다. */
+  outline: 2px solid var(--wine-line);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .master-rail-item:hover img {
+    transform: scale(1.32);
+    box-shadow: 0 6px 18px rgba(27, 23, 32, 0.26);
+  }
+}
+
+.master-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.master-achievements {
+  scroll-margin-top: 5rem;
+  margin: 2.75rem 0 2.5rem;
+}
+
+.master-achievements-head {
+  display: grid;
+  grid-template-columns: minmax(12rem, 0.8fr) minmax(18rem, 1.2fr);
+  align-items: end;
+  gap: 2rem;
+  margin-bottom: 1.15rem;
+}
+
+.master-achievements-head .eyebrow {
+  margin-bottom: 0.2rem;
+}
+
+.master-achievements-head h2 {
+  margin: 0;
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  line-height: 1.25;
+  letter-spacing: -0.035em;
+}
+
+.master-achievements-head > p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  line-height: 1.65;
+  word-break: keep-all;
+}
+
+.achievement-records {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.achievement-records li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 1.4rem 1rem 1rem;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--gold);
+  border-radius: 4px 4px var(--radius) var(--radius);
+  background: var(--surface);
+  box-shadow: 0 3px 0 var(--line);
+}
+
+.achievement-label {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--gold-line);
+  border-radius: 4px;
+  background: var(--gold-soft);
+  color: var(--gold-deep);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.achievement-records h3 {
+  margin: 0 0 0.55rem;
+  font-size: 1rem;
+  line-height: 1.45;
+  letter-spacing: -0.02em;
+  word-break: keep-all;
+}
+
+.achievement-records p {
+  margin: 0 0 1rem;
+  color: var(--ink-soft);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  word-break: keep-all;
+}
+
+.achievement-records small {
+  display: block;
+  margin-top: auto;
+  padding-top: 0.7rem;
+  border-top: 1px dashed var(--line-strong);
+  color: var(--ink-faint);
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 760px) {
+  .master-achievements-head {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+
+  .achievement-records {
+    grid-template-columns: 1fr;
+  }
+
+  .achievement-records li {
+    padding: 1.15rem 1rem 1rem;
+  }
+}
+
+@media (max-width: 860px) {
+  .master-page {
+    padding-top: 1rem;
+  }
+
+  .master-shell {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  /* 좁은 화면에서는 7명을 다 늘어놓는 대신 MobileMasterDock(왼쪽 아래
+   * 떠 있는 버튼)이 그 역할을 한다 — 데스크톱 레일은 숨긴다. */
+  .master-rail {
+    display: none;
+  }
+
+  .master-main {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .master-page {
+    padding-top: 0.75rem;
+  }
+}
+
+.mobile-master-dock {
+  display: none;
+}
+@media (max-width: 640px) {
+  .mobile-master-dock {
+    display: block;
+    position: fixed;
+    left: 1.25rem;
+    bottom: 1.25rem;
+    z-index: 40;
+  }
+}
+
+/* 목록이 펼쳐지면 뒤 페이지를 어둡게 깔아서 경로 카드와 겹쳐 보이지
+ * 않게 하고, 바깥을 누르면 닫히게 한다. */
+.mobile-master-dock-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 39;
+  background: rgba(20, 16, 14, 0.4);
+  border: none;
+  padding: 0;
+  cursor: default;
+}
+
+.mobile-master-dock-toggle {
+  position: relative;
+  z-index: 41;
+  display: block;
+  padding: 0;
+  border: 3px solid var(--wine-line);
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 8px 20px rgba(27, 23, 32, 0.22);
+  cursor: pointer;
+}
+.mobile-master-dock-toggle img {
+  display: block;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.mobile-master-dock-list {
+  position: relative;
+  z-index: 41;
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.mobile-master-dock-item {
+  position: relative;
+  z-index: 1;
+  display: block;
+  border-radius: 50%;
+}
+.mobile-master-dock-item:hover,
+.mobile-master-dock-item:focus {
+  z-index: 2;
+}
+.mobile-master-dock-item img {
+  display: block;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(27, 23, 32, 0.2);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.mobile-master-dock-item:hover img,
+.mobile-master-dock-item:focus img {
+  transform: scale(1.4);
+  box-shadow: 0 6px 14px rgba(27, 23, 32, 0.26);
+}
+
+/* 데스크톱 레일의 이름표(.master-rail-name)와 같은 패턴 — 여기서는
+ * 목록이 세로라 아래가 아니라 오른쪽에 띄운다. */
+.mobile-master-dock-name {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 0.6rem;
+  padding: 0.2rem 0.5rem;
+  background: var(--ink);
+  color: #fff;
+  font-size: 0.72rem;
+  white-space: nowrap;
+  border-radius: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+.mobile-master-dock-item:hover .mobile-master-dock-name,
+.mobile-master-dock-item:focus .mobile-master-dock-name {
+  opacity: 1;
+}
+
+/* ---------- 출처 각주 ---------- */
+
+/* 세 유형은 색이 아니라 낱말 자체가 구분한다. 배지 색을 셋으로 나누면
+   골드·오커가 뜻하는 충족/미충족으로 잘못 읽힌다. 여기서 색은 판정이 아니다. */
+
+.source-note {
+  margin-top: 2rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  background: var(--surface-sunk);
+  max-width: 40em;
+}
+
+.source-note summary {
+  cursor: pointer;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.source-note-tally {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+  font-weight: 400;
+}
+
+.source-note[open] summary {
+  margin-bottom: 0.7rem;
+}
+
+.source-note ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.source-note li {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 0.84rem;
+  line-height: 1.65;
+  color: var(--ink-soft);
+}
+
+.source-kind {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  padding: 0.1rem 0.35rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+/* 창작만 테두리를 점선으로 둔다. 근거가 없다는 사실은 색이 아니라 형태로 말한다 */
+.source-kind[data-kind="창작"] {
+  border-style: dashed;
+}
+
+.source-para {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+.source-text {
+  min-width: 0;
+}
+
+.source-note-legend {
+  margin: 0 0 1.25rem;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.source-note-legend li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 30rem) {
+  .source-note li {
+    grid-template-columns: auto auto;
+  }
+  .source-text {
+    grid-column: 1 / -1;
+  }
+}
+
+.master-tips {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.master-tips details {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+}
+.master-tips summary {
+  cursor: pointer;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.master-tips details[open] summary {
+  margin-bottom: 0.5rem;
+}
+.master-tips .reason-list {
+  margin: 0;
+}
+
+/* ---------- 캐릭터 ---------- */
+
+.character {
+  display: block;
+  flex: none;
+  line-height: 0;
+}
+
+.character img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+/* 아직 도달하지 않은 구간의 캐릭터. 듀오링고는 미완 구간을 통째로
+ * 회색으로 둔다 — 색이 곧 진행 상태다. */
+.character[data-dimmed="true"] img {
+  filter: grayscale(1);
+  opacity: 0.45;
+}
+

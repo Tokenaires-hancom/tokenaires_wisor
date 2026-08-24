@@ -2,7 +2,22 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import Nav from "@/components/Nav";
 import PersonaChatFab from "@/components/PersonaChatFab";
-import "./globals.css";
+// 아래 순서를 바꾸지 않는다. 12개는 원래 globals.css 한 파일이었고 각각 그 파일의
+// 연속된 구간이다. 뒤에 오는 규칙이 앞선 규칙을 덮는 자리가 여럿이라(예: stock.css의
+// 종목 줄과 learn-compare.css의 좁은 화면 미디어쿼리) 순서가 곧 동작이다.
+// 나눈 지점과 화면 확인 목록은 docs/css-split-check.md에 있다.
+import "./styles/tokens.css";
+import "./styles/base.css";
+import "./styles/stock.css";
+import "./styles/form.css";
+import "./styles/home.css";
+import "./styles/learn-compare.css";
+import "./styles/learn-chapter.css";
+import "./styles/learn-path.css";
+import "./styles/learn-masters.css";
+import "./styles/me.css";
+import "./styles/persona-chat.css";
+import "./styles/account.css";
 
 export const metadata: Metadata = {
   title: "Wisor — 기업을 고르는 법을 배우는 학습 서비스",

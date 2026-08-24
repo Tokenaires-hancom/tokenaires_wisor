@@ -1,0 +1,282 @@
+/* ---------- 학습노트 배지 ---------- */
+
+.visibility {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.45rem;
+  border-radius: 1px;
+  border: 1px solid var(--line-strong);
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .stock-row {
+    grid-template-columns: 1.6rem 1fr;
+  }
+
+  .stock-score {
+    grid-column: 2;
+    text-align: left;
+  }
+
+  .stock-market-strip {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+/* ---------- 커리큘럼 챕터 ---------- */
+
+.chapter-progress {
+  display: flex;
+  gap: 3px;
+  margin: 1.25rem 0 1.75rem;
+}
+
+.chapter-progress span {
+  flex: 1;
+  height: 3px;
+  border-radius: 1px;
+  background: var(--line);
+}
+
+.chapter-progress span[data-state="done"] {
+  background: var(--wine-line);
+}
+
+.chapter-progress span[data-state="current"] {
+  background: var(--wine);
+}
+
+/* 챕터 안에서 지금 어디쯤인지. 잠금이 아니라 표시다.
+ * 세 상태는 색만으로 구분하지 않는다. 완료는 채운 막대, 지금 위치는 더 크고
+ * 테두리가 있는 막대(가장 눈에 띄어야 한다), 아직 안 간 곳은 얇은 빈 트랙이다.
+ * 흑백으로 봐도 세 상태가 서로 다른 모양으로 구분된다. */
+.step-bar {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0;
+}
+.step-bar li {
+  flex: 1;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--line);
+  box-sizing: border-box;
+}
+.step-bar li[data-state="done"] {
+  background: var(--wine);
+}
+.step-bar li[data-state="current"] {
+  height: 9px;
+  background: var(--wine-soft);
+  border: 2px solid var(--wine);
+}
+
+.chapter-title {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.75rem;
+}
+
+.chapter-route {
+  margin: 1.25rem 0 1.5rem;
+}
+
+.chapter-route ol {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-sunk);
+  list-style: none;
+  overflow: hidden;
+}
+
+.chapter-route li {
+  position: relative;
+  min-width: 0;
+}
+
+.chapter-route li + li {
+  border-left: 1px solid var(--line);
+}
+
+.chapter-route a {
+  display: grid;
+  min-height: 4.25rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.1rem 0.4rem;
+  align-items: center;
+  padding: 0.65rem 0.7rem;
+  box-sizing: border-box;
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+
+.chapter-route a:hover,
+.chapter-route a:focus-visible {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.chapter-route a:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 2px solid var(--wine);
+  outline-offset: -2px;
+}
+
+.chapter-route-number {
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.chapter-route-label {
+  min-width: 0;
+  font-size: 0.82rem;
+  font-weight: 750;
+  line-height: 1.2;
+  text-align: left;
+  word-break: keep-all;
+}
+
+.chapter-route li[data-current] a {
+  background: var(--wine);
+  color: var(--surface);
+}
+
+.chapter-route li[data-current] .chapter-route-number {
+  color: var(--surface);
+  opacity: 0.72;
+}
+
+.chapter-route li[data-current]::after {
+  content: "";
+  position: absolute;
+  right: 0.7rem;
+  bottom: 0.65rem;
+  left: 0.7rem;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+  color: var(--surface);
+  opacity: 0.65;
+}
+
+@media (max-width: 560px) {
+  .chapter-route a {
+    min-height: 3.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.24rem;
+    justify-content: center;
+    padding: 0.55rem 0.2rem;
+  }
+
+  .chapter-route-label {
+    font-size: 0.76rem;
+    text-align: center;
+  }
+
+  .chapter-route li[data-current]::after {
+    right: 0.35rem;
+    bottom: 0.35rem;
+    left: 0.35rem;
+  }
+}
+
+.style-kicker {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.65rem;
+  color: var(--ink-faint);
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  margin: 0 0 0.75rem;
+}
+
+.style-name {
+  background: var(--wine);
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  padding: 0.38rem 0.6rem;
+  white-space: nowrap;
+}
+
+.chapter-lede {
+  font-size: 1.15rem;
+  color: var(--wine);
+  margin: 0 0 1.5rem;
+  padding-left: 1rem;
+  border-left: 2px solid var(--wine-line);
+}
+
+/* ---------- 투자자 초상 ---------- */
+
+.investor-avatar {
+  display: block;
+  flex: none;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--surface-sunk);
+}
+
+/* 배우기 목록의 카드 머리. 초상 옆에 인물 이름을 놓는다 */
+.master-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+/* 초상만큼 이름 칸이 좁아졌다. 두 줄이 되더라도 어절 안에서 끊기지 않게 한다 */
+.master-card-head h3.sub {
+  margin-bottom: 0;
+  word-break: keep-all;
+}
+
+/* 대가 상세의 머리. 초상을 제목 위에 크게 놓는다 */
+.master-lesson-head {
+  margin-bottom: 1.25rem;
+}
+
+.step-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+.step-nav .mono { color: var(--ink-faint); font-size: 0.85rem; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+

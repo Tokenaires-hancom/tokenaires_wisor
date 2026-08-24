@@ -1,0 +1,510 @@
+/* ---------- 커리큘럼 문항 ---------- */
+
+.checkpoints {
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+  background: var(--wine-soft);
+  border-radius: var(--radius);
+}
+
+.checkpoints .eyebrow {
+  color: var(--wine-deep);
+}
+
+.checkpoints .reason-list {
+  margin-bottom: 0;
+}
+
+.qualitative-check {
+  padding: 1.5rem;
+  border: 1px dashed var(--wine-line);
+  border-radius: var(--radius);
+  background: var(--wine-soft);
+}
+
+.qualitative-check .reason-list {
+  margin-bottom: 1.25rem;
+}
+
+/* ---------- 일곱 스타일 비교 ---------- */
+
+/* 표의 행과 그래프의 막대가 같은 색을 쓴다. 매핑을 한 군데만 둔다 */
+.style-comparison [data-master="buffett"] { --bar: var(--master-buffett); --bar-deep: var(--master-buffett-deep); }
+.style-comparison [data-master="graham"] { --bar: var(--master-graham); --bar-deep: var(--master-graham-deep); }
+.style-comparison [data-master="lynch"] { --bar: var(--master-lynch); --bar-deep: var(--master-lynch-deep); }
+.style-comparison [data-master="marks"] { --bar: var(--master-marks); --bar-deep: var(--master-marks-deep); }
+.style-comparison [data-master="fisher"] { --bar: var(--master-fisher); --bar-deep: var(--master-fisher-deep); }
+.style-comparison [data-master="greenblatt"] { --bar: var(--master-greenblatt); --bar-deep: var(--master-greenblatt-deep); }
+.style-comparison [data-master="soros"] { --bar: var(--master-soros); --bar-deep: var(--master-soros-deep); }
+
+/* 공통 wrap과 같은 1080px을 상한으로 삼는다.
+   100%는 wrap의 내용 폭이므로 음수 마진이 좌우로 같은 만큼 밀어낸다 */
+.style-comparison {
+  --breakout: min(1080px, calc(100vw - 2 * var(--gutter)));
+  width: var(--breakout);
+  margin-inline: calc((100% - var(--breakout)) / 2);
+}
+
+.comparison-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 14rem;
+  gap: 1.5rem;
+}
+
+.comparison-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+/* min-width를 두지 않는다. 데스크톱에서 표 전체가 한눈에 들어와야 고르면서
+   비교할 수 있다. 좁은 화면의 가로 스크롤은 아래 미디어쿼리가 되살린다 */
+.comparison-matrix {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.comparison-matrix th,
+.comparison-matrix td {
+  padding: 0.5rem;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+  vertical-align: middle;
+}
+
+.comparison-matrix tr:last-child th,
+.comparison-matrix tr:last-child td {
+  border-bottom: 0;
+}
+
+.comparison-matrix th:last-child,
+.comparison-matrix td:last-child {
+  border-right: 0;
+}
+
+.comparison-matrix thead th {
+  background: var(--surface-sunk);
+  color: var(--wine-deep);
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+.comparison-matrix thead th:first-child,
+.comparison-matrix tbody th {
+  width: 9.5rem;
+}
+
+/* 얼굴을 이름 위에 쌓는다. 옆에 두면 "벤저민 그레이엄"이 두 줄로 접힌다 */
+.comparison-master {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.comparison-master img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--bar);
+}
+
+.comparison-matrix thead span {
+  display: block;
+}
+
+.comparison-matrix small {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--ink-faint);
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+.comparison-matrix tbody th {
+  background: var(--surface-sunk);
+  color: var(--ink);
+  font-size: 0.8rem;
+}
+
+/* 여백은 안쪽 버튼이 갖는다. 칸 전체가 눌리는 자리여야 하기 때문이다 */
+.comparison-matrix td {
+  padding: 0;
+  height: inherit;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+/* 1px는 실제 높이가 아니라 자식이 height:100%를 계산할 수 있게 하는 기준값이다.
+   행 높이는 내용이 정한다. 이게 없으면 버튼이 글자 높이까지만 차지해서
+   칸 아래쪽이 눌리지도, 채워지지도 않는다 */
+.comparison-matrix tbody tr {
+  height: 1px;
+}
+
+.comparison-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0.5rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+
+/* 채우는 주체는 칸이다. 버튼이 높이를 다 못 잡는 경우에도 칸 전체가 채워진다 */
+.comparison-matrix td:has(.comparison-cell:hover) {
+  background: color-mix(in oklab, var(--bar) 14%, var(--paper));
+}
+
+.comparison-cell:focus-visible {
+  outline: 2px solid var(--bar-deep);
+  outline-offset: -3px;
+}
+
+/* 고른 칸은 채움과 글자색이 함께 뒤집힌다. 명도가 크게 갈리므로 색을 구분하지
+   못해도 알아볼 수 있다 */
+.comparison-matrix td.is-picked {
+  background: var(--bar-deep);
+  color: var(--paper);
+}
+
+.comparison-matrix td.is-picked:has(.comparison-cell:hover) {
+  background: color-mix(in oklab, var(--bar-deep) 84%, black);
+}
+
+.comparison-matrix td.is-picked .comparison-cell:focus-visible {
+  outline-color: var(--paper);
+}
+
+/* 표 옆 레일. 폭을 늘 잡아 두므로 그래프가 열려도 표가 다시 흐르지 않는다 */
+.comparison-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.comparison-rail-title {
+  margin: 0;
+  text-align: center;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.comparison-rail-count {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+/* 그래프를 열기 전까지 이 자리를 버핏이 채운다. 남는 높이를 다 먹되 안쪽은
+   가운데로 모은다 — 위로 붙이면 아래가, 아래로 붙이면 제목과의 사이가 통째로 빈다 */
+.comparison-guide {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+.comparison-bubble {
+  position: relative;
+  margin: 0 0 0.8rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-sunk);
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* 꼬리는 두 겹이다. 바깥이 테두리 색, 1px 위에 얹힌 안쪽이 배경 색 */
+.comparison-bubble::before,
+.comparison-bubble::after {
+  position: absolute;
+  left: 50%;
+  width: 0;
+  height: 0;
+  margin-left: -7px;
+  border-right: 7px solid transparent;
+  border-left: 7px solid transparent;
+  content: "";
+}
+
+.comparison-bubble::before {
+  top: 100%;
+  border-top: 8px solid var(--line);
+}
+
+.comparison-bubble::after {
+  top: calc(100% - 1px);
+  border-top: 8px solid var(--surface-sunk);
+}
+
+.comparison-guide .character img {
+  height: auto;
+  max-height: 150px;
+}
+
+.comparison-rail-count .mono {
+  font-family: var(--mono);
+  color: var(--ink);
+}
+
+.comparison-open {
+  width: 100%;
+  padding: 0.7rem 0.5rem;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--wine);
+  color: var(--paper);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.comparison-open:hover {
+  background: var(--wine-deep);
+}
+
+/* 대가마다 색이 다르다. 다만 색각이상에서 가장 가까운 두 색의 ΔE가 7.2라
+   색만으로는 못 가른다 — 얼굴·이름·퍼센트를 반드시 함께 붙인다.
+   글자는 본문 색을 쓴다. 막대 색을 글자에 옮기지 않는다 */
+.comparison-chart {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.comparison-chart li + li {
+  margin-top: 0.85rem;
+}
+
+.comparison-chart-label {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.35rem;
+  color: var(--ink);
+  font-size: 0.8rem;
+}
+
+/* 얼굴 둘레의 고리가 막대와 같은 색이다. 그래프의 어느 막대가 누구인지를
+   색으로 이어 주는 자리 */
+.comparison-chart-face {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--bar);
+}
+
+.comparison-chart-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.comparison-chart-label .mono {
+  flex-shrink: 0;
+  color: var(--ink-soft);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+}
+
+.comparison-chart-track {
+  display: block;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--surface-sunk);
+}
+
+.comparison-chart-bar {
+  display: block;
+  width: var(--share);
+  height: 100%;
+  /* 자라는 끝만 둥글게. 시작점은 기준선이라 각지게 둔다 */
+  border-radius: 0 4px 4px 0;
+  background: var(--bar);
+}
+
+.comparison-reset {
+  /* 남는 자리를 전부 위로 밀어 바닥에 붙인다. 자리가 없으면 gap이 받는다 */
+  margin-top: auto;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.comparison-reset:hover {
+  color: var(--wine);
+  border-bottom-color: var(--wine);
+}
+
+/* ---------- 좁은 화면: 질문 단위로 다시 쌓는다 ---------- */
+
+.comparison-stack {
+  display: none;
+}
+
+.comparison-stack-group + .comparison-stack-group {
+  margin-top: 2rem;
+}
+
+/* masthead가 60px에 붙어 있으므로 그 아래에 선다. 접어 둔 질문도 계속 보인다 */
+.comparison-stack-question {
+  position: sticky;
+  top: 60px;
+  z-index: 1;
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.comparison-stack-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-sunk);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.comparison-stack-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.comparison-stack-label small {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--ink-faint);
+  font-size: 0.78rem;
+  font-weight: 400;
+}
+
+/* 접어 둔 질문에서 몇 개를 골랐는지 */
+.comparison-stack-toggle .mono {
+  flex-shrink: 0;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: var(--wine);
+  color: var(--paper);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+}
+
+.comparison-stack-caret {
+  flex-shrink: 0;
+  width: 0;
+  height: 0;
+  border-top: 6px solid var(--ink-soft);
+  border-right: 5px solid transparent;
+  border-left: 5px solid transparent;
+  transition: transform 0.15s;
+}
+
+.comparison-stack-toggle[aria-expanded="false"] .comparison-stack-caret {
+  transform: rotate(-90deg);
+}
+
+.comparison-stack ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.comparison-stack li + li {
+  margin-top: 0.5rem;
+}
+
+.comparison-choice {
+  display: block;
+  width: 100%;
+  padding: 0.85rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  text-align: left;
+  cursor: pointer;
+}
+
+.comparison-choice.is-picked {
+  border-color: var(--bar-deep);
+  background: var(--bar-deep);
+  color: var(--paper);
+}
+
+.comparison-choice:focus-visible {
+  outline: 2px solid var(--bar-deep);
+  outline-offset: 2px;
+}
+
+/* 표가 스크롤에 걸리기 한참 전에 레일부터 내린다. 둘을 끝까지 나란히 두면
+   칸 폭이 먼저 무너진다 */
+@media (max-width: 1000px) {
+  .comparison-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* 표를 버리고 세로 목록으로 바꾼다. display:none이라 접근성 트리에서도 빠지므로
+   같은 스물여덟 칸이 두 번 읽히지 않는다 */
+@media (max-width: 820px) {
+  .comparison-scroll {
+    display: none;
+  }
+
+  .comparison-stack {
+    display: block;
+  }
+}
+
+.disclaimer {
+  border-top: 1px solid var(--line);
+  margin-top: 1.5rem;
+  padding-top: 0.9rem;
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+}
+

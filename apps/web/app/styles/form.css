@@ -1,0 +1,61 @@
+/* ---------- 폼 ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--gold);
+  color: #fff;
+  border: 0;
+  border-radius: var(--radius);
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  box-shadow: 0 4px 0 var(--gold-deep);
+}
+
+.btn:hover {
+  background: var(--gold-deep);
+  box-shadow: 0 4px 0 var(--gold-deep);
+}
+
+/* 눌리는 촉감. 그림자가 줄고 그만큼 버튼이 내려앉아 전체 높이는 그대로다.
+ * 움직임이 아니라 형태이므로 reduced-motion에서도 유지한다. */
+.btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 var(--gold-deep);
+}
+
+.btn[data-variant="quiet"] {
+  background: var(--surface);
+  color: var(--wine);
+  box-shadow: 0 4px 0 var(--line);
+  border: 2px solid var(--line);
+  padding: calc(0.75rem - 2px) calc(1.25rem - 2px);
+}
+
+.btn[data-variant="quiet"]:hover {
+  background: var(--wine-soft);
+  border-color: var(--wine-line);
+  box-shadow: 0 4px 0 var(--wine-line);
+}
+
+.btn[data-variant="quiet"]:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 var(--wine-line);
+}
+
+.btn:disabled {
+  background: var(--line);
+  color: var(--ink-faint);
+  box-shadow: 0 4px 0 var(--line-strong);
+  cursor: not-allowed;
+}
+
+.btn:disabled:active {
+  transform: none;
+  box-shadow: 0 4px 0 var(--line-strong);
+}
+
