@@ -1,10 +1,9 @@
 {
-  "generatedAt": "2026-08-24T06:00:21+00:00",
+  "generatedAt": "2026-08-24T07:15:50+00:00",
   "dataSource": "sec-toss",
   "asOf": {
-    "price": "2026-08-24",
-    "financial": "2025-03-29",
-    "priceAt": "2026-08-24T15:00:09+09:00"
+    "price": "2026-08-21",
+    "financial": "2025-03-29"
   },
   "universe": {
     "indexes": [
@@ -12,7 +11,7 @@
       "sp500"
     ],
     "fetchedAt": "2026-08-06",
-    "requested": 427,
+    "requested": 517,
     "included": 379,
     "excluded": [
       {
@@ -25,12 +24,48 @@
         ]
       },
       {
+        "code": "NO_COMMON_YEARS",
+        "count": 43,
+        "examples": [
+          "ABNB",
+          "ALAB",
+          "ALL"
+        ]
+      },
+      {
+        "code": "MISSING_FIELD",
+        "count": 34,
+        "examples": [
+          "ADP",
+          "APA",
+          "ARE"
+        ]
+      },
+      {
+        "code": "NOT_10K",
+        "count": 10,
+        "examples": [
+          "ARM",
+          "ASML",
+          "CCEP"
+        ]
+      },
+      {
         "code": "NON_POSITIVE_IC",
         "count": 3,
         "examples": [
           "DPZ",
           "ICE",
           "VRSN"
+        ]
+      },
+      {
+        "code": "NOT_LISTED",
+        "count": 3,
+        "examples": [
+          "BF-B",
+          "BRK-B",
+          "EQR"
         ]
       },
       {
@@ -207,10 +242,10 @@
       "ticker": "A",
       "name": "애질런트 테크놀로지스",
       "sector": "Laboratory Analytical Instruments",
-      "price": 158.23,
+      "price": 159.0,
       "marketCap": 44906.679096,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-10-31"
       },
       "metrics": {
@@ -490,10 +525,10 @@
       "ticker": "AAPL",
       "name": "애플",
       "sector": "Electronic Computers",
-      "price": 309.92,
+      "price": 309.35,
       "marketCap": 4514709.583,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-09-27"
       },
       "metrics": {
@@ -733,7 +768,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 68,
+          "score": 67,
           "passed": 1,
           "totalJudged": 2,
           "total": 2,
@@ -762,7 +797,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 182위입니다(2.9%)."
           ],
-          "rank": 80,
+          "rank": 81,
           "rankComponents": {
             "quality": 8,
             "value": 182
@@ -774,10 +809,10 @@
       "ticker": "ABBV",
       "name": "애브비",
       "sector": "Pharmaceutical Preparations",
-      "price": 265.81,
+      "price": 264.96,
       "marketCap": 468215.395834,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -1057,10 +1092,10 @@
       "ticker": "ABT",
       "name": "애보트 래버러토리스",
       "sector": "Pharmaceutical Preparations",
-      "price": 116.82,
+      "price": 116.64,
       "marketCap": 201831.907645,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -1300,7 +1335,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 46,
+          "score": 47,
           "passed": 1,
           "totalJudged": 2,
           "total": 2,
@@ -1311,7 +1346,7 @@
               "label": "마법공식 자본수익률 순위",
               "weight": 1,
               "status": "pass",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 110위입니다(37.8%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 109위입니다(37.8%).",
               "detail": "최신 EBIT / (유동자산 − 유동부채 + 순유형자산)의 유니버스 내 내림차순 순위"
             },
             {
@@ -1324,14 +1359,14 @@
             }
           ],
           "reasons": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 110위입니다(37.8%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 109위입니다(37.8%)."
           ],
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 136위입니다(3.9%)."
           ],
-          "rank": 132,
+          "rank": 130,
           "rankComponents": {
-            "quality": 110,
+            "quality": 109,
             "value": 136
           }
         }
@@ -1344,7 +1379,7 @@
       "price": 99.39,
       "marketCap": 33914.762833,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -1425,10 +1460,10 @@
       "ticker": "ACN",
       "name": "액센츄어",
       "sector": "Services-Business Services, NEC",
-      "price": 185.65,
+      "price": 185.28,
       "marketCap": 123676.291709,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-08-31"
       },
       "metrics": {
@@ -1707,10 +1742,10 @@
       "ticker": "ADBE",
       "name": "어도비",
       "sector": "Services-Prepackaged Software",
-      "price": 275.59,
+      "price": 275.3,
       "marketCap": 109431.75,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-11-28"
       },
       "metrics": {
@@ -1989,10 +2024,10 @@
       "ticker": "ADI",
       "name": "아날로그 디바이스",
       "sector": "Semiconductors & Related Devices",
-      "price": 370.47,
+      "price": 373.09,
       "marketCap": 180786.529337,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-11-01"
       },
       "metrics": {
@@ -2273,10 +2308,10 @@
       "ticker": "ADM",
       "name": "아처 대니얼스 미들랜드",
       "sector": "Fats & Oils",
-      "price": 80.0,
+      "price": 80.3,
       "marketCap": 38701.354515,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -2555,10 +2590,10 @@
       "ticker": "ADSK",
       "name": "오토데스크",
       "sector": "Services-Prepackaged Software",
-      "price": 254.1,
+      "price": 253.825,
       "marketCap": 53557.075,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-01-31"
       },
       "metrics": {
@@ -2840,7 +2875,7 @@
       "price": 106.13,
       "marketCap": 29381.374229,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -3096,10 +3131,10 @@
       "ticker": "AES",
       "name": "AES",
       "sector": "Cogeneration Services & Small Power Producers",
-      "price": 14.75,
+      "price": 14.77,
       "marketCap": 10537.488565,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -3356,7 +3391,7 @@
       "price": 76.12,
       "marketCap": 39802.628024,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -3440,7 +3475,7 @@
       "price": 284.04,
       "marketCap": 14009.922779,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -3524,7 +3559,7 @@
       "price": 263.81,
       "marketCap": 67614.503,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -3605,10 +3640,10 @@
       "ticker": "ALB",
       "name": "알버말",
       "sector": "Plastic Materials, Synth Resins & Nonvulcan Elastomers",
-      "price": 143.66,
+      "price": 143.25,
       "marketCap": 16904.224415,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -3888,10 +3923,10 @@
       "ticker": "ALGN",
       "name": "얼라인 테크놀로지",
       "sector": "Orthopedic, Prosthetic & Surgical Appliances & Supplies",
-      "price": 162.5,
+      "price": 162.55,
       "marketCap": 11547.527943,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -4169,7 +4204,7 @@
       "price": 162.31,
       "marketCap": 13802.320736,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -4448,10 +4483,10 @@
       "ticker": "ALNY",
       "name": "앨나일램 파마슈티컬스",
       "sector": "Pharmaceutical Preparations",
-      "price": 236.94,
+      "price": 236.22,
       "marketCap": 31608.389854,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -4726,10 +4761,10 @@
       "ticker": "AMAT",
       "name": "어플라이드 머티리얼즈",
       "sector": "Semiconductors & Related Devices",
-      "price": 482.0,
+      "price": 492.32,
       "marketCap": 390882.106578,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-10-26"
       },
       "metrics": {
@@ -4969,7 +5004,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 32,
+          "score": 31,
           "passed": 1,
           "totalJudged": 2,
           "total": 2,
@@ -4998,7 +5033,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 203위입니다(2.1%)."
           ],
-          "rank": 168,
+          "rank": 169,
           "rankComponents": {
             "quality": 90,
             "value": 203
@@ -5010,10 +5045,10 @@
       "ticker": "AMCR",
       "name": "앰코",
       "sector": "Miscellaneous Manufacturing Industries",
-      "price": 48.43,
+      "price": 48.59,
       "marketCap": 22465.377077,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-06-30"
       },
       "metrics": {
@@ -5294,10 +5329,10 @@
       "ticker": "AMD",
       "name": "AMD",
       "sector": "Semiconductors & Related Devices",
-      "price": 464.86,
+      "price": 473.25,
       "marketCap": 772568.813627,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-27"
       },
       "metrics": {
@@ -5577,10 +5612,10 @@
       "ticker": "AME",
       "name": "아메텍",
       "sector": "Industrial Instruments For Measurement, Display, and Control",
-      "price": 239.9,
+      "price": 239.55,
       "marketCap": 54919.531,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -5820,7 +5855,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 71,
+          "score": 70,
           "passed": 1,
           "totalJudged": 2,
           "total": 2,
@@ -5839,7 +5874,7 @@
               "label": "마법공식 이익수익률 순위",
               "weight": 1,
               "status": "fail",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 162위입니다(3.4%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 163위입니다(3.4%).",
               "detail": "최신 EBIT / 기업가치의 유니버스 내 내림차순 순위"
             }
           ],
@@ -5847,12 +5882,12 @@
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 20위입니다(185.1%)."
           ],
           "risks": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 162위입니다(3.4%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 163위입니다(3.4%)."
           ],
-          "rank": 72,
+          "rank": 73,
           "rankComponents": {
             "quality": 20,
-            "value": 162
+            "value": 163
           }
         }
       }
@@ -5861,10 +5896,10 @@
       "ticker": "AMGN",
       "name": "암젠",
       "sector": "Biological Products, (No Diagnostic Substances)",
-      "price": 440.97,
+      "price": 439.33,
       "marketCap": 237515.858757,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -6148,7 +6183,7 @@
       "price": 555.59,
       "marketCap": 49945.9209,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -6229,10 +6264,10 @@
       "ticker": "AMT",
       "name": "아메리칸 타워",
       "sector": "Real Estate Investment Trusts",
-      "price": 176.25,
+      "price": 175.8,
       "marketCap": 81915.776438,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -6313,10 +6348,10 @@
       "ticker": "AMZN",
       "name": "아마존",
       "sector": "Retail-Catalog & Mail-Order Houses",
-      "price": 258.39,
+      "price": 258.63,
       "marketCap": 2789664.279126,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -6596,10 +6631,10 @@
       "ticker": "ANET",
       "name": "아리스타 네트웍스",
       "sector": "Computer Communications Equipment",
-      "price": 186.56,
+      "price": 188.65,
       "marketCap": 237930.029845,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -6877,7 +6912,7 @@
       "price": 355.11,
       "marketCap": 75327.862868,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -6961,7 +6996,7 @@
       "price": 63.08,
       "marketCap": 8573.112785,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -7241,10 +7276,10 @@
       "ticker": "APH",
       "name": "암페놀",
       "sector": "Electronic Connectors",
-      "price": 156.39,
+      "price": 157.01,
       "marketCap": 193590.732584,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -7484,7 +7519,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 30,
+          "score": 31,
           "passed": 1,
           "totalJudged": 2,
           "total": 2,
@@ -7495,7 +7530,7 @@
               "label": "마법공식 자본수익률 순위",
               "weight": 1,
               "status": "pass",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 114위입니다(37.2%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 113위입니다(37.2%).",
               "detail": "최신 EBIT / (유동자산 − 유동부채 + 순유형자산)의 유니버스 내 내림차순 순위"
             },
             {
@@ -7508,14 +7543,14 @@
             }
           ],
           "reasons": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 114위입니다(37.2%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 113위입니다(37.2%)."
           ],
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 180위입니다(3.0%)."
           ],
-          "rank": 171,
+          "rank": 169,
           "rankComponents": {
-            "quality": 114,
+            "quality": 113,
             "value": 180
           }
         }
@@ -7528,7 +7563,7 @@
       "price": 132.69,
       "marketCap": 78359.171768,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -7609,10 +7644,10 @@
       "ticker": "APTV",
       "name": "앱티브",
       "sector": "Motor Vehicle Parts & Accessories",
-      "price": 48.2,
+      "price": 48.28,
       "marketCap": 10024.537221,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -7851,7 +7886,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 61,
+          "score": 60,
           "passed": 1,
           "totalJudged": 2,
           "total": 2,
@@ -7880,7 +7915,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 176위입니다(15.8%)."
           ],
-          "rank": 97,
+          "rank": 98,
           "rankComponents": {
             "quality": 176,
             "value": 30
@@ -7892,10 +7927,10 @@
       "ticker": "ARES",
       "name": "아레스 매니지먼트",
       "sector": "Investment Advice",
-      "price": 141.0,
+      "price": 141.25,
       "marketCap": 46651.658596,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -7976,10 +8011,10 @@
       "ticker": "ATO",
       "name": "애트모스 에너지",
       "sector": "Natural Gas Distribution",
-      "price": 167.57,
+      "price": 166.85,
       "marketCap": 28195.740068,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-09-30"
       },
       "metrics": {
@@ -8235,10 +8270,10 @@
       "ticker": "AVGO",
       "name": "브로드컴",
       "sector": "Semiconductors & Related Devices",
-      "price": 364.13,
+      "price": 368.45,
       "marketCap": 1752930.423953,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-11-02"
       },
       "metrics": {
@@ -8522,7 +8557,7 @@
       "price": 183.71,
       "marketCap": 13923.039567,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -8802,10 +8837,10 @@
       "ticker": "AWK",
       "name": "아메리칸 워터 웍스",
       "sector": "Water Supply",
-      "price": 135.77,
+      "price": 135.39,
       "marketCap": 26905.917821,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -9060,10 +9095,10 @@
       "ticker": "AXON",
       "name": "액손 엔터프라이즈",
       "sector": "Ordnance & Accessories, (No Vehicles/Guided Missiles)",
-      "price": 628.0,
+      "price": 627.75,
       "marketCap": 50996.787266,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -9346,7 +9381,7 @@
       "price": 2957.95,
       "marketCap": 48289.583822,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-08-30"
       },
       "metrics": {
@@ -9626,10 +9661,10 @@
       "ticker": "BA",
       "name": "보잉",
       "sector": "Aircraft",
-      "price": 213.99,
+      "price": 214.2,
       "marketCap": 169297.258284,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -9909,10 +9944,10 @@
       "ticker": "BAC",
       "name": "뱅크오브아메리카",
       "sector": "National Commercial Banks",
-      "price": 61.64,
+      "price": 61.69,
       "marketCap": 431382.646637,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -9996,7 +10031,7 @@
       "price": 26.34,
       "marketCap": 13617.674614,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -10275,10 +10310,10 @@
       "ticker": "BBY",
       "name": "베스트 바이",
       "sector": "Retail-Radio, Tv & Consumer Electronics Stores",
-      "price": 86.96,
+      "price": 85.89,
       "marketCap": 18102.788452,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-01-31"
       },
       "metrics": {
@@ -10561,7 +10596,7 @@
       "price": 34.31,
       "marketCap": 17432.118782,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-09-30"
       },
       "metrics": {
@@ -10642,10 +10677,10 @@
       "ticker": "BLDR",
       "name": "빌더스 퍼스트소스",
       "sector": "Retail-Lumber & Other Building Materials Dealers",
-      "price": 68.9,
+      "price": 70.21,
       "marketCap": 7554.347246,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -10914,7 +10949,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 156위입니다(22.1%)."
           ],
-          "rank": 91,
+          "rank": 92,
           "rankComponents": {
             "quality": 156,
             "value": 43
@@ -10929,7 +10964,7 @@
       "price": 67.01,
       "marketCap": 136882.309099,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -11211,7 +11246,7 @@
       "price": 182.18,
       "marketCap": 20772.49116,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-06-30"
       },
       "metrics": {
@@ -11494,7 +11529,7 @@
       "price": 72.92,
       "marketCap": 24399.787232,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -11575,10 +11610,10 @@
       "ticker": "BSX",
       "name": "보스턴 사이언티픽",
       "sector": "Surgical & Medical Instruments & Apparatus",
-      "price": 50.41,
+      "price": 50.37,
       "marketCap": 72997.691225,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -11846,7 +11881,7 @@
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 114위입니다(4.4%)."
           ],
           "risks": [],
-          "rank": 93,
+          "rank": 94,
           "rankComponents": {
             "quality": 87,
             "value": 114
@@ -11861,7 +11896,7 @@
       "price": 143.38,
       "marketCap": 107624.628845,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -11942,10 +11977,10 @@
       "ticker": "C",
       "name": "씨티그룹",
       "sector": "National Commercial Banks",
-      "price": 131.6,
+      "price": 131.65,
       "marketCap": 220834.552482,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -12026,10 +12061,10 @@
       "ticker": "CAH",
       "name": "카디널 헬스",
       "sector": "Wholesale-Drugs, Proprietaries & Druggists' Sundries",
-      "price": 229.5,
+      "price": 229.51,
       "marketCap": 53378.455333,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-06-30"
       },
       "metrics": {
@@ -12310,10 +12345,10 @@
       "ticker": "CARR",
       "name": "캐리어",
       "sector": "Air-Cond & Warm Air Heatg Equip & Comm & Indl Refrig Equip",
-      "price": 60.38,
+      "price": 60.37,
       "marketCap": 49764.503691,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -12553,7 +12588,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 49,
+          "score": 48,
           "passed": 1,
           "totalJudged": 2,
           "total": 2,
@@ -12572,7 +12607,7 @@
               "label": "마법공식 이익수익률 순위",
               "weight": 1,
               "status": "fail",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 148위입니다(3.6%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 149위입니다(3.6%).",
               "detail": "최신 EBIT / 기업가치의 유니버스 내 내림차순 순위"
             }
           ],
@@ -12580,12 +12615,12 @@
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 91위입니다(47.4%)."
           ],
           "risks": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 148위입니다(3.6%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 149위입니다(3.6%)."
           ],
-          "rank": 126,
+          "rank": 127,
           "rankComponents": {
             "quality": 91,
-            "value": 148
+            "value": 149
           }
         }
       }
@@ -12594,10 +12629,10 @@
       "ticker": "CAT",
       "name": "캐터필러",
       "sector": "Construction Machinery & Equip",
-      "price": 821.41,
+      "price": 827.9,
       "marketCap": 380564.840603,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -12875,7 +12910,7 @@
       "price": 340.99,
       "marketCap": 131553.89392,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -12956,10 +12991,10 @@
       "ticker": "CBRE",
       "name": "CBRE 그룹",
       "sector": "Real Estate",
-      "price": 153.0,
+      "price": 152.1,
       "marketCap": 44044.402826,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -13040,10 +13075,10 @@
       "ticker": "CCI",
       "name": "크라운 캐슬",
       "sector": "Real Estate Investment Trusts",
-      "price": 75.59,
+      "price": 75.51,
       "marketCap": 32126.140199,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -13124,10 +13159,10 @@
       "ticker": "CCL",
       "name": "카니발",
       "sector": "Water Transportation",
-      "price": 25.7,
+      "price": 25.73,
       "marketCap": 35241.071832,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-11-30"
       },
       "metrics": {
@@ -13396,7 +13431,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 184위입니다(12.9%)."
           ],
-          "rank": 106,
+          "rank": 105,
           "rankComponents": {
             "quality": 184,
             "value": 35
@@ -13408,10 +13443,10 @@
       "ticker": "CDNS",
       "name": "케이던스 디자인 시스템즈",
       "sector": "Services-Prepackaged Software",
-      "price": 318.85,
+      "price": 319.02,
       "marketCap": 87855.87486,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -13686,10 +13721,10 @@
       "ticker": "CDW",
       "name": "CDW",
       "sector": "Retail-Catalog & Mail-Order Houses",
-      "price": 137.26,
+      "price": 137.25,
       "marketCap": 17158.641719,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -13969,10 +14004,10 @@
       "ticker": "CEG",
       "name": "컨스털레이션 에너지",
       "sector": "Electric Services",
-      "price": 272.71,
+      "price": 272.88,
       "marketCap": 96683.397582,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -14228,10 +14263,10 @@
       "ticker": "CF",
       "name": "CF 인더스트리스 홀딩스",
       "sector": "Agricultural Chemicals",
-      "price": 129.88,
+      "price": 129.6,
       "marketCap": 19613.421648,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -14515,7 +14550,7 @@
       "price": 69.86,
       "marketCap": 29423.41041,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -14596,10 +14631,10 @@
       "ticker": "CHD",
       "name": "처치 앤 드와이트",
       "sector": "Soap, Detergents, Cleang Preparations, Perfumes, Cosmetics",
-      "price": 99.23,
+      "price": 98.8,
       "marketCap": 23435.746012,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -14879,10 +14914,10 @@
       "ticker": "CHRW",
       "name": "CH 로빈슨 월드와이드",
       "sector": "Arrangement of  Transportation of  Freight & Cargo",
-      "price": 140.83,
+      "price": 141.63,
       "marketCap": 16549.643671,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -15162,10 +15197,10 @@
       "ticker": "CHTR",
       "name": "차터 커뮤니케이션스",
       "sector": "Cable & Other Pay Television Services",
-      "price": 150.2,
+      "price": 150.17,
       "marketCap": 17911.900974,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -15449,7 +15484,7 @@
       "price": 277.51,
       "marketCap": 73329.37727,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -15530,10 +15565,10 @@
       "ticker": "CIEN",
       "name": "시에나",
       "sector": "Telephone & Telegraph Apparatus",
-      "price": 385.56,
+      "price": 395.79,
       "marketCap": 56025.230998,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-11-01"
       },
       "metrics": {
@@ -15816,7 +15851,7 @@
       "price": 168.29,
       "marketCap": 25828.820193,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -15897,10 +15932,10 @@
       "ticker": "CL",
       "name": "콜게이트 팜올리브",
       "sector": "Perfumes, Cosmetics & Other Toilet Preparations",
-      "price": 91.46,
+      "price": 91.08,
       "marketCap": 72606.501265,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -16139,7 +16174,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 73,
+          "score": 74,
           "passed": 1,
           "totalJudged": 2,
           "total": 2,
@@ -16168,7 +16203,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 123위입니다(4.2%)."
           ],
-          "rank": 66,
+          "rank": 65,
           "rankComponents": {
             "quality": 49,
             "value": 123
@@ -16180,10 +16215,10 @@
       "ticker": "CLX",
       "name": "크로락스",
       "sector": "Specialty Cleaning, Polishing and Sanitation Preparations",
-      "price": 106.9,
+      "price": 106.69,
       "marketCap": 12902.128923,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-06-30"
       },
       "metrics": {
@@ -16463,10 +16498,10 @@
       "ticker": "CMCSA",
       "name": "컴캐스트",
       "sector": "Cable & Other Pay Television Services",
-      "price": 26.95,
+      "price": 26.85,
       "marketCap": 95280.891985,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -16747,10 +16782,10 @@
       "ticker": "CME",
       "name": "CME 그룹",
       "sector": "Security & Commodity Brokers, Dealers, Exchanges & Services",
-      "price": 274.97,
+      "price": 274.98,
       "marketCap": 98877.10574,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -16831,10 +16866,10 @@
       "ticker": "CMG",
       "name": "치폴레 멕시칸 그릴",
       "sector": "Retail-Eating  Places",
-      "price": 36.55,
+      "price": 36.9,
       "marketCap": 46693.9242,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -17074,7 +17109,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 68,
+          "score": 67,
           "passed": 2,
           "totalJudged": 2,
           "total": 2,
@@ -17102,7 +17137,7 @@
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 122위입니다(4.2%)."
           ],
           "risks": [],
-          "rank": 80,
+          "rank": 81,
           "rankComponents": {
             "quality": 68,
             "value": 122
@@ -17114,10 +17149,10 @@
       "ticker": "CMI",
       "name": "커민스",
       "sector": "Engines & Turbines",
-      "price": 588.8,
+      "price": 587.68,
       "marketCap": 80902.66572,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -17398,10 +17433,10 @@
       "ticker": "CNC",
       "name": "센틴",
       "sector": "Hospital & Medical Service Plans",
-      "price": 64.7,
+      "price": 65.02,
       "marketCap": 32119.5549,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -17485,7 +17520,7 @@
       "price": 38.77,
       "marketCap": 25538.585566,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -17743,7 +17778,7 @@
       "price": 217.91,
       "marketCap": 133684.480613,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -17824,10 +17859,10 @@
       "ticker": "COIN",
       "name": "코인베이스",
       "sector": "Finance Services",
-      "price": 184.95,
+      "price": 186.49,
       "marketCap": 49202.94777,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -17911,7 +17946,7 @@
       "price": 76.22,
       "marketCap": 14865.234619,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-10-31"
       },
       "metrics": {
@@ -18191,10 +18226,10 @@
       "ticker": "COR",
       "name": "센코라",
       "sector": "Wholesale-Drugs, Proprietaries & Druggists' Sundries",
-      "price": 318.0,
+      "price": 318.04,
       "marketCap": 60690.671557,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-09-30"
       },
       "metrics": {
@@ -18474,10 +18509,10 @@
       "ticker": "COST",
       "name": "코스트코",
       "sector": "Retail-Variety Stores",
-      "price": 952.17,
+      "price": 947.74,
       "marketCap": 420302.601703,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-08-31"
       },
       "metrics": {
@@ -18760,7 +18795,7 @@
       "price": 417.13,
       "marketCap": 27388.588531,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -19043,7 +19078,7 @@
       "price": 295.19,
       "marketCap": 14092.037626,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-27"
       },
       "metrics": {
@@ -19322,10 +19357,10 @@
       "ticker": "CRM",
       "name": "세일즈포스",
       "sector": "Services-Prepackaged Software",
-      "price": 209.06,
+      "price": 209.17,
       "marketCap": 171310.23,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-01-31"
       },
       "metrics": {
@@ -19606,10 +19641,10 @@
       "ticker": "CSCO",
       "name": "시스코 시스템즈",
       "sector": "Computer Communications Equipment",
-      "price": 110.93,
+      "price": 111.04,
       "marketCap": 437656.905202,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-07-26"
       },
       "metrics": {
@@ -19878,7 +19913,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 193위입니다(2.6%)."
           ],
-          "rank": 88,
+          "rank": 89,
           "rankComponents": {
             "quality": 5,
             "value": 193
@@ -19890,10 +19925,10 @@
       "ticker": "CSGP",
       "name": "코스타 그룹",
       "sector": "Services-Business Services, NEC",
-      "price": 32.5,
+      "price": 32.26,
       "marketCap": 13071.674189,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -20173,10 +20208,10 @@
       "ticker": "CSX",
       "name": "CSX",
       "sector": "Railroads, Line-Haul Operating",
-      "price": 51.48,
+      "price": 51.59,
       "marketCap": 95569.180968,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -20456,10 +20491,10 @@
       "ticker": "CTAS",
       "name": "신타스",
       "sector": "Men's & Boys' Furnishgs, Work Clothg, & Allied Garments",
-      "price": 204.11,
+      "price": 203.79,
       "marketCap": 81550.554836,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-05-31"
       },
       "metrics": {
@@ -20740,10 +20775,10 @@
       "ticker": "CTSH",
       "name": "코그니전트 테크놀로지 솔루션즈",
       "sector": "Services-Computer Programming Services",
-      "price": 61.99,
+      "price": 61.87,
       "marketCap": 27868.983211,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -21021,7 +21056,7 @@
       "price": 81.79,
       "marketCap": 54569.96084,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -21261,7 +21296,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 26,
+          "score": 25,
           "passed": 0,
           "totalJudged": 2,
           "total": 2,
@@ -21280,19 +21315,19 @@
               "label": "마법공식 이익수익률 순위",
               "weight": 1,
               "status": "fail",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 151위입니다(3.6%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 152위입니다(3.6%).",
               "detail": "최신 EBIT / 기업가치의 유니버스 내 내림차순 순위"
             }
           ],
           "reasons": [],
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 161위입니다(19.8%).",
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 151위입니다(3.6%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 152위입니다(3.6%)."
           ],
-          "rank": 182,
+          "rank": 183,
           "rankComponents": {
             "quality": 161,
-            "value": 151
+            "value": 152
           }
         }
       }
@@ -21301,10 +21336,10 @@
       "ticker": "CVS",
       "name": "CVS 헬스",
       "sector": "Retail-Drug Stores and Proprietary Stores",
-      "price": 93.15,
+      "price": 93.02,
       "marketCap": 118969.823724,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -21584,10 +21619,10 @@
       "ticker": "CVX",
       "name": "셰브론",
       "sector": "Petroleum Refining",
-      "price": 204.7,
+      "price": 205.27,
       "marketCap": 405566.569414,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -21868,10 +21903,10 @@
       "ticker": "D",
       "name": "도미니언 에너지",
       "sector": "Electric Services",
-      "price": 66.63,
+      "price": 66.6,
       "marketCap": 58576.428203,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -22127,10 +22162,10 @@
       "ticker": "DAL",
       "name": "델타 항공",
       "sector": "Air Transportation, Scheduled",
-      "price": 82.95,
+      "price": 82.41,
       "marketCap": 54194.713902,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -22411,10 +22446,10 @@
       "ticker": "DASH",
       "name": "도어대시",
       "sector": "Services-Business Services, NEC",
-      "price": 223.05,
+      "price": 223.49,
       "marketCap": 96837.75594,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -22689,10 +22724,10 @@
       "ticker": "DDOG",
       "name": "데이터독",
       "sector": "Services-Prepackaged Software",
-      "price": 235.2,
+      "price": 235.62,
       "marketCap": 84605.257155,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -22967,10 +23002,10 @@
       "ticker": "DECK",
       "name": "데커스 아웃도어",
       "sector": "Rubber & Plastics Footwear",
-      "price": 91.67,
+      "price": 91.68,
       "marketCap": 12506.456331,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-03-31"
       },
       "metrics": {
@@ -23245,10 +23280,10 @@
       "ticker": "DELL",
       "name": "델 테크놀로지스",
       "sector": "Electronic Computers",
-      "price": 434.81,
+      "price": 442.08,
       "marketCap": 286515.580661,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-01-30"
       },
       "metrics": {
@@ -23517,7 +23552,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 191위입니다(2.7%)."
           ],
-          "rank": 83,
+          "rank": 84,
           "rankComponents": {
             "quality": 3,
             "value": 191
@@ -23532,7 +23567,7 @@
       "price": 123.41,
       "marketCap": 27222.598106,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-01-30"
       },
       "metrics": {
@@ -23772,7 +23807,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 71,
+          "score": 72,
           "passed": 1,
           "totalJudged": 2,
           "total": 2,
@@ -23801,7 +23836,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 139위입니다(30.0%)."
           ],
-          "rank": 71,
+          "rank": 70,
           "rankComponents": {
             "quality": 139,
             "value": 38
@@ -23816,7 +23851,7 @@
       "price": 244.39,
       "marketCap": 26974.14545,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -24096,10 +24131,10 @@
       "ticker": "DHR",
       "name": "다나허",
       "sector": "Industrial Instruments For Measurement, Display, and Control",
-      "price": 219.51,
+      "price": 218.85,
       "marketCap": 153848.497918,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -24368,7 +24403,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 188위입니다(2.8%)."
           ],
-          "rank": 171,
+          "rank": 172,
           "rankComponents": {
             "quality": 106,
             "value": 188
@@ -24380,10 +24415,10 @@
       "ticker": "DLR",
       "name": "디지털 리얼티 트러스트",
       "sector": "Real Estate Investment Trusts",
-      "price": 190.65,
+      "price": 190.62,
       "marketCap": 70536.295869,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -24464,10 +24499,10 @@
       "ticker": "DOC",
       "name": "헬스피크 프로퍼티스",
       "sector": "Real Estate Investment Trusts",
-      "price": 21.39,
+      "price": 21.4,
       "marketCap": 14755.883364,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -24548,10 +24583,10 @@
       "ticker": "DOW",
       "name": "다우",
       "sector": "Plastic Materials, Synth Resins & Nonvulcan Elastomers",
-      "price": 32.33,
+      "price": 32.35,
       "marketCap": 23367.722001,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -24832,7 +24867,7 @@
       "price": 173.82,
       "marketCap": 11089.716,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -25112,10 +25147,10 @@
       "ticker": "DXCM",
       "name": "덱스콤",
       "sector": "Surgical & Medical Instruments & Apparatus",
-      "price": 92.5,
+      "price": 92.34,
       "marketCap": 34845.49304,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -25390,10 +25425,10 @@
       "ticker": "EBAY",
       "name": "이베이",
       "sector": "Services-Business Services, NEC",
-      "price": 104.0,
+      "price": 104.13,
       "marketCap": 46337.85,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -25661,7 +25696,7 @@
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 107위입니다(4.5%)."
           ],
           "risks": [],
-          "rank": 44,
+          "rank": 45,
           "rankComponents": {
             "quality": 31,
             "value": 107
@@ -25673,10 +25708,10 @@
       "ticker": "ECHO",
       "name": "에코스타",
       "sector": "Communications Services, NEC",
-      "price": 86.02,
+      "price": 86.81,
       "marketCap": 25217.498361,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -25956,10 +25991,10 @@
       "ticker": "ECL",
       "name": "에코랩",
       "sector": "Soap, Detergents, Cleang Preparations, Perfumes, Cosmetics",
-      "price": 284.32,
+      "price": 281.63,
       "marketCap": 78948.944463,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -26243,7 +26278,7 @@
       "price": 192.62,
       "marketCap": 22629.940668,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -26493,7 +26528,7 @@
               "label": "마법공식 자본수익률 순위",
               "weight": 1,
               "status": "pass",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 42위입니다(108.5%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 43위입니다(108.5%).",
               "detail": "최신 EBIT / (유동자산 − 유동부채 + 순유형자산)의 유니버스 내 내림차순 순위"
             },
             {
@@ -26506,14 +26541,14 @@
             }
           ],
           "reasons": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 42위입니다(108.5%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 43위입니다(108.5%)."
           ],
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 131위입니다(4.0%)."
           ],
-          "rank": 67,
+          "rank": 66,
           "rankComponents": {
-            "quality": 42,
+            "quality": 43,
             "value": 131
           }
         }
@@ -26526,7 +26561,7 @@
       "price": 370.06,
       "marketCap": 14189.112144,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -26607,10 +26642,10 @@
       "ticker": "EIX",
       "name": "에디슨 인터내셔널",
       "sector": "Electric Services",
-      "price": 71.82,
+      "price": 71.59,
       "marketCap": 27548.832757,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -26866,10 +26901,10 @@
       "ticker": "EL",
       "name": "에스티 로더",
       "sector": "Perfumes, Cosmetics & Other Toilet Preparations",
-      "price": 102.06,
+      "price": 101.94,
       "marketCap": 36881.74592,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-06-30"
       },
       "metrics": {
@@ -27150,7 +27185,7 @@
       "price": 400.54,
       "marketCap": 86864.825417,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -27231,10 +27266,10 @@
       "ticker": "EME",
       "name": "엠코 그룹",
       "sector": "Electrical Work",
-      "price": 776.13,
+      "price": 776.62,
       "marketCap": 34256.631315,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -27509,10 +27544,10 @@
       "ticker": "EMR",
       "name": "에머슨 일렉트릭",
       "sector": "Electronic & Other Electrical Equipment (No Computer Equip)",
-      "price": 157.56,
+      "price": 157.26,
       "marketCap": 87719.628,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-09-30"
       },
       "metrics": {
@@ -27781,7 +27816,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 174위입니다(3.1%)."
           ],
-          "rank": 86,
+          "rank": 87,
           "rankComponents": {
             "quality": 21,
             "value": 174
@@ -27793,10 +27828,10 @@
       "ticker": "EQIX",
       "name": "에퀴닉스",
       "sector": "Real Estate Investment Trusts",
-      "price": 1065.0,
+      "price": 1065.39,
       "marketCap": 105123.827548,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -27877,10 +27912,10 @@
       "ticker": "EQT",
       "name": "EQT",
       "sector": "Crude Petroleum & Natural Gas",
-      "price": 53.73,
+      "price": 53.72,
       "marketCap": 33602.71952,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -28164,7 +28199,7 @@
       "price": 264.85,
       "marketCap": 12233.17466,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -28245,10 +28280,10 @@
       "ticker": "ES",
       "name": "에버소스 에너지",
       "sector": "Electric Services",
-      "price": 70.7,
+      "price": 70.21,
       "marketCap": 26446.334478,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -28507,7 +28542,7 @@
       "price": 289.0,
       "marketCap": 18573.578871,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -28591,7 +28626,7 @@
       "price": 104.62,
       "marketCap": 48818.987321,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -28848,7 +28883,7 @@
       "price": 80.92,
       "marketCap": 18657.495558,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -29102,10 +29137,10 @@
       "ticker": "EW",
       "name": "에드워즈 라이프사이언시스",
       "sector": "Orthopedic, Prosthetic & Surgical Appliances & Supplies",
-      "price": 88.51,
+      "price": 89.79,
       "marketCap": 51754.956,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -29380,10 +29415,10 @@
       "ticker": "EXC",
       "name": "엑셀론",
       "sector": "Electric & Other Services Combined",
-      "price": 44.0,
+      "price": 43.78,
       "marketCap": 45192.078675,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -29638,10 +29673,10 @@
       "ticker": "EXE",
       "name": "익스팬드 에너지",
       "sector": "Crude Petroleum & Natural Gas",
-      "price": 95.5,
+      "price": 96.09,
       "marketCap": 22245.199085,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -29881,7 +29916,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 61,
+          "score": 60,
           "passed": 1,
           "totalJudged": 2,
           "total": 2,
@@ -29910,7 +29945,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 195위입니다(10.1%)."
           ],
-          "rank": 97,
+          "rank": 98,
           "rankComponents": {
             "quality": 195,
             "value": 11
@@ -29925,7 +29960,7 @@
       "price": 187.81,
       "marketCap": 24413.538718,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -30203,7 +30238,7 @@
       "price": 321.63,
       "marketCap": 36825.313422,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -30487,7 +30522,7 @@
       "price": 146.81,
       "marketCap": 31016.48381,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -30571,7 +30606,7 @@
       "price": 14.41,
       "marketCap": 56440.275146,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -30849,7 +30884,7 @@
       "price": 51.26,
       "marketCap": 58820.725592,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -31130,10 +31165,10 @@
       "ticker": "FCX",
       "name": "프리포트 맥모란",
       "sector": "Metal Mining",
-      "price": 76.43,
+      "price": 76.66,
       "marketCap": 110085.103313,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -31417,7 +31452,7 @@
       "price": 299.91,
       "marketCap": 10666.462001,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-08-31"
       },
       "metrics": {
@@ -31699,7 +31734,7 @@
       "price": 325.08,
       "marketCap": 76936.82501,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-05-31"
       },
       "metrics": {
@@ -31968,7 +32003,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 193위입니다(10.7%)."
           ],
-          "rank": 135,
+          "rank": 134,
           "rankComponents": {
             "quality": 193,
             "value": 55
@@ -31983,7 +32018,7 @@
       "price": 45.96,
       "marketCap": 26594.291275,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -32238,10 +32273,10 @@
       "ticker": "FFIV",
       "name": "F5",
       "sector": "Computer Communications Equipment",
-      "price": 385.0,
+      "price": 384.63,
       "marketCap": 21780.513013,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-09-30"
       },
       "metrics": {
@@ -32516,10 +32551,10 @@
       "ticker": "FICO",
       "name": "페어 아이작",
       "sector": "Services-Business Services, NEC",
-      "price": 1166.48,
+      "price": 1172.67,
       "marketCap": 25326.898635,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-09-30"
       },
       "metrics": {
@@ -32778,19 +32813,19 @@
               "label": "마법공식 이익수익률 순위",
               "weight": 1,
               "status": "fail",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 164위입니다(3.3%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 165위입니다(3.3%).",
               "detail": "최신 EBIT / 기업가치의 유니버스 내 내림차순 순위"
             }
           ],
           "reasons": [],
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 243위입니다(-1211.5%).",
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 164위입니다(3.3%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 165위입니다(3.3%)."
           ],
           "rank": 219,
           "rankComponents": {
             "quality": 243,
-            "value": 164
+            "value": 165
           }
         }
       }
@@ -32799,10 +32834,10 @@
       "ticker": "FISV",
       "name": "파이서브",
       "sector": "Services-Business Services, NEC",
-      "price": 52.53,
+      "price": 52.58,
       "marketCap": 27960.29419,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -33082,10 +33117,10 @@
       "ticker": "FIX",
       "name": "컴포트 시스템즈 USA",
       "sector": "Electrical Work",
-      "price": 1645.53,
+      "price": 1655.61,
       "marketCap": 58268.083036,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -33366,10 +33401,10 @@
       "ticker": "FLEX",
       "name": "플렉스",
       "sector": "Printed Circuit Boards",
-      "price": 109.0,
+      "price": 110.45,
       "marketCap": 40800.55892,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-03-31"
       },
       "metrics": {
@@ -33652,7 +33687,7 @@
       "price": 61.05,
       "marketCap": 25619.641596,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-06-30"
       },
       "metrics": {
@@ -33903,7 +33938,7 @@
               "label": "마법공식 자본수익률 순위",
               "weight": 1,
               "status": "pass",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 121위입니다(35.1%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 120위입니다(35.1%).",
               "detail": "최신 EBIT / (유동자산 − 유동부채 + 순유형자산)의 유니버스 내 내림차순 순위"
             },
             {
@@ -33916,13 +33951,13 @@
             }
           ],
           "reasons": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 121위입니다(35.1%).",
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 120위입니다(35.1%).",
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 8위입니다(9.6%)."
           ],
           "risks": [],
           "rank": 33,
           "rankComponents": {
-            "quality": 121,
+            "quality": 120,
             "value": 8
           }
         }
@@ -33935,7 +33970,7 @@
       "price": 68.54,
       "marketCap": 28762.821212,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-06-30"
       },
       "metrics": {
@@ -34175,7 +34210,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 82,
+          "score": 83,
           "passed": 2,
           "totalJudged": 2,
           "total": 2,
@@ -34186,7 +34221,7 @@
               "label": "마법공식 자본수익률 순위",
               "weight": 1,
               "status": "pass",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 122위입니다(35.1%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 121위입니다(35.1%).",
               "detail": "최신 EBIT / (유동자산 − 유동부채 + 순유형자산)의 유니버스 내 내림차순 순위"
             },
             {
@@ -34199,13 +34234,13 @@
             }
           ],
           "reasons": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 122위입니다(35.1%).",
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 121위입니다(35.1%).",
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 16위입니다(8.6%)."
           ],
           "risks": [],
-          "rank": 44,
+          "rank": 43,
           "rankComponents": {
-            "quality": 122,
+            "quality": 121,
             "value": 16
           }
         }
@@ -34215,10 +34250,10 @@
       "ticker": "FRT",
       "name": "페더럴 리얼티 인베스트먼트",
       "sector": "Real Estate Investment Trusts",
-      "price": 113.47,
+      "price": 116.74,
       "marketCap": 10143.437386,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -34299,10 +34334,10 @@
       "ticker": "FSLR",
       "name": "퍼스트 솔라",
       "sector": "Semiconductors & Related Devices",
-      "price": 213.86,
+      "price": 214.28,
       "marketCap": 23028.626173,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -34571,7 +34606,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 172위입니다(16.9%)."
           ],
-          "rank": 91,
+          "rank": 92,
           "rankComponents": {
             "quality": 172,
             "value": 27
@@ -34586,7 +34621,7 @@
       "price": 153.51,
       "marketCap": 112632.382872,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -34870,7 +34905,7 @@
       "price": 60.08,
       "marketCap": 18145.184484,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -35128,19 +35163,19 @@
               "label": "마법공식 이익수익률 순위",
               "weight": 1,
               "status": "fail",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 160위입니다(3.4%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 161위입니다(3.4%).",
               "detail": "최신 EBIT / 기업가치의 유니버스 내 내림차순 순위"
             }
           ],
           "reasons": [],
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 235위입니다(-194.1%).",
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 160위입니다(3.4%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 161위입니다(3.4%)."
           ],
           "rank": 216,
           "rankComponents": {
             "quality": 235,
-            "value": 160
+            "value": 161
           }
         }
       }
@@ -35149,10 +35184,10 @@
       "ticker": "GD",
       "name": "제너럴 다이내믹스",
       "sector": "Ship & Boat Building & Repairing",
-      "price": 384.24,
+      "price": 384.29,
       "marketCap": 103972.424467,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -35403,7 +35438,7 @@
               "label": "마법공식 자본수익률 순위",
               "weight": 1,
               "status": "pass",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 119위입니다(35.8%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 118위입니다(35.8%).",
               "detail": "최신 EBIT / (유동자산 − 유동부채 + 순유형자산)의 유니버스 내 내림차순 순위"
             },
             {
@@ -35416,13 +35451,13 @@
             }
           ],
           "reasons": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 119위입니다(35.8%).",
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 118위입니다(35.8%).",
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 86위입니다(4.9%)."
           ],
           "risks": [],
-          "rank": 96,
+          "rank": 97,
           "rankComponents": {
-            "quality": 119,
+            "quality": 118,
             "value": 86
           }
         }
@@ -35432,10 +35467,10 @@
       "ticker": "GDDY",
       "name": "고대디",
       "sector": "Services-Computer Integrated Systems Design",
-      "price": 97.04,
+      "price": 97.07,
       "marketCap": 12293.692627,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -35716,10 +35751,10 @@
       "ticker": "GEN",
       "name": "젠 디지털",
       "sector": "Services-Prepackaged Software",
-      "price": 28.94,
+      "price": 28.93,
       "marketCap": 17317.122836,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-04-03"
       },
       "metrics": {
@@ -36000,10 +36035,10 @@
       "ticker": "GILD",
       "name": "길리어드 사이언스",
       "sector": "Biological Products, (No Diagnostic Substances)",
-      "price": 146.74,
+      "price": 146.12,
       "marketCap": 181182.247249,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -36271,7 +36306,7 @@
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 80위입니다(5.0%)."
           ],
           "risks": [],
-          "rank": 40,
+          "rank": 41,
           "rankComponents": {
             "quality": 54,
             "value": 80
@@ -36283,10 +36318,10 @@
       "ticker": "GIS",
       "name": "제너럴 밀스",
       "sector": "Grain Mill Products",
-      "price": 39.95,
+      "price": 39.97,
       "marketCap": 21369.139996,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-05-31"
       },
       "metrics": {
@@ -36565,10 +36600,10 @@
       "ticker": "GM",
       "name": "제너럴 모터스",
       "sector": "Motor Vehicles & Passenger Car Bodies",
-      "price": 87.66,
+      "price": 87.93,
       "marketCap": 77154.314,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -36843,10 +36878,10 @@
       "ticker": "GNRC",
       "name": "제네락 홀딩스",
       "sector": "Motors & Generators",
-      "price": 204.01,
+      "price": 205.98,
       "marketCap": 12154.130239,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -37126,10 +37161,10 @@
       "ticker": "GOOG",
       "name": "알파벳 C",
       "sector": "Services-Computer Programming, Data Processing, Etc.",
-      "price": 340.7,
+      "price": 341.75,
       "marketCap": 4179602.5,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -37369,7 +37404,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 32,
+          "score": 33,
           "passed": 1,
           "totalJudged": 2,
           "total": 2,
@@ -37380,7 +37415,7 @@
               "label": "마법공식 자본수익률 순위",
               "weight": 1,
               "status": "pass",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 115위입니다(36.9%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 114위입니다(36.9%).",
               "detail": "최신 EBIT / (유동자산 − 유동부채 + 순유형자산)의 유니버스 내 내림차순 순위"
             },
             {
@@ -37393,14 +37428,14 @@
             }
           ],
           "reasons": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 115위입니다(36.9%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 114위입니다(36.9%)."
           ],
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 176위입니다(3.1%)."
           ],
-          "rank": 166,
+          "rank": 165,
           "rankComponents": {
-            "quality": 115,
+            "quality": 114,
             "value": 176
           }
         }
@@ -37410,10 +37445,10 @@
       "ticker": "GOOGL",
       "name": "알파벳 A",
       "sector": "Services-Computer Programming, Data Processing, Etc.",
-      "price": 343.63,
+      "price": 344.82,
       "marketCap": 4217148.6,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -37664,7 +37699,7 @@
               "label": "마법공식 자본수익률 순위",
               "weight": 1,
               "status": "pass",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 116위입니다(36.9%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 115위입니다(36.9%).",
               "detail": "최신 EBIT / (유동자산 − 유동부채 + 순유형자산)의 유니버스 내 내림차순 순위"
             },
             {
@@ -37677,14 +37712,14 @@
             }
           ],
           "reasons": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 116위입니다(36.9%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 115위입니다(36.9%)."
           ],
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 177위입니다(3.0%)."
           ],
-          "rank": 168,
+          "rank": 167,
           "rankComponents": {
-            "quality": 116,
+            "quality": 115,
             "value": 177
           }
         }
@@ -37697,7 +37732,7 @@
       "price": 93.49,
       "marketCap": 24739.173281,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -37981,7 +38016,7 @@
       "price": 294.85,
       "marketCap": 56862.57024,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-27"
       },
       "metrics": {
@@ -38259,7 +38294,7 @@
       "price": 1312.24,
       "marketCap": 61807.74013,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -38499,7 +38534,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 49,
+          "score": 50,
           "passed": 1,
           "totalJudged": 2,
           "total": 2,
@@ -38528,7 +38563,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 135위입니다(3.9%)."
           ],
-          "rank": 125,
+          "rank": 123,
           "rankComponents": {
             "quality": 101,
             "value": 135
@@ -38540,10 +38575,10 @@
       "ticker": "HAS",
       "name": "해즈브로",
       "sector": "Games, Toys & Children's Vehicles (No Dolls & Bicycles)",
-      "price": 93.22,
+      "price": 93.54,
       "marketCap": 13193.299443,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-28"
       },
       "metrics": {
@@ -38821,10 +38856,10 @@
       "ticker": "HBAN",
       "name": "헌팅턴 뱅크셰어스",
       "sector": "National Commercial Banks",
-      "price": 17.1,
+      "price": 17.03,
       "marketCap": 34407.664487,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -38908,7 +38943,7 @@
       "price": 429.19,
       "marketCap": 92920.278785,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -39188,10 +39223,10 @@
       "ticker": "HD",
       "name": "홈 디포",
       "sector": "Retail-Lumber & Other Building Materials Dealers",
-      "price": 335.96,
+      "price": 335.61,
       "marketCap": 334642.329646,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-02-01"
       },
       "metrics": {
@@ -39471,10 +39506,10 @@
       "ticker": "HII",
       "name": "헌팅턴 잉걸스 인더스트리스",
       "sector": "Ship & Boat Building & Repairing",
-      "price": 299.0,
+      "price": 298.2,
       "marketCap": 11750.451124,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -39758,7 +39793,7 @@
       "price": 326.63,
       "marketCap": 73512.951553,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -40038,10 +40073,10 @@
       "ticker": "HOOD",
       "name": "로빈후드",
       "sector": "Security Brokers, Dealers & Flotation Companies",
-      "price": 107.36,
+      "price": 108.13,
       "marketCap": 97217.766179,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -40122,10 +40157,10 @@
       "ticker": "HPE",
       "name": "휴렛 패커드 엔터프라이즈",
       "sector": "Computer & office Equipment",
-      "price": 52.77,
+      "price": 53.45,
       "marketCap": 70778.678197,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-10-31"
       },
       "metrics": {
@@ -40404,10 +40439,10 @@
       "ticker": "HPQ",
       "name": "HP",
       "sector": "Computer & office Equipment",
-      "price": 29.52,
+      "price": 29.71,
       "marketCap": 27170.46912,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-10-31"
       },
       "metrics": {
@@ -40691,7 +40726,7 @@
       "price": 88.5,
       "marketCap": 9863.018967,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-27"
       },
       "metrics": {
@@ -40930,7 +40965,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 67,
+          "score": 66,
           "passed": 2,
           "totalJudged": 2,
           "total": 2,
@@ -40941,7 +40976,7 @@
               "label": "마법공식 자본수익률 순위",
               "weight": 1,
               "status": "pass",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 120위입니다(35.2%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 119위입니다(35.2%).",
               "detail": "최신 EBIT / (유동자산 − 유동부채 + 순유형자산)의 유니버스 내 내림차순 순위"
             },
             {
@@ -40954,13 +40989,13 @@
             }
           ],
           "reasons": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 120위입니다(35.2%).",
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 119위입니다(35.2%).",
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 72위입니다(5.4%)."
           ],
           "risks": [],
-          "rank": 82,
+          "rank": 83,
           "rankComponents": {
-            "quality": 120,
+            "quality": 119,
             "value": 72
           }
         }
@@ -40973,7 +41008,7 @@
       "price": 23.21,
       "marketCap": 15901.737301,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -41054,10 +41089,10 @@
       "ticker": "HSY",
       "name": "허쉬",
       "sector": "Sugar & Confectionery Products",
-      "price": 185.05,
+      "price": 186.46,
       "marketCap": 37464.598004,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -41298,7 +41333,7 @@
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
           "score": 36,
-          "passed": 0,
+          "passed": 1,
           "totalJudged": 2,
           "total": 2,
           "dataConfidence": "높음",
@@ -41307,8 +41342,8 @@
               "code": "GRB_MAGIC_QUALITY_RANK",
               "label": "마법공식 자본수익률 순위",
               "weight": 1,
-              "status": "fail",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 123위입니다(35.1%).",
+              "status": "pass",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 122위입니다(35.1%).",
               "detail": "최신 EBIT / (유동자산 − 유동부채 + 순유형자산)의 유니버스 내 내림차순 순위"
             },
             {
@@ -41316,19 +41351,20 @@
               "label": "마법공식 이익수익률 순위",
               "weight": 1,
               "status": "fail",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 157위입니다(3.5%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 158위입니다(3.5%).",
               "detail": "최신 EBIT / 기업가치의 유니버스 내 내림차순 순위"
             }
           ],
-          "reasons": [],
+          "reasons": [
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 122위입니다(35.1%)."
+          ],
           "risks": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 123위입니다(35.1%).",
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 157위입니다(3.5%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 158위입니다(3.5%)."
           ],
           "rank": 157,
           "rankComponents": {
-            "quality": 123,
-            "value": 157
+            "quality": 122,
+            "value": 158
           }
         }
       }
@@ -41337,10 +41373,10 @@
       "ticker": "HUBB",
       "name": "허벨",
       "sector": "Electronic Components & Accessories",
-      "price": 475.04,
+      "price": 470.03,
       "marketCap": 24832.893347,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -41615,10 +41651,10 @@
       "ticker": "HUM",
       "name": "휴매나",
       "sector": "Hospital & Medical Service Plans",
-      "price": 379.24,
+      "price": 378.88,
       "marketCap": 45496.027095,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -41699,10 +41735,10 @@
       "ticker": "HWM",
       "name": "하우멧 에어로스페이스",
       "sector": "Rolling Drawing & Extruding of  Nonferrous Metals",
-      "price": 271.86,
+      "price": 271.68,
       "marketCap": 108346.36408,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -41983,10 +42019,10 @@
       "ticker": "IBKR",
       "name": "인터랙티브 브로커스",
       "sector": "Security Brokers, Dealers & Flotation Companies",
-      "price": 93.51,
+      "price": 93.87,
       "marketCap": 42530.447912,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -42067,10 +42103,10 @@
       "ticker": "IBM",
       "name": "IBM",
       "sector": "Computer & office Equipment",
-      "price": 235.09,
+      "price": 235.68,
       "marketCap": 222042.233035,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -42350,10 +42386,10 @@
       "ticker": "IDXX",
       "name": "아이덱스 래버러토리스",
       "sector": "In Vitro & In Vivo Diagnostic Substances",
-      "price": 559.0,
+      "price": 556.93,
       "marketCap": 43875.566934,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -42622,7 +42658,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 175위입니다(3.1%)."
           ],
-          "rank": 95,
+          "rank": 96,
           "rankComponents": {
             "quality": 28,
             "value": 175
@@ -42637,7 +42673,7 @@
       "price": 234.39,
       "marketCap": 17279.206423,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -42896,7 +42932,7 @@
               "label": "마법공식 이익수익률 순위",
               "weight": 1,
               "status": "fail",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 142위입니다(3.8%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 143위입니다(3.8%).",
               "detail": "최신 EBIT / 기업가치의 유니버스 내 내림차순 순위"
             }
           ],
@@ -42904,12 +42940,12 @@
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 93위입니다(45.5%)."
           ],
           "risks": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 142위입니다(3.8%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 143위입니다(3.8%)."
           ],
           "rank": 123,
           "rankComponents": {
             "quality": 93,
-            "value": 142
+            "value": 143
           }
         }
       }
@@ -42921,7 +42957,7 @@
       "price": 84.28,
       "marketCap": 21504.038882,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -43199,10 +43235,10 @@
       "ticker": "INCY",
       "name": "인사이트",
       "sector": "Services-Commercial Physical & Biological Research",
-      "price": 128.0,
+      "price": 127.81,
       "marketCap": 25906.798916,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -43477,10 +43513,10 @@
       "ticker": "INTC",
       "name": "인텔",
       "sector": "Semiconductors & Related Devices",
-      "price": 88.51,
+      "price": 90.07,
       "marketCap": 476026.210856,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-27"
       },
       "metrics": {
@@ -43758,10 +43794,10 @@
       "ticker": "INTU",
       "name": "인튜이트",
       "sector": "Services-Prepackaged Software",
-      "price": 367.2,
+      "price": 367.0,
       "marketCap": 100388.079,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-07-31"
       },
       "metrics": {
@@ -44044,7 +44080,7 @@
       "price": 259.82,
       "marketCap": 42766.372,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -44326,7 +44362,7 @@
       "price": 80.51,
       "marketCap": 31237.834029,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -44577,7 +44613,7 @@
               "label": "마법공식 자본수익률 순위",
               "weight": 1,
               "status": "pass",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 117위입니다(36.8%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 116위입니다(36.8%).",
               "detail": "최신 EBIT / (유동자산 − 유동부채 + 순유형자산)의 유니버스 내 내림차순 순위"
             },
             {
@@ -44585,20 +44621,20 @@
               "label": "마법공식 이익수익률 순위",
               "weight": 1,
               "status": "fail",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 163위입니다(3.3%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 164위입니다(3.3%).",
               "detail": "최신 EBIT / 기업가치의 유니버스 내 내림차순 순위"
             }
           ],
           "reasons": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 117위입니다(36.8%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 116위입니다(36.8%)."
           ],
           "risks": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 163위입니다(3.3%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 164위입니다(3.3%)."
           ],
           "rank": 157,
           "rankComponents": {
-            "quality": 117,
-            "value": 163
+            "quality": 116,
+            "value": 164
           }
         }
       }
@@ -44610,7 +44646,7 @@
       "price": 122.02,
       "marketCap": 36325.69712,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -44691,10 +44727,10 @@
       "ticker": "ISRG",
       "name": "인튜이티브 서지컬",
       "sector": "Orthopedic, Prosthetic & Surgical Appliances & Supplies",
-      "price": 380.11,
+      "price": 378.81,
       "marketCap": 133825.253575,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -44969,10 +45005,10 @@
       "ticker": "ITW",
       "name": "일리노이 툴 웍스",
       "sector": "General Industrial Machinery & Equipment",
-      "price": 280.55,
+      "price": 282.29,
       "marketCap": 80396.192,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -45255,7 +45291,7 @@
       "price": 32.02,
       "marketCap": 14136.822956,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -45336,10 +45372,10 @@
       "ticker": "JBL",
       "name": "자빌",
       "sector": "Printed Circuit Boards",
-      "price": 313.0,
+      "price": 313.21,
       "marketCap": 32820.364146,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-08-31"
       },
       "metrics": {
@@ -45598,7 +45634,7 @@
               "label": "마법공식 이익수익률 순위",
               "weight": 1,
               "status": "fail",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 155위입니다(3.5%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 156위입니다(3.5%).",
               "detail": "최신 EBIT / 기업가치의 유니버스 내 내림차순 순위"
             }
           ],
@@ -45606,12 +45642,12 @@
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 104위입니다(41.4%)."
           ],
           "risks": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 155위입니다(3.5%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 156위입니다(3.5%)."
           ],
-          "rank": 144,
+          "rank": 146,
           "rankComponents": {
             "quality": 104,
-            "value": 155
+            "value": 156
           }
         }
       }
@@ -45623,7 +45659,7 @@
       "price": 166.2,
       "marketCap": 11808.639636,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-06-30"
       },
       "metrics": {
@@ -45903,10 +45939,10 @@
       "ticker": "JPM",
       "name": "제이피모건 체이스",
       "sector": "National Commercial Banks",
-      "price": 351.27,
+      "price": 351.58,
       "marketCap": 934565.102438,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -45987,10 +46023,10 @@
       "ticker": "KDP",
       "name": "큐리그 닥터페퍼",
       "sector": "Beverages",
-      "price": 32.09,
+      "price": 32.04,
       "marketCap": 43600.866258,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -46269,10 +46305,10 @@
       "ticker": "KEY",
       "name": "키코프",
       "sector": "National Commercial Banks",
-      "price": 21.9,
+      "price": 21.87,
       "marketCap": 23338.101476,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -46356,7 +46392,7 @@
       "price": 316.13,
       "marketCap": 54025.152686,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-10-31"
       },
       "metrics": {
@@ -46639,7 +46675,7 @@
       "price": 24.02,
       "marketCap": 16112.360739,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -46720,10 +46756,10 @@
       "ticker": "KKR",
       "name": "KKR & CO",
       "sector": "Investment Advice",
-      "price": 108.0,
+      "price": 108.48,
       "marketCap": 97375.509996,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -46804,10 +46840,10 @@
       "ticker": "KMB",
       "name": "킴벌리클라크",
       "sector": "Converted Paper & Paperboard Prods (No Contaners/Boxes)",
-      "price": 109.3,
+      "price": 109.31,
       "marketCap": 36354.214644,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -47087,10 +47123,10 @@
       "ticker": "KMI",
       "name": "킨더 모건",
       "sector": "Natural Gas Transmission",
-      "price": 31.01,
+      "price": 30.98,
       "marketCap": 68986.328717,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -47346,10 +47382,10 @@
       "ticker": "KO",
       "name": "코카콜라",
       "sector": "Beverages",
-      "price": 91.39,
+      "price": 91.1,
       "marketCap": 391962.236037,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -47630,10 +47666,10 @@
       "ticker": "KR",
       "name": "크로거",
       "sector": "Retail-Grocery Stores",
-      "price": 57.99,
+      "price": 57.9,
       "marketCap": 35472.277628,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-01-31"
       },
       "metrics": {
@@ -47915,7 +47951,7 @@
       "price": 109.83,
       "marketCap": 22452.296488,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -47999,7 +48035,7 @@
       "price": 141.39,
       "marketCap": 17743.343431,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-01-02"
       },
       "metrics": {
@@ -48282,7 +48318,7 @@
       "price": 336.34,
       "marketCap": 27277.174,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -48565,7 +48601,7 @@
       "price": 402.87,
       "marketCap": 13923.459137,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -48844,10 +48880,10 @@
       "ticker": "LIN",
       "name": "린데",
       "sector": "Industrial Inorganic Chemicals",
-      "price": 490.03,
+      "price": 487.57,
       "marketCap": 224760.098074,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -49106,19 +49142,19 @@
               "label": "마법공식 이익수익률 순위",
               "weight": 1,
               "status": "fail",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 150위입니다(3.6%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 151위입니다(3.6%).",
               "detail": "최신 EBIT / 기업가치의 유니버스 내 내림차순 순위"
             }
           ],
           "reasons": [],
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 127위입니다(33.8%).",
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 150위입니다(3.6%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 151위입니다(3.6%)."
           ],
           "rank": 155,
           "rankComponents": {
             "quality": 127,
-            "value": 150
+            "value": 151
           }
         }
       }
@@ -49127,10 +49163,10 @@
       "ticker": "LITE",
       "name": "루멘텀 홀딩스",
       "sector": "Communications Equipment, NEC",
-      "price": 832.5,
+      "price": 866.71,
       "marketCap": 77743.887,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-06-27"
       },
       "metrics": {
@@ -49410,10 +49446,10 @@
       "ticker": "LMT",
       "name": "록히드 마틴",
       "sector": "Guided Missiles & Space Vehicles & Parts",
-      "price": 565.72,
+      "price": 563.57,
       "marketCap": 130066.744668,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -49696,7 +49732,7 @@
       "price": 67.86,
       "marketCap": 17595.059674,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -49951,10 +49987,10 @@
       "ticker": "LOW",
       "name": "로우스",
       "sector": "Retail-Lumber & Other Building Materials Dealers",
-      "price": 216.97,
+      "price": 216.09,
       "marketCap": 121163.18449,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-01-30"
       },
       "metrics": {
@@ -50234,10 +50270,10 @@
       "ticker": "LRCX",
       "name": "램 리서치",
       "sector": "Special Industry Machinery, NEC",
-      "price": 307.02,
+      "price": 314.0,
       "marketCap": 392914.794,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-06-28"
       },
       "metrics": {
@@ -50518,10 +50554,10 @@
       "ticker": "LULU",
       "name": "룰루레몬",
       "sector": "Apparel & Other Finishd Prods of  Fabrics & Similar Matl",
-      "price": 120.87,
+      "price": 121.07,
       "marketCap": 13128.583454,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-02-01"
       },
       "metrics": {
@@ -50796,10 +50832,10 @@
       "ticker": "LUV",
       "name": "사우스웨스트 항공",
       "sector": "Air Transportation, Scheduled",
-      "price": 40.46,
+      "price": 40.38,
       "marketCap": 19754.227156,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -51079,10 +51115,10 @@
       "ticker": "LVS",
       "name": "라스베이거스 샌즈",
       "sector": "Hotels & Motels",
-      "price": 47.35,
+      "price": 47.03,
       "marketCap": 30461.386684,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -51351,7 +51387,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 154위입니다(22.9%)."
           ],
-          "rank": 88,
+          "rank": 89,
           "rankComponents": {
             "quality": 154,
             "value": 44
@@ -51363,10 +51399,10 @@
       "ticker": "LYB",
       "name": "라이온델바젤 인더스트리스",
       "sector": "Industrial Organic Chemicals",
-      "price": 67.4,
+      "price": 67.53,
       "marketCap": 21814.752899,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -51645,10 +51681,10 @@
       "ticker": "LYV",
       "name": "라이브 네이션 엔터테인먼트",
       "sector": "Services-Amusement & Recreation Services",
-      "price": 183.44,
+      "price": 181.82,
       "marketCap": 42842.948425,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -51899,7 +51935,7 @@
               "label": "마법공식 자본수익률 순위",
               "weight": 1,
               "status": "pass",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 113위입니다(37.2%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 112위입니다(37.2%).",
               "detail": "최신 EBIT / (유동자산 − 유동부채 + 순유형자산)의 유니버스 내 내림차순 순위"
             },
             {
@@ -51912,14 +51948,14 @@
             }
           ],
           "reasons": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 113위입니다(37.2%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 112위입니다(37.2%)."
           ],
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 185위입니다(2.8%)."
           ],
           "rank": 175,
           "rankComponents": {
-            "quality": 113,
+            "quality": 112,
             "value": 185
           }
         }
@@ -51929,10 +51965,10 @@
       "ticker": "MA",
       "name": "마스터카드",
       "sector": "Services-Business Services, NEC",
-      "price": 582.02,
+      "price": 580.63,
       "marketCap": 508637.651462,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -52191,7 +52227,7 @@
               "label": "마법공식 이익수익률 순위",
               "weight": 1,
               "status": "fail",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 145위입니다(3.7%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 146위입니다(3.7%).",
               "detail": "최신 EBIT / 기업가치의 유니버스 내 내림차순 순위"
             }
           ],
@@ -52199,12 +52235,12 @@
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 4위입니다(609.8%)."
           ],
           "risks": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 145위입니다(3.7%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 146위입니다(3.7%)."
           ],
           "rank": 50,
           "rankComponents": {
             "quality": 4,
-            "value": 145
+            "value": 146
           }
         }
       }
@@ -52213,10 +52249,10 @@
       "ticker": "MAR",
       "name": "메리어트",
       "sector": "Hotels & Motels",
-      "price": 355.56,
+      "price": 356.39,
       "marketCap": 92934.49738,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -52499,7 +52535,7 @@
       "price": 73.29,
       "marketCap": 14451.866745,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -52779,10 +52815,10 @@
       "ticker": "MCD",
       "name": "맥도날드",
       "sector": "Retail-Eating  Places",
-      "price": 271.45,
+      "price": 270.95,
       "marketCap": 191735.472824,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -53050,7 +53086,7 @@
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 74위입니다(5.4%)."
           ],
           "risks": [],
-          "rank": 65,
+          "rank": 64,
           "rankComponents": {
             "quality": 97,
             "value": 74
@@ -53062,10 +53098,10 @@
       "ticker": "MCHP",
       "name": "마이크로칩 테크놀로지",
       "sector": "Semiconductors & Related Devices",
-      "price": 75.0,
+      "price": 76.08,
       "marketCap": 41312.101211,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-03-31"
       },
       "metrics": {
@@ -53347,7 +53383,7 @@
       "price": 858.9,
       "marketCap": 100139.462781,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-03-31"
       },
       "metrics": {
@@ -53631,7 +53667,7 @@
       "price": 503.32,
       "marketCap": 87175.024,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -53890,7 +53926,7 @@
               "label": "마법공식 이익수익률 순위",
               "weight": 1,
               "status": "fail",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 146위입니다(3.7%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 147위입니다(3.7%).",
               "detail": "최신 EBIT / 기업가치의 유니버스 내 내림차순 순위"
             }
           ],
@@ -53898,12 +53934,12 @@
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 39위입니다(114.5%)."
           ],
           "risks": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 146위입니다(3.7%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 147위입니다(3.7%)."
           ],
-          "rank": 78,
+          "rank": 79,
           "rankComponents": {
             "quality": 39,
-            "value": 146
+            "value": 147
           }
         }
       }
@@ -53912,10 +53948,10 @@
       "ticker": "MDLZ",
       "name": "몬덜리즈 인터내셔널",
       "sector": "Food and Kindred Products",
-      "price": 64.57,
+      "price": 64.45,
       "marketCap": 82258.054274,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -54173,7 +54209,7 @@
               "label": "마법공식 이익수익률 순위",
               "weight": 1,
               "status": "fail",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 147위입니다(3.6%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 148위입니다(3.6%).",
               "detail": "최신 EBIT / 기업가치의 유니버스 내 내림차순 순위"
             }
           ],
@@ -54181,12 +54217,12 @@
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 18위입니다(202.3%)."
           ],
           "risks": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 147위입니다(3.6%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 148위입니다(3.6%)."
           ],
           "rank": 62,
           "rankComponents": {
             "quality": 18,
-            "value": 147
+            "value": 148
           }
         }
       }
@@ -54195,10 +54231,10 @@
       "ticker": "MDT",
       "name": "메드트로닉",
       "sector": "Electromedical & Electrotherapeutic Apparatus",
-      "price": 93.5,
+      "price": 93.35,
       "marketCap": 119486.213374,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-04-24"
       },
       "metrics": {
@@ -54478,10 +54514,10 @@
       "ticker": "MELI",
       "name": "메르카도리브레",
       "sector": "Services-Business Services, NEC",
-      "price": 1925.88,
+      "price": 1922.73,
       "marketCap": 97476.262109,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -54762,10 +54798,10 @@
       "ticker": "META",
       "name": "메타",
       "sector": "Services-Computer Programming, Data Processing, Etc.",
-      "price": 551.02,
+      "price": 549.9,
       "marketCap": 1400873.673128,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -55046,10 +55082,10 @@
       "ticker": "MGM",
       "name": "MGM 리조트 인터내셔널",
       "sector": "Hotels & Motels",
-      "price": 43.44,
+      "price": 43.74,
       "marketCap": 11299.054275,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -55318,7 +55354,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 181위입니다(14.1%)."
           ],
-          "rank": 113,
+          "rank": 114,
           "rankComponents": {
             "quality": 181,
             "value": 47
@@ -55330,10 +55366,10 @@
       "ticker": "MKC",
       "name": "매코믹 앤 컴퍼니",
       "sector": "Miscellaneous Food Preparations & Kindred Products",
-      "price": 55.42,
+      "price": 55.41,
       "marketCap": 14897.064496,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-11-30"
       },
       "metrics": {
@@ -55612,10 +55648,10 @@
       "ticker": "MLM",
       "name": "마틴 마리에타 머티리얼스",
       "sector": "Mining & Quarrying of  Nonmetallic Minerals (No Fuels)",
-      "price": 534.93,
+      "price": 534.92,
       "marketCap": 32130.418598,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -55894,10 +55930,10 @@
       "ticker": "MMM",
       "name": "3M",
       "sector": "Surgical & Medical Instruments & Apparatus",
-      "price": 178.0,
+      "price": 178.96,
       "marketCap": 92293.683746,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -56178,10 +56214,10 @@
       "ticker": "MNST",
       "name": "몬스터 베버리지",
       "sector": "Bottled & Canned Soft Drinks & Carbonated Waters",
-      "price": 47.81,
+      "price": 47.79,
       "marketCap": 140434.766157,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -56456,10 +56492,10 @@
       "ticker": "MO",
       "name": "알트리아 그룹",
       "sector": "Cigarettes",
-      "price": 66.28,
+      "price": 66.09,
       "marketCap": 110353.376069,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -56740,10 +56776,10 @@
       "ticker": "MOS",
       "name": "모자이크",
       "sector": "Agricultural Chemicals",
-      "price": 24.56,
+      "price": 24.41,
       "marketCap": 7759.832719,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -57023,10 +57059,10 @@
       "ticker": "MPC",
       "name": "마라톤 페트롤리움",
       "sector": "Petroleum Refining",
-      "price": 360.4,
+      "price": 360.72,
       "marketCap": 101299.108509,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -57307,10 +57343,10 @@
       "ticker": "MPWR",
       "name": "모놀리식 파워 시스템",
       "sector": "Semiconductors & Related Devices",
-      "price": 1304.08,
+      "price": 1316.28,
       "marketCap": 64685.94804,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -57585,10 +57621,10 @@
       "ticker": "MRK",
       "name": "머크",
       "sector": "Pharmaceutical Preparations",
-      "price": 152.74,
+      "price": 152.55,
       "marketCap": 376367.033377,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -57867,10 +57903,10 @@
       "ticker": "MRNA",
       "name": "모더나",
       "sector": "Biological Products, (No Diagnostic Substances)",
-      "price": 145.96,
+      "price": 145.13,
       "marketCap": 57941.104571,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -58145,10 +58181,10 @@
       "ticker": "MRVL",
       "name": "마벨 테크놀로지",
       "sector": "Semiconductors & Related Devices",
-      "price": 228.1,
+      "price": 237.04,
       "marketCap": 207591.672908,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-01-31"
       },
       "metrics": {
@@ -58431,7 +58467,7 @@
       "price": 563.49,
       "marketCap": 40965.723,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -58690,19 +58726,19 @@
               "label": "마법공식 이익수익률 순위",
               "weight": 1,
               "status": "fail",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 144위입니다(3.7%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 145위입니다(3.7%).",
               "detail": "최신 EBIT / 기업가치의 유니버스 내 내림차순 순위"
             }
           ],
           "reasons": [],
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 244위입니다(-1754.9%).",
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 144위입니다(3.7%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 145위입니다(3.7%)."
           ],
           "rank": 212,
           "rankComponents": {
             "quality": 244,
-            "value": 144
+            "value": 145
           }
         }
       }
@@ -58711,10 +58747,10 @@
       "ticker": "MSFT",
       "name": "마이크로소프트",
       "sector": "Services-Prepackaged Software",
-      "price": 483.13,
+      "price": 483.24,
       "marketCap": 3588320.603071,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-06-30"
       },
       "metrics": {
@@ -58997,7 +59033,7 @@
       "price": 480.47,
       "marketCap": 79514.80032,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -59256,7 +59292,7 @@
               "label": "마법공식 이익수익률 순위",
               "weight": 1,
               "status": "fail",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 159위입니다(3.4%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 160위입니다(3.4%).",
               "detail": "최신 EBIT / 기업가치의 유니버스 내 내림차순 순위"
             }
           ],
@@ -59264,12 +59300,12 @@
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 15위입니다(215.4%)."
           ],
           "risks": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 159위입니다(3.4%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 160위입니다(3.4%)."
           ],
           "rank": 68,
           "rankComponents": {
             "quality": 15,
-            "value": 159
+            "value": 160
           }
         }
       }
@@ -59278,10 +59314,10 @@
       "ticker": "MSTR",
       "name": "스트래티지",
       "sector": "Finance Services",
-      "price": 118.8,
+      "price": 119.25,
       "marketCap": 45818.920807,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -59365,7 +59401,7 @@
       "price": 240.34,
       "marketCap": 34709.004409,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -59449,7 +59485,7 @@
       "price": 1395.25,
       "marketCap": 27956.008945,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -59708,7 +59744,7 @@
               "label": "마법공식 이익수익률 순위",
               "weight": 1,
               "status": "fail",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 143위입니다(3.7%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 144위입니다(3.7%).",
               "detail": "최신 EBIT / 기업가치의 유니버스 내 내림차순 순위"
             }
           ],
@@ -59716,12 +59752,12 @@
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 40위입니다(110.6%)."
           ],
           "risks": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 143위입니다(3.7%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 144위입니다(3.7%)."
           ],
-          "rank": 74,
+          "rank": 75,
           "rankComponents": {
             "quality": 40,
-            "value": 143
+            "value": 144
           }
         }
       }
@@ -59730,10 +59766,10 @@
       "ticker": "MU",
       "name": "마이크론 테크놀로지",
       "sector": "Semiconductors & Related Devices",
-      "price": 936.15,
+      "price": 966.78,
       "marketCap": 1091874.710524,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-08-28"
       },
       "metrics": {
@@ -60016,7 +60052,7 @@
       "price": 98.22,
       "marketCap": 54902.757478,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -60100,7 +60136,7 @@
       "price": 332.24,
       "marketCap": 18511.731044,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-10-31"
       },
       "metrics": {
@@ -60340,7 +60376,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 58,
+          "score": 57,
           "passed": 1,
           "totalJudged": 2,
           "total": 2,
@@ -60359,7 +60395,7 @@
               "label": "마법공식 이익수익률 순위",
               "weight": 1,
               "status": "fail",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 158위입니다(3.5%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 159위입니다(3.5%).",
               "detail": "최신 EBIT / 기업가치의 유니버스 내 내림차순 순위"
             }
           ],
@@ -60367,12 +60403,12 @@
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 60위입니다(71.1%)."
           ],
           "risks": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 158위입니다(3.5%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 159위입니다(3.5%)."
           ],
-          "rank": 104,
+          "rank": 105,
           "rankComponents": {
             "quality": 60,
-            "value": 158
+            "value": 159
           }
         }
       }
@@ -60381,10 +60417,10 @@
       "ticker": "NEM",
       "name": "뉴몬트",
       "sector": "Gold and Silver Ores",
-      "price": 132.48,
+      "price": 131.58,
       "marketCap": 138644.829018,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -60624,7 +60660,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 75,
+          "score": 76,
           "passed": 1,
           "totalJudged": 2,
           "total": 2,
@@ -60653,7 +60689,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 142위입니다(27.9%)."
           ],
-          "rank": 61,
+          "rank": 60,
           "rankComponents": {
             "quality": 142,
             "value": 21
@@ -60665,10 +60701,10 @@
       "ticker": "NFLX",
       "name": "넷플릭스",
       "sector": "Services-Video Tape Rental",
-      "price": 79.66,
+      "price": 79.59,
       "marketCap": 331407.958813,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -60943,10 +60979,10 @@
       "ticker": "NI",
       "name": "나이소스",
       "sector": "Electric & Other Services Combined",
-      "price": 41.01,
+      "price": 40.62,
       "marketCap": 19479.731262,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -61202,10 +61238,10 @@
       "ticker": "NKE",
       "name": "나이키",
       "sector": "Rubber & Plastics Footwear",
-      "price": 40.73,
+      "price": 40.76,
       "marketCap": 60467.407134,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-05-31"
       },
       "metrics": {
@@ -61445,7 +61481,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 62,
+          "score": 61,
           "passed": 1,
           "totalJudged": 2,
           "total": 2,
@@ -61474,7 +61510,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 152위입니다(23.1%)."
           ],
-          "rank": 94,
+          "rank": 95,
           "rankComponents": {
             "quality": 152,
             "value": 50
@@ -61486,10 +61522,10 @@
       "ticker": "NOC",
       "name": "노스롭 그루먼",
       "sector": "Search, Detection, Navigation, Guidance, Aeronautical Sys",
-      "price": 550.55,
+      "price": 551.03,
       "marketCap": 78280.989217,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -61729,7 +61765,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 65,
+          "score": 64,
           "passed": 2,
           "totalJudged": 2,
           "total": 2,
@@ -61740,7 +61776,7 @@
               "label": "마법공식 자본수익률 순위",
               "weight": 1,
               "status": "pass",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 118위입니다(36.4%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 117위입니다(36.4%).",
               "detail": "최신 EBIT / (유동자산 − 유동부채 + 순유형자산)의 유니버스 내 내림차순 순위"
             },
             {
@@ -61753,13 +61789,13 @@
             }
           ],
           "reasons": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 118위입니다(36.4%).",
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 117위입니다(36.4%).",
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 79위입니다(5.1%)."
           ],
           "risks": [],
-          "rank": 87,
+          "rank": 88,
           "rankComponents": {
-            "quality": 118,
+            "quality": 117,
             "value": 79
           }
         }
@@ -61769,10 +61805,10 @@
       "ticker": "NOW",
       "name": "서비스나우",
       "sector": "Services-Prepackaged Software",
-      "price": 127.86,
+      "price": 128.48,
       "marketCap": 132848.32,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -62047,10 +62083,10 @@
       "ticker": "NRG",
       "name": "NRG 에너지",
       "sector": "Electric Services",
-      "price": 113.81,
+      "price": 113.11,
       "marketCap": 23776.907732,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -62306,10 +62342,10 @@
       "ticker": "NSC",
       "name": "노퍽서던",
       "sector": "Railroads, Line-Haul Operating",
-      "price": 347.33,
+      "price": 350.72,
       "marketCap": 78774.648579,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -62589,10 +62625,10 @@
       "ticker": "NTAP",
       "name": "넷앱",
       "sector": "Computer Storage Devices",
-      "price": 192.3,
+      "price": 192.27,
       "marketCap": 37729.962132,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-04-24"
       },
       "metrics": {
@@ -62860,7 +62896,7 @@
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 115위입니다(4.4%)."
           ],
           "risks": [],
-          "rank": 68,
+          "rank": 66,
           "rankComponents": {
             "quality": 59,
             "value": 115
@@ -62875,7 +62911,7 @@
       "price": 183.9,
       "marketCap": 33645.544587,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -62956,10 +62992,10 @@
       "ticker": "NUE",
       "name": "뉴코",
       "sector": "Steel Works, Blast Furnaces & Rolling Mills (Coke Ovens)",
-      "price": 248.63,
+      "price": 243.63,
       "marketCap": 55273.720944,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -63240,10 +63276,10 @@
       "ticker": "NVDA",
       "name": "엔비디아",
       "sector": "Semiconductors & Related Devices",
-      "price": 215.29,
+      "price": 214.72,
       "marketCap": 5196224.0,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-01-25"
       },
       "metrics": {
@@ -63512,7 +63548,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 196위입니다(2.5%)."
           ],
-          "rank": 113,
+          "rank": 114,
           "rankComponents": {
             "quality": 32,
             "value": 196
@@ -63524,10 +63560,10 @@
       "ticker": "NXPI",
       "name": "NXP 세미컨덕터스",
       "sector": "Semiconductors & Related Devices",
-      "price": 223.74,
+      "price": 225.56,
       "marketCap": 56878.151087,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -63795,7 +63831,7 @@
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 94위입니다(4.7%)."
           ],
           "risks": [],
-          "rank": 83,
+          "rank": 84,
           "rankComponents": {
             "quality": 100,
             "value": 94
@@ -63807,10 +63843,10 @@
       "ticker": "O",
       "name": "리얼티 인컴",
       "sector": "Real Estate Investment Trusts",
-      "price": 62.8,
+      "price": 62.6,
       "marketCap": 59233.248866,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -63894,7 +63930,7 @@
       "price": 93.33,
       "marketCap": 58832.401021,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -64153,7 +64189,7 @@
       "price": 87.54,
       "marketCap": 24016.245951,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -64433,10 +64469,10 @@
       "ticker": "ON",
       "name": "온 세미컨덕터",
       "sector": "Semiconductors & Related Devices",
-      "price": 73.01,
+      "price": 74.21,
       "marketCap": 28890.822815,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -64716,10 +64752,10 @@
       "ticker": "ORCL",
       "name": "오라클",
       "sector": "Services-Prepackaged Software",
-      "price": 144.77,
+      "price": 146.47,
       "marketCap": 421902.58737,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-05-31"
       },
       "metrics": {
@@ -64987,7 +65023,7 @@
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 162위입니다(19.7%).",
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 132위입니다(4.0%)."
           ],
-          "rank": 171,
+          "rank": 172,
           "rankComponents": {
             "quality": 162,
             "value": 132
@@ -65002,7 +65038,7 @@
       "price": 89.11,
       "marketCap": 72086.496175,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -65277,10 +65313,10 @@
       "ticker": "OTIS",
       "name": "오티스 월드와이드",
       "sector": "Electronic & Other Electrical Equipment (No Computer Equip)",
-      "price": 71.8,
+      "price": 71.49,
       "marketCap": 27214.051045,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -65520,7 +65556,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 32,
+          "score": 31,
           "passed": 1,
           "totalJudged": 2,
           "total": 2,
@@ -65549,7 +65585,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 239위입니다(-517.7%)."
           ],
-          "rank": 168,
+          "rank": 169,
           "rankComponents": {
             "quality": 239,
             "value": 54
@@ -65561,10 +65597,10 @@
       "ticker": "OXY",
       "name": "옥시덴탈 페트롤리움",
       "sector": "Crude Petroleum & Natural Gas",
-      "price": 61.0,
+      "price": 61.3,
       "marketCap": 61277.770842,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -65804,7 +65840,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 36,
+          "score": 37,
           "passed": 1,
           "totalJudged": 2,
           "total": 2,
@@ -65833,7 +65869,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 202위입니다(6.7%)."
           ],
-          "rank": 156,
+          "rank": 155,
           "rankComponents": {
             "quality": 202,
             "value": 76
@@ -65845,10 +65881,10 @@
       "ticker": "PANW",
       "name": "팰로 앨토 네트웍스",
       "sector": "Computer Peripheral Equipment, NEC",
-      "price": 357.24,
+      "price": 357.87,
       "marketCap": 291664.05,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-07-31"
       },
       "metrics": {
@@ -66123,10 +66159,10 @@
       "ticker": "PAYX",
       "name": "페이첵스",
       "sector": "Services-Engineering, Accounting, Research, Management",
-      "price": 124.95,
+      "price": 124.475,
       "marketCap": 44273.623999,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-05-31"
       },
       "metrics": {
@@ -66405,10 +66441,10 @@
       "ticker": "PCG",
       "name": "PG&E",
       "sector": "Electric & Other Services Combined",
-      "price": 17.56,
+      "price": 17.6,
       "marketCap": 47169.94473,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -66666,7 +66702,7 @@
       "price": 72.61,
       "marketCap": 36190.278378,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -66921,10 +66957,10 @@
       "ticker": "PEP",
       "name": "펩시코",
       "sector": "Beverages",
-      "price": 144.24,
+      "price": 143.48,
       "marketCap": 195834.640742,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-27"
       },
       "metrics": {
@@ -67192,7 +67228,7 @@
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 84위입니다(4.9%)."
           ],
           "risks": [],
-          "rank": 70,
+          "rank": 69,
           "rankComponents": {
             "quality": 92,
             "value": 84
@@ -67207,7 +67243,7 @@
       "price": 28.07,
       "marketCap": 159989.837643,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -67486,10 +67522,10 @@
       "ticker": "PG",
       "name": "P&G",
       "sector": "Soap, Detergents, Cleang Preparations, Perfumes, Cosmetics",
-      "price": 145.02,
+      "price": 144.68,
       "marketCap": 336298.975121,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-06-30"
       },
       "metrics": {
@@ -67769,10 +67805,10 @@
       "ticker": "PGR",
       "name": "프로그레시브",
       "sector": "Fire, Marine & Casualty Insurance",
-      "price": 219.72,
+      "price": 219.28,
       "marketCap": 127483.201726,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -67856,25 +67892,25 @@
       "price": 1001.74,
       "marketCap": 126305.779317,
       "asOf": {
-        "price": "2026-08-24",
-        "financial": "2025-06-30"
+        "price": "2026-08-21",
+        "financial": "2026-06-30"
       },
       "metrics": {
-        "roicAvg5y": 0.131717889600387,
-        "magicFormulaRoc": 1.0685840707964602,
-        "fcfMargin": 0.16831234256926952,
-        "fcfYield": 0.026451679551533568,
-        "netDebtToEbitda": 1.3374571754853446,
-        "interestCoverage": 10.62836185819071,
-        "revenueCagr5y": 0.08453859078729686,
-        "epsCagr5y": 0.19385643560742483,
-        "pe": 35.76041317015855,
-        "pbr": 9.231528966306096,
-        "peg": 1.8446853754484744,
-        "currentRatio": 1.1943632926619694,
-        "debtToEquity": 0.547726940505774,
-        "evEbit": 30.672366992638604,
-        "earningsYield": 0.03260263546794419
+        "roicAvg5y": 0.1411581828911904,
+        "magicFormulaRoc": 1.097207187702966,
+        "fcfMargin": 0.18163635517931068,
+        "fcfYield": 0.030917033417760722,
+        "netDebtToEbitda": 1.0432972522897586,
+        "interestCoverage": 12.638403990024937,
+        "revenueCagr5y": 0.07899084988012128,
+        "epsCagr5y": 0.2961707140309302,
+        "pe": 34.61380633516032,
+        "pbr": 8.199544229875357,
+        "peg": 1.1687113105837152,
+        "currentRatio": 1.2623031496062993,
+        "debtToEquity": 0.4392365619319657,
+        "evEbit": 26.158401601617996,
+        "earningsYield": 0.038228635496526144
       },
       "scores": {
         "buffett": {
@@ -67891,7 +67927,7 @@
               "label": "자본 효율성",
               "weight": 3,
               "status": "pass",
-              "message": "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 13%).",
+              "message": "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 14%).",
               "detail": "5년 평균 ROIC ≥ 12%"
             },
             {
@@ -67915,7 +67951,7 @@
               "label": "현금 창출력",
               "weight": 2,
               "status": "pass",
-              "message": "매출의 17%가 실제 현금으로 남습니다.",
+              "message": "매출의 18%가 실제 현금으로 남습니다.",
               "detail": "잉여현금흐름 마진 ≥ 10%"
             },
             {
@@ -67923,7 +67959,7 @@
               "label": "부채 부담",
               "weight": 2,
               "status": "pass",
-              "message": "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 1.3배).",
+              "message": "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 1.0배).",
               "detail": "순부채 / EBITDA ≤ 2.5배"
             },
             {
@@ -67931,7 +67967,7 @@
               "label": "이자 감당력",
               "weight": 1,
               "status": "pass",
-              "message": "영업이익이 이자비용의 11배입니다.",
+              "message": "영업이익이 이자비용의 13배입니다.",
               "detail": "영업이익 / 이자비용 ≥ 8배"
             },
             {
@@ -67939,7 +67975,7 @@
               "label": "사업의 성장",
               "weight": 2,
               "status": "pass",
-              "message": "매출이 5년 동안 연평균 8.5% 성장했습니다.",
+              "message": "매출이 5년 동안 연평균 7.9% 성장했습니다.",
               "detail": "매출 5년 연평균 성장률 ≥ 3%"
             },
             {
@@ -67947,21 +67983,21 @@
               "label": "현재 가격",
               "weight": 3,
               "status": "fail",
-              "message": "현재 가치평가가 과거 평균보다 높은 편입니다(FCF 수익률 2.6%).",
+              "message": "현재 가치평가가 과거 평균보다 높은 편입니다(FCF 수익률 3.1%).",
               "detail": "잉여현금흐름 수익률 ≥ 4% 또는 EV/EBIT가 자기 5년 중앙값 이하"
             }
           ],
           "reasons": [
-            "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 13%).",
+            "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 14%).",
             "5년 중 5년 동안 두 자릿수 자본수익률을 유지했습니다.",
             "최근 5년 동안 잉여현금흐름이 매년 플러스였습니다.",
-            "매출의 17%가 실제 현금으로 남습니다.",
-            "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 1.3배).",
-            "영업이익이 이자비용의 11배입니다.",
-            "매출이 5년 동안 연평균 8.5% 성장했습니다."
+            "매출의 18%가 실제 현금으로 남습니다.",
+            "부채가 현금창출력에 비해 낮습니다(순부채/EBITDA 1.0배).",
+            "영업이익이 이자비용의 13배입니다.",
+            "매출이 5년 동안 연평균 7.9% 성장했습니다."
           ],
           "risks": [
-            "현재 가치평가가 과거 평균보다 높은 편입니다(FCF 수익률 2.6%)."
+            "현재 가치평가가 과거 평균보다 높은 편입니다(FCF 수익률 3.1%)."
           ]
         },
         "graham": {
@@ -67978,7 +68014,7 @@
               "label": "이익 대비 가격",
               "weight": 3,
               "status": "fail",
-              "message": "이익 대비 가격이 기준(15배)보다 높습니다(PER 35.8배).",
+              "message": "이익 대비 가격이 기준(15배)보다 높습니다(PER 34.6배).",
               "detail": "PER ≤ 15배"
             },
             {
@@ -67986,7 +68022,7 @@
               "label": "자산 대비 가격",
               "weight": 2,
               "status": "fail",
-              "message": "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 9.2배).",
+              "message": "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 8.2배).",
               "detail": "PBR ≤ 1.5배"
             },
             {
@@ -67994,7 +68030,7 @@
               "label": "단기 지급 능력",
               "weight": 2,
               "status": "fail",
-              "message": "유동비율이 1.2로 기준(1.5)에 못 미칩니다.",
+              "message": "유동비율이 1.3로 기준(1.5)에 못 미칩니다.",
               "detail": "유동비율 ≥ 1.5"
             },
             {
@@ -68002,7 +68038,7 @@
               "label": "자본 대비 부채",
               "weight": 2,
               "status": "pass",
-              "message": "자기자본보다 부채가 적습니다(부채비율 0.55).",
+              "message": "자기자본보다 부채가 적습니다(부채비율 0.44).",
               "detail": "부채 / 자기자본 ≤ 1.0"
             },
             {
@@ -68018,25 +68054,25 @@
               "label": "가치함정 점검",
               "weight": 2,
               "status": "pass",
-              "message": "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 8.5%).",
+              "message": "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 7.9%).",
               "detail": "매출 5년 성장률 ≥ 0% (싼 데는 이유가 있는지 확인)"
             }
           ],
           "reasons": [
-            "자기자본보다 부채가 적습니다(부채비율 0.55).",
+            "자기자본보다 부채가 적습니다(부채비율 0.44).",
             "최근 5년 동안 매년 흑자를 냈습니다.",
-            "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 8.5%)."
+            "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 7.9%)."
           ],
           "risks": [
-            "이익 대비 가격이 기준(15배)보다 높습니다(PER 35.8배).",
-            "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 9.2배).",
-            "유동비율이 1.2로 기준(1.5)에 못 미칩니다."
+            "이익 대비 가격이 기준(15배)보다 높습니다(PER 34.6배).",
+            "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 8.2배).",
+            "유동비율이 1.3로 기준(1.5)에 못 미칩니다."
           ]
         },
         "lynch": {
           "styleId": "lynch",
           "modelVersion": "Lynch 1.0",
-          "score": 75,
+          "score": 83,
           "passed": 4,
           "totalJudged": 5,
           "total": 5,
@@ -68047,23 +68083,23 @@
               "label": "이익 성장",
               "weight": 3,
               "status": "pass",
-              "message": "주당순이익이 5년 동안 연평균 19.4% 늘었습니다.",
+              "message": "주당순이익이 5년 동안 연평균 29.6% 늘었습니다.",
               "detail": "주당순이익 5년 연평균 성장률 15~40%"
             },
             {
               "code": "LYN_PEG",
               "label": "성장률 대비 가격",
               "weight": 3,
-              "status": "fail",
-              "message": "성장률에 비해 가격이 앞서 있습니다(PEG 1.84).",
+              "status": "pass",
+              "message": "성장률에 비해 가격이 무겁지 않습니다(PEG 1.17).",
               "detail": "PEG ≤ 1.2"
             },
             {
               "code": "LYN_REVENUE_GROWTH",
               "label": "매출 성장의 뒷받침",
               "weight": 2,
-              "status": "pass",
-              "message": "이익뿐 아니라 매출도 연평균 8.5% 늘었습니다.",
+              "status": "fail",
+              "message": "매출 성장은 연평균 7.9%에 그쳤습니다.",
               "detail": "매출 5년 연평균 성장률 ≥ 8%"
             },
             {
@@ -68071,7 +68107,7 @@
               "label": "부채 부담",
               "weight": 2,
               "status": "pass",
-              "message": "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 1.3배).",
+              "message": "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 1.0배).",
               "detail": "순부채 / EBITDA ≤ 2.0"
             },
             {
@@ -68079,24 +68115,24 @@
               "label": "성장의 질",
               "weight": 2,
               "status": "pass",
-              "message": "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 13%).",
+              "message": "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 14%).",
               "detail": "5년 평균 ROIC ≥ 10%"
             }
           ],
           "reasons": [
-            "주당순이익이 5년 동안 연평균 19.4% 늘었습니다.",
-            "이익뿐 아니라 매출도 연평균 8.5% 늘었습니다.",
-            "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 1.3배).",
-            "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 13%)."
+            "주당순이익이 5년 동안 연평균 29.6% 늘었습니다.",
+            "성장률에 비해 가격이 무겁지 않습니다(PEG 1.17).",
+            "성장 기업치고 부채 부담이 가볍습니다(순부채/EBITDA 1.0배).",
+            "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 14%)."
           ],
           "risks": [
-            "성장률에 비해 가격이 앞서 있습니다(PEG 1.84)."
+            "매출 성장은 연평균 7.9%에 그쳤습니다."
           ]
         },
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 60,
+          "score": 70,
           "passed": 1,
           "totalJudged": 2,
           "total": 2,
@@ -68107,7 +68143,7 @@
               "label": "마법공식 자본수익률 순위",
               "weight": 1,
               "status": "pass",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 43위입니다(106.9%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 42위입니다(109.7%).",
               "detail": "최신 EBIT / (유동자산 − 유동부채 + 순유형자산)의 유니버스 내 내림차순 순위"
             },
             {
@@ -68115,20 +68151,20 @@
               "label": "마법공식 이익수익률 순위",
               "weight": 1,
               "status": "fail",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 165위입니다(3.3%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 142위입니다(3.8%).",
               "detail": "최신 EBIT / 기업가치의 유니버스 내 내림차순 순위"
             }
           ],
           "reasons": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 43위입니다(106.9%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 42위입니다(109.7%)."
           ],
           "risks": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 165위입니다(3.3%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 142위입니다(3.8%)."
           ],
-          "rank": 99,
+          "rank": 75,
           "rankComponents": {
-            "quality": 43,
-            "value": 165
+            "quality": 42,
+            "value": 142
           }
         }
       }
@@ -68140,7 +68176,7 @@
       "price": 252.79,
       "marketCap": 22523.159004,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -68380,7 +68416,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 29,
+          "score": 28,
           "passed": 1,
           "totalJudged": 2,
           "total": 2,
@@ -68409,7 +68445,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 178위입니다(15.4%)."
           ],
-          "rank": 175,
+          "rank": 176,
           "rankComponents": {
             "quality": 178,
             "value": 120
@@ -68421,10 +68457,10 @@
       "ticker": "PLD",
       "name": "프로로지스",
       "sector": "Real Estate Investment Trusts",
-      "price": 142.41,
+      "price": 141.8,
       "marketCap": 134437.1768,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -68505,10 +68541,10 @@
       "ticker": "PLTR",
       "name": "팔란티어",
       "sector": "Services-Prepackaged Software",
-      "price": 179.04,
+      "price": 179.94,
       "marketCap": 432225.503191,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -68783,10 +68819,10 @@
       "ticker": "PM",
       "name": "필립 모리스 인터내셔널",
       "sector": "Cigarettes",
-      "price": 188.42,
+      "price": 188.23,
       "marketCap": 293377.807623,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -69026,7 +69062,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 87,
+          "score": 86,
           "passed": 2,
           "totalJudged": 2,
           "total": 2,
@@ -69054,7 +69090,7 @@
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 112위입니다(4.5%)."
           ],
           "risks": [],
-          "rank": 33,
+          "rank": 34,
           "rankComponents": {
             "quality": 17,
             "value": 112
@@ -69066,10 +69102,10 @@
       "ticker": "PNC",
       "name": "PNC 파이낸셜 서비시스",
       "sector": "National Commercial Banks",
-      "price": 243.0,
+      "price": 243.13,
       "marketCap": 96995.173758,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -69150,10 +69186,10 @@
       "ticker": "PNR",
       "name": "펜테어",
       "sector": "Special Industry Machinery (No Metalworking Machinery)",
-      "price": 64.82,
+      "price": 64.4,
       "marketCap": 10280.68398,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -69436,7 +69472,7 @@
       "price": 97.36,
       "marketCap": 11799.762702,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -69692,10 +69728,10 @@
       "ticker": "PODD",
       "name": "인슐릿",
       "sector": "Surgical & Medical Instruments & Apparatus",
-      "price": 151.55,
+      "price": 148.16,
       "marketCap": 10275.518124,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -69976,10 +70012,10 @@
       "ticker": "PPL",
       "name": "PPL",
       "sector": "Electric Services",
-      "price": 34.39,
+      "price": 34.38,
       "marketCap": 25872.491634,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -70238,7 +70274,7 @@
       "price": 121.15,
       "marketCap": 41796.75,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -70319,10 +70355,10 @@
       "ticker": "PTC",
       "name": "PTC",
       "sector": "Services-Prepackaged Software",
-      "price": 154.3,
+      "price": 154.68,
       "marketCap": 16783.748451,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-09-30"
       },
       "metrics": {
@@ -70602,10 +70638,10 @@
       "ticker": "PWR",
       "name": "콴타 서비시스",
       "sector": "Electrical Work",
-      "price": 633.0,
+      "price": 639.34,
       "marketCap": 94193.820906,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -70885,10 +70921,10 @@
       "ticker": "PYPL",
       "name": "페이팔",
       "sector": "Services-Business Services, NEC",
-      "price": 61.57,
+      "price": 61.55,
       "marketCap": 52653.616795,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -71163,10 +71199,10 @@
       "ticker": "QCOM",
       "name": "퀄컴",
       "sector": "Radio & Tv Broadcasting & Communications Equipment",
-      "price": 159.07,
+      "price": 160.75,
       "marketCap": 168825.102801,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-09-28"
       },
       "metrics": {
@@ -71445,10 +71481,10 @@
       "ticker": "RCL",
       "name": "로열 캐리비안 크루즈",
       "sector": "Water Transportation",
-      "price": 292.75,
+      "price": 292.0,
       "marketCap": 78096.008528,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -71732,7 +71768,7 @@
       "price": 834.04,
       "marketCap": 85868.578192,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -72007,10 +72043,10 @@
       "ticker": "RKLB",
       "name": "로켓 랩",
       "sector": "Guided Missiles & Space Vehicles & Parts",
-      "price": 71.51,
+      "price": 72.57,
       "marketCap": 43430.223259,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -72290,10 +72326,10 @@
       "ticker": "RL",
       "name": "랄프 로렌",
       "sector": "Men's & Boys' Furnishgs, Work Clothg, & Allied Garments",
-      "price": 374.5,
+      "price": 372.59,
       "marketCap": 22199.746429,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-03-29"
       },
       "metrics": {
@@ -72532,7 +72568,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 54,
+          "score": 55,
           "passed": 2,
           "totalJudged": 2,
           "total": 2,
@@ -72543,7 +72579,7 @@
               "label": "마법공식 자본수익률 순위",
               "weight": 1,
               "status": "pass",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 112위입니다(37.2%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 111위입니다(37.2%).",
               "detail": "최신 EBIT / (유동자산 − 유동부채 + 순유형자산)의 유니버스 내 내림차순 순위"
             },
             {
@@ -72556,13 +72592,13 @@
             }
           ],
           "reasons": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 112위입니다(37.2%).",
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 111위입니다(37.2%).",
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 116위입니다(4.4%)."
           ],
           "risks": [],
-          "rank": 113,
+          "rank": 112,
           "rankComponents": {
-            "quality": 112,
+            "quality": 111,
             "value": 116
           }
         }
@@ -72572,10 +72608,10 @@
       "ticker": "RMD",
       "name": "레즈메드",
       "sector": "Surgical & Medical Instruments & Apparatus",
-      "price": 229.14,
+      "price": 231.52,
       "marketCap": 33397.293885,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-06-30"
       },
       "metrics": {
@@ -72854,10 +72890,10 @@
       "ticker": "ROL",
       "name": "롤린스",
       "sector": "Services-To Dwellings & Other Buildings",
-      "price": 36.99,
+      "price": 36.91,
       "marketCap": 17759.076862,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -73140,7 +73176,7 @@
       "price": 411.79,
       "marketCap": 40726.390904,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -73421,10 +73457,10 @@
       "ticker": "RSG",
       "name": "리퍼블릭 서비스",
       "sector": "Refuse Systems",
-      "price": 221.09,
+      "price": 220.67,
       "marketCap": 67572.017855,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -73680,10 +73716,10 @@
       "ticker": "RTX",
       "name": "RTX",
       "sector": "Aircraft Engines & Engine Parts",
-      "price": 209.76,
+      "price": 209.91,
       "marketCap": 282907.912007,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -73967,7 +74003,7 @@
       "price": 124.75,
       "marketCap": 13920.403525,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-28"
       },
       "metrics": {
@@ -74249,7 +74285,7 @@
       "price": 182.59,
       "marketCap": 19370.628005,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -74330,10 +74366,10 @@
       "ticker": "SBUX",
       "name": "스타벅스",
       "sector": "Retail-Eating & Drinking Places",
-      "price": 107.11,
+      "price": 107.08,
       "marketCap": 122071.2,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-09-28"
       },
       "metrics": {
@@ -74614,10 +74650,10 @@
       "ticker": "SCHW",
       "name": "찰스 슈왑",
       "sector": "Security Brokers, Dealers & Flotation Companies",
-      "price": 111.65,
+      "price": 112.3,
       "marketCap": 194204.400682,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -74698,10 +74734,10 @@
       "ticker": "SMCI",
       "name": "슈퍼 마이크로 컴퓨터",
       "sector": "Electronic Computers",
-      "price": 36.6,
+      "price": 37.24,
       "marketCap": 22396.82427,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-06-30"
       },
       "metrics": {
@@ -74982,10 +75018,10 @@
       "ticker": "SNPS",
       "name": "시놉시스",
       "sector": "Services-Prepackaged Software",
-      "price": 398.34,
+      "price": 397.87,
       "marketCap": 76183.879038,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-10-31"
       },
       "metrics": {
@@ -75265,10 +75301,10 @@
       "ticker": "SO",
       "name": "서던",
       "sector": "Electric Services",
-      "price": 89.5,
+      "price": 88.94,
       "marketCap": 102313.282196,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -75524,10 +75560,10 @@
       "ticker": "SPG",
       "name": "사이먼 프로퍼티 그룹",
       "sector": "Real Estate Investment Trusts",
-      "price": 218.87,
+      "price": 218.29,
       "marketCap": 70628.060209,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -75608,10 +75644,10 @@
       "ticker": "SPGI",
       "name": "S&P 글로벌",
       "sector": "Services-Consumer Credit Reporting, Collection Agencies",
-      "price": 431.89,
+      "price": 431.29,
       "marketCap": 127144.292,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -75892,10 +75928,10 @@
       "ticker": "SRE",
       "name": "셈프라",
       "sector": "Gas & Other Services Combined",
-      "price": 83.0,
+      "price": 82.89,
       "marketCap": 54201.799846,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -76152,7 +76188,7 @@
       "price": 237.93,
       "marketCap": 23198.201172,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-03-31"
       },
       "metrics": {
@@ -76433,10 +76469,10 @@
       "ticker": "STLD",
       "name": "스틸 다이내믹스",
       "sector": "Steel Works, Blast Furnaces & Rolling Mills (Coke Ovens)",
-      "price": 233.62,
+      "price": 228.68,
       "marketCap": 32776.267164,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -76719,7 +76755,7 @@
       "price": 187.13,
       "marketCap": 51404.941284,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -76800,10 +76836,10 @@
       "ticker": "STX",
       "name": "씨게이트",
       "sector": "Computer Storage Devices",
-      "price": 825.0,
+      "price": 850.0,
       "marketCap": 192647.8403,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-07-03"
       },
       "metrics": {
@@ -77084,10 +77120,10 @@
       "ticker": "STZ",
       "name": "콘스텔레이션 브랜즈",
       "sector": "Beverages",
-      "price": 135.7,
+      "price": 135.66,
       "marketCap": 23167.802356,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-02-28"
       },
       "metrics": {
@@ -77367,10 +77403,10 @@
       "ticker": "SWKS",
       "name": "스카이웍스 솔루션즈",
       "sector": "Semiconductors & Related Devices",
-      "price": 66.6,
+      "price": 67.14,
       "marketCap": 10102.742583,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-10-03"
       },
       "metrics": {
@@ -77654,7 +77690,7 @@
       "price": 329.45,
       "marketCap": 126368.140005,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -77894,7 +77930,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 46,
+          "score": 45,
           "passed": 1,
           "totalJudged": 2,
           "total": 2,
@@ -77913,7 +77949,7 @@
               "label": "마법공식 이익수익률 순위",
               "weight": 1,
               "status": "fail",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 153위입니다(3.5%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 154위입니다(3.5%).",
               "detail": "최신 EBIT / 기업가치의 유니버스 내 내림차순 순위"
             }
           ],
@@ -77921,12 +77957,12 @@
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 94위입니다(45.1%)."
           ],
           "risks": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 153위입니다(3.5%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 154위입니다(3.5%)."
           ],
-          "rank": 133,
+          "rank": 134,
           "rankComponents": {
             "quality": 94,
-            "value": 153
+            "value": 154
           }
         }
       }
@@ -77935,35 +77971,35 @@
       "ticker": "SYY",
       "name": "시스코",
       "sector": "Wholesale-Groceries & Related Products",
-      "price": 84.0,
+      "price": 84.1,
       "marketCap": 40215.157333,
       "asOf": {
-        "price": "2026-08-24",
-        "financial": "2025-06-28"
+        "price": "2026-08-21",
+        "financial": "2026-06-27"
       },
       "metrics": {
-        "roicAvg5y": 0.15050300842142306,
-        "magicFormulaRoc": 0.37954768928220256,
-        "fcfMargin": 0.0197124247265577,
-        "fcfYield": 0.03988545877660361,
-        "netDebtToEbitda": 2.799156955120258,
+        "roicAvg5y": 0.16027439259118648,
+        "magicFormulaRoc": 0.3482223222322232,
+        "fcfMargin": 0.022920535049022507,
+        "fcfYield": 0.04819078498070935,
+        "netDebtToEbitda": 2.5863424220093343,
         "interestCoverage": null,
-        "revenueCagr5y": 0.1222543642927989,
-        "epsCagr5y": 0.3828566579676549,
-        "pe": 21.999539022428884,
-        "pbr": 21.975495810382515,
-        "peg": 0.5746155529646683,
-        "currentRatio": 1.2069382815651473,
-        "debtToEquity": 6.754098360655738,
-        "evEbit": 16.678807426489637,
-        "earningsYield": 0.05995632507944055
+        "revenueCagr5y": 0.053523588446877435,
+        "epsCagr5y": 0.08509881606945324,
+        "pe": 22.88853576152533,
+        "pbr": 15.084455113653414,
+        "peg": 2.6896420912418915,
+        "currentRatio": 1.276917228927112,
+        "debtToEquity": 4.619279819954989,
+        "evEbit": 16.395527409693056,
+        "earningsYield": 0.06099224349494234
       },
       "scores": {
         "buffett": {
           "styleId": "buffett",
           "modelVersion": "Buffett 1.0",
-          "score": 59,
-          "passed": 4,
+          "score": 76,
+          "passed": 5,
           "totalJudged": 7,
           "total": 8,
           "dataConfidence": "보통",
@@ -77973,7 +78009,7 @@
               "label": "자본 효율성",
               "weight": 3,
               "status": "pass",
-              "message": "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 15%).",
+              "message": "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 16%).",
               "detail": "5년 평균 ROIC ≥ 12%"
             },
             {
@@ -78005,7 +78041,7 @@
               "label": "부채 부담",
               "weight": 2,
               "status": "fail",
-              "message": "현금창출력 대비 부채가 많습니다(순부채/EBITDA 2.8배).",
+              "message": "현금창출력 대비 부채가 많습니다(순부채/EBITDA 2.6배).",
               "detail": "순부채 / EBITDA ≤ 2.5배"
             },
             {
@@ -78021,29 +78057,29 @@
               "label": "사업의 성장",
               "weight": 2,
               "status": "pass",
-              "message": "매출이 5년 동안 연평균 12.2% 성장했습니다.",
+              "message": "매출이 5년 동안 연평균 5.4% 성장했습니다.",
               "detail": "매출 5년 연평균 성장률 ≥ 3%"
             },
             {
               "code": "BUF_VALUATION",
               "label": "현재 가격",
               "weight": 3,
-              "status": "fail",
-              "message": "현재 가치평가가 과거 평균보다 높은 편입니다(FCF 수익률 4.0%).",
+              "status": "pass",
+              "message": "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 4.8%).",
               "detail": "잉여현금흐름 수익률 ≥ 4% 또는 EV/EBIT가 자기 5년 중앙값 이하"
             }
           ],
           "reasons": [
-            "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 15%).",
+            "투자한 자본 대비 이익이 높습니다(5년 평균 ROIC 16%).",
             "5년 중 5년 동안 두 자릿수 자본수익률을 유지했습니다.",
             "최근 5년 동안 잉여현금흐름이 매년 플러스였습니다.",
-            "매출이 5년 동안 연평균 12.2% 성장했습니다."
+            "매출이 5년 동안 연평균 5.4% 성장했습니다.",
+            "현재 가치평가가 과거 평균보다 부담이 적습니다(FCF 수익률 4.8%)."
           ],
           "risks": [
             "매출 대비 남는 현금이 2%로 기준(10%)보다 낮습니다.",
-            "현금창출력 대비 부채가 많습니다(순부채/EBITDA 2.8배).",
-            "이 기준을 판정할 데이터가 부족합니다.",
-            "현재 가치평가가 과거 평균보다 높은 편입니다(FCF 수익률 4.0%)."
+            "현금창출력 대비 부채가 많습니다(순부채/EBITDA 2.6배).",
+            "이 기준을 판정할 데이터가 부족합니다."
           ]
         },
         "graham": {
@@ -78060,7 +78096,7 @@
               "label": "이익 대비 가격",
               "weight": 3,
               "status": "fail",
-              "message": "이익 대비 가격이 기준(15배)보다 높습니다(PER 22.0배).",
+              "message": "이익 대비 가격이 기준(15배)보다 높습니다(PER 22.9배).",
               "detail": "PER ≤ 15배"
             },
             {
@@ -78068,7 +78104,7 @@
               "label": "자산 대비 가격",
               "weight": 2,
               "status": "fail",
-              "message": "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 22.0배).",
+              "message": "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 15.1배).",
               "detail": "PBR ≤ 1.5배"
             },
             {
@@ -78076,7 +78112,7 @@
               "label": "단기 지급 능력",
               "weight": 2,
               "status": "fail",
-              "message": "유동비율이 1.2로 기준(1.5)에 못 미칩니다.",
+              "message": "유동비율이 1.3로 기준(1.5)에 못 미칩니다.",
               "detail": "유동비율 ≥ 1.5"
             },
             {
@@ -78084,7 +78120,7 @@
               "label": "자본 대비 부채",
               "weight": 2,
               "status": "fail",
-              "message": "자기자본 대비 부채가 많습니다(부채비율 6.75).",
+              "message": "자기자본 대비 부채가 많습니다(부채비율 4.62).",
               "detail": "부채 / 자기자본 ≤ 1.0"
             },
             {
@@ -78100,26 +78136,26 @@
               "label": "가치함정 점검",
               "weight": 2,
               "status": "pass",
-              "message": "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 12.2%).",
+              "message": "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 5.4%).",
               "detail": "매출 5년 성장률 ≥ 0% (싼 데는 이유가 있는지 확인)"
             }
           ],
           "reasons": [
             "최근 5년 동안 매년 흑자를 냈습니다.",
-            "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 12.2%)."
+            "가격이 낮으면서도 매출이 줄지 않았습니다(연평균 5.4%)."
           ],
           "risks": [
-            "이익 대비 가격이 기준(15배)보다 높습니다(PER 22.0배).",
-            "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 22.0배).",
-            "유동비율이 1.2로 기준(1.5)에 못 미칩니다.",
-            "자기자본 대비 부채가 많습니다(부채비율 6.75)."
+            "이익 대비 가격이 기준(15배)보다 높습니다(PER 22.9배).",
+            "장부가치 대비 가격이 기준(1.5배)보다 높습니다(PBR 15.1배).",
+            "유동비율이 1.3로 기준(1.5)에 못 미칩니다.",
+            "자기자본 대비 부채가 많습니다(부채비율 4.62)."
           ]
         },
         "lynch": {
           "styleId": "lynch",
           "modelVersion": "Lynch 1.0",
-          "score": 83,
-          "passed": 4,
+          "score": 17,
+          "passed": 1,
           "totalJudged": 5,
           "total": 5,
           "dataConfidence": "높음",
@@ -78128,24 +78164,24 @@
               "code": "LYN_EPS_GROWTH",
               "label": "이익 성장",
               "weight": 3,
-              "status": "pass",
-              "message": "주당순이익이 5년 동안 연평균 38.3% 늘었습니다.",
+              "status": "fail",
+              "message": "주당순이익 성장률이 연평균 8.5%로 이 철학이 보는 구간(15~40%) 밖입니다.",
               "detail": "주당순이익 5년 연평균 성장률 15~40%"
             },
             {
               "code": "LYN_PEG",
               "label": "성장률 대비 가격",
               "weight": 3,
-              "status": "pass",
-              "message": "성장률에 비해 가격이 무겁지 않습니다(PEG 0.57).",
+              "status": "fail",
+              "message": "성장률에 비해 가격이 앞서 있습니다(PEG 2.69).",
               "detail": "PEG ≤ 1.2"
             },
             {
               "code": "LYN_REVENUE_GROWTH",
               "label": "매출 성장의 뒷받침",
               "weight": 2,
-              "status": "pass",
-              "message": "이익뿐 아니라 매출도 연평균 12.2% 늘었습니다.",
+              "status": "fail",
+              "message": "매출 성장은 연평균 5.4%에 그쳤습니다.",
               "detail": "매출 5년 연평균 성장률 ≥ 8%"
             },
             {
@@ -78153,7 +78189,7 @@
               "label": "부채 부담",
               "weight": 2,
               "status": "fail",
-              "message": "성장에 비해 부채 부담이 있습니다(순부채/EBITDA 2.8배).",
+              "message": "성장에 비해 부채 부담이 있습니다(순부채/EBITDA 2.6배).",
               "detail": "순부채 / EBITDA ≤ 2.0"
             },
             {
@@ -78161,25 +78197,25 @@
               "label": "성장의 질",
               "weight": 2,
               "status": "pass",
-              "message": "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 15%).",
+              "message": "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 16%).",
               "detail": "5년 평균 ROIC ≥ 10%"
             }
           ],
           "reasons": [
-            "주당순이익이 5년 동안 연평균 38.3% 늘었습니다.",
-            "성장률에 비해 가격이 무겁지 않습니다(PEG 0.57).",
-            "이익뿐 아니라 매출도 연평균 12.2% 늘었습니다.",
-            "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 15%)."
+            "성장하면서도 자본 대비 이익을 냈습니다(5년 평균 ROIC 16%)."
           ],
           "risks": [
-            "성장에 비해 부채 부담이 있습니다(순부채/EBITDA 2.8배)."
+            "주당순이익 성장률이 연평균 8.5%로 이 철학이 보는 구간(15~40%) 밖입니다.",
+            "성장률에 비해 가격이 앞서 있습니다(PEG 2.69).",
+            "매출 성장은 연평균 5.4%에 그쳤습니다.",
+            "성장에 비해 부채 부담이 있습니다(순부채/EBITDA 2.6배)."
           ]
         },
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 75,
-          "passed": 2,
+          "score": 71,
+          "passed": 1,
           "totalJudged": 2,
           "total": 2,
           "dataConfidence": "높음",
@@ -78188,8 +78224,8 @@
               "code": "GRB_MAGIC_QUALITY_RANK",
               "label": "마법공식 자본수익률 순위",
               "weight": 1,
-              "status": "pass",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 109위입니다(38.0%).",
+              "status": "fail",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 123위입니다(34.8%).",
               "detail": "최신 EBIT / (유동자산 − 유동부채 + 순유형자산)의 유니버스 내 내림차순 순위"
             },
             {
@@ -78197,19 +78233,20 @@
               "label": "마법공식 이익수익률 순위",
               "weight": 1,
               "status": "pass",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 59위입니다(6.0%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 58위입니다(6.1%).",
               "detail": "최신 EBIT / 기업가치의 유니버스 내 내림차순 순위"
             }
           ],
           "reasons": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 109위입니다(38.0%).",
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 59위입니다(6.0%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 58위입니다(6.1%)."
           ],
-          "risks": [],
-          "rank": 63,
+          "risks": [
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 123위입니다(34.8%)."
+          ],
+          "rank": 71,
           "rankComponents": {
-            "quality": 109,
-            "value": 59
+            "quality": 123,
+            "value": 58
           }
         }
       }
@@ -78218,10 +78255,10 @@
       "ticker": "T",
       "name": "AT&T",
       "sector": "Telephone Communications (No Radiotelephone)",
-      "price": 25.35,
+      "price": 25.29,
       "marketCap": 173296.833089,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -78489,7 +78526,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 166위입니다(19.1%)."
           ],
-          "rank": 74,
+          "rank": 73,
           "rankComponents": {
             "quality": 166,
             "value": 17
@@ -78501,10 +78538,10 @@
       "ticker": "TAP",
       "name": "몰슨 쿠어스 베버리지",
       "sector": "Malt Beverages",
-      "price": 43.0,
+      "price": 42.94,
       "marketCap": 8006.331883,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -78787,7 +78824,7 @@
       "price": 1200.35,
       "marketCap": 66351.176784,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-09-30"
       },
       "metrics": {
@@ -79067,10 +79104,10 @@
       "ticker": "TDY",
       "name": "텔레다인 테크놀로지스",
       "sector": "Search, Detection, Navigation, Guidance, Aeronautical Sys",
-      "price": 636.41,
+      "price": 636.15,
       "marketCap": 29489.161379,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-28"
       },
       "metrics": {
@@ -79329,7 +79366,7 @@
               "label": "마법공식 이익수익률 순위",
               "weight": 1,
               "status": "fail",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 149위입니다(3.6%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 150위입니다(3.6%).",
               "detail": "최신 EBIT / 기업가치의 유니버스 내 내림차순 순위"
             }
           ],
@@ -79337,12 +79374,12 @@
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 75위입니다(56.5%)."
           ],
           "risks": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 149위입니다(3.6%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 150위입니다(3.6%)."
           ],
           "rank": 109,
           "rankComponents": {
             "quality": 75,
-            "value": 149
+            "value": 150
           }
         }
       }
@@ -79354,7 +79391,7 @@
       "price": 72.32,
       "marketCap": 11323.052072,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-06-30"
       },
       "metrics": {
@@ -79634,10 +79671,10 @@
       "ticker": "TEL",
       "name": "TE 커넥티비티",
       "sector": "Wholesale-Electronic Parts & Equipment, NEC",
-      "price": 202.0,
+      "price": 203.52,
       "marketCap": 58921.732163,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-09-26"
       },
       "metrics": {
@@ -79912,10 +79949,10 @@
       "ticker": "TER",
       "name": "테라다인",
       "sector": "Instruments For Meas & Testing of  Electricity & Elec Signals",
-      "price": 364.98,
+      "price": 375.74,
       "marketCap": 58743.473405,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -80190,10 +80227,10 @@
       "ticker": "TGT",
       "name": "타겟",
       "sector": "Retail-Variety Stores",
-      "price": 165.36,
+      "price": 165.44,
       "marketCap": 75141.377569,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-01-31"
       },
       "metrics": {
@@ -80452,12 +80489,12 @@
               "label": "마법공식 이익수익률 순위",
               "weight": 1,
               "status": "pass",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 58위입니다(6.1%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 59위입니다(6.1%).",
               "detail": "최신 EBIT / 기업가치의 유니버스 내 내림차순 순위"
             }
           ],
           "reasons": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 58위입니다(6.1%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 59위입니다(6.1%)."
           ],
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 177위입니다(15.7%)."
@@ -80465,7 +80502,7 @@
           "rank": 123,
           "rankComponents": {
             "quality": 177,
-            "value": 58
+            "value": 59
           }
         }
       }
@@ -80474,10 +80511,10 @@
       "ticker": "TMO",
       "name": "써모 피셔 사이언티픽",
       "sector": "Measuring & Controlling Devices, NEC",
-      "price": 631.78,
+      "price": 629.27,
       "marketCap": 232670.874661,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -80756,10 +80793,10 @@
       "ticker": "TMUS",
       "name": "T 모바일",
       "sector": "Radiotelephone Communications",
-      "price": 183.97,
+      "price": 183.04,
       "marketCap": 196341.812044,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -81039,10 +81076,10 @@
       "ticker": "TPL",
       "name": "텍사스 퍼시픽 랜드",
       "sector": "Oil Royalty Traders",
-      "price": 386.69,
+      "price": 383.64,
       "marketCap": 26461.447386,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -81123,10 +81160,10 @@
       "ticker": "TPR",
       "name": "태피스트리",
       "sector": "Leather & Leather Products",
-      "price": 130.15,
+      "price": 130.17,
       "marketCap": 25954.814725,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-06-27"
       },
       "metrics": {
@@ -81406,10 +81443,10 @@
       "ticker": "TRGP",
       "name": "타르가 리소시스",
       "sector": "Natural Gas Transmission",
-      "price": 304.0,
+      "price": 299.1,
       "marketCap": 64136.318381,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -81664,10 +81701,10 @@
       "ticker": "TRMB",
       "name": "트림블",
       "sector": "Measuring & Controlling Devices, NEC",
-      "price": 60.26,
+      "price": 60.25,
       "marketCap": 14049.085842,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-01-02"
       },
       "metrics": {
@@ -81948,10 +81985,10 @@
       "ticker": "TROW",
       "name": "티 로웨 프라이스 그룹",
       "sector": "Investment Advice",
-      "price": 111.5,
+      "price": 111.51,
       "marketCap": 23786.850434,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -82032,10 +82069,10 @@
       "ticker": "TSCO",
       "name": "트랙터 서플라이",
       "sector": "Retail-Building Materials, Hardware, Garden Supply",
-      "price": 34.84,
+      "price": 34.98,
       "marketCap": 18225.983992,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-27"
       },
       "metrics": {
@@ -82275,7 +82312,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 84,
+          "score": 85,
           "passed": 2,
           "totalJudged": 2,
           "total": 2,
@@ -82286,7 +82323,7 @@
               "label": "마법공식 자본수익률 순위",
               "weight": 1,
               "status": "pass",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 111위입니다(37.4%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 110위입니다(37.4%).",
               "detail": "최신 EBIT / (유동자산 − 유동부채 + 순유형자산)의 유니버스 내 내림차순 순위"
             },
             {
@@ -82299,13 +82336,13 @@
             }
           ],
           "reasons": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 111위입니다(37.4%).",
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 110위입니다(37.4%).",
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 23위입니다(8.1%)."
           ],
           "risks": [],
-          "rank": 40,
+          "rank": 38,
           "rankComponents": {
-            "quality": 111,
+            "quality": 110,
             "value": 23
           }
         }
@@ -82315,10 +82352,10 @@
       "ticker": "TSLA",
       "name": "테슬라",
       "sector": "Motor Vehicles & Passenger Car Bodies",
-      "price": 362.01,
+      "price": 362.86,
       "marketCap": 1433132.767387,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -82601,7 +82638,7 @@
       "price": 58.48,
       "marketCap": 20573.352422,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-09-27"
       },
       "metrics": {
@@ -82880,10 +82917,10 @@
       "ticker": "TT",
       "name": "트레인 테크놀로지",
       "sector": "Auto Controls For Regulating Residential & Comml Environments",
-      "price": 459.53,
+      "price": 453.43,
       "marketCap": 99765.109147,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -83123,7 +83160,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 69,
+          "score": 70,
           "passed": 1,
           "totalJudged": 2,
           "total": 2,
@@ -83152,7 +83189,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 138위입니다(3.9%)."
           ],
-          "rank": 76,
+          "rank": 75,
           "rankComponents": {
             "quality": 46,
             "value": 138
@@ -83167,7 +83204,7 @@
       "price": 13.18,
       "marketCap": 6193.020957,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -83442,10 +83479,10 @@
       "ticker": "TTWO",
       "name": "테이크 투 인터랙티브 소프트웨어",
       "sector": "Services-Prepackaged Software",
-      "price": 240.94,
+      "price": 239.62,
       "marketCap": 44804.253752,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-03-31"
       },
       "metrics": {
@@ -83725,10 +83762,10 @@
       "ticker": "TXN",
       "name": "텍사스 인스트루먼츠",
       "sector": "Semiconductors & Related Devices",
-      "price": 261.81,
+      "price": 264.36,
       "marketCap": 241426.158271,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -84008,10 +84045,10 @@
       "ticker": "TYL",
       "name": "타일러 테크놀로지스",
       "sector": "Services-Prepackaged Software",
-      "price": 350.88,
+      "price": 350.73,
       "marketCap": 14363.19106,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -84292,10 +84329,10 @@
       "ticker": "UAL",
       "name": "유나이티드 항공",
       "sector": "Air Transportation, Scheduled",
-      "price": 113.69,
+      "price": 113.17,
       "marketCap": 36733.145477,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -84564,7 +84601,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 185위입니다(12.8%)."
           ],
-          "rank": 88,
+          "rank": 89,
           "rankComponents": {
             "quality": 185,
             "value": 13
@@ -84579,7 +84616,7 @@
       "price": 78.8,
       "marketCap": 160953.737535,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -84819,7 +84856,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 69,
+          "score": 68,
           "passed": 1,
           "totalJudged": 2,
           "total": 2,
@@ -84838,7 +84875,7 @@
               "label": "마법공식 이익수익률 순위",
               "weight": 1,
               "status": "fail",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 161위입니다(3.4%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 162위입니다(3.4%).",
               "detail": "최신 EBIT / 기업가치의 유니버스 내 내림차순 순위"
             }
           ],
@@ -84846,12 +84883,12 @@
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 23위입니다(155.9%)."
           ],
           "risks": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 161위입니다(3.4%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 162위입니다(3.4%)."
           ],
-          "rank": 76,
+          "rank": 78,
           "rankComponents": {
             "quality": 23,
-            "value": 161
+            "value": 162
           }
         }
       }
@@ -84863,7 +84900,7 @@
       "price": 37.77,
       "marketCap": 12134.149665,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -84944,10 +84981,10 @@
       "ticker": "UHS",
       "name": "유니버설 헬스 서비시스",
       "sector": "Services-General Medical & Surgical Hospitals, NEC",
-      "price": 176.15,
+      "price": 177.26,
       "marketCap": 10447.086649,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -85231,7 +85268,7 @@
       "price": 521.46,
       "marketCap": 22417.206114,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-01-31"
       },
       "metrics": {
@@ -85506,10 +85543,10 @@
       "ticker": "UNH",
       "name": "유나이티드헬스 그룹",
       "sector": "Hospital & Medical Service Plans",
-      "price": 390.58,
+      "price": 390.11,
       "marketCap": 350160.725763,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -85590,10 +85627,10 @@
       "ticker": "UNP",
       "name": "유니온 퍼시픽",
       "sector": "Railroads, Line-Haul Operating",
-      "price": 306.45,
+      "price": 308.05,
       "marketCap": 183004.957159,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -85874,10 +85911,10 @@
       "ticker": "UPS",
       "name": "유나이티드 파셀 서비스",
       "sector": "Trucking & Courier Services (No Air)",
-      "price": 102.13,
+      "price": 102.01,
       "marketCap": 86788.22918,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -86146,7 +86183,7 @@
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 165위입니다(19.1%)."
           ],
-          "rank": 83,
+          "rank": 84,
           "rankComponents": {
             "quality": 165,
             "value": 29
@@ -86161,7 +86198,7 @@
       "price": 62.05,
       "marketCap": 96677.092224,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -86242,10 +86279,10 @@
       "ticker": "V",
       "name": "비자",
       "sector": "Services-Business Services, NEC",
-      "price": 371.8,
+      "price": 371.04,
       "marketCap": 662957.658684,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-09-30"
       },
       "metrics": {
@@ -86504,7 +86541,7 @@
               "label": "마법공식 이익수익률 순위",
               "weight": 1,
               "status": "fail",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 152위입니다(3.6%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 153위입니다(3.6%).",
               "detail": "최신 EBIT / 기업가치의 유니버스 내 내림차순 순위"
             }
           ],
@@ -86512,12 +86549,12 @@
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 10위입니다(345.0%)."
           ],
           "risks": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 152위입니다(3.6%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 153위입니다(3.6%)."
           ],
           "rank": 60,
           "rankComponents": {
             "quality": 10,
-            "value": 152
+            "value": 153
           }
         }
       }
@@ -86526,10 +86563,10 @@
       "ticker": "VMC",
       "name": "벌칸 머티리얼스",
       "sector": "Mining & Quarrying of  Nonmetallic Minerals (No Fuels)",
-      "price": 276.11,
+      "price": 276.04,
       "marketCap": 35768.915114,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -86812,7 +86849,7 @@
       "price": 187.5,
       "marketCap": 24404.25225,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -87092,10 +87129,10 @@
       "ticker": "VRT",
       "name": "버티브 홀딩스",
       "sector": "Electronic Components, NEC",
-      "price": 257.47,
+      "price": 261.95,
       "marketCap": 100847.651917,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -87376,10 +87413,10 @@
       "ticker": "VRTX",
       "name": "버텍스 파마슈티컬",
       "sector": "Pharmaceutical Preparations",
-      "price": 550.4,
+      "price": 548.05,
       "marketCap": 138909.259398,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -87657,7 +87694,7 @@
       "price": 136.21,
       "marketCap": 45716.869911,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -87913,7 +87950,7 @@
       "price": 93.06,
       "marketCap": 47734.788169,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -87997,7 +88034,7 @@
       "price": 16.32,
       "marketCap": 18745.0029,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -88276,10 +88313,10 @@
       "ticker": "VZ",
       "name": "버라이즌",
       "sector": "Telephone Communications (No Radiotelephone)",
-      "price": 49.49,
+      "price": 49.45,
       "marketCap": 205453.633739,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -88559,10 +88596,10 @@
       "ticker": "WAB",
       "name": "웨스팅하우스 에어 브레이크 테크놀로지",
       "sector": "Railroad Equipment",
-      "price": 296.99,
+      "price": 297.57,
       "marketCap": 50262.801932,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -88846,7 +88883,7 @@
       "price": 410.7,
       "marketCap": 40350.499188,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -89127,10 +89164,10 @@
       "ticker": "WBD",
       "name": "워너 브로스 디스커버리",
       "sector": "Cable & Other Pay Television Services",
-      "price": 28.6,
+      "price": 28.55,
       "marketCap": 71680.579615,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -89410,10 +89447,10 @@
       "ticker": "WDAY",
       "name": "워크데이",
       "sector": "Services-Computer Processing & Data Preparation",
-      "price": 200.64,
+      "price": 200.01,
       "marketCap": 49402.47,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-01-31"
       },
       "metrics": {
@@ -89688,10 +89725,10 @@
       "ticker": "WDC",
       "name": "웨스턴 디지털",
       "sector": "Computer Storage Devices",
-      "price": 447.18,
+      "price": 459.44,
       "marketCap": 165646.931311,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-07-03"
       },
       "metrics": {
@@ -89975,7 +90012,7 @@
       "price": 224.06,
       "marketCap": 89560.184127,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -90231,10 +90268,10 @@
       "ticker": "WMB",
       "name": "윌리엄스 컴퍼니스",
       "sector": "Natural Gas Transmission",
-      "price": 70.82,
+      "price": 70.49,
       "marketCap": 86221.075101,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -90489,10 +90526,10 @@
       "ticker": "WMT",
       "name": "월마트",
       "sector": "Retail-Variety Stores",
-      "price": 103.96,
+      "price": 103.7,
       "marketCap": 825252.808374,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-01-31"
       },
       "metrics": {
@@ -90751,19 +90788,19 @@
               "label": "마법공식 이익수익률 순위",
               "weight": 1,
               "status": "fail",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 156위입니다(3.5%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 157위입니다(3.5%).",
               "detail": "최신 EBIT / 기업가치의 유니버스 내 내림차순 순위"
             }
           ],
           "reasons": [],
           "risks": [
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 147위입니다(26.3%).",
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 156위입니다(3.5%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 157위입니다(3.5%)."
           ],
           "rank": 178,
           "rankComponents": {
             "quality": 147,
-            "value": 156
+            "value": 157
           }
         }
       }
@@ -90775,7 +90812,7 @@
       "price": 68.6,
       "marketCap": 25466.208489,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -90859,7 +90896,7 @@
       "price": 237.58,
       "marketCap": 27974.239841,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2026-02-01"
       },
       "metrics": {
@@ -91134,10 +91171,10 @@
       "ticker": "WST",
       "name": "웨스트 파마슈티컬 서비시스",
       "sector": "Surgical & Medical Instruments & Apparatus",
-      "price": 350.06,
+      "price": 353.08,
       "marketCap": 24848.274047,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -91420,7 +91457,7 @@
       "price": 341.99,
       "marketCap": 31761.273735,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -91504,7 +91541,7 @@
       "price": 24.43,
       "marketCap": 17607.58048,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -91585,10 +91622,10 @@
       "ticker": "XYL",
       "name": "자일럼",
       "sector": "Pumps & Pumping Equipment",
-      "price": 113.52,
+      "price": 113.42,
       "marketCap": 26482.074217,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -91828,7 +91865,7 @@
         "greenblatt": {
           "styleId": "greenblatt",
           "modelVersion": "Greenblatt 1.0",
-          "score": 60,
+          "score": 59,
           "passed": 2,
           "totalJudged": 2,
           "total": 2,
@@ -91856,7 +91893,7 @@
             "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 105위입니다(4.5%)."
           ],
           "risks": [],
-          "rank": 99,
+          "rank": 100,
           "rankComponents": {
             "quality": 103,
             "value": 105
@@ -91868,10 +91905,10 @@
       "ticker": "XYZ",
       "name": "블록",
       "sector": "Services-Prepackaged Software",
-      "price": 81.61,
+      "price": 82.16,
       "marketCap": 49361.3172,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -92149,7 +92186,7 @@
       "price": 152.99,
       "marketCap": 41751.136994,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -92432,7 +92469,7 @@
       "price": 100.98,
       "marketCap": 19260.691835,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -92712,10 +92749,10 @@
       "ticker": "ZBRA",
       "name": "지브라 테크놀로지스",
       "sector": "General Industrial Machinery & Equipment",
-      "price": 366.0,
+      "price": 368.51,
       "marketCap": 17434.451317,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
@@ -92974,7 +93011,7 @@
               "label": "마법공식 이익수익률 순위",
               "weight": 1,
               "status": "fail",
-              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 154위입니다(3.5%).",
+              "message": "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 155위입니다(3.5%).",
               "detail": "최신 EBIT / 기업가치의 유니버스 내 내림차순 순위"
             }
           ],
@@ -92982,12 +93019,12 @@
             "두 지표를 모두 계산할 수 있는 244개 종목 중 자본수익률 14위입니다(235.7%)."
           ],
           "risks": [
-            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 154위입니다(3.5%)."
+            "두 지표를 모두 계산할 수 있는 244개 종목 중 이익수익률 155위입니다(3.5%)."
           ],
           "rank": 63,
           "rankComponents": {
             "quality": 14,
-            "value": 154
+            "value": 155
           }
         }
       }
@@ -92996,10 +93033,10 @@
       "ticker": "ZTS",
       "name": "조에티스",
       "sector": "Pharmaceutical Preparations",
-      "price": 77.89,
+      "price": 77.73,
       "marketCap": 32119.870583,
       "asOf": {
-        "price": "2026-08-24",
+        "price": "2026-08-21",
         "financial": "2025-12-31"
       },
       "metrics": {
