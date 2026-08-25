@@ -3269,6 +3269,11 @@ body:has(.learn-page) .masthead-inner {
   margin-bottom: 2rem;
 }
 
+.learn-page-header .thesis {
+  font-size: clamp(1.6rem, 3.6vw, 2.5rem);
+  max-width: none;
+}
+
 .master-grid {
   position: relative;
 }
@@ -3448,7 +3453,7 @@ body:has(.learn-page) .masthead-inner {
   display: grid;
   grid-template-columns: repeat(8, minmax(0, 1fr));
   column-gap: 20px;
-  row-gap: 64px;
+  row-gap: 160px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -3546,8 +3551,7 @@ body:has(.learn-page) .masthead-inner {
 
 .master-card:hover .master-card-name-row,
 .master-card:focus-visible .master-card-name-row {
-  transform: translateY(-82px);
-  background: var(--surface);
+  transform: none;
 }
 
 .master-card-sequence {
@@ -3569,13 +3573,13 @@ body:has(.learn-page) .masthead-inner {
   padding: 0.42rem 0.65rem;
 }
 
-/* 카드 전체가 아니라 설명 상자만. 테두리는 없다 — 링 아랫단 위로 살짝
- * 겹쳐 자라나, 이름표가 비켜준 자리에서 올라오는 모양. 옆 카드 자리를
- * 침범하지 않도록 높이를 제한한다. */
+/* 카드 전체가 아니라 설명 상자만. 테두리는 없다 — 인물 원형은 가리지
+ * 않고, 이름표 바로 아래에서만 자라난다. 옆 카드 자리를 침범하지
+ * 않도록 높이를 제한한다. */
 .master-card-reveal {
   position: absolute;
   z-index: 2;
-  top: 120px;
+  top: 100%;
   left: 50%;
   transform: translateX(-50%);
   width: 220px;
@@ -3597,7 +3601,7 @@ body:has(.learn-page) .masthead-inner {
 
 .master-card-reveal-inner {
   display: block;
-  padding: 3.2rem 1rem 0.9rem;
+  padding: 0.9rem 1rem 0.9rem;
   text-align: center;
 }
 
