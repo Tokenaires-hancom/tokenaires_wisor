@@ -1,0 +1,67 @@
+/* C2 레슨 모드 — 문항 스텝 집중. 본문은 그대로 두고 퀴즈만 듀오링고식으로. */
+
+/* 상단 진행 바 (채워짐) */
+.lesson-progress {
+  height: 12px;
+  background: var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+.lesson-progress > i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--ochre), var(--wine));
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+/* 하단 정답/오답 피드백 배너 */
+.lesson-feedback {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  border-radius: 16px;
+  padding: 0.9rem 1.1rem;
+  margin-top: 1rem;
+  animation: lesson-rise 0.3s ease;
+}
+.lesson-feedback[data-kind="correct"] {
+  background: color-mix(in srgb, var(--wine) 12%, var(--surface));
+  border: 1px solid var(--wine);
+}
+.lesson-feedback[data-kind="wrong"] {
+  background: color-mix(in srgb, var(--ochre) 16%, var(--surface));
+  border: 1px solid var(--ochre);
+}
+@keyframes lesson-rise {
+  0% { transform: translateY(12px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.lesson-feedback .duo-mascot {
+  margin: 0;
+  flex: none;
+}
+.lesson-feedback .duo-mascot img {
+  width: 72px;
+  height: 72px;
+}
+.lesson-feedback-text {
+  min-width: 0;
+}
+.lesson-feedback-text strong {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 0.2rem;
+}
+.lesson-feedback[data-kind="correct"] .lesson-feedback-text strong {
+  color: var(--wine);
+}
+.lesson-feedback[data-kind="wrong"] .lesson-feedback-text strong {
+  color: var(--ochre);
+}
+.lesson-feedback-text p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}

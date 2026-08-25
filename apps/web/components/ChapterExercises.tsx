@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { isCorrect } from "@/content/curriculum/grading";
 import Mascot from "@/components/game/Mascot";
+import "@/components/game/lesson.css";
 import { chapterSteps, stepLabel } from "@/content/curriculum/steps";
 // SOURCE_KINDS는 값이지만 types.ts가 Master를 type import만 하므로 번들에 masters.ts가 실리지 않는다
 import { SOURCE_KINDS, type Exercise, type SourceNote } from "@/content/curriculum/types";
@@ -63,6 +64,14 @@ export default function ChapterExercises({
     currentExercise?.kind === "graded"
       ? picks[exerciseIndex!].length > 0
       : currentExercise !== undefined && texts[exerciseIndex!].trim() !== "";
+  // C2: 채점형 문항을 제출했을 때의 정오. 하단 피드백 배너에 쓴다.
+  const gradedFeedback =
+    currentExercise?.kind === "graded" && currentSubmitted
+      ? {
+          correct: isCorrect(currentExercise.answers, picks[exerciseIndex!]),
+          explain: currentExercise.explain,
+        }
+      : null;
   // 스텝이 바뀔 때 포커스를 새 콘텐츠로 옮긴다. 경계 스텝에서는 눌렀던
   // 이전/계속 버튼이 disabled가 되며 포커스가 body로 떨어지는데, 그러면
   // 다음 Tab이 문서 맨 위부터 다시 시작한다. 첫 마운트에는 옮기지 않는다.
@@ -132,6 +141,9 @@ export default function ChapterExercises({
 
   return (
     <section aria-label="챕터 진행">
+      <div className="lesson-progress" aria-hidden="true">
+        <i style={{ width: `${((at + 1) / steps.length) * 100}%` }} />
+      </div>
       <ol className="step-bar" aria-label={`${steps.length}단계 중 ${at + 1}단계`}>
         {steps.map((each, index) => (
           <li
@@ -209,6 +221,16 @@ export default function ChapterExercises({
 
       </div>
 
+      {gradedFeedback && (
+        <div className="lesson-feedback" data-kind={gradedFeedback.correct ? "correct" : "wrong"} role="status">
+          <Mascot state={gradedFeedback.correct ? "correct" : "wrong"} />
+          <div className="lesson-feedback-text">
+            <strong>{gradedFeedback.correct ? "정답!" : "다시 볼까요"}</strong>
+            <p>{gradedFeedback.explain}</p>
+          </div>
+        </div>
+      )}
+
       <div className="step-nav">
         {at > 0 ? (
           <button type="button" className="btn" data-variant="quiet" onClick={() => go(at - 1)}>
@@ -260,11 +282,9 @@ function Graded({
   onPick: (choice: number) => void;
 }) {
   const multiple = exercise.answers.length > 1;
-  const mascotState = !submitted ? "idle" : isCorrect(exercise.answers, picked) ? "correct" : "wrong";
 
   return (
     <>
-      <Mascot state={mascotState} />
       <p className="eyebrow">확인 문항{multiple ? " · 복수 정답" : ""}</p>
       <h3 className="sub">{exercise.prompt}</h3>
       <div role="group" aria-label={exercise.prompt}>
@@ -298,14 +318,6 @@ function Graded({
           );
         })}
       </div>
-      {submitted && (
-        <p
-          role="status"
-          style={{ fontSize: "0.88rem", color: "var(--ink-soft)", marginBottom: 0 }}
-        >
-          {exercise.explain}
-        </p>
-      )}
     </>
   );
 }
