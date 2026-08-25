@@ -3546,22 +3546,27 @@ body:has(.learn-page) .masthead-inner {
 
 .master-card:hover .master-card-name-row,
 .master-card:focus-visible .master-card-name-row {
-  transform: translateY(-46px);
+  transform: translateY(-82px);
   background: var(--surface);
 }
 
 .master-card-sequence {
   color: var(--wine-deep);
   font-family: var(--mono);
-  font-size: 0.8rem;
+  font-size: 0.92rem;
   font-weight: 800;
 }
 
 .master-card-name {
-  font-size: 1.05rem;
+  font-size: 1.2rem;
   font-weight: 800;
   letter-spacing: -0.01em;
   word-break: keep-all;
+}
+
+.master-card .style-name {
+  font-size: 0.78rem;
+  padding: 0.42rem 0.65rem;
 }
 
 /* 카드 전체가 아니라 설명 상자만. 테두리는 없다 — 링 아랫단 위로 살짝
@@ -3570,7 +3575,7 @@ body:has(.learn-page) .masthead-inner {
 .master-card-reveal {
   position: absolute;
   z-index: 2;
-  top: 145px;
+  top: 108px;
   left: 50%;
   transform: translateX(-50%);
   width: 220px;
@@ -3599,7 +3604,7 @@ body:has(.learn-page) .masthead-inner {
 .master-card-reveal-inner p {
   margin: 0;
   color: var(--ink-soft);
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   line-height: 1.55;
   word-break: keep-all;
 }
@@ -3647,6 +3652,23 @@ body:has(.learn-page) .masthead-inner {
   .master-card-reveal {
     top: 100px;
     width: 190px;
+  }
+
+  .master-card-sequence {
+    font-size: 0.84rem;
+  }
+
+  .master-card .style-name {
+    font-size: 0.72rem;
+    padding: 0.38rem 0.58rem;
+  }
+
+  .master-card-name {
+    font-size: 1.05rem;
+  }
+
+  .master-card-reveal-inner p {
+    font-size: 0.88rem;
   }
 }
 
@@ -3723,16 +3745,16 @@ body:has(.learn-page) .masthead-inner {
   }
 
   .master-card-sequence {
-    font-size: 0.66rem;
+    font-size: 0.76rem;
   }
 
   .master-card .style-name {
-    padding: 0.28rem 0.42rem;
-    font-size: 0.58rem;
+    padding: 0.32rem 0.48rem;
+    font-size: 0.66rem;
   }
 
   .master-card-name {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
   }
 
   .master-card-reveal {
@@ -3750,8 +3772,8 @@ body:has(.learn-page) .masthead-inner {
   }
 
   .master-card-reveal-inner p {
-    font-size: 0.68rem;
-    line-height: 1.4;
+    font-size: 0.76rem;
+    line-height: 1.45;
   }
 }
 
