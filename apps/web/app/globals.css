@@ -3628,7 +3628,7 @@ body:has(.learn-page) .masthead-inner {
 
   .master-grid-list {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    row-gap: 56px;
+    row-gap: 130px;
   }
 
   .master-grid-item,
@@ -3646,12 +3646,16 @@ body:has(.learn-page) .masthead-inner {
 
   .master-card:hover .master-card-name-row,
   .master-card:focus-visible .master-card-name-row {
-    transform: translateY(-60px);
+    transform: none;
   }
 
   .master-card-reveal {
-    top: 111px;
+    top: 100%;
     width: 190px;
+  }
+
+  .master-card-reveal-inner {
+    padding: 0.8rem 1rem 0.9rem;
   }
 
   .master-card-sequence {
@@ -3708,7 +3712,7 @@ body:has(.learn-page) .masthead-inner {
   }
 
   .master-grid-list {
-    row-gap: 48px;
+    row-gap: 100px;
     column-gap: 12px;
   }
 
@@ -3741,7 +3745,7 @@ body:has(.learn-page) .masthead-inner {
 
   .master-card:hover .master-card-name-row,
   .master-card:focus-visible .master-card-name-row {
-    transform: translateY(-43px);
+    transform: none;
   }
 
   .master-card-sequence {
@@ -3758,7 +3762,7 @@ body:has(.learn-page) .masthead-inner {
   }
 
   .master-card-reveal {
-    top: 81px;
+    top: 100%;
     width: 150px;
   }
 
@@ -3768,7 +3772,7 @@ body:has(.learn-page) .masthead-inner {
   }
 
   .master-card-reveal-inner {
-    padding: 2.6rem 0.7rem 0.55rem;
+    padding: 0.65rem 0.7rem 0.55rem;
   }
 
   .master-card-reveal-inner p {
