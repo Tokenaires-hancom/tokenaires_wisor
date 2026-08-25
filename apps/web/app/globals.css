@@ -3591,7 +3591,8 @@ body:has(.learn-page) .masthead-inner {
 }
 
 .master-card-reveal-inner {
-  padding: 1.6rem 1rem 0.9rem;
+  display: block;
+  padding: 3.2rem 1rem 0.9rem;
   text-align: center;
 }
 
@@ -3640,11 +3641,11 @@ body:has(.learn-page) .masthead-inner {
 
   .master-card:hover .master-card-name-row,
   .master-card:focus-visible .master-card-name-row {
-    transform: translateY(-38px);
+    transform: translateY(-60px);
   }
 
   .master-card-reveal {
-    top: 122px;
+    top: 100px;
     width: 190px;
   }
 }
@@ -3718,7 +3719,7 @@ body:has(.learn-page) .masthead-inner {
 
   .master-card:hover .master-card-name-row,
   .master-card:focus-visible .master-card-name-row {
-    transform: translateY(-28px);
+    transform: translateY(-43px);
   }
 
   .master-card-sequence {
@@ -3735,7 +3736,7 @@ body:has(.learn-page) .masthead-inner {
   }
 
   .master-card-reveal {
-    top: 90px;
+    top: 75px;
     width: 150px;
   }
 
@@ -3745,7 +3746,7 @@ body:has(.learn-page) .masthead-inner {
   }
 
   .master-card-reveal-inner {
-    padding: 1rem 0.7rem 0.55rem;
+    padding: 2.6rem 0.7rem 0.55rem;
   }
 
   .master-card-reveal-inner p {
