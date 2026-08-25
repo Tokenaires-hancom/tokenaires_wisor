@@ -3,7 +3,7 @@
  *  XP·레벨·스트릭 등은 따로 저장하지 않고 학습 진도(store의 Progress)에서
  *  그때그때 계산한다. DOM·저장소를 모르는 함수라 브라우저 없이 검사할 수 있다. */
 
-import { MASTER_BY_ID } from "../content/masters.ts";
+import { MASTERS, MASTER_BY_ID } from "../content/masters.ts";
 import { CHAPTER_SLOTS } from "../content/curriculum/types.ts";
 
 /** store의 Progress와 같은 모양. 계산에 필요한 부분만 구조적으로 받는다. */
@@ -81,6 +81,14 @@ export function isChapterUnlocked(
 ): boolean {
   if (chapterNo <= 1) return true;
   return progress.lessonsDone.includes(`master:${masterId}:${chapterNo - 1}`);
+}
+
+/** 5개 장을 모두 끝낸 대가들의 id. 완료 배지 표시용. */
+export function masterBadges(progress: ProgressLike): string[] {
+  const done = new Set(progress.lessonsDone);
+  return MASTERS.filter((m) =>
+    CHAPTER_SLOTS.every((slot) => done.has(`master:${m.id}:${slot.no}`)),
+  ).map((m) => m.id);
 }
 
 /** 각 레벨에 도달하는 데 필요한 누적 XP. 완료 챕터 × 20 기준(전체 35챕터 = 700). */

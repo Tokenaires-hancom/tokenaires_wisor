@@ -6,6 +6,8 @@ import AccountSettings from "@/components/AccountSettings";
 import { CHAPTER_SLOTS } from "@/content/curriculum/types";
 import { MASTERS, MASTER_BY_ID } from "@/content/masters";
 import { money } from "@/lib/format";
+import { xpTotal, levelFor, streakDays, dailyGoalMet, masterBadges } from "@/lib/gamification";
+import "./game/game-panel.css";
 import {
   NOTE_STATUS_LABEL,
   deleteNote,
@@ -103,6 +105,19 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
       no <= CHAPTER_SLOTS.length
     );
   }).length;
+
+  // 게이미피케이션 지표 — 진도에서 파생 (저장하지 않음)
+  const xp = xpTotal(progress);
+  const lvl = levelFor(xp);
+  const now = Date.now();
+  const streak = streakDays(progress, now);
+  const goalMet = dailyGoalMet(progress, now);
+  const badges = masterBadges(progress);
+  const xpBarPct =
+    lvl.xpToNext === 0
+      ? 100
+      : Math.round((lvl.xpIntoLevel / (lvl.xpIntoLevel + lvl.xpToNext)) * 100);
+
   const quizResults = Object.entries(progress.quizResults).filter(
     ([id]) => !id.startsWith("basics:"),
   );
@@ -203,6 +218,31 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
         <h2 className="thesis">
           지금까지 무엇을 확인했나요?
         </h2>
+
+      <div className="game-panel">
+        <div className="game-panel-top">
+          <span className="game-streak">🔥 {streak}일 <small>연속 학습</small></span>
+          <span className="game-level">Lv {lvl.level}</span>
+        </div>
+        <div className="game-xpbar" aria-label={`레벨 ${lvl.level}, 다음까지 ${lvl.xpToNext} XP`}>
+          <i style={{ width: `${xpBarPct}%` }} />
+        </div>
+        <div className="game-panel-foot">
+          <span>총 {xp} XP</span>
+          <span className={goalMet ? "game-goal-met" : undefined}>
+            오늘 목표 {goalMet ? "1 / 1 ✓" : "0 / 1"}
+          </span>
+        </div>
+        {badges.length > 0 && (
+          <div className="game-badges">
+            {badges.map((id) => (
+              <span key={id} className="game-badge" title={`${MASTER_BY_ID[id as keyof typeof MASTER_BY_ID]?.name} 완주`}>
+                🏅 {MASTER_BY_ID[id as keyof typeof MASTER_BY_ID]?.name.split(" · ")[0]}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
 
       <div className="card" style={{ marginTop: "2rem" }}>
         <p className="eyebrow">투자 대가 챕터</p>

@@ -1,6 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { levelFor, xpTotal, streakDays, dailyGoalMet, isChapterUnlocked } from "./gamification.ts";
+import {
+  levelFor,
+  xpTotal,
+  streakDays,
+  dailyGoalMet,
+  isChapterUnlocked,
+  masterBadges,
+} from "./gamification.ts";
 
 const progress = (lessonsDone: string[]) => ({ lessonsDone, quizResults: {} });
 
@@ -87,6 +94,17 @@ test("대가끼리는 독립이다(버핏 1장으로 그레이엄 2장은 안 �
   const p = progress(["master:buffett:1"]);
   assert.equal(isChapterUnlocked(p, "graham", 2), false);
 });
+
+test("대가의 5개 장을 다 끝내면 배지를 받는다", () => {
+  const p = progress(["1", "2", "3", "4", "5"].map((n) => `master:buffett:${n}`));
+  assert.deepEqual(masterBadges(p), ["buffett"]);
+});
+
+test("한 장이라도 빠지면 배지 없음", () => {
+  const p = progress(["1", "2", "3", "4"].map((n) => `master:buffett:${n}`));
+  assert.deepEqual(masterBadges(p), []);
+});
+
 
 test("XP 0이면 레벨 1, 다음 레벨까지 20 남았다", () => {
   const r = levelFor(0);
