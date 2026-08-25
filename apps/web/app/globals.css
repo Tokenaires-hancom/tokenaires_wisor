@@ -3270,7 +3270,7 @@ body:has(.learn-page) .masthead-inner {
 }
 
 .learn-page-header .thesis {
-  font-size: clamp(1.6rem, 3.6vw, 2.5rem);
+  font-size: clamp(1.4rem, 3vw, 2.1rem);
   max-width: none;
 }
 
@@ -3582,7 +3582,7 @@ body:has(.learn-page) .masthead-inner {
   top: 100%;
   left: 50%;
   transform: translateX(-50%);
-  width: 220px;
+  width: 270px;
   max-height: 0;
   overflow: hidden;
   opacity: 0;
@@ -3655,7 +3655,7 @@ body:has(.learn-page) .masthead-inner {
 
   .master-card-reveal {
     top: 100%;
-    width: 190px;
+    width: 230px;
   }
 
   .master-card-reveal-inner {
@@ -3767,7 +3767,7 @@ body:has(.learn-page) .masthead-inner {
 
   .master-card-reveal {
     top: 100%;
-    width: 150px;
+    width: 178px;
   }
 
   .master-card:hover .master-card-reveal,
@@ -3776,12 +3776,12 @@ body:has(.learn-page) .masthead-inner {
   }
 
   .master-card-reveal-inner {
-    padding: 0.65rem 0.7rem 0.55rem;
+    padding: 0.65rem 0.5rem 0.55rem;
   }
 
   .master-card-reveal-inner p {
-    font-size: 0.76rem;
-    line-height: 1.45;
+    font-size: 0.68rem;
+    line-height: 1.4;
   }
 }
 
