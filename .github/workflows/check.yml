@@ -15,8 +15,10 @@ name: PR 필수 검사
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-    paths-ignore:
-      - "docs/**"
+    # paths 필터를 걸지 않는다. 필수 검사 `check`는 이 워크플로가 실제로 돌아야
+    # 보고되는데, 필터에 걸러진 PR에서는 아예 돌지 않는다. 그러면 검사가 실패한
+    # 것도 통과한 것도 아닌 "보고 대기"로 남아 병합이 영원히 막힌다.
+    # docs만 고친 PR에 테스트를 다 돌리는 CI 시간이, 그 교착보다 싸다.
 
 jobs:
   check:
