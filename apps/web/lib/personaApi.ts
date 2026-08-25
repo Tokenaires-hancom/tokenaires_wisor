@@ -6,6 +6,9 @@ const BASE = "/api/persona";
 export type PersonaInfo = {
   id: string;
   name: string;
+  /** score면 점수를 내는 대가, checklist면 확인 질문만 주는 대가. */
+  evaluation?: "score" | "checklist";
+  /** 채점 모델이 없는 대가에는 없다. */
   modelVersion?: string;
 };
 

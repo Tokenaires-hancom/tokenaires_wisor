@@ -277,9 +277,14 @@ def test_anchor_includes_criteria_when_judgement_given():
     assert s.judgement.style == "graham"
 
 
-def test_third_person_rule_present():
+def test_first_person_rule_present():
+    """대가가 자기 목소리로 말한다. 배역이 안전 규칙을 밀어내지는 않는다."""
     prompt = build_system_prompt("buffett", chat_mode=True)
-    assert "1인칭" in prompt
+    assert "1인칭으로 말한다" in prompt
+    assert "자기를 3인칭으로" in prompt
+    # 1인칭이 되었다고 매수·매도 금지가 풀리는 것이 아니다
+    assert "1인칭이어도 그대로다" in prompt
+    assert "매수/매도/보유 권유" in prompt
     assert "이 설명은 교육용이며 투자 조언이 아닙니다." in prompt
 
 
@@ -290,3 +295,189 @@ def test_single_shot_explain_still_works():
     assert res.verdict == safety.OK
     assert res.regenerated is False
     assert "교육용" in res.text
+
+
+# ---- 채점하지 않는 대가 ------------------------------------------------------
+#
+# 지표도 기준 판정도 없다. 앵커와 규칙이 갈리는 지점을 전부 잠근다.
+
+CHECKLIST_PERSONA = "fisher"
+
+
+def checklist_session(persona: str = CHECKLIST_PERSONA, **kwargs) -> PersonaChat:
+    kwargs.setdefault("adapter", MockAdapter())
+    kwargs.setdefault("name", "Adobe")
+    return PersonaChat(persona, METRICS, **kwargs)
+
+
+def test_checklist_anchor_drops_metrics():
+    s = checklist_session()
+    assert s.anchor().startswith("<회사>")
+    assert "<지표>" not in s.anchor()
+    assert "PBR" not in s.anchor()
+    assert s.metrics_block() is None
+    assert s.company_block() is not None
+    assert s.messages() == [{"role": "user", "content": s.anchor()}]
+
+
+def test_checklist_claims_must_carry_a_source_label():
+    """회사 얘기는 허용하되 근거 없이 단정하지 못하게 한다.
+
+    지표가 없는 관점이라 모델에게 남는 재료가 사전학습 기억뿐이다. 그 기억을 막는
+    대신, 어디서 나온 말인지 붙이게 해 사용자가 걸러낼 수 있게 한다.
+    """
+    prompt = build_system_prompt(CHECKLIST_PERSONA, chat_mode=True)
+    assert "이 회사에 대해 아는 것을 말해도 된다" in prompt
+    assert "근거 없이 단정하지 않는다" in prompt
+    for label in ("[주어진 것]", "[업종 통례]", "[내 기억]"):
+        assert label in prompt, label
+    # 표시가 첫 응답에서만 살아 있으면 소용이 없다
+    assert "후속 답변에서도" in prompt
+
+
+def test_checklist_forbids_fabricated_citations():
+    """지어낸 인용은 확인된 것처럼 보여 표시 없는 기억보다 위험하다.
+
+    모델은 진짜 출처를 확인할 수 없다. 출처를 자유롭게 쓰게 두면 문서 이름과 쪽수를
+    만들어 낸다. 그래서 출처를 세 종류로 가두고 그 밖을 막는다.
+    """
+    prompt = build_system_prompt(CHECKLIST_PERSONA, chat_mode=True)
+    assert "붙일 수 있는 출처는 셋뿐이다" in prompt
+    assert "지어내어 인용하지 않는다" in prompt
+    # 날짜도 출처도 없는 숫자는 화면의 기준일 표기와 어긋난다
+    assert "구체적 수치는 [내 기억]으로도 말하지 않는다" in prompt
+
+
+def test_checklist_memory_claims_come_with_a_way_to_check():
+    prompt = build_system_prompt(CHECKLIST_PERSONA, chat_mode=True)
+    assert "확인되지 않은 기억이라는 것" in prompt
+    assert "사용자가 직접 확인할 곳" in prompt
+    # 허용과 금지를 예시로 나란히 둬야 경계가 흐려지지 않는다
+    assert "쓴다   —" in prompt
+    assert "안 쓴다 —" in prompt
+
+
+def test_checklist_items_are_not_capped():
+    """본문 목록은 출발점이다. 여기가 잠기면 종목이 달라도 같은 답이 나온다."""
+    prompt = build_system_prompt(CHECKLIST_PERSONA, chat_mode=True)
+    assert "출발점이지 전부가 아니다" in prompt
+    assert "새로 만들어도 된다" in prompt
+    # 개수·길이를 못 박던 문구가 남아 있으면 안 된다
+    assert "새로 만들지 않는다" not in prompt
+    assert "4개에서 다섯 개까지만" not in prompt
+    assert "마무리는 두 문장으로" not in prompt
+
+
+def test_checklist_prompt_drops_metric_rules():
+    prompt = build_system_prompt(CHECKLIST_PERSONA, chat_mode=True)
+    assert "[숫자 규칙]" not in prompt
+    assert "<지표> 블록의 숫자만으로" not in prompt
+    assert "지표마다:" not in prompt
+
+
+def test_safety_block_is_shared_by_both_kinds():
+    # 매수·매도 금지 문구가 두 벌로 갈라지면 한쪽만 고쳐지는 사고가 난다.
+    from personas import CHECKLIST_COMMON_RULES, COMMON_RULES, _NEVER_RULES
+
+    assert _NEVER_RULES in COMMON_RULES
+    assert _NEVER_RULES in CHECKLIST_COMMON_RULES
+    for key in ("buffett", CHECKLIST_PERSONA):
+        prompt = build_system_prompt(key)
+        assert "매수/매도/보유 권유" in prompt
+        assert "이 설명은 교육용이며 투자 조언이 아닙니다." in prompt
+
+
+def test_checklist_chat_rules_only_in_chat_mode():
+    from personas import CHECKLIST_CHAT_RULES
+
+    plain = build_system_prompt(CHECKLIST_PERSONA)
+    talking = build_system_prompt(CHECKLIST_PERSONA, chat_mode=True)
+    assert CHECKLIST_CHAT_RULES not in plain
+    assert CHECKLIST_CHAT_RULES in talking
+    # 지표를 근거로 삼으라는 원본 대화 규칙이 섞이면 안 된다
+    assert CHAT_RULES not in talking
+
+
+def test_checklist_ignores_criteria_arguments():
+    spec = [{"label": "자본 효율성", "detail": "5년 평균 ROIC >= 12%", "weight": 3}]
+    prompt = build_system_prompt(CHECKLIST_PERSONA, criteria_spec=spec,
+                                 with_criteria=True)
+    assert "채점에 실제로 쓰인 기준" not in prompt
+    assert "<기준판정>" not in prompt
+
+
+def test_checklist_session_drops_judgement_passed_in():
+    s = PersonaChat(CHECKLIST_PERSONA, METRICS, name="Adobe", adapter=MockAdapter(),
+                    judgement=object(), criteria_spec=[{"label": "x", "detail": "y"}])
+    assert s.judgement is None
+    assert s.criteria_block() is None
+
+
+def test_single_shot_explain_rejects_checklist_persona():
+    with pytest.raises(ValueError, match="채점하지 않는"):
+        explain(CHECKLIST_PERSONA, METRICS, name="Adobe")
+
+
+def test_every_persona_builds_a_prompt():
+    from personas import PERSONAS
+
+    for key in PERSONAS:
+        prompt = build_system_prompt(key, chat_mode=True)
+        assert "1인칭으로 말한다" in prompt
+        assert "매수/매도/보유 권유" in prompt
+        assert "이 설명은 교육용이며 투자 조언이 아닙니다." in prompt
+
+
+def test_switch_between_score_and_checklist_personas():
+    pytest.importorskip("scores_source")
+    import scores_source
+    from scores_source import ScoresNotFound
+
+    try:
+        data = scores_source.get_data()
+    except ScoresNotFound:
+        pytest.skip("scores.json이 없습니다")
+
+    ticker = data.tickers()[0]
+    s = PersonaChat(
+        "buffett",
+        company=data.company(ticker),
+        judgement=data.judgement(ticker, "buffett"),
+        criteria_spec=data.styles["buffett"].criteria,
+        adapter=MockAdapter(),
+    )
+    assert "<기준판정>" in s.anchor()
+
+    # scores.json에 이 관점의 스타일이 아예 없다. 판정을 찾으러 가면 UnknownStyle이다.
+    s.switch_persona(CHECKLIST_PERSONA)
+    assert s.anchor().startswith("<회사>")
+    assert ticker in s.anchor()
+    assert s.judgement is None
+    assert s.criteria_block() is None
+
+    # 되돌아오면 판정이 다시 붙되, 앞 대가의 것이 아니라 새 관점의 것이어야 한다
+    s.switch_persona("graham")
+    assert "<기준판정>" in s.anchor()
+    assert s.judgement.style == "graham"
+
+
+def test_switch_personas_without_company():
+    """손으로 지표를 넣은 세션(cli.py 경로)에서도 관점을 오갈 수 있어야 한다.
+
+    company가 없으면 판정을 찾아올 곳이 없다. 채점하지 않는 대가로 시작하면
+    _judgement가 비어 있어, 되돌아올 때 "새 judgement가 필요하다"는 가드에
+    걸리지 않고 지표 앵커로 돌아가야 한다.
+    """
+    s = checklist_session()
+    assert s.anchor().startswith("<회사>")
+
+    s.switch_persona("graham")
+    assert s.anchor().startswith("<지표>")
+    assert s.criteria_block() is None
+
+    s.switch_persona("marks")
+    assert s.anchor().startswith("<회사>")
+
+    s.switch_persona("buffett")
+    assert s.anchor().startswith("<지표>")
+    assert s.judgement is None

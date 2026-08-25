@@ -135,7 +135,11 @@ def choose_metrics() -> tuple[dict, str | None]:
 
 
 def show_metrics(session: PersonaChat) -> None:
-    print(session.metrics_block())
+    """세션을 붙들고 있는 블록을 보여준다.
+
+    채점하지 않는 대가를 고르면 지표가 아니라 <회사> 블록이 앵커다.
+    """
+    print(session.metrics_block() or session.company_block())
 
 
 def print_reply(session: PersonaChat, reply) -> None:
