@@ -1,0 +1,29 @@
+/* 퀴즈 마스코트 + XP 팝. 애니메이션 WebP는 <img>로 자동 재생된다. */
+.duo-mascot {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 0.5rem;
+}
+.duo-mascot img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+}
+.duo-xppop {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: 900;
+  font-size: 1.4rem;
+  color: var(--ochre);
+  text-shadow: 0 2px 0 #fff;
+  pointer-events: none;
+  animation: duo-xp 1s ease forwards;
+}
+@keyframes duo-xp {
+  0% { opacity: 0; transform: translate(-50%, 10px) scale(0.7); }
+  30% { opacity: 1; transform: translate(-50%, 0) scale(1.1); }
+  100% { opacity: 0; transform: translate(-50%, -26px) scale(1); }
+}

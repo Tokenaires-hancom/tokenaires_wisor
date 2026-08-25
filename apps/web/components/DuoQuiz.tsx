@@ -4,6 +4,18 @@ import { useEffect, useState } from "react";
 import type { QuizItem } from "@/content/masters";
 import { markLessonDone, recordQuiz } from "@/lib/store";
 import { track, type WisorEvent } from "@/lib/analytics";
+import "./game/mascot.css";
+
+/** 상태별 마스코트. 애니메이션 WebP라 img로 자동 재생된다. */
+function Mascot({ state }: { state: "idle" | "correct" | "wrong" | "celebrate" }) {
+  const label = { idle: "학습 중", correct: "정답", wrong: "응원", celebrate: "축하" }[state];
+  return (
+    <div className="duo-mascot">
+      <img src={`/mascot/${state}.webp`} alt={`마스코트 — ${label}`} />
+      {state === "correct" && <span className="duo-xppop">+5 XP</span>}
+    </div>
+  );
+}
 
 /** 듀오링고 스타일 퀴즈. 기존 `Quiz`(components/Quiz.tsx)와 달리 한 문항씩 즉시
  *  정오를 보여주고 다음 문항으로 넘어간다. 빨강·초록 금지 규칙은 주식 화면에서
@@ -89,6 +101,7 @@ export default function DuoQuiz({
 
     return (
       <div className="card">
+        <Mascot state="celebrate" />
         <p className="eyebrow">결과</p>
         <div style={{ display: "flex", alignItems: "baseline", gap: "0.6rem", marginBottom: "1rem" }}>
           <span className="score-value" style={{ fontSize: "2.2rem" }}>
@@ -118,8 +131,11 @@ export default function DuoQuiz({
     );
   }
 
+  const mascotState = !revealed ? "idle" : selected === item.answer ? "correct" : "wrong";
+
   return (
     <div className="card">
+      <Mascot state={mascotState} />
       <div className="chapter-progress" aria-label={`${items.length}문항 중 ${step + 1}번째`}>
         {items.map((_, i) => (
           <span key={i} data-state={i < step ? "done" : i === step ? "current" : undefined} />
