@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { findMatches, isValidSwap, collapse, makeBoard } from "./board.ts";
+import { findMatches, isValidSwap, collapse, makeBoard, hasMove } from "./board.ts";
 
 const keys = (s: Set<string>) => [...s].sort();
 
@@ -114,4 +114,29 @@ test("makeBoard: 크기·값 범위가 맞고 시작 매치가 없다", () => {
   assert.ok(b.every((row) => row.length === 5));
   assert.ok(b.every((row) => row.every((v) => v >= 0 && v < 5)));
   assert.equal(findMatches(b).size, 0);
+});
+
+test("hasMove: 한 번 스왑으로 매치가 되는 자리가 있으면 true", () => {
+  const b = [
+    [2, 0, 2],
+    [1, 2, 3],
+    [4, 5, 6],
+  ];
+  // (0,1)↔(1,1) 바꾸면 윗줄 2,2,2
+  assert.equal(hasMove(b), true);
+});
+
+test("hasMove: 3연속이 불가능한 2×2면 false(교착)", () => {
+  const b = [
+    [0, 1],
+    [1, 0],
+  ];
+  assert.equal(hasMove(b), false);
+});
+
+test("makeBoard가 만든 보드는 항상 둘 수 있다", () => {
+  const rand = () => Math.floor(Math.random() * 5);
+  for (let i = 0; i < 20; i += 1) {
+    assert.equal(hasMove(makeBoard(5, 5, 5, rand)), true);
+  }
 });

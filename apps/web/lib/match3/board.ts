@@ -36,20 +36,38 @@ export function findMatches(board: Board): Set<string> {
 
 const clone = (board: Board): Board => board.map((row) => row.slice());
 
-/** 시작 매치가 없는 보드를 만든다. rand()는 0~typeCount 미만의 타일 종류를 준다.
- *  매치가 있으면 해당 칸만 다시 뽑아 없앤다. */
-export function makeBoard(rows: number, cols: number, typeCount: number, rand: () => number): Board {
-  const board: Board = Array.from({ length: rows }, () =>
-    Array.from({ length: cols }, () => rand() % typeCount),
-  );
-  let matched = findMatches(board);
-  while (matched.size > 0) {
-    for (const key of matched) {
-      const [r, c] = key.split(",").map(Number);
-      board[r][c] = rand() % typeCount;
+/** 한 번의 인접 스왑으로 매치가 되는 자리가 하나라도 있는지. 없으면 교착 상태다. */
+export function hasMove(board: Board): boolean {
+  const rows = board.length;
+  const cols = board[0]?.length ?? 0;
+  for (let r = 0; r < rows; r += 1) {
+    for (let c = 0; c < cols; c += 1) {
+      if (c + 1 < cols && isValidSwap(board, { r, c }, { r, c: c + 1 })) return true;
+      if (r + 1 < rows && isValidSwap(board, { r, c }, { r: r + 1, c })) return true;
     }
-    matched = findMatches(board);
   }
+  return false;
+}
+
+/** 시작 매치가 없고 둘 수 있는(hasMove) 보드를 만든다.
+ *  rand()는 0~typeCount 미만의 타일 종류를 준다. */
+export function makeBoard(rows: number, cols: number, typeCount: number, rand: () => number): Board {
+  const build = (): Board => {
+    const board: Board = Array.from({ length: rows }, () =>
+      Array.from({ length: cols }, () => rand() % typeCount),
+    );
+    let matched = findMatches(board);
+    while (matched.size > 0) {
+      for (const key of matched) {
+        const [r, c] = key.split(",").map(Number);
+        board[r][c] = rand() % typeCount;
+      }
+      matched = findMatches(board);
+    }
+    return board;
+  };
+  let board = build();
+  while (!hasMove(board)) board = build(); // 교착이면 다시 만든다
   return board;
 }
 

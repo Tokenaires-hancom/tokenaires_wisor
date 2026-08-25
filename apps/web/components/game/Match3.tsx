@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { makeBoard, findMatches, isValidSwap, collapse, type Board, type Cell } from "@/lib/match3/board.ts";
+import { makeBoard, findMatches, isValidSwap, collapse, hasMove, type Board, type Cell } from "@/lib/match3/board.ts";
 import "./match3.css";
 
 /** 투자 지표 타일(테마 B). 목표 = 특정 대가가 보는 기준 타일을 모으기.
@@ -82,6 +82,9 @@ export default function Match3() {
       } else if (movesLeft <= 0) {
         beep(200, 0.3, "sine");
         setPhase("lose");
+      } else if (!hasMove(current)) {
+        // 둘 수 있는 수가 없으면 새 보드로 섞는다
+        setBoard(makeBoard(ROWS, COLS, TYPES.length, rand));
       }
       return;
     }

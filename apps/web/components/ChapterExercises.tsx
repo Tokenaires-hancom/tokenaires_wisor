@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { isCorrect } from "@/content/curriculum/grading";
+import Mascot from "@/components/game/Mascot";
 import { chapterSteps, stepLabel } from "@/content/curriculum/steps";
 // SOURCE_KINDS는 값이지만 types.ts가 Master를 type import만 하므로 번들에 masters.ts가 실리지 않는다
 import { SOURCE_KINDS, type Exercise, type SourceNote } from "@/content/curriculum/types";
@@ -259,9 +260,11 @@ function Graded({
   onPick: (choice: number) => void;
 }) {
   const multiple = exercise.answers.length > 1;
+  const mascotState = !submitted ? "idle" : isCorrect(exercise.answers, picked) ? "correct" : "wrong";
 
   return (
     <>
+      <Mascot state={mascotState} />
       <p className="eyebrow">확인 문항{multiple ? " · 복수 정답" : ""}</p>
       <h3 className="sub">{exercise.prompt}</h3>
       <div role="group" aria-label={exercise.prompt}>
