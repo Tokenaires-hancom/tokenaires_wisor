@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-08-25T03:00:26+00:00",
+  "generatedAt": "2026-08-25T06:00:23+00:00",
   "dataSource": "sec-toss",
   "asOf": {
     "price": "2026-08-25",
     "financial": "2025-03-29",
-    "priceAt": "2026-08-25T12:00:16+09:00"
+    "priceAt": "2026-08-25T15:00:10+09:00"
   },
   "universe": {
     "indexes": [
@@ -490,7 +490,7 @@
       "ticker": "AAPL",
       "name": "애플",
       "sector": "Electronic Computers",
-      "price": 310.87,
+      "price": 309.1,
       "marketCap": 4529157.8212,
       "asOf": {
         "price": "2026-08-25",
@@ -774,7 +774,7 @@
       "ticker": "ABBV",
       "name": "애브비",
       "sector": "Pharmaceutical Preparations",
-      "price": 265.0,
+      "price": 264.5,
       "marketCap": 467437.864228,
       "asOf": {
         "price": "2026-08-25",
@@ -1057,7 +1057,7 @@
       "ticker": "ABT",
       "name": "애보트 래버러토리스",
       "sector": "Pharmaceutical Preparations",
-      "price": 116.86,
+      "price": 116.83,
       "marketCap": 201883.819144,
       "asOf": {
         "price": "2026-08-25",
@@ -1425,7 +1425,7 @@
       "ticker": "ACN",
       "name": "액센츄어",
       "sector": "Services-Business Services, NEC",
-      "price": 186.5,
+      "price": 186.66,
       "marketCap": 124510.679471,
       "asOf": {
         "price": "2026-08-25",
@@ -1707,7 +1707,7 @@
       "ticker": "ADBE",
       "name": "어도비",
       "sector": "Services-Prepackaged Software",
-      "price": 275.88,
+      "price": 275.55,
       "marketCap": 109817.325,
       "asOf": {
         "price": "2026-08-25",
@@ -1989,7 +1989,7 @@
       "ticker": "ADI",
       "name": "아날로그 디바이스",
       "sector": "Semiconductors & Related Devices",
-      "price": 373.0,
+      "price": 374.65,
       "marketCap": 179856.163644,
       "asOf": {
         "price": "2026-08-25",
@@ -2273,7 +2273,7 @@
       "ticker": "ADM",
       "name": "아처 대니얼스 미들랜드",
       "sector": "Fats & Oils",
-      "price": 78.26,
+      "price": 78.24,
       "marketCap": 37669.961007,
       "asOf": {
         "price": "2026-08-25",
@@ -3606,7 +3606,7 @@
       "ticker": "ALB",
       "name": "알버말",
       "sector": "Plastic Materials, Synth Resins & Nonvulcan Elastomers",
-      "price": 139.5,
+      "price": 139.49,
       "marketCap": 16698.895616,
       "asOf": {
         "price": "2026-08-25",
@@ -3889,7 +3889,7 @@
       "ticker": "ALGN",
       "name": "얼라인 테크놀로지",
       "sector": "Orthopedic, Prosthetic & Surgical Appliances & Supplies",
-      "price": 159.64,
+      "price": 159.78,
       "marketCap": 11340.801973,
       "asOf": {
         "price": "2026-08-25",
@@ -4727,7 +4727,7 @@
       "ticker": "AMAT",
       "name": "어플라이드 머티리얼즈",
       "sector": "Semiconductors & Related Devices",
-      "price": 485.0,
+      "price": 491.3,
       "marketCap": 384251.945926,
       "asOf": {
         "price": "2026-08-25",
@@ -5295,7 +5295,7 @@
       "ticker": "AMD",
       "name": "AMD",
       "sector": "Semiconductors & Related Devices",
-      "price": 456.04,
+      "price": 461.9,
       "marketCap": 745624.813058,
       "asOf": {
         "price": "2026-08-25",
@@ -6230,7 +6230,7 @@
       "ticker": "AMT",
       "name": "아메리칸 타워",
       "sector": "Real Estate Investment Trusts",
-      "price": 178.4,
+      "price": 178.39,
       "marketCap": 83122.612963,
       "asOf": {
         "price": "2026-08-25",
@@ -6314,7 +6314,7 @@
       "ticker": "AMZN",
       "name": "아마존",
       "sector": "Retail-Catalog & Mail-Order Houses",
-      "price": 263.46,
+      "price": 262.71,
       "marketCap": 2826769.197814,
       "asOf": {
         "price": "2026-08-25",
@@ -6597,7 +6597,7 @@
       "ticker": "ANET",
       "name": "아리스타 네트웍스",
       "sector": "Computer Communications Equipment",
-      "price": 188.38,
+      "price": 189.88,
       "marketCap": 237299.417521,
       "asOf": {
         "price": "2026-08-25",
@@ -7242,7 +7242,7 @@
       "ticker": "APH",
       "name": "암페놀",
       "sector": "Electronic Connectors",
-      "price": 155.56,
+      "price": 156.46,
       "marketCap": 191790.576736,
       "asOf": {
         "price": "2026-08-25",
@@ -7610,7 +7610,7 @@
       "ticker": "APTV",
       "name": "앱티브",
       "sector": "Motor Vehicle Parts & Accessories",
-      "price": 47.34,
+      "price": 47.8,
       "marketCap": 9829.36189,
       "asOf": {
         "price": "2026-08-25",
@@ -8236,7 +8236,7 @@
       "ticker": "AVGO",
       "name": "브로드컴",
       "sector": "Semiconductors & Related Devices",
-      "price": 358.69,
+      "price": 360.79,
       "marketCap": 1706829.471834,
       "asOf": {
         "price": "2026-08-25",
@@ -9344,7 +9344,7 @@
       "ticker": "AZO",
       "name": "오토존",
       "sector": "Retail-Auto & Home Supply Stores",
-      "price": 3009.44,
+      "price": 3008.0,
       "marketCap": 49130.176351,
       "asOf": {
         "price": "2026-08-25",
@@ -9627,7 +9627,7 @@
       "ticker": "BA",
       "name": "보잉",
       "sector": "Aircraft",
-      "price": 211.1,
+      "price": 211.3,
       "marketCap": 166341.274409,
       "asOf": {
         "price": "2026-08-25",
@@ -10927,7 +10927,7 @@
       "ticker": "BMY",
       "name": "브리스톨 마이어스 스큅",
       "sector": "Pharmaceutical Preparations",
-      "price": 67.5,
+      "price": 67.1,
       "marketCap": 137433.842056,
       "asOf": {
         "price": "2026-08-25",
@@ -11576,7 +11576,7 @@
       "ticker": "BSX",
       "name": "보스턴 사이언티픽",
       "sector": "Surgical & Medical Instruments & Apparatus",
-      "price": 49.03,
+      "price": 49.08,
       "marketCap": 71026.739069,
       "asOf": {
         "price": "2026-08-25",
@@ -11943,7 +11943,7 @@
       "ticker": "C",
       "name": "씨티그룹",
       "sector": "National Commercial Banks",
-      "price": 131.55,
+      "price": 132.02,
       "marketCap": 220951.973057,
       "asOf": {
         "price": "2026-08-25",
@@ -12311,7 +12311,7 @@
       "ticker": "CARR",
       "name": "캐리어",
       "sector": "Air-Cond & Warm Air Heatg Equip & Comm & Indl Refrig Equip",
-      "price": 59.97,
+      "price": 60.0,
       "marketCap": 49434.773668,
       "asOf": {
         "price": "2026-08-25",
@@ -12595,7 +12595,7 @@
       "ticker": "CAT",
       "name": "캐터필러",
       "sector": "Construction Machinery & Equip",
-      "price": 812.3,
+      "price": 814.86,
       "marketCap": 372805.528477,
       "asOf": {
         "price": "2026-08-25",
@@ -13041,7 +13041,7 @@
       "ticker": "CCI",
       "name": "크라운 캐슬",
       "sector": "Real Estate Investment Trusts",
-      "price": 76.36,
+      "price": 76.3,
       "marketCap": 32504.79554,
       "asOf": {
         "price": "2026-08-25",
@@ -13125,7 +13125,7 @@
       "ticker": "CCL",
       "name": "카니발",
       "sector": "Water Transportation",
-      "price": 25.72,
+      "price": 25.74,
       "marketCap": 35213.678849,
       "asOf": {
         "price": "2026-08-25",
@@ -13409,7 +13409,7 @@
       "ticker": "CDNS",
       "name": "케이던스 디자인 시스템즈",
       "sector": "Services-Prepackaged Software",
-      "price": 316.75,
+      "price": 316.29,
       "marketCap": 87002.15656,
       "asOf": {
         "price": "2026-08-25",
@@ -13970,7 +13970,7 @@
       "ticker": "CEG",
       "name": "컨스털레이션 에너지",
       "sector": "Electric Services",
-      "price": 273.39,
+      "price": 274.66,
       "marketCap": 96878.26664,
       "asOf": {
         "price": "2026-08-25",
@@ -14229,7 +14229,7 @@
       "ticker": "CF",
       "name": "CF 인더스트리스 홀딩스",
       "sector": "Agricultural Chemicals",
-      "price": 129.84,
+      "price": 129.72,
       "marketCap": 19558.939921,
       "asOf": {
         "price": "2026-08-25",
@@ -15447,7 +15447,7 @@
       "ticker": "CI",
       "name": "시그나 그룹",
       "sector": "Hospital & Medical Service Plans",
-      "price": 280.5,
+      "price": 281.7,
       "marketCap": 74106.244299,
       "asOf": {
         "price": "2026-08-25",
@@ -15531,7 +15531,7 @@
       "ticker": "CIEN",
       "name": "시에나",
       "sector": "Telephone & Telegraph Apparatus",
-      "price": 373.0,
+      "price": 376.18,
       "marketCap": 52650.609338,
       "asOf": {
         "price": "2026-08-25",
@@ -15898,7 +15898,7 @@
       "ticker": "CL",
       "name": "콜게이트 팜올리브",
       "sector": "Perfumes, Cosmetics & Other Toilet Preparations",
-      "price": 92.44,
+      "price": 92.52,
       "marketCap": 73778.345324,
       "asOf": {
         "price": "2026-08-25",
@@ -16464,7 +16464,7 @@
       "ticker": "CMCSA",
       "name": "컴캐스트",
       "sector": "Cable & Other Pay Television Services",
-      "price": 27.04,
+      "price": 26.98,
       "marketCap": 95884.160202,
       "asOf": {
         "price": "2026-08-25",
@@ -16748,7 +16748,7 @@
       "ticker": "CME",
       "name": "CME 그룹",
       "sector": "Security & Commodity Brokers, Dealers, Exchanges & Services",
-      "price": 277.6,
+      "price": 279.0,
       "marketCap": 100381.944955,
       "asOf": {
         "price": "2026-08-25",
@@ -16832,7 +16832,7 @@
       "ticker": "CMG",
       "name": "치폴레 멕시칸 그릴",
       "sector": "Retail-Eating  Places",
-      "price": 37.9,
+      "price": 38.0,
       "marketCap": 48111.19236,
       "asOf": {
         "price": "2026-08-25",
@@ -17400,7 +17400,7 @@
       "ticker": "CNC",
       "name": "센틴",
       "sector": "Hospital & Medical Service Plans",
-      "price": 65.65,
+      "price": 65.8,
       "marketCap": 32430.77175,
       "asOf": {
         "price": "2026-08-25",
@@ -17826,7 +17826,7 @@
       "ticker": "COIN",
       "name": "코인베이스",
       "sector": "Finance Services",
-      "price": 184.04,
+      "price": 184.45,
       "marketCap": 47353.45094,
       "asOf": {
         "price": "2026-08-25",
@@ -18476,7 +18476,7 @@
       "ticker": "COST",
       "name": "코스트코",
       "sector": "Retail-Variety Stores",
-      "price": 970.03,
+      "price": 968.6,
       "marketCap": 430795.310206,
       "asOf": {
         "price": "2026-08-25",
@@ -19324,7 +19324,7 @@
       "ticker": "CRM",
       "name": "세일즈포스",
       "sector": "Services-Prepackaged Software",
-      "price": 208.75,
+      "price": 208.49,
       "marketCap": 171220.14,
       "asOf": {
         "price": "2026-08-25",
@@ -19608,7 +19608,7 @@
       "ticker": "CSCO",
       "name": "시스코 시스템즈",
       "sector": "Computer Communications Equipment",
-      "price": 110.38,
+      "price": 110.68,
       "marketCap": 434464.343123,
       "asOf": {
         "price": "2026-08-25",
@@ -19892,7 +19892,7 @@
       "ticker": "CSGP",
       "name": "코스타 그룹",
       "sector": "Services-Business Services, NEC",
-      "price": 32.7,
+      "price": 32.83,
       "marketCap": 13306.68879,
       "asOf": {
         "price": "2026-08-25",
@@ -20175,7 +20175,7 @@
       "ticker": "CSX",
       "name": "CSX",
       "sector": "Railroads, Line-Haul Operating",
-      "price": 51.45,
+      "price": 51.44,
       "marketCap": 95291.30973,
       "asOf": {
         "price": "2026-08-25",
@@ -21020,7 +21020,7 @@
       "ticker": "CTVA",
       "name": "코르테바",
       "sector": "Agricultural Production-Crops",
-      "price": 82.81,
+      "price": 84.47,
       "marketCap": 55250.50076,
       "asOf": {
         "price": "2026-08-25",
@@ -21586,7 +21586,7 @@
       "ticker": "CVX",
       "name": "셰브론",
       "sector": "Petroleum Refining",
-      "price": 203.11,
+      "price": 202.48,
       "marketCap": 401259.388037,
       "asOf": {
         "price": "2026-08-25",
@@ -22129,7 +22129,7 @@
       "ticker": "DAL",
       "name": "델타 항공",
       "sector": "Air Transportation, Scheduled",
-      "price": 82.6,
+      "price": 82.65,
       "marketCap": 54240.747514,
       "asOf": {
         "price": "2026-08-25",
@@ -22413,7 +22413,7 @@
       "ticker": "DASH",
       "name": "도어대시",
       "sector": "Services-Business Services, NEC",
-      "price": 229.07,
+      "price": 229.5,
       "marketCap": 99251.225449,
       "asOf": {
         "price": "2026-08-25",
@@ -22691,7 +22691,7 @@
       "ticker": "DDOG",
       "name": "데이터독",
       "sector": "Services-Prepackaged Software",
-      "price": 225.68,
+      "price": 226.62,
       "marketCap": 81068.368168,
       "asOf": {
         "price": "2026-08-25",
@@ -22969,7 +22969,7 @@
       "ticker": "DECK",
       "name": "데커스 아웃도어",
       "sector": "Rubber & Plastics Footwear",
-      "price": 92.08,
+      "price": 92.11,
       "marketCap": 12561.022022,
       "asOf": {
         "price": "2026-08-25",
@@ -23247,7 +23247,7 @@
       "ticker": "DELL",
       "name": "델 테크놀로지스",
       "sector": "Electronic Computers",
-      "price": 431.65,
+      "price": 437.9,
       "marketCap": 280753.900621,
       "asOf": {
         "price": "2026-08-25",
@@ -24382,7 +24382,7 @@
       "ticker": "DLR",
       "name": "디지털 리얼티 트러스트",
       "sector": "Real Estate Investment Trusts",
-      "price": 189.73,
+      "price": 188.0,
       "marketCap": 69770.320985,
       "asOf": {
         "price": "2026-08-25",
@@ -24466,7 +24466,7 @@
       "ticker": "DOC",
       "name": "헬스피크 프로퍼티스",
       "sector": "Real Estate Investment Trusts",
-      "price": 21.51,
+      "price": 21.7,
       "marketCap": 14914.474634,
       "asOf": {
         "price": "2026-08-25",
@@ -24550,7 +24550,7 @@
       "ticker": "DOW",
       "name": "다우",
       "sector": "Plastic Materials, Synth Resins & Nonvulcan Elastomers",
-      "price": 31.51,
+      "price": 31.5,
       "marketCap": 22710.391954,
       "asOf": {
         "price": "2026-08-25",
@@ -25114,7 +25114,7 @@
       "ticker": "DXCM",
       "name": "덱스콤",
       "sector": "Surgical & Medical Instruments & Apparatus",
-      "price": 91.01,
+      "price": 91.0,
       "marketCap": 34362.471261,
       "asOf": {
         "price": "2026-08-25",
@@ -25392,7 +25392,7 @@
       "ticker": "EBAY",
       "name": "이베이",
       "sector": "Services-Business Services, NEC",
-      "price": 106.82,
+      "price": 106.75,
       "marketCap": 47650.6,
       "asOf": {
         "price": "2026-08-25",
@@ -25675,7 +25675,7 @@
       "ticker": "ECHO",
       "name": "에코스타",
       "sector": "Communications Services, NEC",
-      "price": 85.05,
+      "price": 85.31,
       "marketCap": 24784.667207,
       "asOf": {
         "price": "2026-08-25",
@@ -26609,7 +26609,7 @@
       "ticker": "EIX",
       "name": "에디슨 인터내셔널",
       "sector": "Electric Services",
-      "price": 74.38,
+      "price": 74.0,
       "marketCap": 28464.690027,
       "asOf": {
         "price": "2026-08-25",
@@ -26868,7 +26868,7 @@
       "ticker": "EL",
       "name": "에스티 로더",
       "sector": "Perfumes, Cosmetics & Other Toilet Preparations",
-      "price": 104.09,
+      "price": 104.07,
       "marketCap": 37674.084782,
       "asOf": {
         "price": "2026-08-25",
@@ -27149,7 +27149,7 @@
       "ticker": "ELV",
       "name": "엘리번스 헬스",
       "sector": "Hospital & Medical Service Plans",
-      "price": 402.63,
+      "price": 405.73,
       "marketCap": 87318.082233,
       "asOf": {
         "price": "2026-08-25",
@@ -27233,7 +27233,7 @@
       "ticker": "EME",
       "name": "엠코 그룹",
       "sector": "Electrical Work",
-      "price": 766.42,
+      "price": 767.0,
       "marketCap": 33739.663275,
       "asOf": {
         "price": "2026-08-25",
@@ -27795,7 +27795,7 @@
       "ticker": "EQIX",
       "name": "에퀴닉스",
       "sector": "Real Estate Investment Trusts",
-      "price": 1055.21,
+      "price": 1055.59,
       "marketCap": 104118.363067,
       "asOf": {
         "price": "2026-08-25",
@@ -27879,7 +27879,7 @@
       "ticker": "EQT",
       "name": "EQT",
       "sector": "Crude Petroleum & Natural Gas",
-      "price": 53.8,
+      "price": 53.96,
       "marketCap": 33646.50564,
       "asOf": {
         "price": "2026-08-25",
@@ -29382,7 +29382,7 @@
       "ticker": "EXC",
       "name": "엑셀론",
       "sector": "Electric & Other Services Combined",
-      "price": 44.41,
+      "price": 44.37,
       "marketCap": 45770.140897,
       "asOf": {
         "price": "2026-08-25",
@@ -29640,7 +29640,7 @@
       "ticker": "EXE",
       "name": "익스팬드 에너지",
       "sector": "Crude Petroleum & Natural Gas",
-      "price": 97.0,
+      "price": 95.97,
       "marketCap": 22300.759994,
       "asOf": {
         "price": "2026-08-25",
@@ -30202,7 +30202,7 @@
       "ticker": "EXPE",
       "name": "익스피디아",
       "sector": "Transportation Services",
-      "price": 340.41,
+      "price": 339.96,
       "marketCap": 38828.419035,
       "asOf": {
         "price": "2026-08-25",
@@ -30570,7 +30570,7 @@
       "ticker": "F",
       "name": "포드",
       "sector": "Motor Vehicles & Passenger Car Bodies",
-      "price": 13.94,
+      "price": 13.96,
       "marketCap": 54560.238223,
       "asOf": {
         "price": "2026-08-25",
@@ -31132,7 +31132,7 @@
       "ticker": "FCX",
       "name": "프리포트 맥모란",
       "sector": "Metal Mining",
-      "price": 77.75,
+      "price": 77.8,
       "marketCap": 111722.163289,
       "asOf": {
         "price": "2026-08-25",
@@ -31982,7 +31982,7 @@
       "ticker": "FE",
       "name": "퍼스트에너지",
       "sector": "Electric Services",
-      "price": 46.43,
+      "price": 47.0,
       "marketCap": 26947.261633,
       "asOf": {
         "price": "2026-08-25",
@@ -32518,7 +32518,7 @@
       "ticker": "FICO",
       "name": "페어 아이작",
       "sector": "Services-Business Services, NEC",
-      "price": 1164.32,
+      "price": 1170.0,
       "marketCap": 25191.481464,
       "asOf": {
         "price": "2026-08-25",
@@ -32801,7 +32801,7 @@
       "ticker": "FISV",
       "name": "파이서브",
       "sector": "Services-Business Services, NEC",
-      "price": 52.96,
+      "price": 52.92,
       "marketCap": 28162.365544,
       "asOf": {
         "price": "2026-08-25",
@@ -33084,7 +33084,7 @@
       "ticker": "FIX",
       "name": "컴포트 시스템즈 USA",
       "sector": "Electrical Work",
-      "price": 1613.99,
+      "price": 1610.16,
       "marketCap": 56651.959448,
       "asOf": {
         "price": "2026-08-25",
@@ -33368,7 +33368,7 @@
       "ticker": "FLEX",
       "name": "플렉스",
       "sector": "Printed Circuit Boards",
-      "price": 106.9,
+      "price": 107.42,
       "marketCap": 39396.827604,
       "asOf": {
         "price": "2026-08-25",
@@ -34301,7 +34301,7 @@
       "ticker": "FSLR",
       "name": "퍼스트 솔라",
       "sector": "Semiconductors & Related Devices",
-      "price": 209.08,
+      "price": 209.44,
       "marketCap": 22387.031538,
       "asOf": {
         "price": "2026-08-25",
@@ -34585,7 +34585,7 @@
       "ticker": "FTNT",
       "name": "포티넷",
       "sector": "Computer Peripheral Equipment, NEC",
-      "price": 151.99,
+      "price": 152.35,
       "marketCap": 111517.138119,
       "asOf": {
         "price": "2026-08-25",
@@ -35151,7 +35151,7 @@
       "ticker": "GD",
       "name": "제너럴 다이내믹스",
       "sector": "Ship & Boat Building & Repairing",
-      "price": 384.01,
+      "price": 381.58,
       "marketCap": 103831.734725,
       "asOf": {
         "price": "2026-08-25",
@@ -36285,7 +36285,7 @@
       "ticker": "GIS",
       "name": "제너럴 밀스",
       "sector": "Grain Mill Products",
-      "price": 40.92,
+      "price": 40.99,
       "marketCap": 21877.037994,
       "asOf": {
         "price": "2026-08-25",
@@ -36567,7 +36567,7 @@
       "ticker": "GM",
       "name": "제너럴 모터스",
       "sector": "Motor Vehicles & Passenger Car Bodies",
-      "price": 86.98,
+      "price": 86.83,
       "marketCap": 76320.735036,
       "asOf": {
         "price": "2026-08-25",
@@ -36845,7 +36845,7 @@
       "ticker": "GNRC",
       "name": "제네락 홀딩스",
       "sector": "Motors & Generators",
-      "price": 203.56,
+      "price": 204.96,
       "marketCap": 12011.334845,
       "asOf": {
         "price": "2026-08-25",
@@ -37128,7 +37128,7 @@
       "ticker": "GOOG",
       "name": "알파벳 C",
       "sector": "Services-Computer Programming, Data Processing, Etc.",
-      "price": 344.27,
+      "price": 344.26,
       "marketCap": 4214335.7,
       "asOf": {
         "price": "2026-08-25",
@@ -37412,7 +37412,7 @@
       "ticker": "GOOGL",
       "name": "알파벳 A",
       "sector": "Services-Computer Programming, Data Processing, Etc.",
-      "price": 347.65,
+      "price": 347.8,
       "marketCap": 4256773.8,
       "asOf": {
         "price": "2026-08-25",
@@ -39190,7 +39190,7 @@
       "ticker": "HD",
       "name": "홈 디포",
       "sector": "Retail-Lumber & Other Building Materials Dealers",
-      "price": 337.81,
+      "price": 337.71,
       "marketCap": 336457.082007,
       "asOf": {
         "price": "2026-08-25",
@@ -40040,7 +40040,7 @@
       "ticker": "HOOD",
       "name": "로빈후드",
       "sector": "Security Brokers, Dealers & Flotation Companies",
-      "price": 105.24,
+      "price": 106.18,
       "marketCap": 93162.905128,
       "asOf": {
         "price": "2026-08-25",
@@ -40124,7 +40124,7 @@
       "ticker": "HPE",
       "name": "휴렛 패커드 엔터프라이즈",
       "sector": "Computer & office Equipment",
-      "price": 52.7,
+      "price": 52.84,
       "marketCap": 69427.990606,
       "asOf": {
         "price": "2026-08-25",
@@ -40406,7 +40406,7 @@
       "ticker": "HPQ",
       "name": "HP",
       "sector": "Computer & office Equipment",
-      "price": 28.58,
+      "price": 28.36,
       "marketCap": 26137.05848,
       "asOf": {
         "price": "2026-08-25",
@@ -41702,7 +41702,7 @@
       "ticker": "HWM",
       "name": "하우멧 에어로스페이스",
       "sector": "Rolling Drawing & Extruding of  Nonferrous Metals",
-      "price": 263.99,
+      "price": 263.49,
       "marketCap": 105000.420343,
       "asOf": {
         "price": "2026-08-25",
@@ -41986,7 +41986,7 @@
       "ticker": "IBKR",
       "name": "인터랙티브 브로커스",
       "sector": "Security Brokers, Dealers & Flotation Companies",
-      "price": 93.05,
+      "price": 92.95,
       "marketCap": 42158.923812,
       "asOf": {
         "price": "2026-08-25",
@@ -42070,7 +42070,7 @@
       "ticker": "IBM",
       "name": "IBM",
       "sector": "Computer & office Equipment",
-      "price": 231.14,
+      "price": 231.16,
       "marketCap": 217670.729466,
       "asOf": {
         "price": "2026-08-25",
@@ -43202,7 +43202,7 @@
       "ticker": "INCY",
       "name": "인사이트",
       "sector": "Services-Commercial Physical & Biological Research",
-      "price": 127.98,
+      "price": 127.37,
       "marketCap": 25941.257533,
       "asOf": {
         "price": "2026-08-25",
@@ -43480,7 +43480,7 @@
       "ticker": "INTC",
       "name": "인텔",
       "sector": "Semiconductors & Related Devices",
-      "price": 87.45,
+      "price": 89.11,
       "marketCap": 461175.16553,
       "asOf": {
         "price": "2026-08-25",
@@ -43761,7 +43761,7 @@
       "ticker": "INTU",
       "name": "인튜이트",
       "sector": "Services-Prepackaged Software",
-      "price": 370.0,
+      "price": 369.43,
       "marketCap": 101186.80704,
       "asOf": {
         "price": "2026-08-25",
@@ -44694,7 +44694,7 @@
       "ticker": "ISRG",
       "name": "인튜이티브 서지컬",
       "sector": "Orthopedic, Prosthetic & Surgical Appliances & Supplies",
-      "price": 374.01,
+      "price": 373.48,
       "marketCap": 131974.076656,
       "asOf": {
         "price": "2026-08-25",
@@ -45339,7 +45339,7 @@
       "ticker": "JBL",
       "name": "자빌",
       "sector": "Printed Circuit Boards",
-      "price": 306.85,
+      "price": 306.52,
       "marketCap": 31948.535565,
       "asOf": {
         "price": "2026-08-25",
@@ -45906,7 +45906,7 @@
       "ticker": "JPM",
       "name": "제이피모건 체이스",
       "sector": "National Commercial Banks",
-      "price": 356.0,
+      "price": 356.11,
       "marketCap": 947350.978036,
       "asOf": {
         "price": "2026-08-25",
@@ -46807,7 +46807,7 @@
       "ticker": "KMB",
       "name": "킴벌리클라크",
       "sector": "Converted Paper & Paperboard Prods (No Contaners/Boxes)",
-      "price": 111.37,
+      "price": 111.19,
       "marketCap": 37039.327462,
       "asOf": {
         "price": "2026-08-25",
@@ -47090,7 +47090,7 @@
       "ticker": "KMI",
       "name": "킨더 모건",
       "sector": "Natural Gas Transmission",
-      "price": 31.0,
+      "price": 30.98,
       "marketCap": 69030.864759,
       "asOf": {
         "price": "2026-08-25",
@@ -47349,7 +47349,7 @@
       "ticker": "KO",
       "name": "코카콜라",
       "sector": "Beverages",
-      "price": 92.07,
+      "price": 91.9,
       "marketCap": 395791.504864,
       "asOf": {
         "price": "2026-08-25",
@@ -47633,7 +47633,7 @@
       "ticker": "KR",
       "name": "크로거",
       "sector": "Retail-Grocery Stores",
-      "price": 59.16,
+      "price": 58.53,
       "marketCap": 36195.201421,
       "asOf": {
         "price": "2026-08-25",
@@ -48847,7 +48847,7 @@
       "ticker": "LIN",
       "name": "린데",
       "sector": "Industrial Inorganic Chemicals",
-      "price": 490.7,
+      "price": 490.36,
       "marketCap": 225894.109275,
       "asOf": {
         "price": "2026-08-25",
@@ -49130,7 +49130,7 @@
       "ticker": "LITE",
       "name": "루멘텀 홀딩스",
       "sector": "Communications Equipment, NEC",
-      "price": 831.16,
+      "price": 849.0,
       "marketCap": 74466.249,
       "asOf": {
         "price": "2026-08-25",
@@ -49413,7 +49413,7 @@
       "ticker": "LMT",
       "name": "록히드 마틴",
       "sector": "Guided Missiles & Space Vehicles & Parts",
-      "price": 564.14,
+      "price": 564.8,
       "marketCap": 130198.295397,
       "asOf": {
         "price": "2026-08-25",
@@ -49954,7 +49954,7 @@
       "ticker": "LOW",
       "name": "로우스",
       "sector": "Retail-Lumber & Other Building Materials Dealers",
-      "price": 216.99,
+      "price": 216.98,
       "marketCap": 121662.213756,
       "asOf": {
         "price": "2026-08-25",
@@ -50237,7 +50237,7 @@
       "ticker": "LRCX",
       "name": "램 리서치",
       "sector": "Special Industry Machinery, NEC",
-      "price": 310.41,
+      "price": 316.01,
       "marketCap": 388122.23457,
       "asOf": {
         "price": "2026-08-25",
@@ -50521,7 +50521,7 @@
       "ticker": "LULU",
       "name": "룰루레몬",
       "sector": "Apparel & Other Finishd Prods of  Fabrics & Similar Matl",
-      "price": 122.96,
+      "price": 123.1,
       "marketCap": 13314.01236,
       "asOf": {
         "price": "2026-08-25",
@@ -50799,7 +50799,7 @@
       "ticker": "LUV",
       "name": "사우스웨스트 항공",
       "sector": "Air Transportation, Scheduled",
-      "price": 40.49,
+      "price": 40.52,
       "marketCap": 19915.665863,
       "asOf": {
         "price": "2026-08-25",
@@ -51082,7 +51082,7 @@
       "ticker": "LVS",
       "name": "라스베이거스 샌즈",
       "sector": "Hotels & Motels",
-      "price": 46.97,
+      "price": 47.11,
       "marketCap": 30422.524612,
       "asOf": {
         "price": "2026-08-25",
@@ -51932,7 +51932,7 @@
       "ticker": "MA",
       "name": "마스터카드",
       "sector": "Services-Business Services, NEC",
-      "price": 599.99,
+      "price": 599.83,
       "marketCap": 525483.322608,
       "asOf": {
         "price": "2026-08-25",
@@ -52216,7 +52216,7 @@
       "ticker": "MAR",
       "name": "메리어트",
       "sector": "Hotels & Motels",
-      "price": 357.28,
+      "price": 358.79,
       "marketCap": 93928.016938,
       "asOf": {
         "price": "2026-08-25",
@@ -52782,7 +52782,7 @@
       "ticker": "MCD",
       "name": "맥도날드",
       "sector": "Retail-Eating  Places",
-      "price": 272.61,
+      "price": 272.68,
       "marketCap": 192860.622859,
       "asOf": {
         "price": "2026-08-25",
@@ -53065,7 +53065,7 @@
       "ticker": "MCHP",
       "name": "마이크로칩 테크놀로지",
       "sector": "Semiconductors & Related Devices",
-      "price": 74.39,
+      "price": 75.1,
       "marketCap": 40296.674959,
       "asOf": {
         "price": "2026-08-25",
@@ -53347,7 +53347,7 @@
       "ticker": "MCK",
       "name": "매케슨",
       "sector": "Wholesale-Drugs, Proprietaries & Druggists' Sundries",
-      "price": 873.79,
+      "price": 874.23,
       "marketCap": 101875.493286,
       "asOf": {
         "price": "2026-08-25",
@@ -53631,7 +53631,7 @@
       "ticker": "MCO",
       "name": "무디스",
       "sector": "Services-Consumer Credit Reporting, Collection Agencies",
-      "price": 513.67,
+      "price": 510.01,
       "marketCap": 88565.82,
       "asOf": {
         "price": "2026-08-25",
@@ -54198,7 +54198,7 @@
       "ticker": "MDT",
       "name": "메드트로닉",
       "sector": "Electromedical & Electrotherapeutic Apparatus",
-      "price": 93.0,
+      "price": 93.2,
       "marketCap": 118910.221987,
       "asOf": {
         "price": "2026-08-25",
@@ -54481,7 +54481,7 @@
       "ticker": "MELI",
       "name": "메르카도리브레",
       "sector": "Services-Business Services, NEC",
-      "price": 1950.12,
+      "price": 1954.03,
       "marketCap": 98752.300616,
       "asOf": {
         "price": "2026-08-25",
@@ -54765,7 +54765,7 @@
       "ticker": "META",
       "name": "메타",
       "sector": "Services-Computer Programming, Data Processing, Etc.",
-      "price": 561.16,
+      "price": 560.9,
       "marketCap": 1424106.9299,
       "asOf": {
         "price": "2026-08-25",
@@ -55333,7 +55333,7 @@
       "ticker": "MKC",
       "name": "매코믹 앤 컴퍼니",
       "sector": "Miscellaneous Food Preparations & Kindred Products",
-      "price": 56.2,
+      "price": 56.44,
       "marketCap": 15109.457222,
       "asOf": {
         "price": "2026-08-25",
@@ -55897,7 +55897,7 @@
       "ticker": "MMM",
       "name": "3M",
       "sector": "Surgical & Medical Instruments & Apparatus",
-      "price": 178.78,
+      "price": 179.01,
       "marketCap": 92319.469867,
       "asOf": {
         "price": "2026-08-25",
@@ -56181,7 +56181,7 @@
       "ticker": "MNST",
       "name": "몬스터 베버리지",
       "sector": "Bottled & Canned Soft Drinks & Carbonated Waters",
-      "price": 48.96,
+      "price": 48.81,
       "marketCap": 143755.362218,
       "asOf": {
         "price": "2026-08-25",
@@ -56459,7 +56459,7 @@
       "ticker": "MO",
       "name": "알트리아 그룹",
       "sector": "Cigarettes",
-      "price": 68.47,
+      "price": 68.38,
       "marketCap": 114327.366613,
       "asOf": {
         "price": "2026-08-25",
@@ -57026,7 +57026,7 @@
       "ticker": "MPC",
       "name": "마라톤 페트롤리움",
       "sector": "Petroleum Refining",
-      "price": 362.52,
+      "price": 363.0,
       "marketCap": 101804.593083,
       "asOf": {
         "price": "2026-08-25",
@@ -57310,7 +57310,7 @@
       "ticker": "MPWR",
       "name": "모놀리식 파워 시스템",
       "sector": "Semiconductors & Related Devices",
-      "price": 1294.0,
+      "price": 1308.02,
       "marketCap": 63150.22929,
       "asOf": {
         "price": "2026-08-25",
@@ -57588,7 +57588,7 @@
       "ticker": "MRK",
       "name": "머크",
       "sector": "Pharmaceutical Preparations",
-      "price": 150.6,
+      "price": 150.51,
       "marketCap": 371704.078981,
       "asOf": {
         "price": "2026-08-25",
@@ -57870,7 +57870,7 @@
       "ticker": "MRNA",
       "name": "모더나",
       "sector": "Biological Products, (No Diagnostic Substances)",
-      "price": 137.2,
+      "price": 140.32,
       "marketCap": 55449.872623,
       "asOf": {
         "price": "2026-08-25",
@@ -58148,7 +58148,7 @@
       "ticker": "MRVL",
       "name": "마벨 테크놀로지",
       "sector": "Semiconductors & Related Devices",
-      "price": 229.52,
+      "price": 234.68,
       "marketCap": 200804.48313,
       "asOf": {
         "price": "2026-08-25",
@@ -58714,7 +58714,7 @@
       "ticker": "MSFT",
       "name": "마이크로소프트",
       "sector": "Services-Prepackaged Software",
-      "price": 486.66,
+      "price": 486.3,
       "marketCap": 3618542.573219,
       "asOf": {
         "price": "2026-08-25",
@@ -59281,7 +59281,7 @@
       "ticker": "MSTR",
       "name": "스트래티지",
       "sector": "Finance Services",
-      "price": 126.16,
+      "price": 126.88,
       "marketCap": 47117.603845,
       "asOf": {
         "price": "2026-08-25",
@@ -59733,7 +59733,7 @@
       "ticker": "MU",
       "name": "마이크론 테크놀로지",
       "sector": "Semiconductors & Related Devices",
-      "price": 907.97,
+      "price": 926.5,
       "marketCap": 1028233.406465,
       "asOf": {
         "price": "2026-08-25",
@@ -60016,7 +60016,7 @@
       "ticker": "NDAQ",
       "name": "나스닥",
       "sector": "Security & Commodity Brokers, Dealers, Exchanges & Services",
-      "price": 98.79,
+      "price": 98.78,
       "marketCap": 55221.37458,
       "asOf": {
         "price": "2026-08-25",
@@ -60384,7 +60384,7 @@
       "ticker": "NEM",
       "name": "뉴몬트",
       "sector": "Gold and Silver Ores",
-      "price": 131.36,
+      "price": 131.76,
       "marketCap": 138918.789009,
       "asOf": {
         "price": "2026-08-25",
@@ -60668,7 +60668,7 @@
       "ticker": "NFLX",
       "name": "넷플릭스",
       "sector": "Services-Video Tape Rental",
-      "price": 79.95,
+      "price": 80.0,
       "marketCap": 333156.813477,
       "asOf": {
         "price": "2026-08-25",
@@ -60946,7 +60946,7 @@
       "ticker": "NI",
       "name": "나이소스",
       "sector": "Electric & Other Services Combined",
-      "price": 40.83,
+      "price": 40.8,
       "marketCap": 19580.438883,
       "asOf": {
         "price": "2026-08-25",
@@ -61205,7 +61205,7 @@
       "ticker": "NKE",
       "name": "나이키",
       "sector": "Rubber & Plastics Footwear",
-      "price": 40.79,
+      "price": 40.83,
       "marketCap": 60452.572147,
       "asOf": {
         "price": "2026-08-25",
@@ -61489,7 +61489,7 @@
       "ticker": "NOC",
       "name": "노스롭 그루먼",
       "sector": "Search, Detection, Navigation, Guidance, Aeronautical Sys",
-      "price": 549.28,
+      "price": 548.27,
       "marketCap": 78032.378921,
       "asOf": {
         "price": "2026-08-25",
@@ -61772,7 +61772,7 @@
       "ticker": "NOW",
       "name": "서비스나우",
       "sector": "Services-Prepackaged Software",
-      "price": 127.39,
+      "price": 127.44,
       "marketCap": 132403.7,
       "asOf": {
         "price": "2026-08-25",
@@ -62050,7 +62050,7 @@
       "ticker": "NRG",
       "name": "NRG 에너지",
       "sector": "Electric Services",
-      "price": 112.2,
+      "price": 112.6,
       "marketCap": 23497.32779,
       "asOf": {
         "price": "2026-08-25",
@@ -62592,7 +62592,7 @@
       "ticker": "NTAP",
       "name": "넷앱",
       "sector": "Computer Storage Devices",
-      "price": 187.28,
+      "price": 186.69,
       "marketCap": 36668.334758,
       "asOf": {
         "price": "2026-08-25",
@@ -62959,7 +62959,7 @@
       "ticker": "NUE",
       "name": "뉴코",
       "sector": "Steel Works, Blast Furnaces & Rolling Mills (Coke Ovens)",
-      "price": 244.64,
+      "price": 246.63,
       "marketCap": 55502.865377,
       "asOf": {
         "price": "2026-08-25",
@@ -63243,7 +63243,7 @@
       "ticker": "NVDA",
       "name": "엔비디아",
       "sector": "Semiconductors & Related Devices",
-      "price": 209.15,
+      "price": 210.44,
       "marketCap": 5045216.0,
       "asOf": {
         "price": "2026-08-25",
@@ -63527,7 +63527,7 @@
       "ticker": "NXPI",
       "name": "NXP 세미컨덕터스",
       "sector": "Semiconductors & Related Devices",
-      "price": 223.53,
+      "price": 224.99,
       "marketCap": 56091.398865,
       "asOf": {
         "price": "2026-08-25",
@@ -63810,7 +63810,7 @@
       "ticker": "O",
       "name": "리얼티 인컴",
       "sector": "Real Estate Investment Trusts",
-      "price": 63.18,
+      "price": 63.14,
       "marketCap": 59772.593145,
       "asOf": {
         "price": "2026-08-25",
@@ -63894,7 +63894,7 @@
       "ticker": "OKE",
       "name": "원오크",
       "sector": "Natural Gas Transmisison & Distribution",
-      "price": 93.02,
+      "price": 93.61,
       "marketCap": 58636.986424,
       "asOf": {
         "price": "2026-08-25",
@@ -64436,7 +64436,7 @@
       "ticker": "ON",
       "name": "온 세미컨덕터",
       "sector": "Semiconductors & Related Devices",
-      "price": 72.21,
+      "price": 72.95,
       "marketCap": 28003.192092,
       "asOf": {
         "price": "2026-08-25",
@@ -64719,7 +64719,7 @@
       "ticker": "ORCL",
       "name": "오라클",
       "sector": "Services-Prepackaged Software",
-      "price": 142.55,
+      "price": 143.28,
       "marketCap": 410323.09395,
       "asOf": {
         "price": "2026-08-25",
@@ -65280,7 +65280,7 @@
       "ticker": "OTIS",
       "name": "오티스 월드와이드",
       "sector": "Electronic & Other Electrical Equipment (No Computer Equip)",
-      "price": 72.19,
+      "price": 72.98,
       "marketCap": 27480.519582,
       "asOf": {
         "price": "2026-08-25",
@@ -65564,7 +65564,7 @@
       "ticker": "OXY",
       "name": "옥시덴탈 페트롤리움",
       "sector": "Crude Petroleum & Natural Gas",
-      "price": 60.19,
+      "price": 59.9,
       "marketCap": 60088.202371,
       "asOf": {
         "price": "2026-08-25",
@@ -65848,7 +65848,7 @@
       "ticker": "PANW",
       "name": "팰로 앨토 네트웍스",
       "sector": "Computer Peripheral Equipment, NEC",
-      "price": 350.89,
+      "price": 351.67,
       "marketCap": 285983.5,
       "asOf": {
         "price": "2026-08-25",
@@ -66126,7 +66126,7 @@
       "ticker": "PAYX",
       "name": "페이첵스",
       "sector": "Services-Engineering, Accounting, Research, Management",
-      "price": 126.01,
+      "price": 125.15,
       "marketCap": 44819.597189,
       "asOf": {
         "price": "2026-08-25",
@@ -66408,7 +66408,7 @@
       "ticker": "PCG",
       "name": "PG&E",
       "sector": "Electric & Other Services Combined",
-      "price": 18.11,
+      "price": 18.09,
       "marketCap": 48536.801083,
       "asOf": {
         "price": "2026-08-25",
@@ -66924,7 +66924,7 @@
       "ticker": "PEP",
       "name": "펩시코",
       "sector": "Beverages",
-      "price": 144.95,
+      "price": 144.61,
       "marketCap": 197458.861696,
       "asOf": {
         "price": "2026-08-25",
@@ -67207,7 +67207,7 @@
       "ticker": "PFE",
       "name": "화이자",
       "sector": "Pharmaceutical Preparations",
-      "price": 27.98,
+      "price": 27.95,
       "marketCap": 159419.870284,
       "asOf": {
         "price": "2026-08-25",
@@ -67489,7 +67489,7 @@
       "ticker": "PG",
       "name": "P&G",
       "sector": "Soap, Detergents, Cleang Preparations, Perfumes, Cosmetics",
-      "price": 146.59,
+      "price": 146.82,
       "marketCap": 340761.886596,
       "asOf": {
         "price": "2026-08-25",
@@ -67772,7 +67772,7 @@
       "ticker": "PGR",
       "name": "프로그레시브",
       "sector": "Fire, Marine & Casualty Insurance",
-      "price": 223.92,
+      "price": 223.18,
       "marketCap": 130180.766738,
       "asOf": {
         "price": "2026-08-25",
@@ -68508,7 +68508,7 @@
       "ticker": "PLTR",
       "name": "팔란티어",
       "sector": "Services-Prepackaged Software",
-      "price": 175.19,
+      "price": 176.02,
       "marketCap": 422497.186597,
       "asOf": {
         "price": "2026-08-25",
@@ -68786,7 +68786,7 @@
       "ticker": "PM",
       "name": "필립 모리스 인터내셔널",
       "sector": "Cigarettes",
-      "price": 191.46,
+      "price": 190.86,
       "marketCap": 298412.129031,
       "asOf": {
         "price": "2026-08-25",
@@ -70238,7 +70238,7 @@
       "ticker": "PRU",
       "name": "푸르덴셜 파이낸셜",
       "sector": "Life Insurance",
-      "price": 122.67,
+      "price": 122.62,
       "marketCap": 42321.15,
       "asOf": {
         "price": "2026-08-25",
@@ -70605,7 +70605,7 @@
       "ticker": "PWR",
       "name": "콴타 서비시스",
       "sector": "Electrical Work",
-      "price": 617.99,
+      "price": 621.2,
       "marketCap": 90870.061092,
       "asOf": {
         "price": "2026-08-25",
@@ -70888,7 +70888,7 @@
       "ticker": "PYPL",
       "name": "페이팔",
       "sector": "Services-Business Services, NEC",
-      "price": 61.56,
+      "price": 61.61,
       "marketCap": 52764.826708,
       "asOf": {
         "price": "2026-08-25",
@@ -71166,7 +71166,7 @@
       "ticker": "QCOM",
       "name": "퀄컴",
       "sector": "Radio & Tv Broadcasting & Communications Equipment",
-      "price": 158.6,
+      "price": 159.7,
       "marketCap": 166493.583496,
       "asOf": {
         "price": "2026-08-25",
@@ -72010,7 +72010,7 @@
       "ticker": "RKLB",
       "name": "로켓 랩",
       "sector": "Guided Missiles & Space Vehicles & Parts",
-      "price": 68.47,
+      "price": 69.13,
       "marketCap": 40862.830979,
       "asOf": {
         "price": "2026-08-25",
@@ -72857,7 +72857,7 @@
       "ticker": "ROL",
       "name": "롤린스",
       "sector": "Services-To Dwellings & Other Buildings",
-      "price": 37.26,
+      "price": 37.2,
       "marketCap": 17927.477753,
       "asOf": {
         "price": "2026-08-25",
@@ -73140,7 +73140,7 @@
       "ticker": "ROP",
       "name": "로퍼 테크놀로지스",
       "sector": "Industrial Instruments For Measurement, Display, and Control",
-      "price": 415.51,
+      "price": 415.61,
       "marketCap": 41094.302156,
       "asOf": {
         "price": "2026-08-25",
@@ -73683,7 +73683,7 @@
       "ticker": "RTX",
       "name": "RTX",
       "sector": "Aircraft Engines & Engine Parts",
-      "price": 209.56,
+      "price": 209.1,
       "marketCap": 281977.958888,
       "asOf": {
         "price": "2026-08-25",
@@ -74333,7 +74333,7 @@
       "ticker": "SBUX",
       "name": "스타벅스",
       "sector": "Retail-Eating & Drinking Places",
-      "price": 107.5,
+      "price": 107.41,
       "marketCap": 122538.6,
       "asOf": {
         "price": "2026-08-25",
@@ -74617,7 +74617,7 @@
       "ticker": "SCHW",
       "name": "찰스 슈왑",
       "sector": "Security Brokers, Dealers & Flotation Companies",
-      "price": 113.8,
+      "price": 113.6,
       "marketCap": 196539.003896,
       "asOf": {
         "price": "2026-08-25",
@@ -74701,7 +74701,7 @@
       "ticker": "SMCI",
       "name": "슈퍼 마이크로 컴퓨터",
       "sector": "Electronic Computers",
-      "price": 35.12,
+      "price": 35.55,
       "marketCap": 22749.094699,
       "asOf": {
         "price": "2026-08-25",
@@ -74985,7 +74985,7 @@
       "ticker": "SNPS",
       "name": "시놉시스",
       "sector": "Services-Prepackaged Software",
-      "price": 395.03,
+      "price": 397.29,
       "marketCap": 75540.508506,
       "asOf": {
         "price": "2026-08-25",
@@ -75611,7 +75611,7 @@
       "ticker": "SPGI",
       "name": "S&P 글로벌",
       "sector": "Services-Consumer Credit Reporting, Collection Agencies",
-      "price": 435.42,
+      "price": 436.01,
       "marketCap": 128361.816,
       "asOf": {
         "price": "2026-08-25",
@@ -75895,7 +75895,7 @@
       "ticker": "SRE",
       "name": "셈프라",
       "sector": "Gas & Other Services Combined",
-      "price": 84.4,
+      "price": 84.43,
       "marketCap": 55300.35243,
       "asOf": {
         "price": "2026-08-25",
@@ -76436,7 +76436,7 @@
       "ticker": "STLD",
       "name": "스틸 다이내믹스",
       "sector": "Steel Works, Blast Furnaces & Rolling Mills (Coke Ovens)",
-      "price": 229.27,
+      "price": 231.57,
       "marketCap": 32860.830736,
       "asOf": {
         "price": "2026-08-25",
@@ -76803,7 +76803,7 @@
       "ticker": "STX",
       "name": "씨게이트",
       "sector": "Computer Storage Devices",
-      "price": 793.65,
+      "price": 807.71,
       "marketCap": 180103.066229,
       "asOf": {
         "price": "2026-08-25",
@@ -77370,7 +77370,7 @@
       "ticker": "SWKS",
       "name": "스카이웍스 솔루션즈",
       "sector": "Semiconductors & Related Devices",
-      "price": 66.86,
+      "price": 67.3,
       "marketCap": 10060.610205,
       "asOf": {
         "price": "2026-08-25",
@@ -78222,7 +78222,7 @@
       "ticker": "T",
       "name": "AT&T",
       "sector": "Telephone Communications (No Radiotelephone)",
-      "price": 25.68,
+      "price": 25.65,
       "marketCap": 176037.787349,
       "asOf": {
         "price": "2026-08-25",
@@ -79916,7 +79916,7 @@
       "ticker": "TER",
       "name": "테라다인",
       "sector": "Instruments For Meas & Testing of  Electricity & Elec Signals",
-      "price": 365.6,
+      "price": 372.02,
       "marketCap": 57048.739675,
       "asOf": {
         "price": "2026-08-25",
@@ -80194,7 +80194,7 @@
       "ticker": "TGT",
       "name": "타겟",
       "sector": "Retail-Variety Stores",
-      "price": 169.75,
+      "price": 169.59,
       "marketCap": 77162.528018,
       "asOf": {
         "price": "2026-08-25",
@@ -80760,7 +80760,7 @@
       "ticker": "TMUS",
       "name": "T 모바일",
       "sector": "Radiotelephone Communications",
-      "price": 182.9,
+      "price": 182.24,
       "marketCap": 195891.289966,
       "asOf": {
         "price": "2026-08-25",
@@ -81043,7 +81043,7 @@
       "ticker": "TPL",
       "name": "텍사스 퍼시픽 랜드",
       "sector": "Oil Royalty Traders",
-      "price": 373.45,
+      "price": 373.0,
       "marketCap": 25758.595366,
       "asOf": {
         "price": "2026-08-25",
@@ -82319,7 +82319,7 @@
       "ticker": "TSLA",
       "name": "테슬라",
       "sector": "Motor Vehicles & Passenger Car Bodies",
-      "price": 349.43,
+      "price": 351.4,
       "marketCap": 1378194.563136,
       "asOf": {
         "price": "2026-08-25",
@@ -83168,7 +83168,7 @@
       "ticker": "TTD",
       "name": "트레이드 데스크",
       "sector": "Services-Computer Programming, Data Processing, Etc.",
-      "price": 13.21,
+      "price": 13.2,
       "marketCap": 6235.310174,
       "asOf": {
         "price": "2026-08-25",
@@ -83446,7 +83446,7 @@
       "ticker": "TTWO",
       "name": "테이크 투 인터랙티브 소프트웨어",
       "sector": "Services-Prepackaged Software",
-      "price": 235.24,
+      "price": 234.93,
       "marketCap": 43659.933441,
       "asOf": {
         "price": "2026-08-25",
@@ -83729,7 +83729,7 @@
       "ticker": "TXN",
       "name": "텍사스 인스트루먼츠",
       "sector": "Semiconductors & Related Devices",
-      "price": 259.55,
+      "price": 260.94,
       "marketCap": 236476.355813,
       "asOf": {
         "price": "2026-08-25",
@@ -84296,7 +84296,7 @@
       "ticker": "UAL",
       "name": "유나이티드 항공",
       "sector": "Air Transportation, Scheduled",
-      "price": 113.54,
+      "price": 113.96,
       "marketCap": 36862.978986,
       "asOf": {
         "price": "2026-08-25",
@@ -84580,7 +84580,7 @@
       "ticker": "UBER",
       "name": "우버",
       "sector": "Services-Business Services, NEC",
-      "price": 79.4,
+      "price": 79.44,
       "marketCap": 161954.591994,
       "asOf": {
         "price": "2026-08-25",
@@ -85232,7 +85232,7 @@
       "ticker": "ULTA",
       "name": "울타 뷰티",
       "sector": "Retail-Retail Stores, NEC",
-      "price": 538.76,
+      "price": 539.0,
       "marketCap": 23160.921194,
       "asOf": {
         "price": "2026-08-25",
@@ -85510,7 +85510,7 @@
       "ticker": "UNH",
       "name": "유나이티드헬스 그룹",
       "sector": "Hospital & Medical Service Plans",
-      "price": 398.02,
+      "price": 398.17,
       "marketCap": 357924.92119,
       "asOf": {
         "price": "2026-08-25",
@@ -85878,7 +85878,7 @@
       "ticker": "UPS",
       "name": "유나이티드 파셀 서비스",
       "sector": "Trucking & Courier Services (No Air)",
-      "price": 102.64,
+      "price": 102.87,
       "marketCap": 87392.284103,
       "asOf": {
         "price": "2026-08-25",
@@ -86246,7 +86246,7 @@
       "ticker": "V",
       "name": "비자",
       "sector": "Services-Business Services, NEC",
-      "price": 381.9,
+      "price": 382.69,
       "marketCap": 683273.065592,
       "asOf": {
         "price": "2026-08-25",
@@ -87096,7 +87096,7 @@
       "ticker": "VRT",
       "name": "버티브 홀딩스",
       "sector": "Electronic Components, NEC",
-      "price": 255.07,
+      "price": 258.2,
       "marketCap": 98160.43447,
       "asOf": {
         "price": "2026-08-25",
@@ -87658,7 +87658,7 @@
       "ticker": "VST",
       "name": "비스트라 에너지",
       "sector": "Electric Services",
-      "price": 136.8,
+      "price": 137.37,
       "marketCap": 45532.270554,
       "asOf": {
         "price": "2026-08-25",
@@ -88280,7 +88280,7 @@
       "ticker": "VZ",
       "name": "버라이즌",
       "sector": "Telephone Communications (No Radiotelephone)",
-      "price": 50.16,
+      "price": 50.01,
       "marketCap": 208361.97638,
       "asOf": {
         "price": "2026-08-25",
@@ -89414,7 +89414,7 @@
       "ticker": "WDAY",
       "name": "워크데이",
       "sector": "Services-Computer Processing & Data Preparation",
-      "price": 199.02,
+      "price": 199.0,
       "marketCap": 49190.05,
       "asOf": {
         "price": "2026-08-25",
@@ -89692,7 +89692,7 @@
       "ticker": "WDC",
       "name": "웨스턴 디지털",
       "sector": "Computer Storage Devices",
-      "price": 434.97,
+      "price": 443.27,
       "marketCap": 156972.316199,
       "asOf": {
         "price": "2026-08-25",
@@ -89976,7 +89976,7 @@
       "ticker": "WM",
       "name": "웨이스트 매니지먼트",
       "sector": "Refuse Systems",
-      "price": 226.32,
+      "price": 226.39,
       "marketCap": 90519.500569,
       "asOf": {
         "price": "2026-08-25",
@@ -90493,7 +90493,7 @@
       "ticker": "WMT",
       "name": "월마트",
       "sector": "Retail-Variety Stores",
-      "price": 106.29,
+      "price": 106.2,
       "marketCap": 847455.849216,
       "asOf": {
         "price": "2026-08-25",
@@ -91872,7 +91872,7 @@
       "ticker": "XYZ",
       "name": "블록",
       "sector": "Services-Prepackaged Software",
-      "price": 81.58,
+      "price": 81.85,
       "marketCap": 48892.6971,
       "asOf": {
         "price": "2026-08-25",
@@ -92150,7 +92150,7 @@
       "ticker": "YUM",
       "name": "염 브랜즈",
       "sector": "Retail-Eating  Places",
-      "price": 158.04,
+      "price": 157.6,
       "marketCap": 42940.985725,
       "asOf": {
         "price": "2026-08-25",
@@ -93000,7 +93000,7 @@
       "ticker": "ZTS",
       "name": "조에티스",
       "sector": "Pharmaceutical Preparations",
-      "price": 77.28,
+      "price": 77.1,
       "marketCap": 31888.465366,
       "asOf": {
         "price": "2026-08-25",
