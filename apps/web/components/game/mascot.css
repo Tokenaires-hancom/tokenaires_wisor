@@ -1,4 +1,4 @@
-/* 퀴즈 마스코트 + XP 팝. 애니메이션 WebP는 <img>로 자동 재생된다. */
+/* 퀴즈 마스코트 + 정답 효과. 애니메이션 WebP는 <img>로 자동 재생된다. */
 .duo-mascot {
   display: flex;
   justify-content: center;
@@ -6,10 +6,25 @@
   margin-bottom: 0.5rem;
 }
 .duo-mascot img {
-  width: 120px;
-  height: 120px;
+  width: 132px;
+  height: 132px;
   object-fit: contain;
+  animation: duo-in 0.45s cubic-bezier(0.2, 1.4, 0.4, 1);
 }
+/* 정답이면 살짝 더 통통 튀며 등장 */
+.duo-mascot[data-state="correct"] img {
+  animation: duo-pop 0.55s cubic-bezier(0.2, 1.5, 0.35, 1);
+}
+@keyframes duo-in {
+  0% { transform: translateY(8px) scale(0.9); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+@keyframes duo-pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  55% { transform: scale(1.18); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
 .duo-xppop {
   position: absolute;
   top: 0;
@@ -26,4 +41,27 @@
   0% { opacity: 0; transform: translate(-50%, 10px) scale(0.7); }
   30% { opacity: 1; transform: translate(-50%, 0) scale(1.1); }
   100% { opacity: 0; transform: translate(-50%, -26px) scale(1); }
+}
+
+/* 정답 반짝임 버스트 — 마스코트 뒤에서 사방으로 튄다 */
+.duo-spark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ochre);
+  pointer-events: none;
+  animation: duo-spark 0.7s ease-out forwards;
+}
+.duo-spark:nth-child(2) { background: var(--wine); }
+.duo-spark:nth-child(4) { background: var(--wine); }
+.duo-spark:nth-child(6) { background: var(--wine); }
+@keyframes duo-spark {
+  0% { transform: translate(-50%, -50%) scale(0.4); opacity: 1; }
+  100% {
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1);
+    opacity: 0;
+  }
 }
