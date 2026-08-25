@@ -78,7 +78,7 @@
 | 해설 버튼 | `PersonaChatFab`은 `app/layout.tsx`에 **전역 마운트**돼 있어 어느 화면에서든 뜹니다. 경로에서 티커를, `?style=`에서 모델을 읽습니다 |
 | 예열 | 마운트 시 `getHealth()`를 한 번 던져, 사용자가 본문을 읽는 동안 챗봇 서버가 깨어납니다 |
 | 질문 전송 | 프론트는 `{ticker, persona}`만 보냅니다. 지표 값은 서버가 `scores.json`에서 직접 읽습니다 |
-| 노트 저장 | `lib/store.ts`의 `saveNote()` → localStorage. `study_note_saved` 이벤트 |
+| 노트 저장 | `lib/store.ts`의 `saveNote()` → 비회원은 임시 localStorage, 회원은 Supabase `study_notes` |
 
 **끝나는 지점**
 
@@ -292,8 +292,10 @@ AAPL 화면에서 사용자가 보는 것은 **8개 기준 중 7개가 판정됐
 재무데이터 전체가 이 화면 때문에 브라우저로 나가지 않도록 한 경계입니다.
 
 `MyLearning`이 마운트되면서 `getProgress` · `getWatchlist` · `getNotes` · `dueJournalEntries`를
-모두 localStorage에서 읽습니다. `dueJournalEntries(afterDays = 90)`는 `isDue()`로
-기록 시각이 90일 경계를 지났는지 판정합니다.
+`lib/store.ts`에서 읽습니다. 비회원은 브라우저 임시 기록, 회원은 사용자별 RLS가 적용된
+Supabase 기록을 사용합니다. 인증 직후 임시 기록은 계정 기록과 병합되고 성공 후 로컬에서
+제거됩니다. `dueJournalEntries(afterDays = 90)`는 `isDue()`로 기록 시각이 90일 경계를
+지났는지 판정합니다.
 
 학습노트 상태는 다섯 가지입니다 — `처음 확인` · `추가 조사 필요` · `학습 완료` · `관찰 중` · `관심 제외`.
 전부 학습 진행 상태이고 보유·매매 상태가 아닙니다.
@@ -305,7 +307,7 @@ AAPL 화면에서 사용자가 보는 것은 **8개 기준 중 7개가 판정됐
 
 **막히는 지점**
 
-- 전부 localStorage입니다. **기기나 브라우저를 바꾸면 진도·노트·관심종목이 전부 사라집니다.** 시크릿 모드도 마찬가지입니다(§4 참고).
+- 비회원 임시 기록은 현재 브라우저에만 있습니다. 가입하거나 로그인해야 다른 기기에서 이어집니다.
 - 90일 재노출은 사용자가 `/me`에 들어와야만 계산됩니다. 들어오지 않으면 영원히 뜨지 않습니다.
 
 ---
@@ -344,9 +346,7 @@ AAPL 화면에서 사용자가 보는 것은 **8개 기준 중 7개가 판정됐
 
 | 성립하지 않는 흐름 | 왜 | 근거 |
 |---|---|---|
-| 휴대폰에서 보던 진도를 노트북에서 이어본다 | 저장이 localStorage뿐입니다. Supabase는 **스키마만 있고 앱에 연결되지 않았습니다** | `apps/web/lib/store.ts`, `supabase/schema.sql` |
 | 3개월 뒤 "그때 이렇게 답했습니다" 알림을 받는다 | `dueJournalEntries(afterDays = 90)`는 `/me`를 열었을 때만 계산됩니다. 푸시·메일·배지가 없습니다 | `apps/web/lib/store.ts`, `apps/web/lib/journalDue.ts` |
-| 로그인하고 내 학습을 계정에 묶는다 | 계정 개념 자체가 없습니다 | 앱 전체 |
 | 종목명을 검색해 바로 상세로 간다 | 웹 화면에 검색 입력이 없습니다. 종목 검색은 **해설 챗봇 안에만** 있습니다(`searchCompanies`) | `apps/web/components/PersonaChatFab.tsx` |
 | 관심종목 점수가 바뀌면 알려준다 | 점수는 배치가 커밋해야 바뀌고, 화면은 빌드 시점 정적입니다. 변화 감지 주체가 없습니다 | `docs/system-design.md` §4.2 |
 | 시장 심리를 과거와 비교해 본다 | 2026-08-18에 화면·데이터·수집기가 모두 제거됐습니다 | `docs/HANDOFF.md` |
