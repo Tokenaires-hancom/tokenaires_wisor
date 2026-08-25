@@ -12,7 +12,7 @@ Wisor는 **파이썬 배치가 만든 JSON 하나를 Next.js가 빌드 시점에
 런타임에 살아 움직이는 부분은 해설 챗봇 API 하나뿐입니다.
 
 이 한 문장이 아래 모든 설계 판단의 이유입니다. 재무데이터가 브라우저로 나가지 않는 것도,
-점수가 바뀌려면 커밋이 필요한 것도, 사용자 데이터가 아직 브라우저에만 있는 것도 여기서 나옵니다.
+점수가 바뀌려면 커밋이 필요한 것과, 비회원 기록이 인증 뒤 계정 데이터로 병합되는 방식도 여기서 나옵니다.
 
 ---
 
@@ -52,7 +52,7 @@ flowchart TB
 
     BROWSER(["브라우저"])
     LS[("localStorage")]
-    SB[("Supabase · 스키마만 존재")]
+    SB[("Supabase · 사용자 계정 데이터")]
 
     SEC --> PROV
     TOSS --> PROV
@@ -67,8 +67,10 @@ flowchart TB
     CLI --> BROWSER
     BROWSER -->|/api/persona/*| PS
     PS --> LLM --> SAFE
-    BROWSER --> STORE --> LS
-    STORE -. 교체 예정 .-> SB
+    BROWSER --> STORE
+    STORE -->|"비회원 임시 저장"| LS
+    STORE -->|"회원 RLS 저장"| SB
+    LS -->|"인증 시 병합 후 삭제"| SB
 ```
 
 ---
@@ -80,8 +82,8 @@ flowchart TB
 | 웹 | Node.js 23+ / Next.js 15 App Router | `apps/web/` | 화면 전체. 페이지가 전부 정적 생성 | 1번 |
 | 점수 배치 | Python 3.11+ | `data-pipeline/` | 재무 원천 → 지표 → 스타일 점수 → `scores.json` | 3번 |
 | 해설 챗봇 API | Python 3.11+ (표준 라이브러리 `ThreadingHTTPServer`) | `persona_explain/` | 대가 페르소나로 지표 해설. 세션은 메모리 | — |
-| 사용자 데이터 | 브라우저 localStorage | `apps/web/lib/store.ts` | 학습 진도·퀴즈·관심종목·학습노트 | 2번 |
-| 사용자 DB | PostgreSQL (Supabase) | `supabase/schema.sql` | **스키마만 작성. 앱 연결 미착수** | 2번 |
+| 사용자 데이터 | 브라우저 + Supabase | `apps/web/lib/store.ts` | 비회원 임시 저장, 회원 계정 저장과 자동 이전 | 2번 |
+| 사용자 DB | PostgreSQL (Supabase) | `supabase/schema.sql`, `supabase/migrations/` | 진도·퀴즈·관심종목·학습노트·기록형 답, 사용자별 RLS | 2번 |
 | PR 자동검사 | GitHub Actions | `.github/workflows/`, `scripts/pr_checks/` | 경계 검사·형식 검사·Claude 리뷰 2종 | 2번 |
 
 의존성은 웹이 `next`·`react`·`react-dom` 셋뿐이고, 배치는 표준 라이브러리 + `pytest`뿐입니다.
@@ -249,15 +251,18 @@ LLM 어댑터는 OpenAI 호환 엔드포인트를 부르는 `OpenAIAdapter`와, 
 ```mermaid
 flowchart LR
     C["컴포넌트 · WatchButton · MyLearning · Quiz"] -->|"전부 async"| S["lib/store.ts"]
-    S -->|"지금"| LS[("localStorage")]
-    S -.->|"함수 본문만 교체"| SB[("Supabase · schema.sql")]
+    S -->|"비회원"| LS[("localStorage · 임시 기록")]
+    S -->|"회원"| SB[("Supabase · RLS")]
+    LS -->|"인증 직후 병합"| SB
 ```
 
 **컴포넌트는 `localStorage`를 직접 부르지 않습니다.** 전부 `apps/web/lib/store.ts`를 거칩니다.
 
-`store.ts`의 함수는 전부 `Promise`를 돌려줍니다. localStorage는 동기지만 Supabase는
-비동기라서, 교체 시점에 모든 호출부를 열지 않도록 시그니처를 미리 맞춰 둔 것입니다.
-**편의상 동기로 되돌리면 그 준비가 무너집니다.**
+`store.ts`의 함수는 전부 `Promise`를 돌려줍니다. 로그인 전에는 기존 localStorage 키에
+임시 저장하고, 인증 직후 `import_learning_state` RPC가 계정의 기존 기록과 병합합니다.
+완료 챕터·관심 종목은 합집합, 퀴즈·노트·기록형 답은 더 최근 항목을 남깁니다. RPC가
+성공한 뒤에만 로컬 원본을 지우며, 이후 읽기·쓰기는 사용자별 RLS가 적용된 Supabase
+테이블을 사용합니다.
 
 `supabase/schema.sql`에 저장하는 것과 저장하지 않는 것이 명시돼 있습니다 —
 보유 수량·평가금액·증권사 정보는 스키마에 자리 자체가 없습니다.
@@ -378,21 +383,21 @@ flowchart TB
     DIFF -->|"예"| CM["scores.json 커밋"] --> RB["재빌드"]
     DIFF -->|"아니오"| SKIP["커밋 안 함"]
 
-    P1["pr-review.yml · 병합 가능 · 두 영역 테스트 · 경계 검사"]
-    P2["claude-rules-review.yml · 원칙·문구·경계 (판단)"]
-    P3["claude-quality-review.yml · 일반 코드 품질"]
-    P4["claude.yml · @claude 멘션 응답"]
+    P1["check.yml · 두 영역 테스트 · 빌드 · 타입 · 유출 검사 (사실)"]
+    P2["clean-check · push 전 로컬 · 클린 코드 5원칙 (판단)"]
 ```
 
-세 리뷰 레이어 전부 **병합을 막지 않습니다.** 브랜치 보호에 연결하지 않았고,
-사람이 코멘트를 보고 고칠지 정합니다. `docs/**`만 바뀐 PR은 `paths-ignore`로 건너뜁니다.
+**`check.yml`은 병합을 막습니다.** 브랜치 보호의 필수 상태 검사(`check`)로 등록돼
+있고, 기계가 판정하는 사실만 봅니다. `docs/**`만 바뀐 PR은 `paths-ignore`로 건너뜁니다.
 
-커밋 전 필수는 두 가지이고, **어느 영역을 고쳤든 전부 돌립니다.**
+**판단은 push 전 로컬에서 합니다.** `.claude/hooks/pre-push-check.sh`가 `git push`를
+한 번 막고 `clean-check`가 5원칙을 항목별로 판정합니다. **판정 결과는 아무것도 막지
+않습니다** — 사람이 보고 고칠지 정합니다. LLM 판단은 틀릴 수 있고 이 팀은 반박할
+수단이 없어서, 사실과 판단을 같은 곳에서 섞지 않습니다.
 
-```bash
-cd data-pipeline && python run_batch.py && pytest -q
-cd apps/web && npm run build
-```
+커밋 전 필수는 세 가지이고, **어느 영역을 고쳤든 전부 돌립니다.** 명령은 루트
+`CLAUDE.md`의 "명령" 절에 있습니다 — 여기 옮겨 적으면 한쪽만 고쳐집니다. `check.yml`이
+PR에서 같은 셋을 다시 돌립니다.
 
 ---
 
@@ -420,13 +425,10 @@ cd apps/web && npm run build
 서비스 이름·플랜은 URL에서 추론한 값이라 **Blueprint 동기화 전에 대조가 필요하고**,
 **main 병합 전에 Netlify 사이트의 자동 배포를 끊어야 합니다** ([배포 문서](./deploy.md)).
 
-아래 네 건은 **기록만 하고 고치지 않았습니다.**
+아래 한 건은 **기록만 하고 고치지 않았습니다.**
 
 | 항목 | 실제 | 저장소가 말하는 것 |
 |---|---|---|
-| `scores.yml` 유니버스 | 실데이터는 `--universe data/universe_us.json` 필요 | 워크플로 65행이 이 옵션 없이 부름 → 예시 12종목으로 돌게 됨. 이 워크플로가 만든 커밋이 아직 없어 드러나지 않음 |
-| 루트 `CLAUDE.md` "예시 데이터" | `dataSource`는 `sec-toss` | 손으로 만든 예시 데이터라고 기술 |
-| 루트 `CLAUDE.md` 커밋 전 명령 | `python run_batch.py`는 기본값이 `--provider sample` · `--universe universe_sample.json`이고 출력이 `scores.json` | **그대로 따르면 380종목 실데이터가 예시 12종목으로 덮입니다.** `scores.yml` 유니버스 문제와 같은 뿌리인데, 이쪽은 모든 기여자가 매번 돌리라고 안내된 명령이라 더 위험합니다 |
 | 점수 JSON ↔ 챗봇 지표 변환표 | `scores.json`에는 `magicFormulaRoc`가 있음 | `persona_explain/scores_source.py`의 변환표에 키가 없어 계약 테스트 1건 실패. 웹·배치에는 영향 없지만 해당 지표를 챗봇 앵커에 싣지 못함 |
 
 미결 작업.

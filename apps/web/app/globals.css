@@ -178,18 +178,18 @@ button {
   display: none;
 }
 
-.nav a {
+.nav a:not(.nav-account) {
   color: var(--ink-soft);
   padding-block: 0.35rem;
   border-bottom: 2px solid transparent;
   white-space: nowrap;
 }
 
-.nav a:hover {
+.nav a:not(.nav-account):hover {
   color: var(--ink);
 }
 
-.nav a[data-active="true"] {
+.nav a:not(.nav-account)[data-active="true"] {
   color: var(--wine);
   border-bottom-color: var(--wine);
 }
@@ -211,6 +211,308 @@ button {
   .nav {
     gap: 1.15rem;
     font-size: 0.9rem;
+  }
+}
+
+/* ---------- 마이페이지: 개인 학습 장부 ---------- */
+
+.my-page-shell {
+  display: grid;
+  grid-template-columns: 13.5rem minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 4.5rem);
+  padding-block: 3.5rem 5rem;
+}
+
+.my-page-sidebar {
+  align-self: start;
+  position: sticky;
+  top: calc(60px + 2rem);
+}
+
+.my-page-sidebar h1 {
+  margin: 0.25rem 0 1.8rem;
+  color: var(--ink);
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  line-height: 1.08;
+}
+
+.my-page-menu {
+  border-top: 1px solid var(--line-strong);
+}
+
+.my-page-menu a {
+  display: grid;
+  grid-template-columns: 1.6rem minmax(0, 1fr);
+  gap: 0.7rem;
+  padding: 1rem 0.8rem 1rem 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-soft);
+}
+
+.my-page-menu a[data-active="true"] {
+  border-left: 4px solid var(--gold);
+  padding-left: 0.75rem;
+  background: linear-gradient(90deg, var(--gold-soft), transparent 86%);
+  color: var(--ink);
+}
+
+.my-page-menu a:hover,
+.my-page-menu a:focus-visible {
+  background-color: var(--surface-sunk);
+  color: var(--ink);
+}
+
+.my-page-menu-index {
+  padding-top: 0.16rem;
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+}
+
+.my-page-menu strong,
+.my-page-menu small {
+  display: block;
+}
+
+.my-page-menu strong {
+  font-size: 0.95rem;
+}
+
+.my-page-menu small {
+  margin-top: 0.28rem;
+  color: var(--ink-faint);
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.my-page-content {
+  min-width: 0;
+}
+
+.my-page-anchor-marker,
+.my-page-anchor-section {
+  scroll-margin-top: 5.5rem;
+}
+
+.my-page-anchor-marker {
+  display: block;
+  height: 0;
+}
+
+.account-empty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.25rem;
+  border: 1px dashed var(--line-strong);
+  background: var(--surface-sunk);
+}
+
+.account-empty strong {
+  color: var(--ink);
+}
+
+.account-empty p {
+  margin: 0.35rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.86rem;
+}
+
+.account-settings-card {
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--gold);
+  background: var(--surface);
+}
+
+.account-settings-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.account-settings-facts > div {
+  min-width: 0;
+  padding: 0.2rem 1.25rem 1rem 0;
+}
+
+.account-settings-facts > div + div {
+  padding-left: 1.25rem;
+  border-left: 1px solid var(--line);
+}
+
+.account-settings-facts dt {
+  color: var(--ink-faint);
+  font-size: 0.72rem;
+}
+
+.account-settings-facts dd {
+  overflow-wrap: anywhere;
+  margin: 0.3rem 0 0;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.account-settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.account-storage-note {
+  margin: 1rem 0 0;
+  color: var(--ink-faint);
+  font-size: 0.76rem;
+  line-height: 1.6;
+}
+
+.account-danger-zone {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px dashed var(--line-strong);
+}
+
+.account-danger-zone > div:first-child {
+  max-width: 34rem;
+}
+
+.account-danger-zone > div:first-child > strong {
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+
+.account-danger-zone p {
+  margin: 0.35rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.account-delete-trigger,
+.account-delete-submit,
+.account-delete-cancel {
+  flex: none;
+  min-height: 2.35rem;
+  padding: 0.55rem 0.8rem;
+  border-radius: 7px;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.account-delete-trigger {
+  border: 1px solid var(--wine-line);
+  background: var(--surface);
+  color: var(--wine-deep);
+}
+
+.account-delete-confirmation {
+  width: min(100%, 21rem);
+  padding: 0.9rem;
+  border: 1px solid var(--wine-line);
+  background: var(--wine-soft);
+}
+
+.account-delete-confirmation label {
+  display: block;
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.account-delete-confirmation input {
+  width: 100%;
+  min-height: 2.45rem;
+  margin-top: 0.55rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+
+.account-delete-confirmation input:focus {
+  border-color: var(--gold-deep);
+  outline: 2px solid var(--gold-soft);
+}
+
+.account-delete-confirmation > div {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+}
+
+.account-delete-submit {
+  border: 1px solid var(--wine-deep);
+  background: var(--wine-deep);
+  color: var(--surface);
+}
+
+.account-delete-cancel {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-soft);
+}
+
+.account-delete-trigger:disabled,
+.account-delete-submit:disabled,
+.account-delete-cancel:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+@media (max-width: 760px) {
+  .my-page-shell {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+    padding-block: 2rem 4rem;
+  }
+
+  .my-page-sidebar {
+    position: static;
+  }
+
+  .my-page-sidebar h1 {
+    margin-bottom: 1.1rem;
+  }
+
+  .my-page-menu a {
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+    max-width: 28rem;
+  }
+
+  .account-empty {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .account-danger-zone {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 520px) {
+  .account-settings-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .account-settings-facts > div {
+    padding: 0.35rem 0 0.85rem;
+  }
+
+  .account-settings-facts > div + div {
+    padding: 0.85rem 0 0.35rem;
+    border-top: 1px solid var(--line);
+    border-left: 0;
   }
 }
 
@@ -1681,10 +1983,10 @@ h3.sub {
 .style-comparison [data-master="greenblatt"] { --bar: var(--master-greenblatt); --bar-deep: var(--master-greenblatt-deep); }
 .style-comparison [data-master="soros"] { --bar: var(--master-soros); --bar-deep: var(--master-soros-deep); }
 
-/* wrap(1080px) 밖으로 넓힌다. 표가 이 화면의 본문이라 wrap 폭에 갇힐 이유가 없다.
+/* 공통 wrap과 같은 1080px을 상한으로 삼는다.
    100%는 wrap의 내용 폭이므로 음수 마진이 좌우로 같은 만큼 밀어낸다 */
 .style-comparison {
-  --breakout: min(1280px, calc(100vw - 2 * var(--gutter)));
+  --breakout: min(1080px, calc(100vw - 2 * var(--gutter)));
   width: var(--breakout);
   margin-inline: calc((100% - var(--breakout)) / 2);
 }
@@ -2383,6 +2685,70 @@ h3.sub {
   margin: 0 0 1.5rem;
   padding-left: 1rem;
   border-left: 2px solid var(--wine-line);
+}
+
+/* 철학별 채점 종목 수 비교표 — 스크리너와 /learn/scoring이 함께 쓴다 */
+.coverage-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  margin: 1rem 0 0;
+}
+
+.coverage-table th,
+.coverage-table td {
+  padding: 0.55rem 0.4rem;
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+}
+
+.coverage-table th[scope="col"] {
+  font-weight: 500;
+  color: var(--ink-faint);
+  font-size: 0.8rem;
+}
+
+.coverage-table th[scope="row"],
+.coverage-table th[scope="col"]:first-child {
+  text-align: left;
+}
+
+.coverage-table th[scope="row"] {
+  font-weight: 500;
+}
+
+/* 지금 보고 있는 철학. 색만으로 구분하지 않도록 굵기와 여백을 함께 쓴다 */
+.coverage-table tr[aria-current] th[scope="row"] {
+  font-weight: 700;
+  border-left: 3px solid var(--wine);
+  padding-left: 0.5rem;
+}
+
+.coverage-table tr[aria-current] td {
+  color: var(--ink);
+}
+
+.coverage-table tbody tr:last-child th,
+.coverage-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* /learn/scoring 단계 목록 */
+.scoring-steps {
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+  counter-reset: step;
+}
+
+.scoring-steps li {
+  padding: 1.25rem 0;
+  border-top: 1px solid var(--line);
+  max-width: 68ch;
+}
+
+.scoring-steps li:last-child {
+  border-bottom: 1px solid var(--line);
 }
 
 /* ---------- 투자자 초상 ---------- */
@@ -3254,12 +3620,8 @@ h3.sub {
 /* ---------- 대가 선택 그리드 ---------- */
 
 .learn-page {
-  max-width: 1440px;
+  max-width: 1080px;
   padding-block: 2.5rem 5rem;
-}
-
-body:has(.learn-page) .masthead-inner {
-  max-width: 1440px;
 }
 
 .learn-page-header {
@@ -4627,74 +4989,120 @@ a.watch-company-card:hover {
 }
 
 .persona-fab {
-  width: 3.5rem;
+  min-width: 3.5rem;
   height: 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 0 1rem;
   border: none;
-  border-radius: 50%;
+  border-radius: 999px;
   background: var(--wine);
   color: #fff;
-  font-size: 0.92rem;
   font-weight: 800;
   box-shadow: 0 8px 20px color-mix(in srgb, var(--ink) 22%, transparent);
+  transition: background 140ms ease, transform 140ms ease, box-shadow 140ms ease;
 }
 
 .persona-fab:hover {
   background: var(--wine-deep);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--ink) 28%, transparent);
+  transform: translateY(-2px);
+}
+
+.persona-fab-mark {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+}
+
+.persona-fab-label {
+  font-size: 0.9rem;
 }
 
 .persona-panel {
-  width: min(22.5rem, calc(100vw - 2rem));
-  max-height: min(36rem, calc(100vh - 7rem));
+  width: min(32rem, calc(100vw - 2rem));
+  height: min(46rem, calc(100dvh - 6.5rem));
+  max-height: calc(100vh - 6.5rem);
   display: flex;
   flex-direction: column;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: 0 12px 32px color-mix(in srgb, var(--ink) 16%, transparent);
+  border-radius: 18px;
+  box-shadow: 0 18px 48px color-mix(in srgb, var(--ink) 20%, transparent);
   overflow: hidden;
 }
 
 .persona-panel-head {
   display: grid;
-  gap: 0.8rem;
-  padding: 1rem;
+  gap: 0.9rem;
+  padding: 1.1rem 1.15rem 0.9rem;
   border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, var(--surface) 72%, var(--gold-soft) 180%);
+  flex: 0 0 auto;
 }
 
 .persona-panel-title {
   display: flex;
   justify-content: space-between;
   gap: 0.75rem;
-  align-items: flex-start;
+  align-items: center;
+}
+
+.persona-panel-title p {
+  margin: 0 0 0.05rem;
+  color: var(--ochre);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
 }
 
 .persona-panel-head h2 {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   word-break: keep-all;
 }
 
+.persona-close {
+  min-width: 2.8rem;
+  padding: 0.38rem 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.persona-close:hover {
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+
 .persona-personas {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.45rem;
+  display: flex;
+  gap: 0.5rem;
+  margin-inline: -0.15rem;
+  padding: 0.15rem 0.15rem 0.35rem;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: thin;
 }
 
 .persona-master-option {
   position: relative;
-  min-width: 0;
+  flex: 0 0 4.7rem;
   display: grid;
   justify-items: center;
-  align-content: start;
-  gap: 0.4rem;
-  min-height: 6.25rem;
-  padding: 0.5rem 0.2rem 0.55rem;
-  border: 1px solid var(--line);
-  border-bottom-width: 3px;
-  border-radius: 10px;
-  background: var(--surface);
+  align-content: center;
+  gap: 0.3rem;
+  min-height: 4.65rem;
+  padding: 0.4rem 0.2rem;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
   color: var(--ink-soft);
   font: inherit;
   cursor: pointer;
@@ -4881,5 +5289,380 @@ a.watch-company-card:hover {
 
   .persona-master-name {
     font-size: 0.66rem;
+  }
+}
+
+/* ---------- 계정: 학습 기록 장부 ---------- */
+
+.nav-account {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.nav a.nav-account,
+.nav .nav-account-user {
+  padding: 0.38rem 0.72rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.nav a.nav-account:hover,
+.nav .nav-account-user:hover,
+.nav a.nav-account[data-active="true"] {
+  border-color: var(--gold-line);
+  background: var(--gold-soft);
+  color: var(--ink);
+}
+
+.nav-account-user span {
+  display: grid;
+  width: 1.25rem;
+  height: 1.25rem;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--surface);
+  font-size: 0.65rem;
+  font-weight: 800;
+}
+
+.auth-page {
+  min-height: calc(100vh - 60px);
+  display: grid;
+  align-items: center;
+  padding-block: clamp(2rem, 7vw, 5.5rem);
+  background:
+    linear-gradient(90deg, transparent 49.92%, var(--line) 50%, transparent 50.08%),
+    var(--surface-sunk);
+}
+
+.auth-layout {
+  display: grid;
+  grid-template-columns: minmax(18rem, 0.82fr) minmax(22rem, 1fr);
+  gap: clamp(2rem, 6vw, 5rem);
+  align-items: center;
+}
+
+.auth-ledger {
+  position: relative;
+  padding: 2rem 2rem 1.75rem 3.25rem;
+  border: 1px solid var(--line);
+  border-left: 0;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--surface);
+  box-shadow: 0 5px 0 var(--line);
+}
+
+.auth-ledger::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 1rem;
+  width: 1px;
+  background: var(--gold-line);
+  box-shadow: 0.28rem 0 0 var(--gold-line);
+}
+
+.auth-ledger .eyebrow,
+.auth-panel .eyebrow {
+  color: var(--gold-deep);
+}
+
+.auth-ledger h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(2rem, 4vw, 3.35rem);
+  font-weight: 800;
+  letter-spacing: -0.055em;
+  line-height: 1.08;
+}
+
+.auth-ledger > p:not(.eyebrow):not(.auth-ledger-note) {
+  max-width: 27rem;
+  margin: 1.35rem 0 1.75rem;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  line-height: 1.75;
+}
+
+.auth-ledger dl {
+  margin: 0;
+  border-top: 1px solid var(--line);
+}
+
+.auth-ledger dl > div {
+  display: grid;
+  grid-template-columns: 5.8rem 1fr;
+  gap: 1rem;
+  padding: 0.72rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.auth-ledger dt {
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.auth-ledger dd {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+}
+
+.auth-ledger .auth-ledger-note {
+  margin: 1rem 0 0;
+  color: var(--ink-faint);
+  font-size: 0.72rem;
+}
+
+.auth-panel {
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: calc(var(--radius) + 4px);
+  background: var(--surface);
+  box-shadow: 0 8px 0 var(--ink);
+}
+
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-sunk);
+}
+
+.auth-tabs button {
+  padding: 0.85rem 1rem;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.auth-tabs button + button {
+  border-left: 1px solid var(--line);
+}
+
+.auth-tabs button[aria-selected="true"] {
+  border-bottom-color: var(--gold);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.auth-panel-body {
+  padding: clamp(1.5rem, 4vw, 2.4rem);
+}
+
+.auth-panel h1 {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(1.55rem, 3vw, 2.15rem);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1.25;
+}
+
+.auth-intro {
+  margin: 0.55rem 0 1.5rem;
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+}
+
+.auth-google {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  padding: 0.72rem 1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 800;
+  box-shadow: 0 3px 0 var(--line);
+}
+
+.auth-google:hover:not(:disabled) {
+  border-color: var(--gold-deep);
+  background: var(--gold-soft);
+}
+
+.auth-google span {
+  display: grid;
+  width: 1.45rem;
+  height: 1.45rem;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: Arial, sans-serif;
+  font-size: 0.78rem;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin: 1.35rem 0;
+  color: var(--ink-faint);
+  font-size: 0.72rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: var(--line);
+}
+
+.auth-form {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.auth-form label,
+.auth-reset label {
+  color: var(--ink);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.auth-form input,
+.auth-reset input {
+  width: 100%;
+  min-height: 2.9rem;
+  padding: 0.68rem 0.8rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+
+.auth-form input:focus,
+.auth-reset input:focus {
+  border-color: var(--gold-deep);
+  outline: 2px solid var(--gold-soft);
+}
+
+.auth-password-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.45rem;
+}
+
+.auth-password-label button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.auth-message {
+  margin: 0.45rem 0 0;
+  padding: 0.65rem 0.75rem;
+  border: 1px dashed var(--ochre-line);
+  border-radius: 8px;
+  background: var(--ochre-soft);
+  color: var(--ochre);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.auth-message[data-kind="success"] {
+  border-style: solid;
+  border-color: var(--gold-line);
+  background: var(--gold-soft);
+  color: var(--ink);
+}
+
+.auth-submit {
+  width: 100%;
+  margin-top: 0.65rem;
+}
+
+.auth-panel button:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
+
+.auth-reset-layout {
+  max-width: 34rem;
+}
+
+.auth-reset {
+  display: block;
+}
+
+.auth-reset input {
+  display: block;
+  margin-top: 0.35rem;
+}
+
+@media (max-width: 760px) {
+  .auth-page {
+    align-items: start;
+    background: var(--surface-sunk);
+  }
+
+  .auth-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .auth-ledger {
+    padding: 1.4rem 1.25rem 1.25rem 2.5rem;
+  }
+
+  .auth-ledger h2 {
+    font-size: 2rem;
+  }
+
+  .auth-ledger h2 br {
+    display: none;
+  }
+
+  .auth-ledger > p:not(.eyebrow):not(.auth-ledger-note) {
+    margin-block: 0.8rem 1rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .nav-account-user {
+    font-size: 0;
+  }
+
+  .nav-account-user span {
+    font-size: 0.65rem;
+  }
+
+  .auth-page {
+    padding-block: 1rem 2.5rem;
+  }
+
+  .auth-ledger dl,
+  .auth-ledger .auth-ledger-note {
+    display: none;
+  }
+
+  .auth-panel {
+    box-shadow: 0 5px 0 var(--ink);
   }
 }

@@ -16,11 +16,17 @@ import {
 
 type Bubble = { role: "user" | "tutor"; text: string };
 
+// /health가 오기 전에 그릴 기본값. 구성과 순서는 서버의 personas와 맞춘다
+// (= content/masters.ts의 MASTERS 순서). 막스·피셔·소로스는 점수를 내지 않아
+// scores.json에 없고, 종목 이름만 받아 확인 질문으로 답한다.
 const FALLBACK_PERSONAS: PersonaInfo[] = [
-  { id: "buffett", name: "워런 버핏·찰리 멍거" },
-  { id: "graham", name: "벤저민 그레이엄" },
-  { id: "lynch", name: "피터 린치" },
-  { id: "greenblatt", name: "조엘 그린블랫" },
+  { id: "buffett", name: "워런 버핏·찰리 멍거", evaluation: "score" },
+  { id: "graham", name: "벤저민 그레이엄", evaluation: "score" },
+  { id: "lynch", name: "피터 린치", evaluation: "score" },
+  { id: "marks", name: "하워드 막스", evaluation: "checklist" },
+  { id: "fisher", name: "필립 피셔", evaluation: "checklist" },
+  { id: "greenblatt", name: "조엘 그린블랫", evaluation: "score" },
+  { id: "soros", name: "조지 소로스", evaluation: "checklist" },
 ];
 
 const CHATTABLE = new Set(FALLBACK_PERSONAS.map((p) => p.id));
@@ -217,14 +223,46 @@ export default function PersonaChatFab() {
     }
   }
 
+  // 점수를 내지 않는 대가는 숫자를 읽어 주지 않는다. 빈 화면 문구까지 같으면
+  // 사용자가 오지 않을 숫자 해설을 기다린다.
+  const checklistPersona =
+    personas.find((item) => item.id === persona)?.evaluation === "checklist";
+  const emptyCopy = checklistPersona
+    ? pathTicker
+      ? "이 관점은 점수를 내지 않습니다. 무엇을 확인해야 하는지 알려줍니다."
+      : "종목을 고르면 이 관점이 무엇을 확인하는지 알려줍니다."
+    : pathTicker
+      ? "이 종목의 공개 숫자로 기준을 설명합니다."
+      : "종목을 고르면 그 회사의 숫자로 설명합니다.";
+  const selectedPersona =
+    personas.find((item) => item.id === persona) ?? FALLBACK_PERSONAS[0];
+
+  function onQuestionKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) return;
+    event.preventDefault();
+    event.currentTarget.form?.requestSubmit();
+  }
+
   return (
     <div className="persona-dock">
       {open && (
-        <section className="persona-panel" aria-label="투자 대가에게 묻기">
+        <section
+          className="persona-panel"
+          role="dialog"
+          aria-labelledby="persona-panel-heading"
+        >
           <header className="persona-panel-head">
             <div className="persona-panel-title">
-              <h2>투자 대가에게 묻기</h2>
-              <button type="button" className="btn" data-variant="quiet" onClick={() => setOpen(false)}>
+              <div>
+                <p>투자 철학 해설</p>
+                <h2 id="persona-panel-heading">투자 대가에게 묻기</h2>
+              </div>
+              <button
+                type="button"
+                className="persona-close"
+                onClick={() => setOpen(false)}
+                aria-label="대화창 닫기"
+              >
                 닫기
               </button>
             </div>
@@ -236,6 +274,7 @@ export default function PersonaChatFab() {
                   type="button"
                   className="persona-master-option"
                   aria-pressed={item.id === persona}
+                  aria-label={`${item.name} 관점 선택`}
                   disabled={busy}
                   onClick={() => void onPersona(item.id)}
                 >
@@ -247,6 +286,17 @@ export default function PersonaChatFab() {
               ))}
             </div>
           </header>
+
+          <div className="persona-context" aria-live="polite">
+            <div>
+              <span>선택한 관점</span>
+              <strong>{shortName(selectedPersona.name)}</strong>
+            </div>
+            <span className="persona-context-kind">
+              {checklistPersona ? "확인 질문" : "숫자 해설"}
+            </span>
+            {ticker && <span className="persona-context-ticker mono">{ticker}</span>}
+          </div>
 
           {!pathTicker && (
             <div className="persona-search">
@@ -279,36 +329,44 @@ export default function PersonaChatFab() {
             </div>
           )}
 
-          <div className="persona-log" ref={logRef}>
+          <div className="persona-log" ref={logRef} aria-live="polite" aria-busy={busy}>
             {messages.length === 0 && !error && (
-              <p className="persona-empty">
-                {pathTicker
-                  ? "이 종목의 공개 숫자로 기준을 설명합니다."
-                  : "종목을 고르면 그 회사의 숫자로 설명합니다."}
-              </p>
+              <p className="persona-empty">{emptyCopy}</p>
             )}
             {messages.map((bubble, index) => (
-              <p key={`${bubble.role}-${index}`} className="persona-bubble" data-role={bubble.role}>
-                {bubble.text}
-              </p>
+              <div key={`${bubble.role}-${index}`} className="persona-message" data-role={bubble.role}>
+                <span className="persona-message-author">
+                  {bubble.role === "user" ? "나" : shortName(selectedPersona.name)}
+                </span>
+                <p className="persona-bubble">{bubble.text}</p>
+              </div>
             ))}
+            {busy && <p className="persona-thinking">답변을 준비하고 있습니다…</p>}
           </div>
 
-          {error && <p className="persona-error">{error}</p>}
-          <p className="disclaimer persona-disclaimer">{disclaimer}</p>
-
-          <form className="persona-ask" onSubmit={(event) => void onAsk(event)}>
-            <input
-              value={question}
-              maxLength={500}
-              placeholder="무엇을 확인할까요?"
-              disabled={busy || (!ticker && !pathTicker)}
-              onChange={(event) => setQuestion(event.target.value)}
-            />
-            <button className="btn" type="submit" disabled={busy || !question.trim()}>
-              묻기
-            </button>
-          </form>
+          <footer className="persona-compose">
+            {error && <p className="persona-error" role="alert">{error}</p>}
+            <form className="persona-ask" onSubmit={(event) => void onAsk(event)}>
+              <label htmlFor="persona-question">질문</label>
+              <textarea
+                id="persona-question"
+                value={question}
+                maxLength={500}
+                rows={2}
+                placeholder={ticker ? "이 회사에서 무엇을 확인할까요?" : "먼저 종목을 골라 주세요"}
+                disabled={busy || !ticker}
+                onKeyDown={onQuestionKeyDown}
+                onChange={(event) => setQuestion(event.target.value)}
+              />
+              <button className="btn" type="submit" disabled={busy || !question.trim()}>
+                {busy ? "확인 중" : "묻기"}
+              </button>
+            </form>
+            <div className="persona-compose-meta">
+              <span>Enter 전송 · Shift+Enter 줄바꿈</span>
+              <p className="disclaimer persona-disclaimer">{disclaimer}</p>
+            </div>
+          </footer>
         </section>
       )}
 
@@ -316,10 +374,11 @@ export default function PersonaChatFab() {
         type="button"
         className="persona-fab"
         aria-expanded={open}
-        aria-label={open ? "숫자 해설 닫기" : "이 철학으로 숫자 해설 묻기"}
+        aria-label={open ? "대가에게 묻기 닫기" : "이 철학으로 묻기"}
         onClick={() => void onToggle()}
       >
-        ASK
+        <span className="persona-fab-mark">ASK</span>
+        <span className="persona-fab-label">대가에게 묻기</span>
       </button>
     </div>
   );

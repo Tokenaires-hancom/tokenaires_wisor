@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import AccountSettings from "@/components/AccountSettings";
 import { CHAPTER_SLOTS } from "@/content/curriculum/types";
 import { MASTERS, MASTER_BY_ID } from "@/content/masters";
 import { money } from "@/lib/format";
@@ -11,9 +12,11 @@ import {
   dueJournalEntries,
   getNotes,
   getProgress,
+  getStorageMode,
   getWatchlist,
   saveJournalEntry,
   type JournalEntry,
+  type LearningStorageMode,
   type Progress,
   type StudyNote,
 } from "@/lib/store";
@@ -41,22 +44,26 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
   const [notes, setNotes] = useState<StudyNote[]>([]);
   const [due, setDue] = useState<JournalEntry[]>([]);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [storageMode, setStorageMode] = useState<LearningStorageMode>("browser");
   const [ready, setReady] = useState(false);
+  const [activeSection, setActiveSection] = useState("my-learning");
 
   useEffect(() => {
     let alive = true;
     async function refresh() {
-      const [p, w, n, j] = await Promise.all([
+      const [p, w, n, j, mode] = await Promise.all([
         getProgress(),
         getWatchlist(),
         getNotes(),
         dueJournalEntries(),
+        getStorageMode(),
       ]);
       if (!alive) return;
       setProgress(p);
       setWatchlist(w);
       setNotes(n);
       setDue(j);
+      setStorageMode(mode);
       setReady(true);
     }
     void refresh();
@@ -67,6 +74,22 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
       window.removeEventListener("wisor:store", onChange);
     };
   }, []);
+
+  useEffect(() => {
+    if (!ready) return;
+    const sectionIds = ["my-learning", "watchlist", "account-settings"];
+    const updateActiveSection = () => {
+      let current = sectionIds[0];
+      for (const id of sectionIds) {
+        const section = document.getElementById(id);
+        if (section && section.getBoundingClientRect().top <= 130) current = id;
+      }
+      setActiveSection(current);
+    };
+    updateActiveSection();
+    window.addEventListener("scroll", updateActiveSection, { passive: true });
+    return () => window.removeEventListener("scroll", updateActiveSection);
+  }, [ready]);
 
   const totalChapters = MASTERS.length * CHAPTER_SLOTS.length;
   const chaptersDone = progress.lessonsDone.filter((id) => {
@@ -130,11 +153,56 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
   }
 
   return (
-    <div className="wrap" style={{ paddingBlock: "3.5rem 5rem" }}>
-      <p className="eyebrow">내 학습</p>
-      <h1 className="thesis">
-        지금까지 무엇을 확인했나요?
-      </h1>
+    <div className="wrap my-page-shell">
+      <aside className="my-page-sidebar">
+        <p className="eyebrow">개인 기록</p>
+        <h1>마이페이지</h1>
+        <nav className="my-page-menu" aria-label="마이페이지 메뉴">
+          <a
+            href="#my-learning"
+            data-active={activeSection === "my-learning"}
+            aria-current={activeSection === "my-learning" ? "location" : undefined}
+            onClick={() => setActiveSection("my-learning")}
+          >
+            <span className="my-page-menu-index" aria-hidden="true">01</span>
+            <span>
+              <strong>내 학습</strong>
+              <small>진도 · 퀴즈 · 노트 · 복습</small>
+            </span>
+          </a>
+          <a
+            href="#watchlist"
+            data-active={activeSection === "watchlist"}
+            aria-current={activeSection === "watchlist" ? "location" : undefined}
+            onClick={() => setActiveSection("watchlist")}
+          >
+            <span className="my-page-menu-index" aria-hidden="true">02</span>
+            <span>
+              <strong>관심 종목</strong>
+              <small>저장한 기업 다시 보기</small>
+            </span>
+          </a>
+          <a
+            href="#account-settings"
+            data-active={activeSection === "account-settings"}
+            aria-current={activeSection === "account-settings" ? "location" : undefined}
+            onClick={() => setActiveSection("account-settings")}
+          >
+            <span className="my-page-menu-index" aria-hidden="true">03</span>
+            <span>
+              <strong>계정 설정</strong>
+              <small>로그인 · 비밀번호 · 로그아웃</small>
+            </span>
+          </a>
+        </nav>
+      </aside>
+
+      <main className="my-page-content">
+        <span id="my-learning" className="my-page-anchor-marker" aria-hidden="true" />
+        <p className="eyebrow">내 학습</p>
+        <h2 className="thesis">
+          지금까지 무엇을 확인했나요?
+        </h2>
 
       <div className="card" style={{ marginTop: "2rem" }}>
         <p className="eyebrow">투자 대가 챕터</p>
@@ -271,130 +339,53 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
 
       <hr className="rule" />
 
-      {due.length > 0 && (
-        <>
-          <p className="eyebrow">되돌아볼 기록</p>
-          <h2 className="section">90일 전에 쓴 답입니다</h2>
+      <section aria-labelledby="review-schedule-title">
+        <p className="eyebrow">복습 일정</p>
+        <h2 id="review-schedule-title" className="section">90일 뒤 다시 보는 기록</h2>
+        {due.length === 0 ? (
           <p className="lede">
-            그때의 답과 지금의 생각이 다르면, 무엇이 바뀌었는지가 배운 것입니다.
+            지금 다시 볼 기록은 없습니다. 기록형 답은 작성한 지 90일이 지나면 이곳에 나타납니다.
           </p>
-          <div className="stack">
-            {due.map((entry) => (
-              <div key={entry.id} className="card">
-                <h3 className="sub">{entry.prompt}</h3>
-                <p style={{ fontSize: "0.9rem", color: "var(--ink-soft)" }}>
-                  {entry.at.slice(0, 10)}에 쓴 답 — {entry.text}
-                </p>
-                <label className="field">
-                  <span>지금의 답</span>
-                  <textarea
-                    rows={3}
-                    value={drafts[entry.id] ?? ""}
-                    onChange={(event) =>
-                      setDrafts((prev) => ({ ...prev, [entry.id]: event.target.value }))
-                    }
-                  />
-                </label>
-                <button
-                  type="button"
-                  className="btn"
-                  disabled={(drafts[entry.id] ?? "").trim() === ""}
-                  onClick={() => {
-                    void saveJournalEntry(entry.id, entry.prompt, drafts[entry.id]).then(async () =>
-                      setDue(await dueJournalEntries()),
-                    );
-                  }}
-                >
-                  기록하기
-                </button>
-              </div>
-            ))}
-          </div>
-
-          <hr className="rule" />
-        </>
-      )}
-
-      <div className="watchlist-heading">
-        <div>
-          <p className="eyebrow">기업 다시 보기</p>
-          <h2 className="section">관심종목</h2>
-        </div>
-        <span>{watchlist.length}개 기업</span>
-      </div>
-      {watchlist.length === 0 ? (
-        <div className="watchlist-empty">
-          <div>
-            <strong>아직 저장한 기업이 없습니다</strong>
-            <p>종목을 저장하면 업종, 종가, 시가총액을 이곳에서 나란히 확인할 수 있습니다.</p>
-          </div>
-          <Link href="/screener/buffett" className="btn">
-            종목 찾기
-          </Link>
-        </div>
-      ) : (
-        <ul className="watch-company-grid">
-          {watchlist.map((ticker) => {
-            const company = companies[ticker];
-            const hasNote = notes.some((note) => note.ticker === ticker);
-
-            if (!company) {
-              return (
-                <li key={ticker} className="watch-company-card" data-missing="true">
-                  <div className="watch-company-topline">
-                    <span className="watch-company-tab">{ticker}</span>
-                  </div>
-                  <p className="watch-company-missing">
-                    저장 당시 종목 정보를 현재 목록에서 찾지 못했습니다.
+        ) : (
+          <>
+            <p className="lede">
+              그때의 답과 지금의 생각이 다르면, 무엇이 바뀌었는지가 배운 것입니다.
+            </p>
+            <div className="stack">
+              {due.map((entry) => (
+                <div key={entry.id} className="card">
+                  <h3 className="sub">{entry.prompt}</h3>
+                  <p style={{ fontSize: "0.9rem", color: "var(--ink-soft)" }}>
+                    {entry.at.slice(0, 10)}에 쓴 답 — {entry.text}
                   </p>
-                </li>
-              );
-            }
-
-            return (
-              <li key={ticker}>
-                <Link href={`/stocks/${ticker}`} className="watch-company-card">
-                  <div className="watch-company-topline">
-                    <span className="watch-company-tab">{ticker}</span>
-                    {hasNote && <span className="watch-company-note">학습노트 있음</span>}
-                  </div>
-
-                  <div className="watch-company-identity">
-                    <h3>{company.name}</h3>
-                    <p>{company.sector || "업종 정보 없음"}</p>
-                  </div>
-
-                  <dl className="watch-company-facts">
-                    <div>
-                      <dt>종가</dt>
-                      <dd>{PRICE_FORMATTER.format(company.price)}</dd>
-                    </div>
-                    <div>
-                      <dt>시가총액</dt>
-                      <dd>{money(company.marketCap)}</dd>
-                    </div>
-                    <div>
-                      <dt>유니버스 내 규모</dt>
-                      <dd>
-                        {company.marketCapRank
-                          ? `${company.marketCapRank}위 / ${company.universeSize}종목`
-                          : "정보 없음"}
-                      </dd>
-                    </div>
-                  </dl>
-
-                  <div className="watch-company-footer">
-                    <span>{company.priceAsOf.replaceAll("-", ".")} 종가 기준</span>
-                    <strong>
-                      기업 확인하기 <span aria-hidden="true">→</span>
-                    </strong>
-                  </div>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+                  <label className="field">
+                    <span>지금의 답</span>
+                    <textarea
+                      rows={3}
+                      value={drafts[entry.id] ?? ""}
+                      onChange={(event) =>
+                        setDrafts((prev) => ({ ...prev, [entry.id]: event.target.value }))
+                      }
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    className="btn"
+                    disabled={(drafts[entry.id] ?? "").trim() === ""}
+                    onClick={() => {
+                      void saveJournalEntry(entry.id, entry.prompt, drafts[entry.id]).then(async () =>
+                        setDue(await dueJournalEntries()),
+                      );
+                    }}
+                  >
+                    기록하기
+                  </button>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </section>
 
       <hr className="rule" />
 
@@ -480,9 +471,102 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
       )}
 
       <p className="disclaimer">
-        학습 기록은 지금 이 브라우저에만 저장됩니다. 다른 기기에서는 보이지 않으며, 브라우저
-        데이터를 지우면 함께 사라집니다.
+        {storageMode === "account"
+          ? "학습 기록은 현재 로그인한 계정에 저장됩니다. 같은 계정으로 로그인하면 다른 기기에서도 이어서 볼 수 있습니다."
+          : "학습 기록은 회원가입 전까지 이 브라우저에 임시 저장됩니다. 로그인하거나 가입하면 계정 기록과 합쳐져 이동합니다."}
       </p>
+
+      <section id="watchlist" className="my-page-anchor-section" aria-labelledby="watchlist-title">
+        <hr className="rule" />
+        <div className="watchlist-heading">
+          <div>
+            <p className="eyebrow">기업 다시 보기</p>
+            <h2 id="watchlist-title" className="section">관심 종목</h2>
+          </div>
+          <span>{watchlist.length}개 기업</span>
+        </div>
+        {watchlist.length === 0 ? (
+          <div className="watchlist-empty">
+            <div>
+              <strong>아직 저장한 기업이 없습니다</strong>
+              <p>종목을 저장하면 업종, 종가, 시가총액을 이곳에서 나란히 확인할 수 있습니다.</p>
+            </div>
+            <Link href="/screener/buffett" className="btn">
+              종목 찾기
+            </Link>
+          </div>
+        ) : (
+          <ul className="watch-company-grid">
+            {watchlist.map((ticker) => {
+              const company = companies[ticker];
+              const hasNote = notes.some((note) => note.ticker === ticker);
+
+              if (!company) {
+                return (
+                  <li key={ticker} className="watch-company-card" data-missing="true">
+                    <div className="watch-company-topline">
+                      <span className="watch-company-tab">{ticker}</span>
+                    </div>
+                    <p className="watch-company-missing">
+                      저장 당시 종목 정보를 현재 목록에서 찾지 못했습니다.
+                    </p>
+                  </li>
+                );
+              }
+
+              return (
+                <li key={ticker}>
+                  <Link href={`/stocks/${ticker}`} className="watch-company-card">
+                    <div className="watch-company-topline">
+                      <span className="watch-company-tab">{ticker}</span>
+                      {hasNote && <span className="watch-company-note">학습노트 있음</span>}
+                    </div>
+
+                    <div className="watch-company-identity">
+                      <h3>{company.name}</h3>
+                      <p>{company.sector || "업종 정보 없음"}</p>
+                    </div>
+
+                    <dl className="watch-company-facts">
+                      <div>
+                        <dt>종가</dt>
+                        <dd>{PRICE_FORMATTER.format(company.price)}</dd>
+                      </div>
+                      <div>
+                        <dt>시가총액</dt>
+                        <dd>{money(company.marketCap)}</dd>
+                      </div>
+                      <div>
+                        <dt>유니버스 내 규모</dt>
+                        <dd>
+                          {company.marketCapRank
+                            ? `${company.marketCapRank}위 / ${company.universeSize}종목`
+                            : "정보 없음"}
+                        </dd>
+                      </div>
+                    </dl>
+
+                    <div className="watch-company-footer">
+                      <span>{company.priceAsOf.replaceAll("-", ".")} 종가 기준</span>
+                      <strong>
+                        기업 확인하기 <span aria-hidden="true">→</span>
+                      </strong>
+                    </div>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
+
+      <section id="account-settings" className="my-page-anchor-section" aria-labelledby="account-settings-title">
+        <hr className="rule" />
+        <p className="eyebrow">내 계정</p>
+        <h2 id="account-settings-title" className="section">계정 설정</h2>
+        <AccountSettings />
+      </section>
+      </main>
     </div>
   );
 }

@@ -35,7 +35,7 @@ from urllib.parse import parse_qs, urlsplit
 import scores_source
 from chat import PersonaChat
 from explain import MockAdapter, OpenAIAdapter, load_dotenv_file
-from personas import PERSONAS
+from personas import PERSONAS, is_checklist, persona_kind
 from session_store import SessionNotFound, SessionStore
 
 DISCLAIMER = "이 설명은 교육용이며 투자 조언이 아닙니다."
@@ -274,12 +274,16 @@ def make_handler(adapter, store: SessionStore, data: scores_source.ScoresData,
                 raise HttpError(404, "unknown_ticker",
                                 f"유니버스에 없는 종목입니다: {ticker}") from None
 
-            chat = PersonaChat(
-                persona, company=company,
-                judgement=data.judgement(company.ticker, persona),
-                criteria_spec=data.styles[persona].criteria,
-                adapter=adapter,
-            )
+            if is_checklist(persona):
+                # scores.json에 이 관점의 스타일이 없다. 판정을 찾으면 UnknownStyle이다.
+                chat = PersonaChat(persona, company=company, adapter=adapter)
+            else:
+                chat = PersonaChat(
+                    persona, company=company,
+                    judgement=data.judgement(company.ticker, persona),
+                    criteria_spec=data.styles[persona].criteria,
+                    adapter=adapter,
+                )
             reply = _run(chat.start)
             session_id = store.create(Conversation(chat, threading.Lock()))
             payload = _session_payload(chat, reply)
@@ -406,10 +410,28 @@ _SESSION_GONE = ("세션을 찾을 수 없습니다. 만료되었거나 서버�
 
 
 def _supported_personas(data: scores_source.ScoresData) -> list[dict]:
-    """챗봇이 말할 수 있는 페르소나. 프롬프트와 데이터에 둘 다 있어야 한다."""
-    return [{"id": sid, "name": data.styles[sid].name,
-             "modelVersion": data.styles[sid].model_version}
-            for sid in data.style_ids() if sid in PERSONAS]
+    """챗봇이 말할 수 있는 페르소나.
+
+    순서는 PERSONAS를 따른다(= masters.ts의 MASTERS 순서). 화면의 대가 선택기가
+    받은 순서대로 그리므로, scores.json의 순서를 따르면 사이트와 어긋난다.
+
+    점수를 내는 대가는 scores.json에 스타일이 있어야 한다. 없으면 채점 기준을
+    실을 수 없다. 채점하지 않는 대가는 scores.json과 무관하므로 항상 나간다.
+    """
+    out = []
+    for pid, persona in PERSONAS.items():
+        if persona["kind"] == "score":
+            style = data.styles.get(pid)
+            if style is None:
+                continue
+            out.append({"id": pid, "name": style.name,
+                        "evaluation": "score",
+                        "modelVersion": style.model_version})
+        else:
+            # modelVersion을 지어내지 않는다. 채점 모델이 아예 없다.
+            out.append({"id": pid, "name": persona["name"],
+                        "evaluation": "checklist"})
+    return out
 
 
 def _check_persona(persona: str, data: scores_source.ScoresData) -> None:
@@ -443,6 +465,7 @@ def _session_payload(chat: PersonaChat, reply) -> dict:
     return {
         "persona": chat.persona_key,
         "personaName": chat.persona_name,
+        "evaluation": persona_kind(chat.persona_key),
         "company": company.summary() if company is not None else None,
         "asOf": company.as_of if company is not None else None,
         "judgement": chat.judgement.summary() if chat.judgement is not None else None,
