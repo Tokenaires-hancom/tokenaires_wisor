@@ -5,8 +5,6 @@
 한다.** 캐시 왕복이 손실을 내면 하루 여덟 번 망가진 점수가 커밋된다.
 """
 
-import json
-
 import pytest
 
 from run_batch import build

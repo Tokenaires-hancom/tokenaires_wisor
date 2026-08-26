@@ -1,5 +1,28 @@
 # 인계 노트
 
+## 2026-08-26 · Codex · 삭제 기능·로컬 잔재 정리
+
+- `chore/remove-obsolete-features`에서 참조가 없는 `DuoQuiz`·`Quiz`, 장별 mood API와 테스트,
+  잠금 판정·점수/설정 편의 함수, 데이터 공급자 스텁과 계산·Persona 편의 함수를 제거했습니다.
+  버핏 안내 자세만 남기고 미사용 반응 이미지 5개와 마스코트 idle 이미지도 삭제했습니다.
+- `globals.css`의 미사용 규칙 475줄을 걷어내고, 캐릭터가 사라진 챕터 화면의 176px 빈 거터를
+  없애 모든 내용을 최대 720px 중앙 칼럼에 맞췄습니다. `/learn/compare`와 `/play`는 유지했습니다.
+- 삭제된 차트 분석 기능의 `supabase/schema.sql` 기준 테이블·함수·RLS·노트 필드를 제거했습니다.
+  이는 새 환경용 기준 스키마 정리일 뿐이며 원격 Supabase에서 `DROP`은 실행하지 않았습니다.
+- 최근 실행이 계속 실패하던 `scores.yml`의 예약 트리거를 없애 수동 복구 실행만 남겼습니다.
+  운영 데이터 자동 갱신은 OCI `wisor-batch.timer`, `main` 애플리케이션 자동 배포는
+  `deploy-oci.yml`이 맡습니다. 아직 응답하는 기존 Render 구성과 `render.yaml`은 보존했습니다.
+- `magicFormulaRoc`를 Persona의 `magic_formula_roc`에 연결해 기존 계약 테스트 실패를 해결하고,
+  배포·설계·학습 문서를 현재 구현과 OCI 운영 기준으로 맞췄습니다.
+- 이 작업공간에서 삭제된 `services/chart-api/`, 차트 `.next-stale-*`, `.netlify/`, 시장심리
+  `.superpowers` 잔재와 삭제 기능의 `.pyc`를 제거해 약 506MiB를 정리했습니다. 중복·삭제 기능만
+  담긴 stash 2개와 임시 OCI archive tag 1개도 삭제했고, 고유 변경이 있는 로컬 브랜치 6개는
+  모두 보존했습니다. 이 로컬 삭제는 복구 지점 없이 수행했으며 외부 서비스·DB는 건드리지 않았습니다.
+- 검증: data-pipeline 132 passed, Persona 95 passed, Web 129 passed, 엄격한 미사용 타입 검사와
+  일반 타입 검사 통과, 439/439 정적 페이지 빌드, 재무데이터 번들 경계 검사, OCI 계약 셸 테스트와
+  Python 테스트 6건 통과. `/`, `/learn`, 버핏 경로·1장, `/learn/compare`, `/play`는 모두 HTTP 200입니다.
+  연결 가능한 인앱 브라우저가 없어 자동 시각 캡처는 진행하지 못했습니다.
+
 ## 2026-08-20 · Codex · 체크리스트 기반 페르소나 채팅 확장
 
 - 점수식이 없는 하워드 막스, 필립 피셔, 조지 소로스도 페르소나 채팅에서 선택할 수 있도록 체크리스트 평가 방식을 추가했습니다.

@@ -1,7 +1,7 @@
 -- Wisor 사용자 데이터 스키마 (2번: 백엔드·플랫폼 담당 영역)
 --
--- 저장하는 것: 학습 진도, 퀴즈 결과, 관심종목, 학습노트, 차트 분석 사용 횟수
--- 저장하지 않는 것: 차트 원본 이미지, 계좌 화면, 보유 수량, 평가금액, 증권사 정보
+-- 저장하는 것: 학습 진도, 퀴즈 결과, 관심종목, 학습노트, 기록형 답
+-- 저장하지 않는 것: 계좌 화면, 보유 수량, 평가금액, 증권사 정보
 --
 -- 실행:  supabase db push   또는   psql -f supabase/schema.sql
 
@@ -11,7 +11,7 @@ create extension if not exists "uuid-ossp";
 
 create table if not exists public.lesson_progress (
   user_id      uuid not null references auth.users on delete cascade,
-  lesson_id    text not null,                       -- 'master:buffett' | 'chart:trend-basics'
+  lesson_id    text not null,                       -- 예: 'master:buffett:1'
   completed_at timestamptz not null default now(),
   primary key (user_id, lesson_id)
 );
@@ -56,7 +56,6 @@ create table if not exists public.study_notes (
   style_scores       jsonb not null default '[]'::jsonb,
   strengths          text[] not null default '{}',
   risks              text[] not null default '{}',
-  chart_observations text[] not null default '{}',
   open_questions     text default '',
   status             public.note_status not null default 'first',
   score_model        text,                 -- 예: 'Buffett 1.0'
@@ -83,35 +82,6 @@ create table if not exists public.journal_entries (
 create index if not exists journal_entries_user_answered_idx
   on public.journal_entries (user_id, answered_at desc);
 
--- ------------------------------------------------- 차트 분석 사용 기록
-
--- 원본 이미지는 남기지 않는다. 사용량 제한과 품질 추적에 필요한 최소한만 남긴다.
-create table if not exists public.chart_analysis_events (
-  id             bigserial primary key,
-  user_id        uuid not null references auth.users on delete cascade,
-  requested_at   timestamptz not null default now(),
-  succeeded      boolean not null,
-  lesson_id      text,
-  prompt_version text,
-  filtered_count smallint not null default 0,   -- 안전 필터가 떼어낸 문장 수
-  reject_reason  text                            -- 거절한 경우의 사유 코드
-);
-
-create index if not exists chart_events_user_day_idx
-  on public.chart_analysis_events (user_id, requested_at desc);
-
--- 하루 사용 횟수 (베타 제한용)
-create or replace function public.chart_analysis_count_today(p_user_id uuid)
-returns integer
-language sql
-stable
-as $$
-  select count(*)::int
-  from public.chart_analysis_events
-  where user_id = p_user_id
-    and requested_at >= date_trunc('day', now() at time zone 'Asia/Seoul');
-$$;
-
 -- ---------------------------------------------------------------- 접근 권한
 
 alter table public.lesson_progress        enable row level security;
@@ -119,15 +89,13 @@ alter table public.quiz_results           enable row level security;
 alter table public.watchlist              enable row level security;
 alter table public.study_notes            enable row level security;
 alter table public.journal_entries         enable row level security;
-alter table public.chart_analysis_events  enable row level security;
 
 do $$
 declare
   t text;
 begin
   foreach t in array array[
-    'lesson_progress', 'quiz_results', 'watchlist', 'study_notes', 'journal_entries',
-    'chart_analysis_events'
+    'lesson_progress', 'quiz_results', 'watchlist', 'study_notes', 'journal_entries'
   ]
   loop
     execute format(

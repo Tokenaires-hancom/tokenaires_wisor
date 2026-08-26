@@ -59,7 +59,7 @@
   }
 }
 
-.hv-home :where(h1, h2, .hv-display) {
+.hv-home :where(h1, h2) {
   font-family: var(--hv-display);
   font-weight: 400;
   letter-spacing: normal;
@@ -1810,10 +1810,6 @@
     animation-delay: 0.22s;
   }
 
-  .hv-principles[data-in] .hv-principles-line-last {
-    animation-delay: 0.3s;
-  }
-
   .hv-principles[data-in] .hv-principles-intro {
     --hv-rise: 0.972cqw;
     animation: hv-rise 0.45s 0.42s ease-out backwards;
@@ -1835,11 +1831,6 @@
 
   .hv-principles[data-in] .hv-principles-thread {
     animation: hv-thread-in 0.45s 1s ease-out backwards;
-  }
-
-  .hv-principles[data-in] .hv-principles-anchor-title {
-    --hv-rise: 0.833cqw;
-    animation: hv-rise 0.42s 1.02s ease-out backwards;
   }
 
   .hv-principles[data-in] .hv-principles-anchor-item {

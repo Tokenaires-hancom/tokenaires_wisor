@@ -77,8 +77,8 @@ jobs:
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          # netlify.toml의 NODE_VERSION과 맞춘다. CI가 통과해도 배포 버전이
-          # 다르면 의미가 없다.
+          # OCI Web 이미지와 기존 Render 설정의 Node 버전에 맞춘다. CI가 통과해도
+          # 배포 버전이 다르면 의미가 없다.
           node-version: "24"
 
       - name: web 의존성
