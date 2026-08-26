@@ -76,9 +76,13 @@
   word-break: keep-all;
 }
 
+/* 출처는 본문과 같은 색이면 문단이 한 덩어리로 읽힌다. 한 단계 연한
+ * --ink-soft(#777, 흰 배경 대비 4.68:1)로 떨어뜨린다 — 더 연한
+ * --ink-faint는 2.3:1이라 본문급 문장에 쓰기엔 안 읽힌다. */
 .achievement-records small {
   display: block;
-  color: var(--file-muted, var(--ink-soft));
+  margin-top: 0.35rem;
+  color: var(--ink-soft);
   font-size: 0.72rem;
   line-height: 1.5;
 }
@@ -283,8 +287,14 @@
 /* 탭 버튼이 이미 이름("업적" 등)을 보여주므로, 패널 안에서 같은 단어를
  * 큰 제목으로 또 반복하지 않는다. 전용 클래스 대신 globals.css의
  * .eyebrow를 그대로 쓴다. */
+/* 키운 크기(0.78rem)가 바로 아래 설명(0.8rem)과 거의 같아져서, 크기
+ * 대신 굵기로 라벨임을 표시한다. 색도 --ink-faint(2.3:1)에서 한 단계
+ * 올려 읽히게 하되 설명(--file-muted)보다는 연하게 둔다. */
 .master-tabpanel-header .eyebrow {
   margin-bottom: 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ink-soft);
 }
 
 .master-tabpanel-header-desc {
