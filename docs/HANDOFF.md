@@ -632,6 +632,8 @@
 - 롤백은 단계별 flag 대신 실제 `deploy-state/*.previous`를 보고 복구하고, 파일 교체 명령은
   함수 내부에서 각각 실패를 반환합니다. 이미지 revision·data label 판정은 Python 검증기 한 곳으로
   모았고 부분 전환·파일 복사 실패·strict health 판정을 임시 디렉터리 회귀 테스트로 고정했습니다.
+- release용 로컬 clone은 원본의 `refs/remotes/origin/main`을 자동 복사하지 않으므로 checkout 전에
+  해당 ref를 명시적으로 fetch합니다. 첫 자동 실행에서 드러난 이 경로를 별도 Git fixture로 재현합니다.
 - OCI에는 `wisor-deploy` 전용 계정과 인자 없는 root deploy 한 개만 허용하는 sudoers를
   설치했습니다. 공개키에는 `restrict`와 forced command가 붙고 일반 셸은 거부됩니다.
 - GitHub `Production` Environment에 `OCI_DEPLOY_KEY`, `OCI_KNOWN_HOSTS`와
