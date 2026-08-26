@@ -12,6 +12,34 @@ import { SOURCE_KINDS, type Exercise, type SourceNote } from "@/content/curricul
 import { track } from "@/lib/analytics";
 import { markLessonDone, recordQuiz, saveJournalEntry } from "@/lib/store";
 
+// 사운드 (WebAudio, 에셋 없이)
+let AC: AudioContext | null = null;
+function beep(freq: number, dur: number, type: OscillatorType) {
+  try {
+    const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    AC = AC ?? new Ctor();
+    const o = AC.createOscillator();
+    const g = AC.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    o.connect(g);
+    g.connect(AC.destination);
+    g.gain.setValueAtTime(0.1, AC.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + dur);
+    o.start();
+    o.stop(AC.currentTime + dur);
+  } catch {
+    /* 사운드 실패는 진행과 무관 */
+  }
+}
+function playCorrect() {
+  beep(523, 0.1, "triangle");
+  window.setTimeout(() => beep(784, 0.16, "triangle"), 90); // 딩~
+}
+function playWrong() {
+  beep(160, 0.22, "sawtooth");
+}
+
 const SUBMIT_LABEL: Record<Exercise["kind"], string> = {
   graded: "답 확인하기",
   guided: "체크 포인트 보기",
@@ -53,6 +81,7 @@ export default function ChapterExercises({
   const [done, setDone] = useState<boolean[]>(exercises.map(() => false));
   const [picks, setPicks] = useState<number[][]>(exercises.map(() => []));
   const [texts, setTexts] = useState<string[]>(exercises.map(() => ""));
+  const [combo, setCombo] = useState(0); // 세션 내 연속 정답 (오답이면 0으로)
   const contentRef = useRef<HTMLDivElement>(null);
   const mounted = useRef(false);
 
@@ -108,6 +137,12 @@ export default function ChapterExercises({
     setDone(updated);
 
     const exercise = exercises[index];
+    if (exercise.kind === "graded") {
+      const correct = isCorrect(exercise.answers, picks[index]);
+      setCombo((c) => (correct ? c + 1 : 0));
+      if (correct) playCorrect();
+      else playWrong();
+    }
     if (exercise.kind === "journal") {
       await saveJournalEntry(`${chapterId}#${index}`, exercise.prompt, texts[index]);
     }
@@ -141,6 +176,11 @@ export default function ChapterExercises({
 
   return (
     <section aria-label="챕터 진행">
+      {combo >= 2 && (
+        <p className="lesson-combo" key={combo} role="status">
+          🔥 {combo}번 연속 정답
+        </p>
+      )}
       <div className="lesson-progress" aria-hidden="true">
         <i style={{ width: `${((at + 1) / steps.length) * 100}%` }} />
       </div>
@@ -158,9 +198,11 @@ export default function ChapterExercises({
 
       <div className="chapter-stage">
         <div
+          key={at}
           ref={contentRef}
           tabIndex={-1}
           role="group"
+          className="step-slide"
           aria-label={`${stepLabel(step)} 단계, ${at + 1}/${steps.length}`}
         >
         {step.kind === "read" && (
@@ -286,7 +328,10 @@ function Graded({
   return (
     <>
       <p className="eyebrow">확인 문항{multiple ? " · 복수 정답" : ""}</p>
-      <h3 className="sub">{exercise.prompt}</h3>
+      <div className="quiz-presenter">
+        <img className="quiz-presenter-char" src="/mascot/teach.webp" alt="" aria-hidden="true" />
+        <h3 className="quiz-bubble sub">{exercise.prompt}</h3>
+      </div>
       <div role="group" aria-label={exercise.prompt}>
         {exercise.choices.map((choice, choiceIndex) => {
           let state: string | undefined;
