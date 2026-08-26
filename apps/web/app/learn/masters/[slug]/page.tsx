@@ -13,6 +13,28 @@ export function generateStaticParams() {
   return MASTERS.map((m) => ({ slug: m.id }));
 }
 
+const YEAR_RANGE = /^(\d{4})[–-](\d{4})$/;
+
+/** 업적 라벨. "1977–1990"처럼 연도 두 개짜리는 한 줄에 욱여넣는 대신
+ *  연도 / ~연도로 세로로 쪼갠다. 그 외엔 연도(모노, 자릿수 정렬)와
+ *  카테고리 단어(산세리프)를 구분해서 보여준다. */
+function AchievementLabel({ label }: { label: string }) {
+  const range = label.match(YEAR_RANGE);
+  if (range) {
+    return (
+      <span className="achievement-label" data-type="year" data-range="true">
+        <span>{range[1]}</span>
+        <span>~ {range[2]}</span>
+      </span>
+    );
+  }
+  return (
+    <span className="achievement-label" data-type={/^\d/.test(label) ? "year" : undefined}>
+      {label}
+    </span>
+  );
+}
+
 export default async function MasterLesson({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const master = MASTER_BY_ID[slug as Master["id"]];
@@ -32,7 +54,7 @@ export default async function MasterLesson({ params }: { params: Promise<{ slug:
         <ol className="achievement-records">
           {master.achievements.map((achievement) => (
             <li key={`${achievement.label}-${achievement.title}`}>
-              <span className="achievement-label">{achievement.label}</span>
+              <AchievementLabel label={achievement.label} />
               <div className="achievement-body">
                 <h4>{achievement.title}</h4>
                 <p>{achievement.body}</p>
@@ -49,10 +71,11 @@ export default async function MasterLesson({ params }: { params: Promise<{ slug:
       shortLabel: "원칙",
       description: "이 철학이 기업을 바라보는 기준",
       content: (
-        <ul className="master-list">
+        <ul className="principle-list">
           {master.principles.map((p) => (
             <li key={p.title}>
-              <strong>{p.title}</strong> — {p.body}
+              <h4>{p.title}</h4>
+              <p>{p.body}</p>
             </li>
           ))}
         </ul>

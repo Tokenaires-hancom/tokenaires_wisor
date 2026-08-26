@@ -12,12 +12,13 @@
 }
 
 /* 라벨은 왼쪽 고정 폭, 본문은 오른쪽. 세 항목이 같은 줄에서 시작해
- * 다른 탭의 목록과 같은 리듬으로 읽힌다. 폭은 라벨 중 가장 긴 값
- * ("1977–1990", 9자)이 한 줄에 들어가는 최소치로 잡는다 — 이보다
- * 좁히면 린치 업적 항목이 두 줄로 접혀 아래 원칙 탭과 리듬이 어긋난다. */
+ * 다른 탭의 목록과 같은 리듬으로 읽힌다. "1977–1990"처럼 두 연도로 된
+ * 라벨은 마크업 단계에서 이미 두 줄(연도 / ~ 연도)로 쪼개 놓으므로,
+ * 칸 폭은 그 나머지 — 4자리 연도나 "기업가" 같은 짧은 단어 — 만 한 줄에
+ * 들어가면 된다. */
 .achievement-records li {
   display: grid;
-  grid-template-columns: 4.6rem minmax(0, 1fr);
+  grid-template-columns: 2.75rem minmax(0, 1fr);
   gap: 1.1rem;
   padding: 1.15rem 0;
   border-top: 1px solid var(--line);
@@ -28,30 +29,35 @@
   padding-top: 0;
 }
 
-/* 도장 은유는 유지하되 메달이 아니라 스탬프로. 정원은 고정 폭이라 9자
- * 라벨이 접혔다 — 높이만 고정하고 폭은 내용에 맞춰 늘어나는 알약형으로
- * 바꾼다. 그라디언트·이중 링·글로우도 없앤다: 배지 배경(gold-soft)이
- * 폴더 몸통(gold)과 다른 색이라 그 자체로 떨어져 보이고, 억지로 띄울
- * 필요가 없다. */
+/* 배지 박스를 없애고 맨텍스트로 — 폴더 몸통(gold)과 배경(gold-soft)이
+ * 이미 다른 색이라 박스로 떼어 놓을 필요가 없다. 연도는 --mono(자릿수
+ * 정렬), 카테고리 단어는 --sans — 프로젝트 규칙상 --mono는 티커·날짜·
+ * 수치 전용이다. */
 .achievement-label {
   align-self: start;
   justify-self: start;
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 1.6rem;
-  padding: 0 0.6rem;
-  border: 1px solid var(--gold-line);
-  border-radius: 999px;
-  background: var(--gold-soft);
-  color: var(--gold-deep);
-  font-family: var(--mono);
+  color: var(--gold);
+  font-family: var(--sans);
   font-size: 0.72rem;
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: 0.02em;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
   white-space: nowrap;
+  word-break: keep-all;
+}
+
+.achievement-label[data-type="year"] {
+  font-family: var(--mono);
   font-variant-numeric: tabular-nums;
+}
+
+/* "1977–1990" 같은 두 연도 라벨: 칸 폭에 억지로 맞추는 대신 연도 두
+ * 개를 세로로 쌓는다. */
+.achievement-label[data-range="true"] {
+  flex-direction: column;
+  align-items: flex-start;
+  white-space: normal;
 }
 
 .achievement-records h4 {
@@ -79,20 +85,7 @@
 
 @media (max-width: 760px) {
   .achievement-records li {
-    grid-template-columns: 4.2rem minmax(0, 1fr);
     gap: 0.8rem;
-  }
-
-  /* 좁은 화면은 "1977–1990" 같은 9자 라벨이 칸+여백을 넘어 본문 위로
-   * 겹친다. 한 줄 고정을 풀고 2줄까지 접히게 둔다 — 배지가 넓은 화면보다
-   * 눌린 알약 모양이 되는 정도로, 겹침보다 낫다. */
-  .achievement-label {
-    height: auto;
-    min-height: 1.6rem;
-    padding: 0.3rem 0.55rem;
-    white-space: normal;
-    text-align: center;
-    line-height: 1.2;
   }
 }
 
@@ -278,21 +271,20 @@
 }
 
 .master-tabpanel-header {
-  max-width: 46rem;
+  max-width: 36rem;
   margin-bottom: 1.05rem;
   padding-bottom: 0.8rem;
   border-bottom: 1px solid var(--line);
 }
 
-.master-tabpanel-header h3 {
-  margin: 0 0 0.2rem;
-  color: var(--ink);
-  font-size: 1rem;
-  line-height: 1.35;
-  letter-spacing: -0.025em;
+/* 탭 버튼이 이미 이름("업적" 등)을 보여주므로, 패널 안에서 같은 단어를
+ * 큰 제목으로 또 반복하지 않는다. 전용 클래스 대신 globals.css의
+ * .eyebrow를 그대로 쓴다. */
+.master-tabpanel-header .eyebrow {
+  margin-bottom: 0.3rem;
 }
 
-.master-tabpanel-header p {
+.master-tabpanel-header-desc {
   margin: 0;
   color: var(--file-muted);
   font-size: 0.8rem;
@@ -301,11 +293,52 @@
 }
 
 .master-tabpanel-content {
-  max-width: 46rem;
+  max-width: 36rem;
 }
 
+/* 기업조건·한계·자가진단 탭. .reason-list는 스크리너·퀴즈 등 사이트
+ * 전체가 쓰는 공용 클래스(0.88rem 고정)라 여기서만 덮어써 업적·원칙과
+ * 같은 본문 크기(0.86rem)로 맞춘다. */
 .master-tabpanel .reason-list {
   margin: 0;
+  font-size: 0.86rem;
+}
+
+/* 원칙 탭. 업적과 같은 구분선 리듬(제목 줄 / 본문 줄)으로 — 인라인
+ * "제목 — 본문"은 제목이 문장에 묻혀 안 읽혔다. 원칙 데이터에는 업적의
+ * label 같은 필드가 없어서 왼쪽 라벨 칸은 두지 않는다. */
+.principle-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.principle-list li {
+  padding: 1.15rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.principle-list li:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.principle-list h4 {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.45;
+  letter-spacing: -0.02em;
+  word-break: keep-all;
+}
+
+.principle-list p {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.7;
+  color: var(--file-muted);
+  word-break: keep-all;
 }
 
 .master-tabpanel-content .master-list {
@@ -346,7 +379,7 @@
 }
 
 .master-file-footer p {
-  max-width: 46rem;
+  max-width: 36rem;
   margin: 0;
 }
 
