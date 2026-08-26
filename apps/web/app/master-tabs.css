@@ -270,9 +270,12 @@
   display: none;
 }
 
+/* 36rem로 좁힌 폭이 넓은 화면에서는 흰 폴더보다 훨씬 좁아 오른쪽에 빈
+ * 칸이 크게 남는다. 왼쪽에 붙이는 대신 가운데로 — 남는 폭이 양쪽으로
+ * 갈라져 여백처럼 읽히지, 내용이 잘려 나간 것처럼 안 보인다. */
 .master-tabpanel-header {
   max-width: 36rem;
-  margin-bottom: 1.05rem;
+  margin: 0 auto 1.05rem;
   padding-bottom: 0.8rem;
   border-bottom: 1px solid var(--line);
 }
@@ -294,6 +297,7 @@
 
 .master-tabpanel-content {
   max-width: 36rem;
+  margin-inline: auto;
 }
 
 /* 기업조건·한계·자가진단 탭. .reason-list는 스크리너·퀴즈 등 사이트
@@ -380,7 +384,7 @@
 
 .master-file-footer p {
   max-width: 36rem;
-  margin: 0;
+  margin: 0 auto;
 }
 
 /* 폴더에서 새 종이를 꺼내 올리는 움직임. 어느 쪽 인덱스를 골랐는지에 따라
