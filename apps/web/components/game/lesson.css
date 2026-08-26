@@ -1,5 +1,69 @@
 /* C2 레슨 모드 — 문항 스텝 집중. 본문은 그대로 두고 퀴즈만 듀오링고식으로. */
 
+/* 레슨 미니 경로 — 정답마다 캐릭터가 한 칸 걷는다 */
+.lesson-path {
+  position: relative;
+  width: min(100%, 280px);
+  margin: 0 auto 1.25rem;
+}
+.lesson-path-track {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.lesson-path-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: var(--row, 56px);
+  padding-left: calc(50% - 16px + var(--sway, 0px));
+}
+.lesson-path-dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--line);
+  box-shadow: 0 3px 0 var(--line-strong);
+  color: var(--ink-faint);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+.lesson-path-dot[data-state="done"] {
+  background: var(--gold);
+  box-shadow: 0 3px 0 var(--gold-deep);
+  color: #fff;
+}
+.lesson-path-dot[data-state="current"] {
+  background: var(--gold);
+  border: 3px solid var(--wine);
+  box-shadow: 0 3px 0 var(--gold-deep);
+  color: #fff;
+}
+.lesson-path-dot[data-state="todo"] {
+  background: var(--surface);
+  border: 2px dashed var(--line-strong);
+  box-shadow: none;
+}
+.lesson-path-figure {
+  position: absolute;
+  top: calc(var(--at, 0) * var(--row, 56px) - 20px);
+  right: calc(50% + 16px - var(--sway, 0px) + 8px);
+  pointer-events: none;
+}
+.lesson-path-figure .character img {
+  height: 96px !important;
+  transform: scaleX(-1);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .lesson-path-figure {
+    transition: top 0.45s ease, right 0.45s ease;
+  }
+}
+
 /* 문항/단계 전환: 옆에서 스윽 들어옴 */
 .step-slide {
   animation: step-slide-in 0.28s ease;

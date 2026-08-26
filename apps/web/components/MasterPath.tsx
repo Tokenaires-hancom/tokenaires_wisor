@@ -64,6 +64,7 @@ export default function MasterPath({
       : { href: `/learn/masters/${masterId}/1`, label: "1장부터 시작하기" };
 
   const figureAt = getCharacterAnchor(nextNo);
+  const figureSway = SWAY[(figureAt - 1) % SWAY.length];
 
   async function restartLearning() {
     const confirmed = window.confirm(
@@ -77,6 +78,7 @@ export default function MasterPath({
 
   return (
     <div className="path-shell">
+      <div className="path-map">
       <ol className="path" aria-label={`${master.name} 학습 경로`}>
         {chapterTitles.map((title, index) => {
           const slot = CHAPTER_SLOTS[index];
@@ -111,20 +113,6 @@ export default function MasterPath({
                 <span className="path-label-slot">{slot.label}</span>
                 <span className="path-label-title">{title}</span>
               </span>
-              {slot.no === figureAt && (
-                <span className="path-figure" data-anchor={figureAt}>
-                  {cta && !allDone && (
-                    <Link
-                      href={cta.href}
-                      className="path-guide-cta"
-                      data-resume={isResume ? "true" : undefined}
-                    >
-                      {cta.label}
-                    </Link>
-                  )}
-                  <MasterCharacter masterId={masterId} height={170} dimmed={!ready} />
-                </span>
-              )}
               {isCurrent && cta && (
                 <Link
                   href={cta.href}
@@ -138,6 +126,29 @@ export default function MasterPath({
           );
         })}
       </ol>
+
+      <span
+        className="path-figure"
+        data-anchor={figureAt}
+        style={
+          {
+            "--sway": `${figureSway}px`,
+            "--path-row": figureAt - 1,
+          } as React.CSSProperties
+        }
+      >
+        {cta && !allDone && (
+          <Link
+            href={cta.href}
+            className="path-guide-cta"
+            data-resume={isResume ? "true" : undefined}
+          >
+            {cta.label}
+          </Link>
+        )}
+        <MasterCharacter masterId={masterId} height={170} dimmed={!ready} />
+      </span>
+      </div>
 
       {allDone && cta && (
         <Link href={cta.href} className="btn path-cta">
