@@ -314,17 +314,26 @@
 }
 
 /* 기업조건·한계·자가진단 탭. .reason-list는 스크리너·퀴즈 등 사이트
- * 전체가 쓰는 공용 클래스(0.88rem, --ink-soft 고정)라 여기서만 덮어써
- * 업적·원칙과 같은 본문 단(0.86rem, --file-muted)으로 맞춘다. 항목 앞
- * 점의 색(충족 --gold / 미충족 --ochre / 판정불가 점선)은 그대로 둔다 —
- * 글자색과 달리 그건 판정 상태를 나르는 표시다. */
+ * 전체가 쓰는 공용 클래스(0.88rem, --ink-soft 고정)라 여기서만 덮어쓴다.
+ * 이 세 탭에서는 항목 한 줄이 곁다리 설명이 아니라 탭의 본체라, 업적·
+ * 원칙의 본문 단이 아니라 항목 제목 단(0.95rem)에 맞춘다. 색은 --wine
+ * 이름표 아래 본문 농도(--file-muted)를 그대로 쓴다.
+ * 항목 앞 점의 색(충족 --gold / 미충족 --ochre / 판정불가 점선)은 그대로
+ * 둔다 — 글자색과 달리 그건 판정 상태를 나르는 표시다. */
 .master-tabpanel .reason-list {
   margin: 0;
-  font-size: 0.86rem;
+  font-size: 0.95rem;
 }
 
 .master-tabpanel .reason-list li {
   color: var(--file-muted);
+  line-height: 1.5;
+}
+
+/* 점의 margin-top(0.62rem)은 0.88rem 글자에 맞춰 둔 값이라, 글자를
+ * 키우면 첫 줄 글자 중심보다 3.5px 아래로 처진다. 첫 줄 중심에 맞춘다. */
+.master-tabpanel .reason-list li::before {
+  margin-top: 0.5rem;
 }
 
 /* 원칙 탭. 업적과 같은 구분선 리듬(제목 줄 / 본문 줄)으로 — 인라인
