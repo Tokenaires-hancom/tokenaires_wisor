@@ -286,15 +286,18 @@
 
 /* 탭 버튼이 이미 이름("업적" 등)을 보여주므로, 패널 안에서 같은 단어를
  * 큰 제목으로 또 반복하지 않는다. 전용 클래스 대신 globals.css의
- * .eyebrow를 그대로 쓴다. */
-/* 키운 크기(0.78rem)가 바로 아래 설명(0.8rem)과 거의 같아져서, 크기
- * 대신 굵기로 라벨임을 표시한다. 색도 --ink-faint(2.3:1)에서 한 단계
- * 올려 읽히게 하되 설명(--file-muted)보다는 연하게 둔다. */
+ * .eyebrow를 그대로 쓴다.
+ *
+ * 크기(0.78rem)가 바로 아래 설명(0.8rem)과 거의 같으므로, 크기 대신
+ * 굵기와 색으로 라벨임을 표시한다. 색은 고른 인덱스와 같은 버건디 —
+ * 지금 어느 탭을 펼쳤는지가 인덱스와 종이 두 곳에서 같은 색으로 읽힌다.
+ * 방향(충족·미충족)을 뜻하는 자리가 아니라 학습 화면의 이름표라
+ * --wine을 써도 되는 자리다. */
 .master-tabpanel-header .eyebrow {
   margin-bottom: 0.3rem;
   font-size: 0.78rem;
   font-weight: 700;
-  color: var(--ink-soft);
+  color: var(--wine);
 }
 
 .master-tabpanel-header-desc {
