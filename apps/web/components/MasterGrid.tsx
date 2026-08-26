@@ -32,7 +32,7 @@ export default function MasterGrid() {
           className="master-grid-ribbon-path"
           data-shape="narrow"
           vectorEffect="non-scaling-stroke"
-          d="M 500 30 C 580 140, 420 240, 500 350 C 580 460, 420 560, 500 670 C 580 760, 760 800, 850 884 C 878 910, 880 946, 880 976"
+          d="M 500 40 C 580 151.9, 420 253.6, 500 365.4 C 580 477.3, 420 579.0, 500 690.8 C 580 782.3, 760 823.0, 850 908.4 C 878 934.9, 880 971.5, 880 1002.0"
         />
         <path
           className="master-grid-ribbon-path"
@@ -56,7 +56,7 @@ export default function MasterGrid() {
           className="master-grid-ribbon-arrow"
           data-shape="narrow"
           vectorEffect="non-scaling-stroke"
-          d="M 880 956 L 880 978 M 856 970 L 880 990 L 904 970"
+          d="M 880 981.7 L 880 1004.0 M 856 995.9 L 880 1016.2 L 904 995.9"
         />
       </svg>
 
@@ -69,21 +69,26 @@ export default function MasterGrid() {
                 href={`/learn/masters/${master.id}`}
                 className="master-card"
                 data-featured={featured ? "true" : undefined}
+                data-master={master.id}
               >
-                <span className="master-card-art">
-                  <span className="master-card-sequence" aria-hidden="true">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
+                <span className="master-card-ring">
                   <img
                     className="master-card-portrait"
                     src={`/investors/${master.id}.png`}
                     alt=""
                   />
                 </span>
-                <span className="master-card-body">
-                  <span className="style-name">{master.styleName}</span>
+                <span className="master-card-name-row">
+                  <span className="master-card-sequence" aria-hidden="true">
+                    {index + 1}
+                  </span>
                   <strong className="master-card-name">{master.name}</strong>
-                  <span className="master-card-line">{master.oneLine}</span>
+                  <span className="style-name">{master.styleName}</span>
+                </span>
+                <span className="master-card-reveal">
+                  <span className="master-card-reveal-inner">
+                    <p>{master.oneLine}</p>
+                  </span>
                 </span>
               </Link>
             </li>
