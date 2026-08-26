@@ -1,0 +1,47 @@
+# syntax=docker/dockerfile:1
+FROM node:24-bookworm-slim AS build
+
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
+COPY . .
+
+ARG WISOR_SHA
+ARG NEXT_PUBLIC_SUPABASE_URL
+ARG NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+ARG PERSONA_API_ORIGIN
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    NODE_OPTIONS=--max-old-space-size=640 \
+    NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL} \
+    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY} \
+    PERSONA_API_ORIGIN=${PERSONA_API_ORIGIN}
+
+RUN npm test \
+    && npm run build \
+    && rm -rf .next/cache \
+    && npm prune --omit=dev \
+    && npm cache clean --force
+
+FROM node:24-bookworm-slim AS runtime
+ARG WISOR_SHA
+LABEL org.opencontainers.image.revision=${WISOR_SHA}
+
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    NODE_OPTIONS=--max-old-space-size=256 \
+    PORT=3000 \
+    HOSTNAME=0.0.0.0
+
+WORKDIR /app
+COPY --from=build --chown=node:node /app/package.json /app/package-lock.json ./
+COPY --from=build --chown=node:node /app/node_modules ./node_modules
+COPY --from=build --chown=node:node /app/.next ./.next
+COPY --from=build --chown=node:node /app/public ./public
+COPY --from=build --chown=node:node /app/next.config.mjs ./next.config.mjs
+
+USER node
+EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+CMD ["npm", "run", "start"]

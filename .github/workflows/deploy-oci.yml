@@ -1,0 +1,101 @@
+# main의 애플리케이션 변경을 OCI 운영 서버에 배포한다.
+# 점수·재무 캐시만 바뀐 커밋은 OCI의 별도 배치가 반영하므로 이미지를 다시 만들지 않는다.
+
+name: OCI 운영 배포
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "apps/web/lib/generated/scores.json"
+      - "data-pipeline/data/fundamentals.json"
+
+concurrency:
+  group: oci-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    uses: ./.github/workflows/check.yml
+
+  deploy:
+    needs: check
+    runs-on: ubuntu-latest
+    # 3시간 제한의 가격 배치와 겹쳐도 이 push 자체가 유실되지 않게 기다린다.
+    timeout-minutes: 300
+    environment:
+      name: Production
+      url: https://wisor.site
+    steps:
+      - name: 제한 SSH 자격증명 준비
+        env:
+          OCI_DEPLOY_KEY: ${{ secrets.OCI_DEPLOY_KEY }}
+          OCI_KNOWN_HOSTS: ${{ secrets.OCI_KNOWN_HOSTS }}
+        run: |
+          set -eu
+          : "${OCI_DEPLOY_KEY:?Production secret OCI_DEPLOY_KEY is required}"
+          : "${OCI_KNOWN_HOSTS:?Production secret OCI_KNOWN_HOSTS is required}"
+
+          install -d -m 0700 "$RUNNER_TEMP/wisor-ssh"
+          printf '%s\n' "$OCI_DEPLOY_KEY" | tr -d '\r' > "$RUNNER_TEMP/wisor-ssh/key"
+          printf '%s\n' "$OCI_KNOWN_HOSTS" | tr -d '\r' > "$RUNNER_TEMP/wisor-ssh/known_hosts"
+          chmod 0600 "$RUNNER_TEMP/wisor-ssh/key" "$RUNNER_TEMP/wisor-ssh/known_hosts"
+
+          ssh-keygen -y -f "$RUNNER_TEMP/wisor-ssh/key" >/dev/null
+          ssh-keygen -l -f "$RUNNER_TEMP/wisor-ssh/known_hosts" >/dev/null
+
+      - name: 커밋 SHA 배포
+        env:
+          OCI_HOST: ${{ vars.OCI_HOST }}
+          OCI_PORT: ${{ vars.OCI_PORT }}
+          OCI_USER: ${{ vars.OCI_USER }}
+        run: |
+          set -eu
+          : "${OCI_HOST:?Production variable OCI_HOST is required}"
+          : "${OCI_PORT:?Production variable OCI_PORT is required}"
+          : "${OCI_USER:?Production variable OCI_USER is required}"
+
+          ssh \
+            -F /dev/null \
+            -i "$RUNNER_TEMP/wisor-ssh/key" \
+            -p "$OCI_PORT" \
+            -o BatchMode=yes \
+            -o ConnectTimeout=20 \
+            -o IdentitiesOnly=yes \
+            -o ServerAliveCountMax=6 \
+            -o ServerAliveInterval=30 \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$RUNNER_TEMP/wisor-ssh/known_hosts" \
+            "$OCI_USER@$OCI_HOST" \
+            "deploy $GITHUB_SHA"
+
+      - name: 외부 경로 확인
+        run: |
+          set -eu
+          for attempt in $(seq 1 12); do
+            if curl --fail --silent --show-error --max-time 15 https://wisor.site/ >/dev/null \
+              && curl --fail --silent --show-error --max-time 15 https://wisor.site/api/persona/health >/dev/null; then
+              exit 0
+            fi
+            if [ "$attempt" -eq 12 ]; then
+              echo "배포 명령은 끝났지만 외부 경로 확인이 실패했습니다." >&2
+              exit 1
+            fi
+            sleep 5
+          done
+
+      - name: 배포 요약
+        run: |
+          {
+            echo "### OCI 운영 배포 완료"
+            echo
+            echo "- commit: \`$GITHUB_SHA\`"
+            echo "- service: https://wisor.site"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 임시 SSH 자격증명 제거
+        if: always()
+        run: rm -rf -- "$RUNNER_TEMP/wisor-ssh"

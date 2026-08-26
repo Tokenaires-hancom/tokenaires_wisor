@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+readonly command_text=${SSH_ORIGINAL_COMMAND:-}
+if [[ ! ${command_text} =~ ^deploy\ ([0-9a-f]{40})$ ]]; then
+  printf '허용되지 않은 배포 명령입니다.\n' >&2
+  exit 64
+fi
+
+printf '%s\n' "${BASH_REMATCH[1]}" | sudo --non-interactive /usr/local/sbin/wisor-deploy

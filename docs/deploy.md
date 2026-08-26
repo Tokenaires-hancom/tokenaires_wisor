@@ -1,11 +1,24 @@
 # 배포
 
 > 담당: 2번(백엔드·플랫폼·배포·환경변수)
-> 설정 파일은 저장소 루트의 `render.yaml`, 구조는 [시스템 설계도](./system-design.md) 3장.
+> 현재 운영은 OCI의 <https://wisor.site>입니다. 자동 배포 계약은
+> [OCI main 자동 배포](./oci-autodeploy.md)에 있습니다. `render.yaml`은 기존 Render 설정입니다.
 
 ---
 
-## 지금 도는 것
+## 현재 운영: OCI
+
+GitHub `main`의 애플리케이션 변경은 `.github/workflows/deploy-oci.yml`이 검사한 뒤 OCI에
+커밋 SHA 단위로 배포합니다. 서버는 `/opt/wisor/releases/<sha>`의 불변 release를 만들고,
+Web·Persona 이미지가 모두 healthy이며 외부 경로가 응답할 때만 전환을 확정합니다. 실패하면
+이전 이미지·코드·배치 소스를 함께 복원합니다.
+
+점수 JSON과 재무 캐시만 바뀐 자동 커밋은 앱 배포를 시작하지 않습니다. OCI의 별도 배치가
+운영 데이터를 갱신하므로 3시간마다 같은 이미지를 중복 빌드하지 않기 위한 구분입니다.
+
+---
+
+## 기존 Render 배포
 
 | 서비스 | 런타임 | 주소 | 저장소 위치 |
 |---|---|---|---|

@@ -3240,114 +3240,6 @@ h3.sub {
   flex: 1;
 }
 
-.master-achievements {
-  scroll-margin-top: 5rem;
-  margin: 2.75rem 0 2.5rem;
-}
-
-.master-achievements-head {
-  display: grid;
-  grid-template-columns: minmax(12rem, 0.8fr) minmax(18rem, 1.2fr);
-  align-items: end;
-  gap: 2rem;
-  margin-bottom: 1.15rem;
-}
-
-.master-achievements-head .eyebrow {
-  margin-bottom: 0.2rem;
-}
-
-.master-achievements-head h2 {
-  margin: 0;
-  font-size: clamp(1.45rem, 3vw, 2rem);
-  line-height: 1.25;
-  letter-spacing: -0.035em;
-}
-
-.master-achievements-head > p {
-  margin: 0;
-  color: var(--ink-soft);
-  font-size: 0.92rem;
-  line-height: 1.65;
-  word-break: keep-all;
-}
-
-.achievement-records {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.8rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.achievement-records li {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  padding: 1.4rem 1rem 1rem;
-  border: 1px solid var(--line);
-  border-top: 3px solid var(--gold);
-  border-radius: 4px 4px var(--radius) var(--radius);
-  background: var(--surface);
-  box-shadow: 0 3px 0 var(--line);
-}
-
-.achievement-label {
-  display: inline-block;
-  margin-bottom: 0.75rem;
-  padding: 0.15rem 0.5rem;
-  border: 1px solid var(--gold-line);
-  border-radius: 4px;
-  background: var(--gold-soft);
-  color: var(--gold-deep);
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-}
-
-.achievement-records h3 {
-  margin: 0 0 0.55rem;
-  font-size: 1rem;
-  line-height: 1.45;
-  letter-spacing: -0.02em;
-  word-break: keep-all;
-}
-
-.achievement-records p {
-  margin: 0 0 1rem;
-  color: var(--ink-soft);
-  font-size: 0.86rem;
-  line-height: 1.65;
-  word-break: keep-all;
-}
-
-.achievement-records small {
-  display: block;
-  margin-top: auto;
-  padding-top: 0.7rem;
-  border-top: 1px dashed var(--line-strong);
-  color: var(--ink-faint);
-  font-size: 0.72rem;
-  line-height: 1.5;
-}
-
-@media (max-width: 760px) {
-  .master-achievements-head {
-    grid-template-columns: 1fr;
-    gap: 0.65rem;
-  }
-
-  .achievement-records {
-    grid-template-columns: 1fr;
-  }
-
-  .achievement-records li {
-    padding: 1.15rem 1rem 1rem;
-  }
-}
-
 @media (max-width: 860px) {
   .master-page {
     padding-top: 1rem;
@@ -3647,6 +3539,11 @@ h3.sub {
   margin-bottom: 2rem;
 }
 
+.learn-page-header .thesis {
+  font-size: clamp(1.4rem, 3vw, 2.1rem);
+  max-width: none;
+}
+
 .master-grid {
   position: relative;
 }
@@ -3748,8 +3645,8 @@ h3.sub {
 
 @media (max-width: 640px) {
   .compare-jump {
-    --arrow-x: 88%; /* narrow: M 880 990 */
-    --arrow-y: 99%;
+    --arrow-x: 88%; /* narrow: M 880 1016 */
+    --arrow-y: 100%;
   }
 }
 
@@ -3826,7 +3723,7 @@ h3.sub {
   display: grid;
   grid-template-columns: repeat(8, minmax(0, 1fr));
   column-gap: 20px;
-  row-gap: 36px;
+  row-gap: 160px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -3854,128 +3751,136 @@ h3.sub {
   grid-row: 2;
 }
 
+/* 대가별 색을 카드에 묶는다. 비교표 막대가 이미 쓰는 --master-<id>-deep
+ * 값을 그대로 가져와, 링 그림자·이름표 위치가 비교표와 같은 색으로 이 사람을
+ * 가리키게 한다. */
+.master-grid [data-master="buffett"] { --master-color: var(--master-buffett-deep); }
+.master-grid [data-master="graham"] { --master-color: var(--master-graham-deep); }
+.master-grid [data-master="lynch"] { --master-color: var(--master-lynch-deep); }
+.master-grid [data-master="marks"] { --master-color: var(--master-marks-deep); }
+.master-grid [data-master="fisher"] { --master-color: var(--master-fisher-deep); }
+.master-grid [data-master="greenblatt"] { --master-color: var(--master-greenblatt-deep); }
+.master-grid [data-master="soros"] { --master-color: var(--master-soros-deep); }
+
 .master-card {
   position: relative;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-  border: 2px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: 0 4px 0 var(--line);
-  min-height: 320px;
-  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  align-items: center;
+  text-align: center;
+  text-decoration: none;
 }
 
-.master-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--gold-line);
-  box-shadow: 0 4px 0 var(--gold-line);
-}
-
-.master-card:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 var(--gold-line);
-}
-
-/* 동일한 4:3 아트 프레임이 전신·원형 초상화의 시각적 체급을 맞춘다. */
-.master-card-art {
+.master-card-ring {
   position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 4 / 3;
-  width: 100%;
-  background: var(--surface);
-  overflow: hidden;
-}
-
-.master-card-sequence {
-  position: absolute;
-  z-index: 2;
-  top: 0.85rem;
-  left: 0.9rem;
-  display: grid;
-  place-items: center;
-  min-width: 2.25rem;
-  height: 1.75rem;
-  padding-inline: 0.45rem;
-  border: 1px solid color-mix(in srgb, var(--gold) 60%, var(--surface));
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--surface) 92%, transparent);
-  color: var(--gold-deep);
-  font-family: var(--mono);
-  font-size: 0.76rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  backdrop-filter: blur(5px);
-}
-
-.master-card[data-featured="true"] {
-  border-color: var(--gold);
-  box-shadow: 0 4px 0 var(--gold-deep);
 }
 
 .master-card-portrait {
-  width: 148px;
-  height: 148px;
-  margin-bottom: 0;
+  width: 190px;
+  height: 190px;
   border-radius: 50%;
   object-fit: cover;
-  box-shadow: 0 0 0 8px var(--surface), 0 4px 0 8px var(--line);
+  box-shadow: 0 0 0 8px var(--surface), 0 5px 0 8px var(--master-color, var(--line));
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.master-card-body {
-  position: absolute;
+.master-card:hover .master-card-portrait,
+.master-card:focus-visible .master-card-portrait {
+  transform: translateY(-3px);
+  box-shadow: 0 0 0 8px var(--surface), 0 8px 0 8px var(--master-color, var(--line));
+}
+
+.master-card:active .master-card-portrait {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 8px var(--surface), 0 3px 0 8px var(--master-color, var(--line));
+}
+
+.master-card[data-featured="true"] .master-card-portrait {
+  outline: 3px solid var(--gold);
+  outline-offset: 4px;
+}
+
+/* 이름표는 평소 링 바로 아래. 호버하면 위로 떠올라 링 아랫단을 살짝
+ * 덮는다 — 그 자리를 설명 상자에게 내주는 것. 배경이 불투명해 링을
+ * 실제로 가린다. */
+.master-card-name-row {
+  position: relative;
   z-index: 3;
-  right: 0;
-  bottom: 0;
-  left: 0;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
   gap: 0.4rem;
-  padding: 1.1rem 1.2rem 1.35rem;
-  border-top: 1px solid var(--line);
-  background: color-mix(in srgb, var(--surface) 96%, transparent);
-  backdrop-filter: blur(8px);
-  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  margin-top: 1.1rem;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.master-card:hover .master-card-name-row,
+.master-card:focus-visible .master-card-name-row {
+  transform: none;
+}
+
+.master-card-sequence {
+  color: var(--wine-deep);
+  font-family: var(--mono);
+  font-size: 0.92rem;
+  font-weight: 800;
 }
 
 .master-card-name {
-  font-size: 1.12rem;
+  font-size: 1.2rem;
   font-weight: 800;
   letter-spacing: -0.01em;
   word-break: keep-all;
 }
 
-.master-card-line {
+.master-card .style-name {
+  font-size: 0.78rem;
+  padding: 0.42rem 0.65rem;
+}
+
+/* 카드 전체가 아니라 설명 상자만. 테두리는 없다 — 인물 원형은 가리지
+ * 않고, 이름표 바로 아래에서만 자라난다. 옆 카드 자리를 침범하지
+ * 않도록 높이를 제한한다. */
+.master-card-reveal {
+  position: absolute;
+  z-index: 2;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 270px;
   max-height: 0;
-  margin-top: -0.4rem;
   overflow: hidden;
-  color: var(--ink-soft);
-  font-size: 0.9rem;
-  line-height: 1.55;
   opacity: 0;
-  transform: translateY(6px);
-  transition: max-height 0.2s ease, margin-top 0.2s ease, opacity 0.16s ease,
-    transform 0.2s ease;
-  word-break: keep-all;
+  border-radius: 14px;
+  background: var(--surface);
+  pointer-events: none;
+  transition: max-height 0.2s ease, opacity 0.15s ease;
 }
 
-.master-card:hover .master-card-body,
-.master-card:focus-visible .master-card-body {
-  border-top-color: var(--gold-line);
-  box-shadow: 0 -10px 24px color-mix(in srgb, var(--ink) 8%, transparent);
-}
-
-.master-card:hover .master-card-line,
-.master-card:focus-visible .master-card-line {
-  max-height: 5rem;
-  margin-top: 0;
+.master-card:hover .master-card-reveal,
+.master-card:focus-visible .master-card-reveal {
+  max-height: 9rem;
   opacity: 1;
-  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.master-card-reveal-inner {
+  display: block;
+  padding: 0.9rem 1rem 0.9rem;
+  text-align: center;
+}
+
+.master-card-reveal-inner p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  word-break: keep-all;
 }
 
 @media (max-width: 900px) {
@@ -3997,7 +3902,7 @@ h3.sub {
 
   .master-grid-list {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    row-gap: 56px;
+    row-gap: 130px;
   }
 
   .master-grid-item,
@@ -4008,14 +3913,40 @@ h3.sub {
     grid-row: auto;
   }
 
-  .master-card {
-    min-height: 330px;
+  .master-card-portrait {
+    width: 160px;
+    height: 160px;
   }
 
-  .master-card-portrait {
-    width: 128px;
-    height: 128px;
-    margin-bottom: 0;
+  .master-card:hover .master-card-name-row,
+  .master-card:focus-visible .master-card-name-row {
+    transform: none;
+  }
+
+  .master-card-reveal {
+    top: 100%;
+    width: 230px;
+  }
+
+  .master-card-reveal-inner {
+    padding: 0.8rem 1rem 0.9rem;
+  }
+
+  .master-card-sequence {
+    font-size: 0.84rem;
+  }
+
+  .master-card .style-name {
+    font-size: 0.72rem;
+    padding: 0.38rem 0.58rem;
+  }
+
+  .master-card-name {
+    font-size: 1.05rem;
+  }
+
+  .master-card-reveal-inner p {
+    font-size: 0.88rem;
   }
 }
 
@@ -4055,7 +3986,7 @@ h3.sub {
   }
 
   .master-grid-list {
-    row-gap: 14px;
+    row-gap: 100px;
     column-gap: 12px;
   }
 
@@ -4066,57 +3997,61 @@ h3.sub {
     grid-column: 2 / span 2;
   }
 
-  .master-card {
-    height: 140px;
-    min-height: 140px;
-  }
-
-  .master-card-art {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    aspect-ratio: auto;
-  }
-
   .master-card-portrait {
-    width: 72px;
-    height: 72px;
-    margin-bottom: 0;
-    box-shadow: 0 0 0 4px var(--surface), 0 3px 0 4px var(--line);
-    transform: translateY(-22px);
+    width: 118px;
+    height: 118px;
+    box-shadow: 0 0 0 4px var(--surface), 0 4px 0 4px var(--master-color, var(--line));
   }
 
-  .master-card-body {
-    position: absolute;
-    padding: 0.5rem 0.65rem 0.6rem;
-    gap: 0.22rem;
-    border-top-color: var(--line);
-    background: color-mix(in srgb, var(--surface) 97%, transparent);
-    backdrop-filter: blur(8px);
+  .master-card:hover .master-card-portrait,
+  .master-card:focus-visible .master-card-portrait {
+    box-shadow: 0 0 0 4px var(--surface), 0 6px 0 4px var(--master-color, var(--line));
+  }
+
+  .master-card:active .master-card-portrait {
+    box-shadow: 0 0 0 4px var(--surface), 0 2px 0 4px var(--master-color, var(--line));
+  }
+
+  .master-card-name-row {
+    margin-top: 0.6rem;
+    gap: 0.3rem;
+  }
+
+  .master-card:hover .master-card-name-row,
+  .master-card:focus-visible .master-card-name-row {
+    transform: none;
   }
 
   .master-card-sequence {
-    top: 0.5rem;
-    left: 0.5rem;
-    min-width: 1.8rem;
-    height: 1.45rem;
-    padding-inline: 0.35rem;
-    font-size: 0.65rem;
+    font-size: 0.76rem;
   }
 
   .master-card .style-name {
-    padding: 0.28rem 0.42rem;
-    font-size: 0.58rem;
+    padding: 0.32rem 0.48rem;
+    font-size: 0.66rem;
   }
 
   .master-card-name {
-    font-size: 0.82rem;
+    font-size: 0.9rem;
   }
 
-  .master-card-line {
+  .master-card-reveal {
+    top: 100%;
+    width: 178px;
+  }
+
+  .master-card:hover .master-card-reveal,
+  .master-card:focus-visible .master-card-reveal {
+    max-height: 7rem;
+  }
+
+  .master-card-reveal-inner {
+    padding: 0.65rem 0.5rem 0.55rem;
+  }
+
+  .master-card-reveal-inner p {
     font-size: 0.68rem;
-    line-height: 1.35;
+    line-height: 1.4;
   }
 }
 
@@ -4128,20 +4063,12 @@ h3.sub {
   .learn-page-header {
     margin-bottom: 1rem;
   }
-
-  .master-grid-list {
-    row-gap: 10px;
-  }
-
-  .master-card {
-    height: 136px;
-    min-height: 136px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .master-card-body,
-  .master-card-line {
+  .master-card-name-row,
+  .master-card-reveal,
+  .master-card-portrait {
     transition: none;
   }
 }

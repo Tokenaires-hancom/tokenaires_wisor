@@ -1,0 +1,17 @@
+[Unit]
+Description=Wisor Docker Compose application
+Requires=docker.service
+Wants=network-online.target
+After=docker.service network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/docker compose --env-file /etc/wisor/release.env -f /opt/wisor/deploy/compose.yaml up -d --wait --wait-timeout 180
+ExecReload=/usr/bin/docker compose --env-file /etc/wisor/release.env -f /opt/wisor/deploy/compose.yaml up -d --wait --wait-timeout 180
+ExecStop=/usr/bin/docker compose --env-file /etc/wisor/release.env -f /opt/wisor/deploy/compose.yaml stop
+TimeoutStartSec=240
+TimeoutStopSec=90
+
+[Install]
+WantedBy=multi-user.target

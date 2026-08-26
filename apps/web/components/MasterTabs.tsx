@@ -89,8 +89,8 @@ export default function MasterTabs({ tabs, title, headingId, footer }: MasterTab
               {/* 번호는 인덱스에서 뺐으니 여기서도 뺀다. 남겨 두면 이름은
                *  탭에서, 번호는 여기서 세는 꼴이 된다. */}
               <header className="master-tabpanel-header">
-                <h3>{tab.label}</h3>
-                <p>{tab.description}</p>
+                <p className="eyebrow">{tab.label}</p>
+                <p className="master-tabpanel-header-desc">{tab.description}</p>
               </header>
               <div className="master-tabpanel-content">{tab.content}</div>
             </div>

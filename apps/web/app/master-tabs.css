@@ -11,50 +11,65 @@
   list-style: none;
 }
 
-/* 라벨은 왼쪽 고정 폭, 본문은 오른쪽. 세 항목이 같은 줄에서 시작해
- * 다른 탭의 목록과 같은 리듬으로 읽힌다. */
-.achievement-records li {
-  display: grid;
-  grid-template-columns: 3.4rem minmax(0, 1fr);
-  gap: 1.1rem;
+/* 업적과 원칙은 항목 리듬이 같다 — 구분선으로 나뉜 줄에 제목 줄과 본문
+ * 줄이 들어간다. 한 곳에 적어야 나중에 한쪽만 고쳐서 두 탭이 갈라지는
+ * 일이 없다. 업적에만 있는 것(왼쪽 라벨 칸, 본문 뒤 근거 줄)은 아래에
+ * 따로 붙인다. */
+.achievement-records li,
+.principle-list li {
   padding: 1.15rem 0;
   border-top: 1px solid var(--line);
 }
 
-.achievement-records li:first-child {
+.achievement-records li:first-child,
+.principle-list li:first-child {
   border-top: none;
   padding-top: 0;
 }
 
+/* 라벨은 왼쪽 고정 폭, 본문은 오른쪽. "1977–1990"처럼 두 연도로 된
+ * 라벨은 마크업 단계에서 이미 두 줄(연도 / ~ 연도)로 쪼개 놓으므로,
+ * 칸 폭은 그 나머지 — 4자리 연도나 "기업가" 같은 짧은 단어 — 만 한 줄에
+ * 들어가면 된다. */
+.achievement-records li {
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr);
+  gap: 1.1rem;
+}
+
+/* 배지 박스를 없애고 맨텍스트로 — 폴더 몸통(gold)과 배경(gold-soft)이
+ * 이미 다른 색이라 박스로 떼어 놓을 필요가 없다. 연도는 --mono(자릿수
+ * 정렬), 카테고리 단어는 --sans — 프로젝트 규칙상 --mono는 티커·날짜·
+ * 수치 전용이다. */
 .achievement-label {
   align-self: start;
   justify-self: start;
-  display: grid;
-  place-items: center;
-  width: 3.2rem;
-  min-width: 3.2rem;
-  aspect-ratio: 1;
-  padding: 0.35rem;
-  border: 0;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle at 35% 28%,
-    var(--surface) 0 16%,
-    var(--gold-soft) 46%,
-    color-mix(in srgb, var(--gold) 42%, var(--surface)) 100%
-  );
-  box-shadow: 0 0.28rem 0.7rem color-mix(in srgb, var(--gold-deep) 18%, transparent),
-    inset 0 0 0 2px var(--surface), inset 0 0 0 4px var(--gold-deep);
-  color: var(--gold-deep);
-  font-family: var(--mono);
-  font-size: 0.64rem;
-  font-weight: 800;
+  display: inline-flex;
+  color: var(--gold);
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 700;
   line-height: 1.25;
-  text-align: center;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
   word-break: keep-all;
 }
 
-.achievement-records h4 {
+.achievement-label[data-type="year"] {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* "1977–1990" 같은 두 연도 라벨: 칸 폭에 억지로 맞추는 대신 연도 두
+ * 개를 세로로 쌓는다. */
+.achievement-label[data-range="true"] {
+  flex-direction: column;
+  align-items: flex-start;
+  white-space: normal;
+}
+
+.achievement-records h4,
+.principle-list h4 {
   margin: 0 0 0.4rem;
   font-size: 0.95rem;
   line-height: 1.45;
@@ -62,24 +77,33 @@
   word-break: keep-all;
 }
 
-.achievement-records p {
-  margin: 0 0 0.5rem;
-  color: var(--file-muted, var(--ink-soft));
+.achievement-records p,
+.principle-list p {
+  margin: 0;
+  color: var(--file-muted);
   font-size: 0.86rem;
   line-height: 1.7;
   word-break: keep-all;
 }
 
+/* 업적 본문 뒤에는 근거 줄이 이어진다. 원칙은 본문에서 끝난다. */
+.achievement-records p {
+  margin-bottom: 0.5rem;
+}
+
+/* 출처는 본문과 같은 색이면 문단이 한 덩어리로 읽힌다. 한 단계 연한
+ * --ink-soft(#777, 흰 배경 대비 4.68:1)로 떨어뜨린다 — 더 연한
+ * --ink-faint는 2.3:1이라 본문급 문장에 쓰기엔 안 읽힌다. */
 .achievement-records small {
   display: block;
-  color: var(--file-muted, var(--ink-soft));
+  margin-top: 0.35rem;
+  color: var(--ink-soft);
   font-size: 0.72rem;
   line-height: 1.5;
 }
 
 @media (max-width: 760px) {
   .achievement-records li {
-    grid-template-columns: 3.2rem minmax(0, 1fr);
     gap: 0.8rem;
   }
 }
@@ -265,22 +289,33 @@
   display: none;
 }
 
+/* 46rem(0.86rem 기준 한 줄 약 73자)이 흰 폴더 폭과 비슷해 거의 안
+ * 남는다. 그래도 폴더가 더 넓어지는 화면을 위해 가운데 정렬은 남긴다 —
+ * 왼쪽에 붙이면 그만큼이 전부 오른쪽 한쪽에만 몰린다. */
 .master-tabpanel-header {
   max-width: 46rem;
-  margin-bottom: 1.05rem;
+  margin: 0 auto 1.05rem;
   padding-bottom: 0.8rem;
   border-bottom: 1px solid var(--line);
 }
 
-.master-tabpanel-header h3 {
-  margin: 0 0 0.2rem;
-  color: var(--ink);
-  font-size: 1rem;
-  line-height: 1.35;
-  letter-spacing: -0.025em;
+/* 탭 버튼이 이미 이름("업적" 등)을 보여주므로, 패널 안에서 같은 단어를
+ * 큰 제목으로 또 반복하지 않는다. 전용 클래스 대신 globals.css의
+ * .eyebrow를 그대로 쓴다.
+ *
+ * 크기(0.78rem)가 바로 아래 설명(0.8rem)과 거의 같으므로, 크기 대신
+ * 굵기와 색으로 라벨임을 표시한다. 색은 고른 인덱스와 같은 버건디 —
+ * 지금 어느 탭을 펼쳤는지가 인덱스와 종이 두 곳에서 같은 색으로 읽힌다.
+ * 방향(충족·미충족)을 뜻하는 자리가 아니라 학습 화면의 이름표라
+ * --wine을 써도 되는 자리다. */
+.master-tabpanel-header .eyebrow {
+  margin-bottom: 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--wine);
 }
 
-.master-tabpanel-header p {
+.master-tabpanel-header-desc {
   margin: 0;
   color: var(--file-muted);
   font-size: 0.8rem;
@@ -290,16 +325,47 @@
 
 .master-tabpanel-content {
   max-width: 46rem;
+  margin-inline: auto;
 }
 
+/* 기업조건·한계·자가진단 탭. .reason-list는 스크리너·퀴즈 등 사이트
+ * 전체가 쓰는 공용 클래스(0.88rem, --ink-soft 고정)라 여기서만 덮어쓴다.
+ * 이 세 탭에서는 항목 한 줄이 곁다리 설명이 아니라 탭의 본체라, 업적·
+ * 원칙의 본문 단이 아니라 항목 제목 단(0.95rem)에 맞춘다. 색은 --wine
+ * 이름표 아래 본문 농도(--file-muted)를 그대로 쓴다.
+ * 항목 앞 점의 색(충족 --gold / 미충족 --ochre / 판정불가 점선)은 그대로
+ * 둔다 — 글자색과 달리 그건 판정 상태를 나르는 표시다. */
 .master-tabpanel .reason-list {
   margin: 0;
+  font-size: 0.95rem;
 }
 
+.master-tabpanel .reason-list li {
+  color: var(--file-muted);
+  line-height: 1.5;
+}
+
+/* 점의 margin-top(0.62rem)은 0.88rem 글자에 맞춰 둔 값이라, 글자를
+ * 키우면 첫 줄 글자 중심보다 3.5px 아래로 처진다. 첫 줄 중심에 맞춘다. */
+.master-tabpanel .reason-list li::before {
+  margin-top: 0.5rem;
+}
+
+/* 원칙 탭. 항목 리듬·제목·본문은 업적과 함께 위에서 정의한다. 인라인
+ * "제목 — 본문"은 제목이 문장에 묻혀 안 읽혔다. 원칙 데이터에는 업적의
+ * label 같은 필드가 없어서 왼쪽 라벨 칸은 두지 않는다. */
+.principle-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 근거 탭의 자료 목록. 이 탭에서는 출처가 곁다리가 아니라 본문이라
+ * 업적의 "근거 ·" 줄(메타 단)이 아니라 본문 단으로 둔다. */
 .master-tabpanel-content .master-list {
   margin: 0;
   padding-left: 1.1rem;
-  font-size: 0.85rem;
+  font-size: 0.86rem;
 }
 
 .master-tabpanel-content .master-list li {
@@ -311,11 +377,20 @@
   color: var(--ink);
 }
 
+/* 자가진단 탭에서는 목록 앞에 붙는 안내문이라 본문 단이다. */
 .master-tabpanel-content .master-note {
   margin: 0;
   color: var(--file-muted);
-  font-size: 0.8rem;
-  line-height: 1.6;
+  font-size: 0.86rem;
+  line-height: 1.7;
+}
+
+/* 근거 탭에서는 목록 뒤에 붙는 덧말이라 메타 단으로 내린다 — 자리가
+ * 업적 항목의 "근거 ·" 줄과 같다. */
+.master-tabpanel-content .master-list + .master-note {
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  line-height: 1.5;
 }
 
 .master-tabpanel-content .master-list + .master-note,
@@ -335,7 +410,7 @@
 
 .master-file-footer p {
   max-width: 46rem;
-  margin: 0;
+  margin: 0 auto;
 }
 
 /* 폴더에서 새 종이를 꺼내 올리는 움직임. 어느 쪽 인덱스를 골랐는지에 따라
