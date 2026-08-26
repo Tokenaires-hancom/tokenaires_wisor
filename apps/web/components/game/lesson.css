@@ -1,0 +1,135 @@
+/* C2 레슨 모드 — 문항 스텝 집중. 본문은 그대로 두고 퀴즈만 듀오링고식으로. */
+
+/* 문항/단계 전환: 옆에서 스윽 들어옴 */
+.step-slide {
+  animation: step-slide-in 0.28s ease;
+}
+@keyframes step-slide-in {
+  0% { opacity: 0; transform: translateX(26px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+/* 세션 연속 정답 콤보 라벨 */
+.lesson-combo {
+  text-align: center;
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--ochre);
+  margin: 0 0 0.5rem;
+  animation: lesson-combo-in 0.35s cubic-bezier(0.2, 1.5, 0.35, 1);
+}
+@keyframes lesson-combo-in {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+/* 문제 제시: 큰 캐릭터(위) + 말풍선(아래) */
+.quiz-presenter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0.4rem 0 1.2rem;
+}
+.quiz-presenter-char {
+  width: 300px;
+  height: 300px;
+  max-width: 80%;
+  flex: none;
+  object-fit: contain;
+}
+.quiz-bubble {
+  position: relative;
+  background: var(--paper);
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  padding: 0.75rem 1rem;
+  margin: 0.6rem 0 0;
+  text-align: center;
+}
+/* 꼬리: 위쪽(캐릭터)을 향한다 */
+.quiz-bubble::before {
+  content: "";
+  position: absolute;
+  top: -9px;
+  left: calc(50% - 9px);
+  border: 9px solid transparent;
+  border-bottom-color: var(--line);
+}
+.quiz-bubble::after {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: calc(50% - 8px);
+  border: 8px solid transparent;
+  border-bottom-color: var(--paper);
+}
+
+/* 상단 진행 바 (채워짐) */
+.lesson-progress {
+  height: 12px;
+  background: var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+.lesson-progress > i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--ochre), var(--wine));
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+/* 하단 정답/오답 피드백 배너 */
+.lesson-feedback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.5rem;
+  border-radius: 16px;
+  padding: 1.1rem;
+  margin-top: 1rem;
+  animation: lesson-rise 0.3s ease;
+}
+.lesson-feedback[data-kind="correct"] {
+  background: color-mix(in srgb, var(--wine) 12%, var(--surface));
+  border: 1px solid var(--wine);
+}
+.lesson-feedback[data-kind="wrong"] {
+  background: color-mix(in srgb, var(--ochre) 16%, var(--surface));
+  border: 1px solid var(--ochre);
+}
+@keyframes lesson-rise {
+  0% { transform: translateY(12px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.lesson-feedback .duo-mascot {
+  margin: 0;
+  flex: none;
+}
+.lesson-feedback .duo-mascot img {
+  width: 300px;
+  height: 300px;
+}
+.lesson-feedback-text {
+  min-width: 0;
+}
+.lesson-feedback-text strong {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 0.2rem;
+}
+.lesson-feedback[data-kind="correct"] .lesson-feedback-text strong {
+  color: var(--wine);
+}
+.lesson-feedback[data-kind="wrong"] .lesson-feedback-text strong {
+  color: var(--ochre);
+}
+.lesson-feedback-text p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}

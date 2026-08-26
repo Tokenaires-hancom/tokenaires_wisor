@@ -178,18 +178,18 @@ button {
   display: none;
 }
 
-.nav a {
+.nav a:not(.nav-account) {
   color: var(--ink-soft);
   padding-block: 0.35rem;
   border-bottom: 2px solid transparent;
   white-space: nowrap;
 }
 
-.nav a:hover {
+.nav a:not(.nav-account):hover {
   color: var(--ink);
 }
 
-.nav a[data-active="true"] {
+.nav a:not(.nav-account)[data-active="true"] {
   color: var(--wine);
   border-bottom-color: var(--wine);
 }
@@ -211,6 +211,308 @@ button {
   .nav {
     gap: 1.15rem;
     font-size: 0.9rem;
+  }
+}
+
+/* ---------- 마이페이지: 개인 학습 장부 ---------- */
+
+.my-page-shell {
+  display: grid;
+  grid-template-columns: 13.5rem minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 4.5rem);
+  padding-block: 3.5rem 5rem;
+}
+
+.my-page-sidebar {
+  align-self: start;
+  position: sticky;
+  top: calc(60px + 2rem);
+}
+
+.my-page-sidebar h1 {
+  margin: 0.25rem 0 1.8rem;
+  color: var(--ink);
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  line-height: 1.08;
+}
+
+.my-page-menu {
+  border-top: 1px solid var(--line-strong);
+}
+
+.my-page-menu a {
+  display: grid;
+  grid-template-columns: 1.6rem minmax(0, 1fr);
+  gap: 0.7rem;
+  padding: 1rem 0.8rem 1rem 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-soft);
+}
+
+.my-page-menu a[data-active="true"] {
+  border-left: 4px solid var(--gold);
+  padding-left: 0.75rem;
+  background: linear-gradient(90deg, var(--gold-soft), transparent 86%);
+  color: var(--ink);
+}
+
+.my-page-menu a:hover,
+.my-page-menu a:focus-visible {
+  background-color: var(--surface-sunk);
+  color: var(--ink);
+}
+
+.my-page-menu-index {
+  padding-top: 0.16rem;
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+}
+
+.my-page-menu strong,
+.my-page-menu small {
+  display: block;
+}
+
+.my-page-menu strong {
+  font-size: 0.95rem;
+}
+
+.my-page-menu small {
+  margin-top: 0.28rem;
+  color: var(--ink-faint);
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.my-page-content {
+  min-width: 0;
+}
+
+.my-page-anchor-marker,
+.my-page-anchor-section {
+  scroll-margin-top: 5.5rem;
+}
+
+.my-page-anchor-marker {
+  display: block;
+  height: 0;
+}
+
+.account-empty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.25rem;
+  border: 1px dashed var(--line-strong);
+  background: var(--surface-sunk);
+}
+
+.account-empty strong {
+  color: var(--ink);
+}
+
+.account-empty p {
+  margin: 0.35rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.86rem;
+}
+
+.account-settings-card {
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--gold);
+  background: var(--surface);
+}
+
+.account-settings-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.account-settings-facts > div {
+  min-width: 0;
+  padding: 0.2rem 1.25rem 1rem 0;
+}
+
+.account-settings-facts > div + div {
+  padding-left: 1.25rem;
+  border-left: 1px solid var(--line);
+}
+
+.account-settings-facts dt {
+  color: var(--ink-faint);
+  font-size: 0.72rem;
+}
+
+.account-settings-facts dd {
+  overflow-wrap: anywhere;
+  margin: 0.3rem 0 0;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.account-settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.account-storage-note {
+  margin: 1rem 0 0;
+  color: var(--ink-faint);
+  font-size: 0.76rem;
+  line-height: 1.6;
+}
+
+.account-danger-zone {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px dashed var(--line-strong);
+}
+
+.account-danger-zone > div:first-child {
+  max-width: 34rem;
+}
+
+.account-danger-zone > div:first-child > strong {
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+
+.account-danger-zone p {
+  margin: 0.35rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.account-delete-trigger,
+.account-delete-submit,
+.account-delete-cancel {
+  flex: none;
+  min-height: 2.35rem;
+  padding: 0.55rem 0.8rem;
+  border-radius: 7px;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.account-delete-trigger {
+  border: 1px solid var(--wine-line);
+  background: var(--surface);
+  color: var(--wine-deep);
+}
+
+.account-delete-confirmation {
+  width: min(100%, 21rem);
+  padding: 0.9rem;
+  border: 1px solid var(--wine-line);
+  background: var(--wine-soft);
+}
+
+.account-delete-confirmation label {
+  display: block;
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.account-delete-confirmation input {
+  width: 100%;
+  min-height: 2.45rem;
+  margin-top: 0.55rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+
+.account-delete-confirmation input:focus {
+  border-color: var(--gold-deep);
+  outline: 2px solid var(--gold-soft);
+}
+
+.account-delete-confirmation > div {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+}
+
+.account-delete-submit {
+  border: 1px solid var(--wine-deep);
+  background: var(--wine-deep);
+  color: var(--surface);
+}
+
+.account-delete-cancel {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-soft);
+}
+
+.account-delete-trigger:disabled,
+.account-delete-submit:disabled,
+.account-delete-cancel:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+@media (max-width: 760px) {
+  .my-page-shell {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+    padding-block: 2rem 4rem;
+  }
+
+  .my-page-sidebar {
+    position: static;
+  }
+
+  .my-page-sidebar h1 {
+    margin-bottom: 1.1rem;
+  }
+
+  .my-page-menu a {
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+    max-width: 28rem;
+  }
+
+  .account-empty {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .account-danger-zone {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 520px) {
+  .account-settings-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .account-settings-facts > div {
+    padding: 0.35rem 0 0.85rem;
+  }
+
+  .account-settings-facts > div + div {
+    padding: 0.85rem 0 0.35rem;
+    border-top: 1px solid var(--line);
+    border-left: 0;
   }
 }
 
@@ -1681,10 +1983,10 @@ h3.sub {
 .style-comparison [data-master="greenblatt"] { --bar: var(--master-greenblatt); --bar-deep: var(--master-greenblatt-deep); }
 .style-comparison [data-master="soros"] { --bar: var(--master-soros); --bar-deep: var(--master-soros-deep); }
 
-/* wrap(1080px) 밖으로 넓힌다. 표가 이 화면의 본문이라 wrap 폭에 갇힐 이유가 없다.
+/* 공통 wrap과 같은 1080px을 상한으로 삼는다.
    100%는 wrap의 내용 폭이므로 음수 마진이 좌우로 같은 만큼 밀어낸다 */
 .style-comparison {
-  --breakout: min(1280px, calc(100vw - 2 * var(--gutter)));
+  --breakout: min(1080px, calc(100vw - 2 * var(--gutter)));
   width: var(--breakout);
   margin-inline: calc((100% - var(--breakout)) / 2);
 }
@@ -2385,6 +2687,70 @@ h3.sub {
   border-left: 2px solid var(--wine-line);
 }
 
+/* 철학별 채점 종목 수 비교표 — 스크리너와 /learn/scoring이 함께 쓴다 */
+.coverage-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  margin: 1rem 0 0;
+}
+
+.coverage-table th,
+.coverage-table td {
+  padding: 0.55rem 0.4rem;
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+}
+
+.coverage-table th[scope="col"] {
+  font-weight: 500;
+  color: var(--ink-faint);
+  font-size: 0.8rem;
+}
+
+.coverage-table th[scope="row"],
+.coverage-table th[scope="col"]:first-child {
+  text-align: left;
+}
+
+.coverage-table th[scope="row"] {
+  font-weight: 500;
+}
+
+/* 지금 보고 있는 철학. 색만으로 구분하지 않도록 굵기와 여백을 함께 쓴다 */
+.coverage-table tr[aria-current] th[scope="row"] {
+  font-weight: 700;
+  border-left: 3px solid var(--wine);
+  padding-left: 0.5rem;
+}
+
+.coverage-table tr[aria-current] td {
+  color: var(--ink);
+}
+
+.coverage-table tbody tr:last-child th,
+.coverage-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* /learn/scoring 단계 목록 */
+.scoring-steps {
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+  counter-reset: step;
+}
+
+.scoring-steps li {
+  padding: 1.25rem 0;
+  border-top: 1px solid var(--line);
+  max-width: 68ch;
+}
+
+.scoring-steps li:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
 /* ---------- 투자자 초상 ---------- */
 
 .investor-avatar {
@@ -2517,6 +2883,11 @@ h3.sub {
   letter-spacing: 0.04em;
   padding: 0.25rem 0.7rem;
   white-space: nowrap;
+  animation: path-bob 1.6s ease-in-out infinite;
+}
+@keyframes path-bob {
+  0%, 100% { transform: translateY(-50%); }
+  50% { transform: translateY(calc(-50% - 4px)); }
 }
 
 .path-label {
@@ -3254,12 +3625,8 @@ h3.sub {
 /* ---------- 대가 선택 그리드 ---------- */
 
 .learn-page {
-  max-width: 1440px;
+  max-width: 1080px;
   padding-block: 2.5rem 5rem;
-}
-
-body:has(.learn-page) .masthead-inner {
-  max-width: 1440px;
 }
 
 .learn-page-header {
@@ -3267,6 +3634,11 @@ body:has(.learn-page) .masthead-inner {
   grid-template-columns: minmax(0, 1fr);
   align-items: start;
   margin-bottom: 2rem;
+}
+
+.learn-page-header .thesis {
+  font-size: clamp(1.4rem, 3vw, 2.1rem);
+  max-width: none;
 }
 
 .master-grid {
@@ -3370,8 +3742,8 @@ body:has(.learn-page) .masthead-inner {
 
 @media (max-width: 640px) {
   .compare-jump {
-    --arrow-x: 88%; /* narrow: M 880 990 */
-    --arrow-y: 99%;
+    --arrow-x: 88%; /* narrow: M 880 1016 */
+    --arrow-y: 100%;
   }
 }
 
@@ -3448,7 +3820,7 @@ body:has(.learn-page) .masthead-inner {
   display: grid;
   grid-template-columns: repeat(8, minmax(0, 1fr));
   column-gap: 20px;
-  row-gap: 36px;
+  row-gap: 160px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -3476,128 +3848,136 @@ body:has(.learn-page) .masthead-inner {
   grid-row: 2;
 }
 
+/* 대가별 색을 카드에 묶는다. 비교표 막대가 이미 쓰는 --master-<id>-deep
+ * 값을 그대로 가져와, 링 그림자·이름표 위치가 비교표와 같은 색으로 이 사람을
+ * 가리키게 한다. */
+.master-grid [data-master="buffett"] { --master-color: var(--master-buffett-deep); }
+.master-grid [data-master="graham"] { --master-color: var(--master-graham-deep); }
+.master-grid [data-master="lynch"] { --master-color: var(--master-lynch-deep); }
+.master-grid [data-master="marks"] { --master-color: var(--master-marks-deep); }
+.master-grid [data-master="fisher"] { --master-color: var(--master-fisher-deep); }
+.master-grid [data-master="greenblatt"] { --master-color: var(--master-greenblatt-deep); }
+.master-grid [data-master="soros"] { --master-color: var(--master-soros-deep); }
+
 .master-card {
   position: relative;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-  border: 2px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: 0 4px 0 var(--line);
-  min-height: 320px;
-  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  align-items: center;
+  text-align: center;
+  text-decoration: none;
 }
 
-.master-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--gold-line);
-  box-shadow: 0 4px 0 var(--gold-line);
-}
-
-.master-card:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 var(--gold-line);
-}
-
-/* 동일한 4:3 아트 프레임이 전신·원형 초상화의 시각적 체급을 맞춘다. */
-.master-card-art {
+.master-card-ring {
   position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 4 / 3;
-  width: 100%;
-  background: var(--surface);
-  overflow: hidden;
-}
-
-.master-card-sequence {
-  position: absolute;
-  z-index: 2;
-  top: 0.85rem;
-  left: 0.9rem;
-  display: grid;
-  place-items: center;
-  min-width: 2.25rem;
-  height: 1.75rem;
-  padding-inline: 0.45rem;
-  border: 1px solid color-mix(in srgb, var(--gold) 60%, var(--surface));
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--surface) 92%, transparent);
-  color: var(--gold-deep);
-  font-family: var(--mono);
-  font-size: 0.76rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  backdrop-filter: blur(5px);
-}
-
-.master-card[data-featured="true"] {
-  border-color: var(--gold);
-  box-shadow: 0 4px 0 var(--gold-deep);
 }
 
 .master-card-portrait {
-  width: 148px;
-  height: 148px;
-  margin-bottom: 0;
+  width: 190px;
+  height: 190px;
   border-radius: 50%;
   object-fit: cover;
-  box-shadow: 0 0 0 8px var(--surface), 0 4px 0 8px var(--line);
+  box-shadow: 0 0 0 8px var(--surface), 0 5px 0 8px var(--master-color, var(--line));
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.master-card-body {
-  position: absolute;
+.master-card:hover .master-card-portrait,
+.master-card:focus-visible .master-card-portrait {
+  transform: translateY(-3px);
+  box-shadow: 0 0 0 8px var(--surface), 0 8px 0 8px var(--master-color, var(--line));
+}
+
+.master-card:active .master-card-portrait {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 8px var(--surface), 0 3px 0 8px var(--master-color, var(--line));
+}
+
+.master-card[data-featured="true"] .master-card-portrait {
+  outline: 3px solid var(--gold);
+  outline-offset: 4px;
+}
+
+/* 이름표는 평소 링 바로 아래. 호버하면 위로 떠올라 링 아랫단을 살짝
+ * 덮는다 — 그 자리를 설명 상자에게 내주는 것. 배경이 불투명해 링을
+ * 실제로 가린다. */
+.master-card-name-row {
+  position: relative;
   z-index: 3;
-  right: 0;
-  bottom: 0;
-  left: 0;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
   gap: 0.4rem;
-  padding: 1.1rem 1.2rem 1.35rem;
-  border-top: 1px solid var(--line);
-  background: color-mix(in srgb, var(--surface) 96%, transparent);
-  backdrop-filter: blur(8px);
-  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  margin-top: 1.1rem;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.master-card:hover .master-card-name-row,
+.master-card:focus-visible .master-card-name-row {
+  transform: none;
+}
+
+.master-card-sequence {
+  color: var(--wine-deep);
+  font-family: var(--mono);
+  font-size: 0.92rem;
+  font-weight: 800;
 }
 
 .master-card-name {
-  font-size: 1.12rem;
+  font-size: 1.2rem;
   font-weight: 800;
   letter-spacing: -0.01em;
   word-break: keep-all;
 }
 
-.master-card-line {
+.master-card .style-name {
+  font-size: 0.78rem;
+  padding: 0.42rem 0.65rem;
+}
+
+/* 카드 전체가 아니라 설명 상자만. 테두리는 없다 — 인물 원형은 가리지
+ * 않고, 이름표 바로 아래에서만 자라난다. 옆 카드 자리를 침범하지
+ * 않도록 높이를 제한한다. */
+.master-card-reveal {
+  position: absolute;
+  z-index: 2;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 270px;
   max-height: 0;
-  margin-top: -0.4rem;
   overflow: hidden;
-  color: var(--ink-soft);
-  font-size: 0.9rem;
-  line-height: 1.55;
   opacity: 0;
-  transform: translateY(6px);
-  transition: max-height 0.2s ease, margin-top 0.2s ease, opacity 0.16s ease,
-    transform 0.2s ease;
-  word-break: keep-all;
+  border-radius: 14px;
+  background: var(--surface);
+  pointer-events: none;
+  transition: max-height 0.2s ease, opacity 0.15s ease;
 }
 
-.master-card:hover .master-card-body,
-.master-card:focus-visible .master-card-body {
-  border-top-color: var(--gold-line);
-  box-shadow: 0 -10px 24px color-mix(in srgb, var(--ink) 8%, transparent);
-}
-
-.master-card:hover .master-card-line,
-.master-card:focus-visible .master-card-line {
-  max-height: 5rem;
-  margin-top: 0;
+.master-card:hover .master-card-reveal,
+.master-card:focus-visible .master-card-reveal {
+  max-height: 9rem;
   opacity: 1;
-  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.master-card-reveal-inner {
+  display: block;
+  padding: 0.9rem 1rem 0.9rem;
+  text-align: center;
+}
+
+.master-card-reveal-inner p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  word-break: keep-all;
 }
 
 @media (max-width: 900px) {
@@ -3619,7 +3999,7 @@ body:has(.learn-page) .masthead-inner {
 
   .master-grid-list {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    row-gap: 56px;
+    row-gap: 130px;
   }
 
   .master-grid-item,
@@ -3630,14 +4010,40 @@ body:has(.learn-page) .masthead-inner {
     grid-row: auto;
   }
 
-  .master-card {
-    min-height: 330px;
+  .master-card-portrait {
+    width: 160px;
+    height: 160px;
   }
 
-  .master-card-portrait {
-    width: 128px;
-    height: 128px;
-    margin-bottom: 0;
+  .master-card:hover .master-card-name-row,
+  .master-card:focus-visible .master-card-name-row {
+    transform: none;
+  }
+
+  .master-card-reveal {
+    top: 100%;
+    width: 230px;
+  }
+
+  .master-card-reveal-inner {
+    padding: 0.8rem 1rem 0.9rem;
+  }
+
+  .master-card-sequence {
+    font-size: 0.84rem;
+  }
+
+  .master-card .style-name {
+    font-size: 0.72rem;
+    padding: 0.38rem 0.58rem;
+  }
+
+  .master-card-name {
+    font-size: 1.05rem;
+  }
+
+  .master-card-reveal-inner p {
+    font-size: 0.88rem;
   }
 }
 
@@ -3677,7 +4083,7 @@ body:has(.learn-page) .masthead-inner {
   }
 
   .master-grid-list {
-    row-gap: 14px;
+    row-gap: 100px;
     column-gap: 12px;
   }
 
@@ -3688,57 +4094,61 @@ body:has(.learn-page) .masthead-inner {
     grid-column: 2 / span 2;
   }
 
-  .master-card {
-    height: 140px;
-    min-height: 140px;
-  }
-
-  .master-card-art {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    aspect-ratio: auto;
-  }
-
   .master-card-portrait {
-    width: 72px;
-    height: 72px;
-    margin-bottom: 0;
-    box-shadow: 0 0 0 4px var(--surface), 0 3px 0 4px var(--line);
-    transform: translateY(-22px);
+    width: 118px;
+    height: 118px;
+    box-shadow: 0 0 0 4px var(--surface), 0 4px 0 4px var(--master-color, var(--line));
   }
 
-  .master-card-body {
-    position: absolute;
-    padding: 0.5rem 0.65rem 0.6rem;
-    gap: 0.22rem;
-    border-top-color: var(--line);
-    background: color-mix(in srgb, var(--surface) 97%, transparent);
-    backdrop-filter: blur(8px);
+  .master-card:hover .master-card-portrait,
+  .master-card:focus-visible .master-card-portrait {
+    box-shadow: 0 0 0 4px var(--surface), 0 6px 0 4px var(--master-color, var(--line));
+  }
+
+  .master-card:active .master-card-portrait {
+    box-shadow: 0 0 0 4px var(--surface), 0 2px 0 4px var(--master-color, var(--line));
+  }
+
+  .master-card-name-row {
+    margin-top: 0.6rem;
+    gap: 0.3rem;
+  }
+
+  .master-card:hover .master-card-name-row,
+  .master-card:focus-visible .master-card-name-row {
+    transform: none;
   }
 
   .master-card-sequence {
-    top: 0.5rem;
-    left: 0.5rem;
-    min-width: 1.8rem;
-    height: 1.45rem;
-    padding-inline: 0.35rem;
-    font-size: 0.65rem;
+    font-size: 0.76rem;
   }
 
   .master-card .style-name {
-    padding: 0.28rem 0.42rem;
-    font-size: 0.58rem;
+    padding: 0.32rem 0.48rem;
+    font-size: 0.66rem;
   }
 
   .master-card-name {
-    font-size: 0.82rem;
+    font-size: 0.9rem;
   }
 
-  .master-card-line {
+  .master-card-reveal {
+    top: 100%;
+    width: 178px;
+  }
+
+  .master-card:hover .master-card-reveal,
+  .master-card:focus-visible .master-card-reveal {
+    max-height: 7rem;
+  }
+
+  .master-card-reveal-inner {
+    padding: 0.65rem 0.5rem 0.55rem;
+  }
+
+  .master-card-reveal-inner p {
     font-size: 0.68rem;
-    line-height: 1.35;
+    line-height: 1.4;
   }
 }
 
@@ -3750,20 +4160,12 @@ body:has(.learn-page) .masthead-inner {
   .learn-page-header {
     margin-bottom: 1rem;
   }
-
-  .master-grid-list {
-    row-gap: 10px;
-  }
-
-  .master-card {
-    height: 136px;
-    min-height: 136px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .master-card-body,
-  .master-card-line {
+  .master-card-name-row,
+  .master-card-reveal,
+  .master-card-portrait {
     transition: none;
   }
 }
@@ -4589,74 +4991,120 @@ a.watch-company-card:hover {
 }
 
 .persona-fab {
-  width: 3.5rem;
+  min-width: 3.5rem;
   height: 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 0 1rem;
   border: none;
-  border-radius: 50%;
+  border-radius: 999px;
   background: var(--wine);
   color: #fff;
-  font-size: 0.92rem;
   font-weight: 800;
   box-shadow: 0 8px 20px color-mix(in srgb, var(--ink) 22%, transparent);
+  transition: background 140ms ease, transform 140ms ease, box-shadow 140ms ease;
 }
 
 .persona-fab:hover {
   background: var(--wine-deep);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--ink) 28%, transparent);
+  transform: translateY(-2px);
+}
+
+.persona-fab-mark {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+}
+
+.persona-fab-label {
+  font-size: 0.9rem;
 }
 
 .persona-panel {
-  width: min(22.5rem, calc(100vw - 2rem));
-  max-height: min(36rem, calc(100vh - 7rem));
+  width: min(32rem, calc(100vw - 2rem));
+  height: min(46rem, calc(100dvh - 6.5rem));
+  max-height: calc(100vh - 6.5rem);
   display: flex;
   flex-direction: column;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: 0 12px 32px color-mix(in srgb, var(--ink) 16%, transparent);
+  border-radius: 18px;
+  box-shadow: 0 18px 48px color-mix(in srgb, var(--ink) 20%, transparent);
   overflow: hidden;
 }
 
 .persona-panel-head {
   display: grid;
-  gap: 0.8rem;
-  padding: 1rem;
+  gap: 0.9rem;
+  padding: 1.1rem 1.15rem 0.9rem;
   border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, var(--surface) 72%, var(--gold-soft) 180%);
+  flex: 0 0 auto;
 }
 
 .persona-panel-title {
   display: flex;
   justify-content: space-between;
   gap: 0.75rem;
-  align-items: flex-start;
+  align-items: center;
+}
+
+.persona-panel-title p {
+  margin: 0 0 0.05rem;
+  color: var(--ochre);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
 }
 
 .persona-panel-head h2 {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   word-break: keep-all;
 }
 
+.persona-close {
+  min-width: 2.8rem;
+  padding: 0.38rem 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.persona-close:hover {
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+
 .persona-personas {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.45rem;
+  display: flex;
+  gap: 0.5rem;
+  margin-inline: -0.15rem;
+  padding: 0.15rem 0.15rem 0.35rem;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: thin;
 }
 
 .persona-master-option {
   position: relative;
-  min-width: 0;
+  flex: 0 0 4.7rem;
   display: grid;
   justify-items: center;
-  align-content: start;
-  gap: 0.4rem;
-  min-height: 6.25rem;
-  padding: 0.5rem 0.2rem 0.55rem;
-  border: 1px solid var(--line);
-  border-bottom-width: 3px;
-  border-radius: 10px;
-  background: var(--surface);
+  align-content: center;
+  gap: 0.3rem;
+  min-height: 4.65rem;
+  padding: 0.4rem 0.2rem;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
   color: var(--ink-soft);
   font: inherit;
   cursor: pointer;
@@ -4846,20 +5294,26 @@ a.watch-company-card:hover {
   }
 }
 
-/* ---------- 계정과 학습 기록 저장 ---------- */
+/* ---------- 계정: 학습 기록 장부 ---------- */
 
 .nav-account {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.38rem 0.72rem;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--surface);
   color: var(--ink-soft);
+  font: inherit;
   font-size: 0.82rem;
   font-weight: 700;
   line-height: 1.2;
+}
+
+.nav a.nav-account,
+.nav .nav-account-user {
+  padding: 0.38rem 0.72rem;
+  border-bottom: 1px solid var(--line);
 }
 
 .nav a.nav-account:hover,
@@ -4887,7 +5341,9 @@ a.watch-company-card:hover {
   display: grid;
   align-items: center;
   padding-block: clamp(2rem, 7vw, 5.5rem);
-  background: var(--surface-sunk);
+  background:
+    linear-gradient(90deg, transparent 49.92%, var(--line) 50%, transparent 50.08%),
+    var(--surface-sunk);
 }
 
 .auth-layout {
@@ -4935,6 +5391,7 @@ a.watch-company-card:hover {
   margin: 1.35rem 0 1.75rem;
   color: var(--ink-soft);
   font-size: 0.92rem;
+  line-height: 1.75;
 }
 
 .auth-ledger dl {
@@ -4951,6 +5408,7 @@ a.watch-company-card:hover {
 }
 
 .auth-ledger dt {
+  color: var(--ink);
   font-size: 0.82rem;
   font-weight: 800;
 }
@@ -4961,7 +5419,7 @@ a.watch-company-card:hover {
   font-size: 0.8rem;
 }
 
-.auth-ledger-note {
+.auth-ledger .auth-ledger-note {
   margin: 1rem 0 0;
   color: var(--ink-faint);
   font-size: 0.72rem;
@@ -4988,6 +5446,7 @@ a.watch-company-card:hover {
   border-bottom: 3px solid transparent;
   background: transparent;
   color: var(--ink-soft);
+  font-size: 0.84rem;
   font-weight: 800;
 }
 
@@ -5007,8 +5466,10 @@ a.watch-company-card:hover {
 
 .auth-panel h1 {
   margin: 0;
+  color: var(--ink);
   font-size: clamp(1.55rem, 3vw, 2.15rem);
   font-weight: 800;
+  letter-spacing: -0.045em;
   line-height: 1.25;
 }
 
@@ -5046,6 +5507,8 @@ a.watch-company-card:hover {
   border: 1px solid var(--line);
   border-radius: 50%;
   background: var(--surface);
+  color: var(--ink);
+  font-family: Arial, sans-serif;
   font-size: 0.78rem;
 }
 
@@ -5079,8 +5542,7 @@ a.watch-company-card:hover {
 }
 
 .auth-form input,
-.auth-reset input,
-.account-delete-confirmation input {
+.auth-reset input {
   width: 100%;
   min-height: 2.9rem;
   padding: 0.68rem 0.8rem;
@@ -5092,8 +5554,7 @@ a.watch-company-card:hover {
 }
 
 .auth-form input:focus,
-.auth-reset input:focus,
-.account-delete-confirmation input:focus {
+.auth-reset input:focus {
   border-color: var(--gold-deep);
   outline: 2px solid var(--gold-soft);
 }
@@ -5113,6 +5574,7 @@ a.watch-company-card:hover {
   color: var(--ink-soft);
   font-size: 0.72rem;
   text-decoration: underline;
+  text-underline-offset: 0.2em;
 }
 
 .auth-message {
@@ -5123,6 +5585,7 @@ a.watch-company-card:hover {
   background: var(--ochre-soft);
   color: var(--ochre);
   font-size: 0.78rem;
+  line-height: 1.5;
 }
 
 .auth-message[data-kind="success"] {
@@ -5146,131 +5609,21 @@ a.watch-company-card:hover {
   max-width: 34rem;
 }
 
-.auth-reset,
-.auth-reset input {
+.auth-reset {
   display: block;
 }
 
 .auth-reset input {
+  display: block;
   margin-top: 0.35rem;
 }
 
-.account-empty,
-.account-settings-card {
-  padding: 1.25rem;
-  border: 1px solid var(--line);
-  background: var(--surface);
-}
-
-.account-empty {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-  border-style: dashed;
-  background: var(--surface-sunk);
-}
-
-.account-empty p,
-.account-storage-note,
-.account-danger-zone p {
-  margin: 0.35rem 0 0;
-  color: var(--ink-soft);
-  font-size: 0.8rem;
-}
-
-.account-settings-card {
-  border-top: 4px solid var(--gold);
-}
-
-.account-settings-facts {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin: 0;
-}
-
-.account-settings-facts > div {
-  min-width: 0;
-  padding: 0.2rem 1.25rem 1rem 0;
-}
-
-.account-settings-facts > div + div {
-  padding-left: 1.25rem;
-  border-left: 1px solid var(--line);
-}
-
-.account-settings-facts dt {
-  color: var(--ink-faint);
-  font-size: 0.72rem;
-}
-
-.account-settings-facts dd {
-  overflow-wrap: anywhere;
-  margin: 0.3rem 0 0;
-  font-weight: 700;
-}
-
-.account-settings-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.7rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--line);
-}
-
-.account-danger-zone {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1.5rem;
-  margin-top: 1.25rem;
-  padding-top: 1.25rem;
-  border-top: 1px dashed var(--line-strong);
-}
-
-.account-delete-confirmation {
-  width: min(100%, 21rem);
-  padding: 0.9rem;
-  border: 1px solid var(--wine-line);
-  background: var(--wine-soft);
-}
-
-.account-delete-confirmation > div {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.65rem;
-}
-
-.account-delete-trigger,
-.account-delete-submit,
-.account-delete-cancel {
-  min-height: 2.35rem;
-  padding: 0.55rem 0.8rem;
-  border-radius: 7px;
-  font: inherit;
-  font-size: 0.78rem;
-  font-weight: 800;
-}
-
-.account-delete-trigger {
-  border: 1px solid var(--wine-line);
-  background: var(--surface);
-  color: var(--wine-deep);
-}
-
-.account-delete-submit {
-  border: 1px solid var(--wine-deep);
-  background: var(--wine-deep);
-  color: var(--surface);
-}
-
-.account-delete-cancel {
-  border: 1px solid var(--line);
-  background: var(--surface);
-  color: var(--ink-soft);
-}
-
 @media (max-width: 760px) {
+  .auth-page {
+    align-items: start;
+    background: var(--surface-sunk);
+  }
+
   .auth-layout {
     grid-template-columns: 1fr;
     gap: 1.5rem;
@@ -5280,10 +5633,16 @@ a.watch-company-card:hover {
     padding: 1.4rem 1.25rem 1.25rem 2.5rem;
   }
 
-  .account-empty,
-  .account-danger-zone {
-    align-items: flex-start;
-    flex-direction: column;
+  .auth-ledger h2 {
+    font-size: 2rem;
+  }
+
+  .auth-ledger h2 br {
+    display: none;
+  }
+
+  .auth-ledger > p:not(.eyebrow):not(.auth-ledger-note) {
+    margin-block: 0.8rem 1rem;
   }
 }
 
@@ -5292,26 +5651,20 @@ a.watch-company-card:hover {
     font-size: 0;
   }
 
+  .nav-account-user span {
+    font-size: 0.65rem;
+  }
+
   .auth-page {
     padding-block: 1rem 2.5rem;
   }
 
   .auth-ledger dl,
-  .auth-ledger-note {
+  .auth-ledger .auth-ledger-note {
     display: none;
   }
 
-  .account-settings-facts {
-    grid-template-columns: 1fr;
-  }
-
-  .account-settings-facts > div,
-  .account-settings-facts > div + div {
-    padding: 0.65rem 0;
-    border-left: 0;
-  }
-
-  .account-settings-facts > div + div {
-    border-top: 1px solid var(--line);
+  .auth-panel {
+    box-shadow: 0 5px 0 var(--ink);
   }
 }

@@ -1,5 +1,34 @@
 # 인계 노트
 
+## 2026-08-20 · Codex · 체크리스트 기반 페르소나 채팅 확장
+
+- 점수식이 없는 하워드 막스, 필립 피셔, 조지 소로스도 페르소나 채팅에서 선택할 수 있도록 체크리스트 평가 방식을 추가했습니다.
+- 체크리스트형 답변은 점수나 매수·매도 판단을 만들지 않고, 확인할 질문과 근거 자료의 위치를 제시합니다. 기존 점수형 대가의 응답 계약은 유지합니다.
+- 플로팅 채팅 UI를 긴 대화와 모바일 화면에 맞게 확장하고, 종목 문맥·대화 작성 영역·응답자 표시를 분명하게 정리했습니다.
+- 상세 설계는 `docs/superpowers/specs/2026-08-20-checklist-persona-chat-design.md`에 기록했습니다.
+## 2026-08-20 · Codex · 학습노트 저장 안내 수정
+
+- 종목 상세의 학습노트 안내를 실제 인증 저장 흐름에 맞춰, 비회원 임시 저장 후 로그인·가입 시 계정 기록과 병합된다고 수정했습니다.
+- 이 브랜치는 `feat/auth-learning-storage` 위에 쌓여 있습니다.
+## 2026-08-21 · Claude · 병합에서 사라진 채점 안내 표 스타일 복구
+
+- `/learn/scoring`의 단계 목록(`.scoring-steps`)과 철학별 채점 종목 수 비교표(`.coverage-table`) CSS가 `dc71dd4` 병합에서 통째로 사라져 두 화면이 브라우저 기본 스타일로 나오고 있었습니다. 마크업은 그대로 두 클래스를 쓰고 있어 규칙만 되살렸습니다.
+- 복구 전 계산된 스타일은 `list-style: decimal` · `padding-left: 40px`, 표는 `border-collapse: separate` · `td padding 1px`으로 열이 어긋났습니다. 복구 후 단계는 구분선으로 나뉘고 표는 전폭·숫자 우측정렬·행 구분선을 되찾습니다.
+- 새 셀렉터를 만들지 않고 유실 이전 규칙을 그대로 복원했습니다. 브라우저에서 `/learn/scoring`의 계산된 스타일로 복구 전후를 확인했습니다.
+## 2026-08-21 · Claude · 내 학습을 마이페이지 장부 화면으로 재배치
+
+- `/me`를 `my-page-shell` 사이드바와 본문 두 단으로 바꿨습니다. 메뉴는 `내 학습`·`관심 종목`·`계정 설정` 세 구획이고 각각 앵커 섹션으로 이동합니다. 760px 이하에서는 메뉴가 본문 위로 올라갑니다.
+- 복습 기록을 `복습 일정 / 90일 뒤 다시 보는 기록` 섹션으로 분리하고, 볼 기록이 없을 때도 섹션과 안내 문구가 남도록 했습니다. 이전에는 기록이 없으면 섹션째 사라져 기능 자체가 없는 것처럼 보였습니다.
+- 관심 종목과 계정 설정은 develop이 이미 넣은 `AccountSettings`와 계정 삭제 흐름을 그대로 쓰고, 앵커 섹션으로만 감쌌습니다.
+- 계정·인증 화면 CSS를 이 구조에 맞춘 한 벌로 교체했습니다. develop의 `계정과 학습 기록 저장` 블록과 함께 두면 같은 셀렉터가 57건 겹치기 때문에 대체하는 형태입니다.
+- 컴포넌트가 쓰는 `my-page-*`·`account-*`·`auth-*`·`watch-*`·`quiz-*` 클래스 67개가 모두 정의돼 있고 과잉 중복 정의가 0건인 것을 확인했습니다. 브라우저로 `/me`(사이드바 216px + 본문 684px, 여섯 섹션)와 `/login` 렌더링을 확인했습니다.
+
+## 2026-08-20 · Codex · 인증·학습 저장 문서 동기화
+
+- 서비스 기획서, 시스템 설계도, 유저 시나리오를 `feat/auth-learning-storage`의 실제 구현에 맞췄습니다.
+- 비회원 localStorage 임시 기록, 로그인 뒤 Supabase 병합, 사용자별 RLS 저장 흐름과 아직 필요한 원격 마이그레이션·테스트 계정 검증을 구분해 기록했습니다.
+- 이 문서 브랜치는 인증 구현 브랜치 위에 쌓여 있으므로, 인증 변경이 먼저 반영된 뒤 병합합니다.
+
 ## 2026-08-20 · Codex · 자동 점수 배치 Environment 연결
 
 - `scores` GitHub Actions job에 `environment: env`를 지정해 `env` Environment에 개별 등록된 `TOSS_INVEST_CLIENT_ID`, `TOSS_INVEST_CLIENT_SECRET`, `WISOR_SEC_USER_AGENT` Secret을 읽도록 연결했습니다.
@@ -582,3 +611,41 @@
 
 - Render 내부 프록시 주소가 `request.url`에 `localhost:3000`으로 반영되므로, 인증 콜백의 성공·실패 응답은 절대 URL 대신 상대 `Location`을 반환합니다.
 - 상대 리다이렉트 응답 테스트를 추가했습니다. `python -m pytest -q` 132개와 `npm test` 101개가 통과했고 `npm run build`도 성공했습니다.
+
+## 2026-08-21 · Codex · 배우기 화면 최대 폭 통일
+
+- `/learn` 본문과 `당신은 어떤 기준을 따르고 있나요?` 비교표 섹션의 최대 폭을 기본 헤더와 같은 `1080px`로 맞췄습니다.
+- 배우기 페이지에서만 헤더를 `1440px`로 넓히던 예외 규칙을 제거했습니다.
+- 일반 메뉴의 활성 밑줄 CSS에서 `.nav-account`를 제외해 로그인 버튼의 아래쪽 테두리가 투명하게 덮이지 않도록 했습니다.
+- `npm test` 101개 통과, `npm run build` 성공을 확인했습니다. 브라우저 연결을 사용할 수 없어 자동 스크린샷 검증은 하지 못했습니다.
+
+## 2026-08-26 · Codex · OCI main 자동 배포 준비
+
+- 작업 브랜치는 `feat/oci-main-autodeploy`, 격리 worktree는
+  `C:\Users\Har10\Desktop\wisor\.worktrees\oci-main-autodeploy`입니다. 기존 dirty worktree는
+  건드리지 않았습니다.
+- `.github/workflows/deploy-oci.yml`은 `main`의 앱 변경을 PR과 같은 검사 뒤 OCI에 배포합니다.
+  점수·재무 캐시 두 파일만 바뀐 push는 이미지 배포를 건너뜁니다.
+- `deploy/oci/`에 현재 운영 Compose/Dockerfile, immutable SHA release 배포기, rollback 검증기,
+  forced-command bootstrap을 정본으로 추가했습니다. 배치와 같은 lock 순서를 쓰며 현재 운영
+  venv로 새 pipeline의 테스트·CLI·sample serialization 계약도 먼저 확인합니다.
+- 롤백은 단계별 flag 대신 실제 `deploy-state/*.previous`를 보고 복구하고, 파일 교체 명령은
+  함수 내부에서 각각 실패를 반환합니다. 이미지 revision·data label 판정은 Python 검증기 한 곳으로
+  모았고 부분 전환·파일 복사 실패·strict health 판정을 임시 디렉터리 회귀 테스트로 고정했습니다.
+- OCI에는 `wisor-deploy` 전용 계정과 인자 없는 root deploy 한 개만 허용하는 sudoers를
+  설치했습니다. 공개키에는 `restrict`와 forced command가 붙고 일반 셸은 거부됩니다.
+- GitHub `Production` Environment에 `OCI_DEPLOY_KEY`, `OCI_KNOWN_HOSTS`와
+  `OCI_HOST=wisor.site`, `OCI_PORT=22`, `OCI_USER=wisor-deploy`를 등록하고 branch policy를
+  `main` 하나로 제한했습니다. host key fingerprint는
+  `SHA256:TQI3a4ZRWn1dNpEVxg04sGVB9d54q0B8p6PRaGEAgls`로 재확인했습니다.
+- 허용되지 않은 SSH 명령이 exit 64로 거부되고, 현재 main
+  `f67aa034fac3ad97f5d4c31cb19c7089b959d836`의 idempotent deploy가 `LIVE_OK`를 반환하는 것을
+  실서버에서 확인했습니다. 기존 서비스 tag·코드 SHA는 바뀌지 않았습니다.
+- 자동 배포는 workflow 파일이 `main`에 들어가는 push부터 활성화됩니다. `develop` 검증 뒤
+  `main`이 `develop`을 받는 순서로 병합합니다.
+- 검사: data-pipeline 132 passed, Persona 94 passed/1 known contract test deselected, Web 139 passed,
+  `npm run build`, `npx tsc --noEmit`, OCI dispatcher 계약, Bash/YAML/Python syntax, 실서버
+  Compose config와 LIVE 검증 통과.
+- 운영 제약: `main` 쓰기 권한은 운영 배포 권한이며 현재 admin 4명의 직접 push를 유지합니다.
+  SIGKILL/VM 재부팅 중간상태 자동 복구, 과거 release/state retention, tracked systemd unit 자동 교체는
+  후속 운영 과제입니다.

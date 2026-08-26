@@ -2,6 +2,7 @@ import "../../../master-tabs.css";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import MasterPath from "@/components/MasterPath";
+import MatchPairs from "@/components/game/MatchPairs";
 import MobileMasterDock from "@/components/MobileMasterDock";
 import MasterTabs, { type MasterTab } from "@/components/MasterTabs";
 import { CURRICULUM_BY_MASTER } from "@/content/curriculum";
@@ -181,6 +182,13 @@ export default async function MasterLesson({ params }: { params: Promise<{ slug:
             scorable={!!meta}
             chapterTitles={curriculum.chapters.map((chapter) => chapter.title)}
           />
+
+          {master.principles.length >= 3 && (
+            <MatchPairs
+              title={`${master.name}의 원칙과 뜻 잇기`}
+              pairs={master.principles.slice(0, 5).map((p) => ({ term: p.title, def: p.body }))}
+            />
+          )}
 
           <section className="master-achievements" id="achievements" aria-labelledby="achievements-title">
             <MasterTabs
