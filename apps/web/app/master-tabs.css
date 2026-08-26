@@ -11,8 +11,23 @@
   list-style: none;
 }
 
-/* 라벨은 왼쪽 고정 폭, 본문은 오른쪽. 세 항목이 같은 줄에서 시작해
- * 다른 탭의 목록과 같은 리듬으로 읽힌다. "1977–1990"처럼 두 연도로 된
+/* 업적과 원칙은 항목 리듬이 같다 — 구분선으로 나뉜 줄에 제목 줄과 본문
+ * 줄이 들어간다. 한 곳에 적어야 나중에 한쪽만 고쳐서 두 탭이 갈라지는
+ * 일이 없다. 업적에만 있는 것(왼쪽 라벨 칸, 본문 뒤 근거 줄)은 아래에
+ * 따로 붙인다. */
+.achievement-records li,
+.principle-list li {
+  padding: 1.15rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.achievement-records li:first-child,
+.principle-list li:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+/* 라벨은 왼쪽 고정 폭, 본문은 오른쪽. "1977–1990"처럼 두 연도로 된
  * 라벨은 마크업 단계에서 이미 두 줄(연도 / ~ 연도)로 쪼개 놓으므로,
  * 칸 폭은 그 나머지 — 4자리 연도나 "기업가" 같은 짧은 단어 — 만 한 줄에
  * 들어가면 된다. */
@@ -20,13 +35,6 @@
   display: grid;
   grid-template-columns: 2.75rem minmax(0, 1fr);
   gap: 1.1rem;
-  padding: 1.15rem 0;
-  border-top: 1px solid var(--line);
-}
-
-.achievement-records li:first-child {
-  border-top: none;
-  padding-top: 0;
 }
 
 /* 배지 박스를 없애고 맨텍스트로 — 폴더 몸통(gold)과 배경(gold-soft)이
@@ -60,7 +68,8 @@
   white-space: normal;
 }
 
-.achievement-records h4 {
+.achievement-records h4,
+.principle-list h4 {
   margin: 0 0 0.4rem;
   font-size: 0.95rem;
   line-height: 1.45;
@@ -68,12 +77,18 @@
   word-break: keep-all;
 }
 
-.achievement-records p {
-  margin: 0 0 0.5rem;
-  color: var(--file-muted, var(--ink-soft));
+.achievement-records p,
+.principle-list p {
+  margin: 0;
+  color: var(--file-muted);
   font-size: 0.86rem;
   line-height: 1.7;
   word-break: keep-all;
+}
+
+/* 업적 본문 뒤에는 근거 줄이 이어진다. 원칙은 본문에서 끝난다. */
+.achievement-records p {
+  margin-bottom: 0.5rem;
 }
 
 /* 출처는 본문과 같은 색이면 문단이 한 덩어리로 읽힌다. 한 단계 연한
@@ -336,41 +351,13 @@
   margin-top: 0.5rem;
 }
 
-/* 원칙 탭. 업적과 같은 구분선 리듬(제목 줄 / 본문 줄)으로 — 인라인
+/* 원칙 탭. 항목 리듬·제목·본문은 업적과 함께 위에서 정의한다. 인라인
  * "제목 — 본문"은 제목이 문장에 묻혀 안 읽혔다. 원칙 데이터에는 업적의
  * label 같은 필드가 없어서 왼쪽 라벨 칸은 두지 않는다. */
 .principle-list {
   margin: 0;
   padding: 0;
   list-style: none;
-}
-
-.principle-list li {
-  padding: 1.15rem 0;
-  border-top: 1px solid var(--line);
-}
-
-.principle-list li:first-child {
-  border-top: none;
-  padding-top: 0;
-}
-
-.principle-list h4 {
-  margin: 0 0 0.4rem;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--ink);
-  line-height: 1.45;
-  letter-spacing: -0.02em;
-  word-break: keep-all;
-}
-
-.principle-list p {
-  margin: 0;
-  font-size: 0.86rem;
-  line-height: 1.7;
-  color: var(--file-muted);
-  word-break: keep-all;
 }
 
 /* 근거 탭의 자료 목록. 이 탭에서는 출처가 곁다리가 아니라 본문이라
