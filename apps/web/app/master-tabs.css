@@ -314,11 +314,17 @@
 }
 
 /* 기업조건·한계·자가진단 탭. .reason-list는 스크리너·퀴즈 등 사이트
- * 전체가 쓰는 공용 클래스(0.88rem 고정)라 여기서만 덮어써 업적·원칙과
- * 같은 본문 크기(0.86rem)로 맞춘다. */
+ * 전체가 쓰는 공용 클래스(0.88rem, --ink-soft 고정)라 여기서만 덮어써
+ * 업적·원칙과 같은 본문 단(0.86rem, --file-muted)으로 맞춘다. 항목 앞
+ * 점의 색(충족 --gold / 미충족 --ochre / 판정불가 점선)은 그대로 둔다 —
+ * 글자색과 달리 그건 판정 상태를 나르는 표시다. */
 .master-tabpanel .reason-list {
   margin: 0;
   font-size: 0.86rem;
+}
+
+.master-tabpanel .reason-list li {
+  color: var(--file-muted);
 }
 
 /* 원칙 탭. 업적과 같은 구분선 리듬(제목 줄 / 본문 줄)으로 — 인라인
@@ -358,10 +364,12 @@
   word-break: keep-all;
 }
 
+/* 근거 탭의 자료 목록. 이 탭에서는 출처가 곁다리가 아니라 본문이라
+ * 업적의 "근거 ·" 줄(메타 단)이 아니라 본문 단으로 둔다. */
 .master-tabpanel-content .master-list {
   margin: 0;
   padding-left: 1.1rem;
-  font-size: 0.85rem;
+  font-size: 0.86rem;
 }
 
 .master-tabpanel-content .master-list li {
@@ -373,11 +381,20 @@
   color: var(--ink);
 }
 
+/* 자가진단 탭에서는 목록 앞에 붙는 안내문이라 본문 단이다. */
 .master-tabpanel-content .master-note {
   margin: 0;
   color: var(--file-muted);
-  font-size: 0.8rem;
-  line-height: 1.6;
+  font-size: 0.86rem;
+  line-height: 1.7;
+}
+
+/* 근거 탭에서는 목록 뒤에 붙는 덧말이라 메타 단으로 내린다 — 자리가
+ * 업적 항목의 "근거 ·" 줄과 같다. */
+.master-tabpanel-content .master-list + .master-note {
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  line-height: 1.5;
 }
 
 .master-tabpanel-content .master-list + .master-note,
