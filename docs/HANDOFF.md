@@ -618,3 +618,34 @@
 - 배우기 페이지에서만 헤더를 `1440px`로 넓히던 예외 규칙을 제거했습니다.
 - 일반 메뉴의 활성 밑줄 CSS에서 `.nav-account`를 제외해 로그인 버튼의 아래쪽 테두리가 투명하게 덮이지 않도록 했습니다.
 - `npm test` 101개 통과, `npm run build` 성공을 확인했습니다. 브라우저 연결을 사용할 수 없어 자동 스크린샷 검증은 하지 못했습니다.
+
+## 2026-08-26 · Codex · OCI main 자동 배포 준비
+
+- 작업 브랜치는 `feat/oci-main-autodeploy`, 격리 worktree는
+  `C:\Users\Har10\Desktop\wisor\.worktrees\oci-main-autodeploy`입니다. 기존 dirty worktree는
+  건드리지 않았습니다.
+- `.github/workflows/deploy-oci.yml`은 `main`의 앱 변경을 PR과 같은 검사 뒤 OCI에 배포합니다.
+  점수·재무 캐시 두 파일만 바뀐 push는 이미지 배포를 건너뜁니다.
+- `deploy/oci/`에 현재 운영 Compose/Dockerfile, immutable SHA release 배포기, rollback 검증기,
+  forced-command bootstrap을 정본으로 추가했습니다. 배치와 같은 lock 순서를 쓰며 현재 운영
+  venv로 새 pipeline의 테스트·CLI·sample serialization 계약도 먼저 확인합니다.
+- 롤백은 단계별 flag 대신 실제 `deploy-state/*.previous`를 보고 복구하고, 파일 교체 명령은
+  함수 내부에서 각각 실패를 반환합니다. 이미지 revision·data label 판정은 Python 검증기 한 곳으로
+  모았고 부분 전환·파일 복사 실패·strict health 판정을 임시 디렉터리 회귀 테스트로 고정했습니다.
+- OCI에는 `wisor-deploy` 전용 계정과 인자 없는 root deploy 한 개만 허용하는 sudoers를
+  설치했습니다. 공개키에는 `restrict`와 forced command가 붙고 일반 셸은 거부됩니다.
+- GitHub `Production` Environment에 `OCI_DEPLOY_KEY`, `OCI_KNOWN_HOSTS`와
+  `OCI_HOST=wisor.site`, `OCI_PORT=22`, `OCI_USER=wisor-deploy`를 등록하고 branch policy를
+  `main` 하나로 제한했습니다. host key fingerprint는
+  `SHA256:TQI3a4ZRWn1dNpEVxg04sGVB9d54q0B8p6PRaGEAgls`로 재확인했습니다.
+- 허용되지 않은 SSH 명령이 exit 64로 거부되고, 현재 main
+  `f67aa034fac3ad97f5d4c31cb19c7089b959d836`의 idempotent deploy가 `LIVE_OK`를 반환하는 것을
+  실서버에서 확인했습니다. 기존 서비스 tag·코드 SHA는 바뀌지 않았습니다.
+- 자동 배포는 workflow 파일이 `main`에 들어가는 push부터 활성화됩니다. `develop` 검증 뒤
+  `main`이 `develop`을 받는 순서로 병합합니다.
+- 검사: data-pipeline 132 passed, Persona 94 passed/1 known contract test deselected, Web 139 passed,
+  `npm run build`, `npx tsc --noEmit`, OCI dispatcher 계약, Bash/YAML/Python syntax, 실서버
+  Compose config와 LIVE 검증 통과.
+- 운영 제약: `main` 쓰기 권한은 운영 배포 권한이며 현재 admin 4명의 직접 push를 유지합니다.
+  SIGKILL/VM 재부팅 중간상태 자동 복구, 과거 release/state retention, tracked systemd unit 자동 교체는
+  후속 운영 과제입니다.

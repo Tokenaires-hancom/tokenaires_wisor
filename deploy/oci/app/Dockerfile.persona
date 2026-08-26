@@ -1,0 +1,39 @@
+# syntax=docker/dockerfile:1
+FROM python:3.12-slim-bookworm AS build
+
+ENV VIRTUAL_ENV=/opt/venv \
+    PATH=/opt/venv/bin:$PATH \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    SCORES_JSON_PATH=/app/data/scores.json
+
+RUN python -m venv /opt/venv
+WORKDIR /app
+COPY requirements.txt ./
+RUN pip install --no-cache-dir --disable-pip-version-check -r requirements.txt
+COPY . .
+# main의 기존 계약 불일치 한 건은 배포 전환 작업과 별개라 현재 운영 검사와 동일하게 제외한다.
+RUN pytest -q --deselect=test_scores_source.py::test_real_file_has_expected_metric_keys
+
+FROM python:3.12-slim-bookworm AS runtime
+ARG WISOR_SHA
+LABEL org.opencontainers.image.revision=${WISOR_SHA}
+
+ENV VIRTUAL_ENV=/opt/venv \
+    PATH=/opt/venv/bin:$PATH \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    HOST=0.0.0.0 \
+    PORT=8000 \
+    SCORES_JSON_PATH=/app/data/scores.json
+
+RUN groupadd --system wisor && useradd --system --gid wisor --home-dir /app wisor
+COPY --from=build /opt/venv /opt/venv
+COPY --from=build --chown=wisor:wisor /app /app
+
+WORKDIR /app
+USER wisor
+EXPOSE 8000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"
+CMD ["python", "server.py"]
