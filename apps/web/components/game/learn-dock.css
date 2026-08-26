@@ -1,0 +1,66 @@
+/* 배우기 좌측 접이식 게임 패널 — 데스크톱 전용. */
+.learn-dock-fab {
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  z-index: 45;
+  background: var(--wine);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 0.7rem 1.1rem;
+  font-weight: 800;
+  font-size: 0.9rem;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(123, 45, 58, 0.28);
+  transition: transform 0.12s;
+}
+.learn-dock-fab:hover {
+  transform: translateY(-2px);
+}
+
+.learn-dock-panel {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 380px;
+  max-width: 88vw;
+  z-index: 50;
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+  box-shadow: 8px 0 28px rgba(42, 35, 32, 0.14);
+  padding: 1rem 1.1rem 2rem;
+  overflow-y: auto;
+  transform: translateX(-100%);
+  transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.learn-dock[data-open="true"] .learn-dock-panel {
+  transform: translateX(0);
+}
+
+.learn-dock-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--wine);
+}
+.learn-dock-close {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  line-height: 1;
+  padding: 0.2rem;
+}
+
+/* 모바일: 좌측 고정 패널이 안 들어가므로 통째로 숨긴다. */
+@media (max-width: 1000px) {
+  .learn-dock {
+    display: none;
+  }
+}

@@ -1,0 +1,106 @@
+/* 사이드 게임 match-3 전용 스타일. 홈 CSS와 분리한다. */
+.m3-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px;
+  position: relative;
+}
+.m3-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+.m3-title { font-size: 14px; font-weight: 700; }
+.m3-stars { color: var(--ochre); letter-spacing: 2px; font-size: 15px; }
+.m3-quest { font-size: 12.5px; color: var(--ink-soft); margin: 0 0 12px; }
+.m3-quest b { color: var(--wine); }
+
+.m3-meters { display: flex; gap: 8px; margin-bottom: 12px; }
+.m3-meter {
+  flex: 1;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 10px;
+  text-align: center;
+}
+.m3-meter span { display: block; font-size: 10.5px; color: var(--ink-soft); }
+.m3-meter strong { font-size: 16px; }
+
+.m3-board {
+  display: grid;
+  gap: 6px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 6px;
+  position: relative;
+  min-height: 220px;
+}
+.m3-tile {
+  aspect-ratio: 1;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  line-height: 1;
+  user-select: none;
+  transition: transform 0.12s, box-shadow 0.12s;
+  font: inherit;
+}
+.m3-tile span { font-size: 20px; }
+.m3-tile small { font-size: 8.5px; margin-top: 2px; font-weight: 700; opacity: 0.85; }
+.m3-tile[data-t="0"] { background: #e7d3d6; color: #7b2d3a; }
+.m3-tile[data-t="1"] { background: #cfe0e2; color: #2f6d72; }
+.m3-tile[data-t="2"] { background: #e6ddc6; color: #8a6d2f; }
+.m3-tile[data-t="3"] { background: #dcd6e6; color: #4a3f70; }
+.m3-tile[data-t="4"] { background: #e9dcc9; color: #a15a1e; }
+.m3-tile.sel { box-shadow: 0 0 0 3px var(--wine); transform: scale(1.05); }
+.m3-tile.pop { animation: m3-pop 0.28s ease; }
+@keyframes m3-pop { 0% { transform: scale(1); } 45% { transform: scale(1.35); } 100% { transform: scale(0); } }
+.m3-tile.shake { animation: m3-shake 0.3s ease; }
+@keyframes m3-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+.m3-overlay {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 18px 8px;
+}
+.m3-overlay .m3-badge {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 8px;
+  border-radius: 50%;
+  background: var(--card);
+  border: 2px solid var(--ochre);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+}
+.m3-overlay h3 { margin: 0.2em 0; color: var(--wine); font-size: 15px; }
+.m3-overlay p { font-size: 13px; color: var(--ink-soft); line-height: 1.5; margin: 0.3em 0 1em; }
+
+.m3-combo {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  transform: translate(-50%, -50%);
+  font-weight: 900;
+  font-size: 30px;
+  color: var(--wine);
+  pointer-events: none;
+  text-shadow: 0 2px 0 #fff;
+  animation: m3-combo 0.7s ease;
+}
+@keyframes m3-combo {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
+  30% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+  100% { opacity: 0; transform: translate(-50%, -60%) scale(1); }
+}

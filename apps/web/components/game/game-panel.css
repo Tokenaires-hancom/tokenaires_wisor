@@ -1,0 +1,55 @@
+/* 마이페이지 상단 게이미피케이션 패널. */
+.game-panel {
+  margin-top: 2rem;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 1rem 1.1rem;
+}
+.game-panel-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+.game-streak { font-weight: 700; font-size: 0.95rem; }
+.game-streak small { color: var(--ink-soft); font-weight: 500; }
+.game-level { font-size: 0.8rem; color: var(--wine); font-weight: 700; letter-spacing: 0.02em; }
+
+.game-xpbar {
+  height: 9px;
+  background: var(--line);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.game-xpbar > i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--ochre), var(--wine));
+  border-radius: 99px;
+  transition: width 0.6s ease;
+}
+.game-panel-foot {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+.game-goal-met { color: var(--ok, #5a7b52); font-weight: 700; }
+
+.game-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.8rem;
+}
+.game-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--wine);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  padding: 0.2rem 0.6rem;
+}
