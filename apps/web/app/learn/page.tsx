@@ -1,6 +1,7 @@
 import Link from "next/link";
 import MasterGrid from "@/components/MasterGrid";
 import StyleComparisonTable from "@/components/StyleComparisonTable";
+import LearnGameDock from "@/components/game/LearnGameDock";
 
 export default function LearnIndex() {
   return (
@@ -19,6 +20,8 @@ export default function LearnIndex() {
       <div className="learn-sources-link">
         <Link href="/learn/sources">커리큘럼 참고문헌</Link>
       </div>
+
+      <LearnGameDock />
     </div>
   );
 }
