@@ -2883,6 +2883,11 @@ h3.sub {
   letter-spacing: 0.04em;
   padding: 0.25rem 0.7rem;
   white-space: nowrap;
+  animation: path-bob 1.6s ease-in-out infinite;
+}
+@keyframes path-bob {
+  0%, 100% { transform: translateY(-50%); }
+  50% { transform: translateY(calc(-50% - 4px)); }
 }
 
 .path-label {
