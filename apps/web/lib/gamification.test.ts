@@ -7,6 +7,7 @@ import {
   dailyGoalMet,
   isChapterUnlocked,
   masterBadges,
+  masterProgress,
 } from "./gamification.ts";
 
 const progress = (lessonsDone: string[]) => ({ lessonsDone, quizResults: {} });
@@ -103,6 +104,25 @@ test("대가의 5개 장을 다 끝내면 배지를 받는다", () => {
 test("한 장이라도 빠지면 배지 없음", () => {
   const p = progress(["1", "2", "3", "4"].map((n) => `master:buffett:${n}`));
   assert.deepEqual(masterBadges(p), []);
+});
+
+test("masterProgress: 7명 전부, 대가별 완료 챕터 수", () => {
+  const p = progress(["1", "2", "3"].map((n) => `master:buffett:${n}`));
+  const rows = masterProgress(p);
+  assert.equal(rows.length, 7);
+  const buffett = rows.find((r) => r.masterId === "buffett");
+  assert.equal(buffett?.done, 3);
+  assert.equal(buffett?.total, 5);
+  assert.equal(buffett?.complete, false);
+  const graham = rows.find((r) => r.masterId === "graham");
+  assert.equal(graham?.done, 0);
+});
+
+test("masterProgress: 5장 다 하면 complete", () => {
+  const p = progress(["1", "2", "3", "4", "5"].map((n) => `master:buffett:${n}`));
+  const buffett = masterProgress(p).find((r) => r.masterId === "buffett");
+  assert.equal(buffett?.done, 5);
+  assert.equal(buffett?.complete, true);
 });
 
 

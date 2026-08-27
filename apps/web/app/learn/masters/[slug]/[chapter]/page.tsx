@@ -98,6 +98,7 @@ export default async function ChapterPage({
 
       <ChapterExercises
         chapterId={`master:${master.id}:${slot.no}`}
+        masterId={master.id}
         exercises={chapter.exercises}
         body={chapter.body}
         sources={chapter.sources}

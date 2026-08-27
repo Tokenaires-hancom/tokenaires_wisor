@@ -8,6 +8,7 @@ import { MASTERS, MASTER_BY_ID } from "@/content/masters";
 import { money } from "@/lib/format";
 import { xpTotal, levelFor, streakDays, dailyGoalMet, masterBadges } from "@/lib/gamification";
 import "./game/game-panel.css";
+import WisorTown from "@/components/game/WisorTown";
 import {
   NOTE_STATUS_LABEL,
   deleteNote,
@@ -243,6 +244,8 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
           </div>
         )}
       </div>
+
+      <WisorTown progress={progress} />
 
       <div className="card" style={{ marginTop: "2rem" }}>
         <p className="eyebrow">투자 대가 챕터</p>

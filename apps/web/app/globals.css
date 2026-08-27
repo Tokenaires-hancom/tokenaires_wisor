@@ -3041,6 +3041,13 @@ h3.sub {
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+}
+
+.path-map {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
 }
 
 .path {
@@ -3146,19 +3153,24 @@ h3.sub {
 
 .path-figure {
   position: absolute;
+  z-index: 2;
+  top: calc(var(--path-row, 1) * 92px - 8px);
   right: calc(50% + 34px - var(--sway, 0px) + 20px);
-  bottom: 16px;
   pointer-events: auto;
 }
 
 .path-figure[data-anchor="2"] {
   right: calc(50% + 34px - var(--sway, 0px) + 88px);
-  bottom: -26px;
 }
 
 .path-figure[data-anchor="3"] {
   right: calc(50% + 34px - var(--sway, 0px) + 40px);
-  bottom: -50px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .path-figure {
+    transition: top 0.55s ease, right 0.55s ease;
+  }
 }
 
 .path-figure .character img {
@@ -3278,7 +3290,6 @@ h3.sub {
 
   .path-figure[data-anchor="2"] {
     right: calc(50% + 34px - var(--sway, 0px) + 88px);
-    bottom: -14px;
   }
 
   .path-figure[data-anchor="3"] {
@@ -3334,8 +3345,8 @@ h3.sub {
   }
 
   .path-figure {
+    top: calc(var(--path-row, 1) * 84px - 8px);
     right: calc(50% + 34px - var(--sway, 0px) * 0.5 + 14px);
-    bottom: 16px;
   }
 
   .path-figure[data-anchor="2"] {
