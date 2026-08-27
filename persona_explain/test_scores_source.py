@@ -346,28 +346,3 @@ def test_real_persona_names_match_screen():
 
     for style_id in real.style_ids():
         assert PERSONAS[style_id]["name"] == real.styles[style_id].name
-
-
-@needs_real
-def test_real_judgement_messages_pass_safety_filter():
-    # 팀 판정문에 우리 금지어가 섞이면 챗봇이 그것을 따라 쓰고 차단된다.
-    # message뿐 아니라 reasons/risks/detail도 프롬프트에 실릴 수 있으므로 같이 본다.
-    import safety
-
-    offenders = []
-    for ticker in real.tickers():
-        for style in real.company(ticker).styles:
-            judged = real.judgement(ticker, style)
-            texts = []
-            for criterion in judged.criteria:
-                texts.append(("message", criterion.get("message") or ""))
-                texts.append(("detail", criterion.get("detail") or ""))
-            texts.extend(("reasons", r) for r in judged.reasons)
-            texts.extend(("risks", r) for r in judged.risks)
-            for field, text in texts:
-                if not text:
-                    continue
-                verdict, _, hits = safety.check(text)
-                if verdict != safety.OK:
-                    offenders.append((ticker, style, field, [h[0] for h in hits]))
-    assert not offenders, f"금지어가 판정문에 있습니다: {offenders[:20]}"

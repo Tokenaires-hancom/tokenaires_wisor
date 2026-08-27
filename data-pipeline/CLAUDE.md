@@ -28,7 +28,7 @@ providers/sec_toss.py  실데이터 공급자. SecTossProvider(전체 수집) ·
 metrics.py             원천 → 파생 지표
 coverage.py            모델이 판정할 수 있는 업종. '정보 부족'과 '판정 대상 아님'을 가른다
 quality.py             품질 게이트. 통과한 종목만 점수를 낸다
-styles/base.py         기준 프레임워크 + 사용자 문구 금지어 검사
+styles/base.py         기준 프레임워크
 styles/*.py            버핏 1.0 · 그레이엄 1.0 · 린치 1.0 — 기준 통과의 가중합
                        그린블랫 1.0 — 마법공식 순위 합산. 구조가 다르다(RankedStyle)
 run_batch.py           전체 실행
@@ -46,7 +46,7 @@ run_batch.py           전체 실행
 
 **버핏 모델의 기준은 8개로 고정입니다.** 기획서의 권장 문구("8개 기준 중 6개에 부합합니다")가 문자 그대로 성립해야 합니다. 개수를 바꾸려면 그 문구를 쓰는 화면과 테스트를 함께 고칩니다.
 
-**`on_pass` / `on_fail` 문구는 사용자에게 그대로 나갑니다.** `BANNED_PHRASES` 검사가 걸리면 배치가 예외로 죽습니다. 이건 의도된 동작입니다.
+**`on_pass` / `on_fail` 문구는 사용자에게 그대로 나갑니다.**
 
 ## 기준을 새로 추가할 때
 
@@ -57,7 +57,7 @@ Criterion(
     weight=2,                # 1~3. 스타일 안에서 상대적 비중
     detail="ROIC ≥ 12%",     # 화면의 '계산 기준'에 그대로 노출
     test=lambda m: None if m.x is None else m.x >= 0.12,   # None = 판정 불가
-    on_pass=lambda m: "...",  # 관찰 문장. 권유하지 않는다
+    on_pass=lambda m: "...",  # 관찰 문장
     on_fail=lambda m: "...",  # 숨기지 않는다. 같은 비중으로 보여준다
 )
 ```

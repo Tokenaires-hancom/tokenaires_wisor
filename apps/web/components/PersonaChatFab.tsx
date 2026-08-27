@@ -57,7 +57,6 @@ export default function PersonaChatFab() {
   const [persona, setPersona] = useState("buffett");
   const [ticker, setTicker] = useState<string | null>(pathTicker);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [disclaimer, setDisclaimer] = useState("이 설명은 교육용이며 투자 조언이 아닙니다.");
   const [messages, setMessages] = useState<Bubble[]>([]);
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<CompanyHit[]>([]);
@@ -109,7 +108,6 @@ export default function PersonaChatFab() {
       setTicker(nextTicker);
       setPersona(reply.persona);
       setSessionId(reply.sessionId);
-      setDisclaimer(reply.disclaimer);
       setMessages([{ role: "tutor", text: reply.text }]);
       setHits([]);
       track("persona_chat_opened", { ticker: nextTicker, persona: reply.persona });
@@ -172,7 +170,6 @@ export default function PersonaChatFab() {
         const opened = await createSession(ticker, persona);
         id = opened.sessionId;
         setSessionId(id);
-        setDisclaimer(opened.disclaimer);
       }
       let reply;
       try {
@@ -183,7 +180,6 @@ export default function PersonaChatFab() {
         setSessionId(opened.sessionId);
         reply = await askQuestion(opened.sessionId, text);
       }
-      setDisclaimer(reply.disclaimer);
       setMessages((prev) => [...prev, { role: "tutor", text: reply.text }]);
       track("persona_chat_asked", { ticker, persona: reply.persona });
     } catch (err) {
@@ -213,7 +209,6 @@ export default function PersonaChatFab() {
         setSessionId(reply.sessionId);
       }
       setPersona(reply.persona);
-      setDisclaimer(reply.disclaimer);
       setMessages([{ role: "tutor", text: reply.text }]);
     } catch (err) {
       console.debug("[wisor] persona chat switch failed", err);
@@ -364,7 +359,6 @@ export default function PersonaChatFab() {
             </form>
             <div className="persona-compose-meta">
               <span>Enter 전송 · Shift+Enter 줄바꿈</span>
-              <p className="disclaimer persona-disclaimer">{disclaimer}</p>
             </div>
           </footer>
         </section>

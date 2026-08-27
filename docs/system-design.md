@@ -328,13 +328,12 @@ flowchart LR
 
 ## 6. 구조로 강제되는 규칙
 
-원칙이 문서에만 있으면 지켜지지 않습니다. 네 가지는 실행되는 코드로 막습니다.
+원칙이 문서에만 있으면 지켜지지 않습니다. 세 가지는 실행되는 코드로 막습니다.
 
 | 규칙 | 강제 지점 | 어기면 |
 |---|---|---|
 | **없는 값을 0으로 채우지 않는다** | `metrics.py`가 재료 없으면 `None`, `Criterion.test`가 `None`이면 `unknown`, 분모에서 제외 | `tests/test_scoring.py` 실패 |
 | **재무데이터가 브라우저로 안 나간다** | `lib/scores.ts` 서버 전용 + `scripts/pr_checks/boundary_check.py` | 브라우저에서 모듈 평가 시 예외 · PR 자동검사 위반 |
-| **사용자 문구에 권유가 없다** | `data-pipeline/wisor_data/styles/base.py`의 `BANNED_PHRASES` 검사 | **배치가 예외로 죽습니다.** 의도된 동작입니다 |
 | **`scores.json`을 손으로 안 고친다** | `.claude/hooks/verify.sh` (PostToolUse) | 경고. 막지는 않음 |
 
 `unknown`을 따로 두는 이유가 이 시스템에서 가장 중요합니다.
