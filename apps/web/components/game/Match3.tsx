@@ -163,6 +163,11 @@ export default function Match3() {
             <div className="m3-badge">💰</div>
             <h3>버핏의 첫 기준 · ROIC</h3>
             <p>자본을 얼마나 효율적으로 굴리는가. ROIC 타일 {GOAL_NEED}개를 모아보세요.</p>
+            <ol className="m3-how">
+              <li>타일을 클릭한 뒤 인접한 타일을 클릭해 교환</li>
+              <li>같은 종류 3개 이상 연결되면 사라짐</li>
+              <li>💰 ROIC 타일 {GOAL_NEED}개를 모으면 클리어!</li>
+            </ol>
             <button type="button" className="btn" onClick={begin}>시작</button>
           </div>
         )}

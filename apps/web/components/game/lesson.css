@@ -170,14 +170,6 @@
   0% { transform: translateY(12px); opacity: 0; }
   100% { transform: translateY(0); opacity: 1; }
 }
-.lesson-feedback .duo-mascot {
-  margin: 0;
-  flex: none;
-}
-.lesson-feedback .duo-mascot img {
-  width: 300px;
-  height: 300px;
-}
 .lesson-feedback-text {
   min-width: 0;
 }

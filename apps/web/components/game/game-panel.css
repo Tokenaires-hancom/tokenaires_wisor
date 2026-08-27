@@ -53,3 +53,10 @@
   border-radius: 99px;
   padding: 0.2rem 0.6rem;
 }
+.game-xp-hint {
+  margin: 0.7rem 0 0;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+.game-xp-hint strong { color: var(--wine); }

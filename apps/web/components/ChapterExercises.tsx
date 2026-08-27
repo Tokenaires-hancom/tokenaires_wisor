@@ -204,10 +204,6 @@ export default function ChapterExercises({
           🔥 {combo}번 연속 정답
         </p>
       )}
-      {masterId && <LessonPath masterId={masterId} correctCount={gradedCorrect} total={gradedTotal} />}
-      <div className="lesson-progress" aria-hidden="true">
-        <i style={{ width: `${((at + 1) / steps.length) * 100}%` }} />
-      </div>
       <ol className="step-bar" aria-label={`${steps.length}단계 중 ${at + 1}단계`}>
         {steps.map((each, index) => (
           <li
@@ -246,6 +242,7 @@ export default function ChapterExercises({
                 exercise={exercises[step.index] as Extract<Exercise, { kind: "graded" }>}
                 picked={picks[step.index]}
                 submitted={done[step.index]}
+                feedbackState={gradedFeedback ? (gradedFeedback.correct ? "correct" : "wrong") : undefined}
                 onPick={(choice) =>
                   toggle(
                     step.index,
@@ -291,7 +288,6 @@ export default function ChapterExercises({
 
       {gradedFeedback && (
         <div className="lesson-feedback" data-kind={gradedFeedback.correct ? "correct" : "wrong"} role="status">
-          <Mascot state={gradedFeedback.correct ? "correct" : "wrong"} />
           <div className="lesson-feedback-text">
             <strong>{gradedFeedback.correct ? "정답!" : "다시 볼까요"}</strong>
             <p>{gradedFeedback.explain}</p>
@@ -342,11 +338,13 @@ function Graded({
   exercise,
   picked,
   submitted,
+  feedbackState,
   onPick,
 }: {
   exercise: Extract<Exercise, { kind: "graded" }>;
   picked: number[];
   submitted: boolean;
+  feedbackState?: "correct" | "wrong";
   onPick: (choice: number) => void;
 }) {
   const multiple = exercise.answers.length > 1;
@@ -355,7 +353,7 @@ function Graded({
     <>
       <p className="eyebrow">확인 문항{multiple ? " · 복수 정답" : ""}</p>
       <div className="quiz-presenter">
-        {!submitted && <Mascot state="idle" />}
+        <Mascot key={feedbackState ?? "idle"} state={feedbackState ?? "idle"} />
         <h3 className="quiz-bubble sub">{exercise.prompt}</h3>
       </div>
       <div role="group" aria-label={exercise.prompt}>
