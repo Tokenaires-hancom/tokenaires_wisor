@@ -243,6 +243,9 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
             ))}
           </div>
         )}
+        <p className="game-xp-hint">
+          하나의 챕터에 들어있는 퀴즈 문항들을 모두 풀면 <strong>+20 XP</strong> · XP가 쌓이면 레벨이 올라가고 바 그래프에 표시됩니다.
+        </p>
       </div>
 
       <WisorTown progress={progress} />
