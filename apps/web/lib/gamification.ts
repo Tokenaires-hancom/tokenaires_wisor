@@ -91,6 +91,24 @@ export function masterBadges(progress: ProgressLike): string[] {
   ).map((m) => m.id);
 }
 
+export type MasterProgressRow = {
+  masterId: string;
+  name: string;
+  done: number;
+  total: number;
+  complete: boolean;
+};
+
+/** 대가별 완료 챕터 수. "투자 마을" 건물 성장 등 시각화용. */
+export function masterProgress(progress: ProgressLike): MasterProgressRow[] {
+  const doneSet = new Set(progress.lessonsDone);
+  const total = CHAPTER_SLOTS.length;
+  return MASTERS.map((m) => {
+    const done = CHAPTER_SLOTS.filter((slot) => doneSet.has(`master:${m.id}:${slot.no}`)).length;
+    return { masterId: m.id, name: m.name, done, total, complete: done === total };
+  });
+}
+
 /** 각 레벨에 도달하는 데 필요한 누적 XP. 완료 챕터 × 20 기준(전체 35챕터 = 700). */
 export const LEVELS = [0, 20, 60, 120, 200, 300, 420, 560, 700] as const;
 

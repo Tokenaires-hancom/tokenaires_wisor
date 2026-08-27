@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { isCorrect } from "@/content/curriculum/grading";
 import Mascot from "@/components/game/Mascot";
+import LessonPath from "@/components/game/LessonPath";
+import WisorTown from "@/components/game/WisorTown";
 import "@/components/game/lesson.css";
 import { chapterSteps, stepLabel } from "@/content/curriculum/steps";
 // SOURCE_KINDS는 값이지만 types.ts가 Master를 type import만 하므로 번들에 masters.ts가 실리지 않는다
 import { SOURCE_KINDS, type Exercise, type SourceNote } from "@/content/curriculum/types";
 import { track } from "@/lib/analytics";
-import { markLessonDone, recordQuiz, saveJournalEntry } from "@/lib/store";
+import { markLessonDone, recordQuiz, saveJournalEntry, getProgress, type Progress } from "@/lib/store";
 
 // 사운드 (WebAudio, 에셋 없이)
 let AC: AudioContext | null = null;
@@ -60,6 +62,7 @@ export default function ChapterExercises({
   initialStep = 0,
   syncStepToUrl = true,
   next,
+  masterId,
 }: {
   chapterId: string;
   exercises: Exercise[];
@@ -74,6 +77,8 @@ export default function ChapterExercises({
   /** 마지막 스텝에서 '계속' 대신 보여줄 이동 대상. 없으면 마지막 스텝에서
    *  그냥 비활성화된다(예: compare 페이지의 최종 기록에는 다음 장이 없다). */
   next?: { href: string; label: string };
+  /** 대가 장에만 넘긴다. 비교 페이지처럼 대가 없는 레슨은 미니 경로를 그리지 않는다. */
+  masterId?: string;
 }) {
   const steps = chapterSteps(exercises);
   const router = useRouter();
@@ -82,6 +87,7 @@ export default function ChapterExercises({
   const [picks, setPicks] = useState<number[][]>(exercises.map(() => []));
   const [texts, setTexts] = useState<string[]>(exercises.map(() => ""));
   const [combo, setCombo] = useState(0); // 세션 내 연속 정답 (오답이면 0으로)
+  const [townProgress, setTownProgress] = useState<Progress | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const mounted = useRef(false);
 
@@ -101,6 +107,11 @@ export default function ChapterExercises({
           explain: currentExercise.explain,
         }
       : null;
+  const gradedTotal = exercises.filter((item) => item.kind === "graded").length;
+  const gradedCorrect = exercises.reduce((count, item, i) => {
+    if (item.kind !== "graded" || !done[i]) return count;
+    return count + (isCorrect(item.answers, picks[i]) ? 1 : 0);
+  }, 0);
   // 스텝이 바뀔 때 포커스를 새 콘텐츠로 옮긴다. 경계 스텝에서는 눌렀던
   // 이전/계속 버튼이 disabled가 되며 포커스가 body로 떨어지는데, 그러면
   // 다음 Tab이 문서 맨 위부터 다시 시작한다. 첫 마운트에는 옮기지 않는다.
@@ -171,16 +182,29 @@ export default function ChapterExercises({
         correct,
         total: graded.length,
       });
+      setTownProgress(await getProgress());
     }
   }
 
   return (
     <section aria-label="챕터 진행">
+      {townProgress && masterId && (
+        <div className="town-reward" role="dialog" aria-labelledby="town-reward-title">
+          <h2 id="town-reward-title" className="visually-hidden">
+            배울수록 마을이 자랍니다
+          </h2>
+          <WisorTown progress={townProgress} highlightId={masterId} mascot="celebrate" />
+          <button type="button" className="btn" onClick={() => setTownProgress(null)}>
+            계속
+          </button>
+        </div>
+      )}
       {combo >= 2 && (
         <p className="lesson-combo" key={combo} role="status">
           🔥 {combo}번 연속 정답
         </p>
       )}
+      {masterId && <LessonPath masterId={masterId} correctCount={gradedCorrect} total={gradedTotal} />}
       <div className="lesson-progress" aria-hidden="true">
         <i style={{ width: `${((at + 1) / steps.length) * 100}%` }} />
       </div>
@@ -207,6 +231,7 @@ export default function ChapterExercises({
         >
         {step.kind === "read" && (
           <div className="prose">
+            <Mascot state="teach" />
             {body.map((paragraph, index) => (
               <p key={index}>{paragraph}</p>
             ))}
@@ -255,6 +280,7 @@ export default function ChapterExercises({
 
         {step.kind === "summary" && (
           <div className="card">
+            <Mascot state="celebrate" />
             <p className="eyebrow">이 장의 한 문장</p>
             <p style={{ margin: 0, fontSize: "1.05rem" }}>{closing}</p>
           </div>
@@ -329,7 +355,7 @@ function Graded({
     <>
       <p className="eyebrow">확인 문항{multiple ? " · 복수 정답" : ""}</p>
       <div className="quiz-presenter">
-        <img className="quiz-presenter-char" src="/mascot/teach.webp" alt="" aria-hidden="true" />
+        {!submitted && <Mascot state="idle" />}
         <h3 className="quiz-bubble sub">{exercise.prompt}</h3>
       </div>
       <div role="group" aria-label={exercise.prompt}>
@@ -381,6 +407,7 @@ function Guided({
   return (
     <>
       <p className="eyebrow">써보기 · 점수 없음</p>
+      <Mascot state="teach" />
       <h3 className="sub">{exercise.prompt}</h3>
       <label className="field">
         <span>내 답</span>
@@ -457,6 +484,7 @@ function Journal({
   return (
     <>
       <p className="eyebrow">기록 · 90일 뒤 다시 묻습니다</p>
+      <Mascot state="teach" />
       <h3 className="sub">{exercise.prompt}</h3>
       <label className="field">
         <span>내 기록</span>

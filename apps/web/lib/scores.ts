@@ -62,6 +62,20 @@ export function companyNames(): Record<string, string> {
   return Object.fromEntries(DATA.companies.map((c) => [c.ticker, c.name]));
 }
 
+/** 티커 → 시가총액 순위(1위부터). 순위를 매기려면 유니버스 전체를 정렬해야 하는데
+ *  그 계산은 서버에서만 할 수 있다. 종목 상세를 그리는 클라이언트 컴포넌트가
+ *  이 결과를 props로 받는다.
+ *
+ *  시가총액이 숫자가 아닌 종목은 순위에서 뺀다 — 없는 값을 0으로 채우면
+ *  꼴찌로 줄을 세우게 된다. 그런 종목은 이 표에 아예 안 들어간다. */
+export function marketCapRanks(): Record<string, number> {
+  const ordered = DATA.companies
+    .filter((c) => Number.isFinite(c.marketCap))
+    .sort((a, b) => b.marketCap - a.marketCap);
+
+  return Object.fromEntries(ordered.map((c, i) => [c.ticker, i + 1]));
+}
+
 /** 철학마다 몇 종목을 채점했고 왜 다른지. 화면 두 곳이 같은 값을 쓴다. */
 export const COVERAGE: Coverage = styleCoverage(DATA.companies, DATA.styles);
 

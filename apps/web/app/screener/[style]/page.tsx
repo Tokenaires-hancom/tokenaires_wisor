@@ -1,12 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import DataStamp, { SampleDataFlag } from "@/components/DataStamp";
-import ScreenerCompanies from "@/components/ScreenerCompanies";
+import CriteriaLegend from "@/components/CriteriaLegend";
+import ScreenerSplit from "@/components/ScreenerSplit";
 import { MASTER_BY_ID } from "@/content/masters";
-import CoverageTable from "@/components/CoverageTable";
-import { FinancialText } from "@/components/FinancialTerm";
-import { COVERAGE, DATA, ranked, styleMeta } from "@/lib/scores";
-import { indexNames } from "@/lib/scores.types";
+import { DATA, marketCapRanks, ranked, styleMeta } from "@/lib/scores";
 
 export function generateStaticParams() {
   return DATA.styles.map((model) => ({ style: model.id }));
@@ -19,50 +17,40 @@ export default async function Screener({ params }: { params: Promise<{ style: st
   if (!master || !meta) notFound();
 
   const { scored, unscored, unscorable } = ranked(style);
-  const isRankModel = meta.method === "rank";
-  const here = COVERAGE.byStyle.find((s) => s.styleId === style);
-  const totalCriteriaWeight = meta.criteria.reduce((sum, c) => sum + c.weight, 0);
 
-  function criteriaWeightShare(weight: number) {
-    if (totalCriteriaWeight <= 0) return "0%";
-    const percent = (weight / totalCriteriaWeight) * 100;
-    return Number.isInteger(percent) ? `${percent}%` : `${percent.toFixed(1)}%`;
-  }
+  /* DataStamp는 lib/scores(서버 전용)를 읽어서 오른쪽 칸(클라이언트 컴포넌트)이
+     직접 못 부른다. 세 묶음(채점·정보 부족·판정 제외) 전부 왼쪽 목록에서 고를 수
+     있으므로(ScreenerSplit의 목록 머리 전환) 셋 다 여기서 미리 렌더링해 넘긴다 —
+     이 목록은 어차피 페이지네이션과 함께 전부 클라이언트로 내려가는 값이라
+     (components/ScreenerCompanies.tsx) stamp를 다 만들어 둬도 새로 유출되는
+     데이터가 없다.
+
+     종목 상세에서 대가 얼굴을 눌러 다른 철학으로 바꿔 볼 수 있으므로(StockDetailBody의
+     대가 칸), 지금 철학 하나가 아니라 종목마다 가진 철학 전부의 스탬프를 미리
+     만들어 둔다 — 그래야 대가를 바꿔도 그 철학의 진짜 재무 기준일·모델 버전이
+     따라온다. */
+  const marketCapRankMap = marketCapRanks();
+  const marketCapUniverseSize = Object.keys(marketCapRankMap).length;
+  const styleMetaById = Object.fromEntries(DATA.styles.map((m) => [m.id, styleMeta(m.id)]));
+  const stamps = Object.fromEntries(
+    [...scored, ...unscored, ...unscorable].map((c) => [
+      c.ticker,
+      Object.fromEntries(
+        Object.keys(c.scores).map((sid) => [
+          sid,
+          <DataStamp
+            price={c.asOf.price}
+            financial={c.asOf.financial}
+            modelVersion={styleMetaById[sid]?.modelVersion}
+            confidence={c.scores[sid]?.dataConfidence}
+          />,
+        ])
+      ),
+    ])
+  );
 
   return (
-    <div className="wrap" style={{ paddingBlock: "3.5rem 5rem" }}>
-      <p className="eyebrow">종목 찾기</p>
-      <p className="lede screener-model-intro">
-        이 화면에서는 투자 대가 네 명의 원칙으로 만든 점수 모델 네 개를 같은 데이터로 보여줍니다.
-      </p>
-
-      <details className="screener-model-boundary">
-        <summary>
-          <span className="eyebrow">점수로 만들지 않은 철학</span>
-          <span className="screener-model-boundary-hint">세부 내용</span>
-        </summary>
-        <div className="screener-model-boundary-content">
-          <dl>
-            <div>
-              <dt>필립 피셔</dt>
-              <dd>탐문과 경영진의 정직성 같은 정성 판단</dd>
-            </div>
-            <div>
-              <dt>하워드 막스</dt>
-              <dd>개별 종목보다 시장 전체의 신용과 심리</dd>
-            </div>
-            <div>
-              <dt>조지 소로스</dt>
-              <dd>가격과 자금 흐름이 달라지는 과정</dd>
-            </div>
-          </dl>
-          <p>
-            기업 재무 데이터로 억지로 점수화하면 본래 질문을 왜곡합니다. 세 철학은 스크리너 대신
-            학습 화면의 자가진단으로 다룹니다.
-          </p>
-        </div>
-      </details>
-
+    <div className="screener-page wrap wrap-wide">
       <nav className="screener-style-tabs" aria-label="투자 철학 선택">
         {DATA.styles
           .map((model) => {
@@ -76,174 +64,67 @@ export default async function Screener({ params }: { params: Promise<{ style: st
                 className="screener-style-tab"
                 aria-current={isActive ? "page" : undefined}
               >
-                <span className="screener-tab-name">{modelMaster?.name.split(" · ")[0] ?? model.name}</span>
-                <span className="screener-tab-meta">
-                  {modelMaster?.styleName ?? model.modelVersion}
+                {/* 이름이 바로 옆에 글자로 있으므로 alt는 비운다 */}
+                <img
+                  className="investor-avatar"
+                  src={`/investors/${model.id}.png`}
+                  alt=""
+                  width={36}
+                  height={36}
+                />
+                <span className="screener-tab-text">
+                  <span className="screener-tab-name">
+                    {modelMaster?.name.split(" · ")[0] ?? model.name}
+                  </span>
+                  <span className="style-name">
+                    {modelMaster?.styleName ?? model.modelVersion}
+                  </span>
                 </span>
               </Link>
             );
           })}
       </nav>
 
-      <p className="eyebrow screener-current-label">선택한 투자 철학</p>
-      <h1 className="thesis" style={{ fontSize: "clamp(1.7rem, 3.6vw, 2.5rem)" }}>
-        {master.name.split(" · ")[0]}의 투자 철학
-      </h1>
-      <p className="lede">{master.oneLine}</p>
+      {/* 제목·한 줄 설명은 지웠다. 탭이 이미 고른 철학 이름·배지를 보여주고,
+          같은 내용(오래 살아남을 사업을…)은 아무 종목도 안 고른 오른쪽 칸
+          (CriteriaLegend)에도 없다 — 스크롤 없는 화면에서 반복해서 쓸 자리가
+          없다.
 
-      {style === "greenblatt" && (
-        <section className="magic-formula-explainer" aria-labelledby="magic-formula-title">
-          <div className="magic-formula-copy">
-            <p className="eyebrow">마법공식 이해하기</p>
-            <h2 id="magic-formula-title">좋은 기업을, 싼 가격에 찾는 두 개의 순위표</h2>
-            <p>
-              그린블랫은 새로운 원리를 발명하기보다 벤저민 그레이엄의 &lsquo;싸게 사라&rsquo;는
-              원칙에 워런 버핏의 &lsquo;좋은 기업을 사라&rsquo;는 생각을 결합했습니다. 자신이 오랫동안
-              투자하고 컬럼비아대에서 가르쳐 온 이 방식을 2000년대 초 컴퓨터로 검증한 뒤, 누구나
-              반복할 수 있도록 사업의 질과 가격을 나타내는 두 순위로 단순화했습니다. 마법공식은
-              기업의 절대 점수를 정하지 않고, 두 순위를 더해 함께 앞선 기업부터 살펴봅니다.
-            </p>
-          </div>
+          예시 데이터 배지는 왼쪽 목록 머리로 들어간다(ScreenerSplit). 여기와
+          오른쪽 칸 둘 다에 두면 종목을 고른 순간 같은 배지가 두 번 뜬다 — 이
+          배지는 실데이터가 예시로 덮였다는 사고 신호라, 개수가 흔들리면 안 된다. */}
+      <ScreenerSplit
+        scored={scored}
+        unscored={unscored}
+        unscorable={unscorable}
+        style={style}
+        stamps={stamps}
+        sampleFlag={<SampleDataFlag />}
+        marketCapRanks={marketCapRankMap}
+        marketCapUniverseSize={marketCapUniverseSize}
+        emptyState={
+          <CriteriaLegend
+            style={style}
+            meta={meta}
+            master={master}
+            unscorableCount={unscorable.length}
+            unscorableReason={
+              unscorable[0]?.scores[style]?.unscorableReason ?? unscorable[0]?.unscorableReason
+            }
+          />
+        }
+      />
 
-          <ol className="magic-formula-flow">
-            <li>
-              <span className="magic-formula-step">질 순위</span>
-              <strong>투입한 자본으로 이익을 잘 내는가</strong>
-              <span>자본수익률 = EBIT ÷ (순운전자본 + 순유형자산)</span>
-            </li>
-            <li>
-              <span className="magic-formula-step">가격 순위</span>
-              <strong>기업 전체 가격에 비해 이익이 많은가</strong>
-              <span>이익수익률 = EBIT ÷ 기업가치</span>
-            </li>
-            <li>
-              <span className="magic-formula-step">합산 순위</span>
-              <strong>두 순위의 합이 작은 기업부터 본다</strong>
-              <span>한쪽만 앞선 기업보다 질과 가격이 함께 앞선 기업이 위로 갑니다.</span>
-            </li>
-          </ol>
+      {/* 정보 부족·판정하지 않은 업종을 화면 아래에 따로 나열하던 블록 둘은
+          지웠다 — ScreenerSplit의 목록 머리 전환([정보 부족]·[판정 제외])이
+          같은 종목을 왼쪽에서 고를 수 있게 대체한다. 목록을 떠나지 않고도
+          이 종목들의 기준 판정·지표를 오른쪽 칸에서 바로 볼 수 있다.
 
-          <p className="magic-formula-note">
-            금융·보험·부동산과 유틸리티는 같은 방식으로 비교하기 어려워 순위에서 제외합니다.
-            순위는 매수 신호가 아니라 추가로 살펴볼 순서입니다.
-          </p>
-        </section>
-      )}
-
-      <Link href={`/learn/masters/${master.id}`} className="btn" data-variant="quiet" style={{ marginBottom: "1.5rem" }}>
-        투자 철학 배우러 가기
-      </Link>
-
-      <SampleDataFlag />
-
-      <div className="card" style={{ marginTop: "1.5rem" }}>
-        <p className="eyebrow">{isRankModel ? "순위를 만드는 방식" : "점수를 매기는 방식"}</p>
-        <p style={{ margin: "0 0 1rem", fontSize: "0.92rem", color: "var(--ink-soft)" }}>
-          {isRankModel
-            ? style === "greenblatt"
-              ? "원래 마법공식대로 최신 EBIT를 순운전자본과 순유형자산의 합으로 나눈 자본수익률과 EBIT/기업가치를 각각 순위 매겨 합산합니다. 금융·유틸리티는 순위에서 제외합니다."
-              : "기존 Wisor 변형대로 5년 평균 세후 ROIC와 EBIT/기업가치를 각각 순위 매긴 뒤 합산합니다."
-            : `${meta.criteria.length}개 기준을 같은 방식으로 모든 종목에 적용하고, 충족한 기준의 비중 합을 점수로 씁니다. 판정할 데이터가 없는 기준은 감점하지 않고 따로 표시합니다.`}
-        </p>
-        <ol className="criteria-weight-list">
-          {meta.criteria.map((c) => (
-            <li key={c.code}>
-              <div>
-                <strong><FinancialText text={c.label} /></strong>
-                <span className="criteria-weight-meta">
-                  가중치 {c.weight}점 · 비중 {criteriaWeightShare(c.weight)}
-                </span>
-              </div>
-              <p className="mono"><FinancialText text={c.detail} /></p>
-            </li>
-          ))}
-        </ol>
-        <DataStamp modelVersion={meta.modelVersion} />
-      </div>
-
-      <div className="card" style={{ marginTop: "1.5rem" }}>
-        <p className="eyebrow">왜 철학마다 종목 수가 다른가</p>
-        <p style={{ margin: "0 0 0.5rem", fontSize: "0.92rem", color: "var(--ink-soft)" }}>
-          판정할 데이터가 없는 기준은 감점하지 않고 따로 셉니다. 다만 그런 기준이 전체의 4분의
-          1을 넘으면 남은 기준만으로 점수를 만들지 않습니다. <strong>기준이 적은 철학일수록 한
-          항목만 비어도 이 선을 넘습니다.</strong>
-        </p>
-        <CoverageTable coverage={COVERAGE} currentStyle={style} />
-        {here && here.topMissing.length > 0 && (
-          <p style={{ margin: "1rem 0 0", fontSize: "0.88rem", color: "var(--ink-soft)" }}>
-            이 철학에서 가장 많이 비었던 기준 —{" "}
-            {here.topMissing.map((m) => `${m.label} ${m.count}종목`).join(" · ")}
-          </p>
-        )}
-        {DATA.universe && (
-          <p style={{ margin: "1rem 0 0", fontSize: "0.88rem", color: "var(--ink-soft)" }}>
-            목록 자체는 {indexNames(DATA.universe.indexes)} 구성종목{" "}
-            {DATA.universe.requested}개에서 출발해{" "}
-            {DATA.universe.requested - DATA.universe.included}개를 뺀 것입니다. 기업이 나빠서가
-            아니라 같은 방식으로 읽을 수 없어서입니다.
-          </p>
-        )}
-        <p style={{ margin: "1rem 0 0" }}>
-          <Link href="/learn/scoring" className="btn" data-variant="quiet">
-            종목을 고르고 점수를 만드는 법
-          </Link>
-        </p>
-      </div>
-
-      <h2 className="section" style={{ marginTop: "3rem" }}>
-        {scored.length}개 종목
-      </h2>
-      <p className="lede">
-        순위는 결론이 아니라 살펴볼 순서입니다. 각 종목에서 충족한 기준과 확인이 필요한 점을 함께
-        보세요.
-      </p>
-
-      <ScreenerCompanies scored={scored} style={style} />
-
-      {unscored.length > 0 && (
-        <>
-          <h2 className="section" style={{ marginTop: "3rem" }}>
-            정보 부족 ({unscored.length})
-          </h2>
-          <p className="lede">
-            판정에 필요한 데이터가 모자라 점수를 만들지 않았습니다. 억지로 계산하지 않습니다.
-          </p>
-          <ul className="reason-list">
-            {unscored.map((c) => (
-              <li key={c.ticker} data-kind="unknown">
-                {c.name} ({c.ticker})
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-
-      {unscorable.length > 0 && (
-        <>
-          <h2 className="section" style={{ marginTop: "3rem" }}>
-            판정하지 않은 업종 ({unscorable.length})
-          </h2>
-          <p className="lede">
-            {unscorable[0].scores[style]?.unscorableReason ?? unscorable[0].unscorableReason} 데이터가 모자란 것이 아니라 모델이 맞지 않는 쪽입니다.
-            종목을 눌러 지표는 그대로 볼 수 있습니다.
-          </p>
-          <ul className="reason-list">
-            {unscorable.map((c) => (
-              <li key={c.ticker} data-kind="unknown">
-                <Link href={`/stocks/${c.ticker}`}>
-                  {c.name} ({c.ticker})
-                </Link>{" "}
-                · {c.sector}
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-
-      <p className="disclaimer">
-        데이터 생성 {new Date(DATA.generatedAt).toLocaleString("ko-KR")} · 이 목록은 살펴볼 후보를
-        좁히기 위한 것이며 매수 권유가 아닙니다.
-      </p>
+          철학 배우기·점수 설명 링크와 데이터 생성 고지도 지웠다 — 페이지
+          전체를 스크롤 없는 고정 칸(641px 이상)으로 만들면서 왼쪽 목록이
+          페이지네이션까지 스크롤 없이 다 들어가야 해서, 그 공간을 여기 대신
+          쓴다. 같은 링크는 /learn 안에, 고지는 오른쪽 칸(StockLenses)에도
+          남아 있다. */}
     </div>
   );
 }
