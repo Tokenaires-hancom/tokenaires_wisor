@@ -133,6 +133,12 @@ button {
   max-width: 720px;
 }
 
+/* 종목 찾기 전용. 목록 420px는 그대로 두고 오른쪽 칸에 여백을 넘긴다 —
+   1080px 화면에서는 오른쪽 칸이 약 580px이라 2열이 들어갈 자리가 없었다. */
+.wrap-wide {
+  max-width: 1700px;
+}
+
 .masthead {
   border-bottom: 1px solid var(--line);
   background: var(--surface);
@@ -804,6 +810,14 @@ h3.sub {
   border: 1px dashed var(--line-strong);
 }
 
+/* 종목을 고르기 전(illustrative)이라 판정 결과가 아예 없는 tick.
+   pass/fail/unknown 어느 것도 주장하지 않되, 회색은 칙칙해서 모든 칸에
+   똑같이 옅은 골드 톤을 준다 — 칸마다 같은 색이라 특정 기준이 충족됐다는
+   신호는 아니다. */
+.tick:not([data-status]) {
+  background: var(--gold-line);
+}
+
 .criteria-legend {
   display: flex;
   flex-wrap: wrap;
@@ -828,12 +842,20 @@ h3.sub {
   list-style: none;
 }
 
+/* marker(막대)와 본문을 그리드 행이 아니라 flex로 묶는다 — 설명(p)이 길어
+   두 줄로 접혀도 flex 교차축 stretch가 marker를 그 높이만큼 자동으로
+   늘려주므로, 설명이 막대 아래로 빠져나가는 일이 없다. */
 .criteria-bar-breakdown li {
-  display: grid;
-  grid-template-columns: 11px minmax(0, 1fr);
-  gap: 0.1rem 0.5rem;
-  align-items: center;
+  display: flex;
+  gap: 0.5rem;
   min-width: 0;
+}
+
+.criteria-bar-breakdown-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .criteria-bar-breakdown strong {
@@ -846,7 +868,6 @@ h3.sub {
 }
 
 .criteria-bar-breakdown .criteria-bar-weight {
-  grid-column: 2;
   color: var(--ink-faint);
   font-family: var(--mono);
   font-size: 0.68rem;
@@ -855,7 +876,6 @@ h3.sub {
 }
 
 .criteria-bar-breakdown p {
-  grid-column: 2;
   margin: 0.15rem 0 0;
   color: var(--ink-soft);
   font-size: 0.72rem;
@@ -863,7 +883,7 @@ h3.sub {
 }
 
 .criteria-bar-marker {
-  grid-row: 1 / span 3;
+  flex: none;
   align-self: stretch;
   width: 11px;
   min-height: 42px;
@@ -890,6 +910,10 @@ h3.sub {
   border-color: var(--line-strong);
   border-style: dashed;
   background: var(--surface);
+}
+
+.criteria-bar-breakdown li:not([data-status]) .criteria-bar-marker {
+  background: var(--gold-line);
 }
 
 .swatch {
@@ -960,26 +984,239 @@ h3.sub {
   border-radius: var(--radius);
 }
 
-/* ---------- 종목 줄 ---------- */
-
-.stock-row {
+/* ---------- 종목 찾기: 좌우 분할 ----------
+ * ⑤-3a — 641px 이상에서는 화면 전체가 스크롤하지 않는 고정 셸이다. 마스트헤드
+ * (60px) 아래 남는 높이를 .screener-page가 통째로 차지하고, 그 안에서 목록·
+ * 상세 두 칸이 각자 따로 스크롤한다 — 페이지 자체는 절대 안 늘어난다.
+ * 640px 이하는 아직 이 셸을 안 쓴다(보통 페이지 스크롤). 반응형은 다음 단계. */
+.screener-split {
   display: grid;
-  grid-template-columns: 2.2rem 1fr auto;
-  gap: 1rem;
+  grid-template-columns: 420px minmax(0, 1fr);
+  gap: 1.5rem;
   align-items: start;
-  padding: 1.1rem 0;
+  margin-top: 1rem;
+}
+
+.screener-split-list,
+.screener-split-detail {
+  min-width: 0;
+}
+
+/* 목록과 상세를 나누는 세로선. 종목 점수가 선에 바로 붙어 보이지 않도록
+   .screener-split의 gap(1.5rem)을 선 앞쪽 여백으로 먼저 주고, 선 뒤에도
+   같은 1.5rem을 padding-left로 둔다. 오른쪽도 같은 값을 줘서 카드가 칸
+   오른쪽 끝까지 억지로 안 늘어나게 한다 — 양쪽에 숨 쉴 자리를 두면 카드 안
+   그리드도 더 촘촘하게 접힌다. */
+.screener-split-detail {
+  border-left: 1px solid var(--line);
+  padding-left: 7.5rem;
+  padding-right: 7.5rem;
+}
+
+/* 종목을 아직 안 고른 기본 화면. 내용이 칸 위쪽에 붙어 아래만 크게 비지
+   않도록 세로 가운데로 둔다 — 내용이 칸보다 길어지면(작은 화면 등) 그냥
+   위에서부터 자연스럽게 흐른다. */
+.screener-empty-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100%;
+}
+
+/* 640px 이하 기본값. 고정 셸을 아직 안 쓰는 폭이라 보통 페이지처럼 아래
+   여백을 넉넉히 둔다(예전 page.tsx의 인라인 스타일과 같은 값). */
+.screener-page {
+  padding-block: 1.5rem 5rem;
+}
+
+@media (min-width: 641px) {
+  /* app/screener/[style]/page.tsx의 최상위 wrap div가 이 클래스를 받는다.
+     그 직계 자식(철학 탭 · 좌우 분할 · 하단 링크 · 고지)이 이 칸을 나눠 쓴다. */
+  .screener-page {
+    height: calc(100vh - 60px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-block: 1.25rem 1rem;
+  }
+
+  .screener-page > .screener-style-tabs {
+    flex: none;
+  }
+
+  /* 목록(왼쪽)은 그대로 align-items: start로 자기 높이만큼만 차지한다 —
+     스크롤을 안 주므로 페이지네이션까지 이 칸 안에 다 들어가야 한다.
+     상세(오른쪽)만 align-self: stretch로 칸을 가득 채우고 그 안에서
+     스크롤한다. 페이지에서 스크롤이 나는 곳은 여기 하나뿐이다. */
+  .screener-page > .screener-split {
+    flex: 1;
+    min-height: 0;
+    margin-top: 0.75rem;
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .screener-split-detail {
+    align-self: stretch;
+    height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    /* overflow-y만 auto로 두면 overflow-x는 명세상 visible이 아니라
+       auto로 승격돼 버려서, 안쪽 어딘가 폭이 살짝만 넘쳐도 여기서 조용히
+       가로 스크롤이 생긴다. 명시로 막는다. */
+    overflow-x: hidden;
+  }
+}
+
+/* 목록 머리의 [채점]·[정보 부족]·[판정 제외] 전환. 아래 화면 끝에 따로 서 있던
+ * 두 블록(정보 부족·판정하지 않은 업종)을 여기로 옮긴 것이다 — 눌러도 페이지
+ * 이동 없이 왼쪽 목록만 그 묶음으로 바뀐다. */
+.screener-group-toggle {
+  display: flex;
+  gap: 0.4rem;
+  /* 이 border-bottom 아래 여백(0.5rem)이 .stock-row의 padding-top(0.5rem)과
+     더해져야 종목 줄 사이 간격(0.5rem + 0.5rem)과 첫 줄 위 간격이 똑같아진다. */
+  margin: 0 0 0.5rem;
+  padding-bottom: 0.6rem;
   border-bottom: 1px solid var(--line);
 }
 
-.stock-rank {
-  font-family: var(--mono);
-  font-size: 0.8rem;
-  color: var(--ink-faint);
-  padding-top: 0.2rem;
+.screener-group-btn {
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
+.screener-group-btn:hover:not(:disabled) {
+  background: var(--surface-sunk);
+  color: var(--ink);
+}
+
+/* 지금 고른 묶음. 종목 줄의 aria-current와 같은 --wine 밑줄 대신 채운 배경을
+ * 쓴다 — 여기는 켜고 끄는 필터라 "지금 보는 종목" 표시와 헷갈리면 안 된다. */
+.screener-group-btn[aria-selected="true"] {
+  border-color: var(--line-strong);
+  background: var(--surface-sunk);
+  color: var(--ink);
+}
+
+.screener-group-btn:disabled {
+  color: var(--ink-faint);
+  cursor: not-allowed;
+}
+
+/* ---------- 종목 줄 ---------- */
+
+/* 한 줄 44px. 로고 칸이 바닥을 정한다 — 28px 아래로 내리면 로고가 없을 때 넣는
+ * 5글자 티커(CMCSA·GOOGL)가 7~8px이 되어 못 읽는다.
+ *
+ * 넓은 화면에서는 <button>이다 — 눌러도 페이지를 안 떠나고 오른쪽 칸만 바뀐다.
+ * 좁은 화면에서는 <a>로 바뀐다(반응형 절 참고). border·background는 버튼
+ * 기본값을 지운다. */
+.stock-row {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto auto;
+  gap: 0.7rem;
+  align-items: center;
+  width: 100%;
+  /* 좌우 여백. 왼쪽은 선택 시 붙는 3px 강조선(box-shadow)이 로고와 겹치지
+     않게, 오른쪽은 점수가 줄 끝에 딱 붙어 잘린 듯 보이지 않게 잡아준다. */
+  padding: 0.5rem 0.6rem;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  text-align: left;
+  color: inherit;
+}
+
+.stock-row:hover {
+  background: var(--surface-sunk);
+}
+
+/* 지금 고른 종목. 오른쪽 칸의 내용과 이 줄을 잇는 유일한 표시다. */
+.stock-row[aria-current="true"] {
+  background: var(--wine-soft);
+  box-shadow: inset 3px 0 0 var(--wine);
+}
+
+.stock-logo {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--paper);
+  /* 가장 긴 티커는 5글자(CMCSA·GOOGL)다. 0.5rem에서는 27px이라 안쪽 26px을 1px
+     넘겼다. 글자 수에 따라 크기를 바꾸지 않는다 — 줄마다 달라지면 목록이
+     들쭉날쭉해진다. --mono는 이 저장소에서 고정폭이 아니므로 글자 수로 계산하지
+     말고 재서 맞춘다(globals.css의 --mono 정의 참고). */
+  font-family: var(--mono);
+  font-size: 0.47rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink-faint);
+}
+
+.stock-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* 이름이 가장 긴 종목은 20자(익스피다이터스 인터내셔널 오브 워싱턴)다.
+ * 전체 이름은 종목을 눌러 상세에서 읽는다. */
 .stock-name {
   font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stock-row-bar {
+  width: 120px;
+}
+
+.stock-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.pager-arrow {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.pager-arrow:hover:not(:disabled) {
+  border-color: var(--ink);
+}
+
+/* 첫 페이지의 ◀ 와 마지막의 ▶ 는 잠근다. 순환하지 않는다 —
+   1페이지에서 뒤로 갔더니 26페이지가 나오면 어디에 있는지 알 수 없다. */
+.pager-arrow:disabled {
+  color: var(--ink-faint);
+  cursor: default;
+  opacity: 0.4;
+}
+
+.pager-count {
+  min-width: 4rem;
+  color: var(--ink-soft);
+  font-size: 0.86rem;
+  text-align: center;
 }
 
 .stock-ticker {
@@ -990,8 +1227,63 @@ h3.sub {
 }
 
 .stock-score {
+  min-width: 3rem;
+  font-family: var(--mono);
+  font-size: 1rem;
+  color: var(--wine-deep);
   text-align: right;
-  min-width: 6.5rem;
+}
+
+/* 정보 부족·판정 제외 줄의 점수 자리. 숫자가 아니라 사유 짧은 말이라 점수처럼
+ * 굵고 크게 두면 판정 결과로 오해한다. */
+.stock-score-reason {
+  font-family: var(--sans);
+  font-size: 0.76rem;
+  font-weight: 400;
+  color: var(--ink-faint);
+}
+
+/* 점수 카드 왼쪽에 붙는 대가 얼굴 칸. 같은 종목을 다른 철학으로 바꿔 본다.
+ * flex로 카드 옆에 나란히 두면 카드 폭이 줄어 기준 박스 그리드가 한 줄로
+ * 접히면서 카드가 오히려 세로로 길어진다 — 그래서 카드 크기에는 관여하지
+ * 않게 얼굴 칸을 통째로 absolute로 빼서 카드 왼쪽 여백(.screener-split-detail의
+ * padding-left) 안에 얹는다. 카드 자체는 얼굴 칸이 없을 때와 똑같은 폭·높이를
+ * 유지하고, 얼굴 4개는 그 높이에 맞춰 같은 간격으로 늘어선다.
+ *
+ * 이름을 .master-rail이 아니라 .score-master-rail로 둔 이유 — /learn/masters/[slug]에
+ * 이미 같은 이름의 전혀 다른 레일(대가 상세 옆 "다른 대가 보기")이 있어서,
+ * 같은 이름을 쓰면 뒤에 나오는 그 규칙(position: relative, padding-top: 7.5rem
+ * 등)이 여기를 덮어써 얼굴이 사라지고 위쪽에 빈 여백만 남는다. */
+.score-card-row {
+  position: relative;
+}
+
+.score-master-rail {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: calc(100% + 0.75rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.score-master-rail-btn {
+  padding: 2px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  background: none;
+  line-height: 0;
+  cursor: pointer;
+}
+
+.score-master-rail-btn:hover {
+  border-color: var(--line-strong);
+}
+
+.score-master-rail-btn[aria-selected="true"] {
+  border-color: var(--wine);
 }
 
 .stock-market-strip {
@@ -1050,11 +1342,26 @@ h3.sub {
   font-size: 0.88rem;
 }
 
+.business-lens-lists {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 1.75rem;
+  margin-top: 4px;
+}
+
+@media (max-width: 640px) {
+  .business-lens-lists {
+    grid-template-columns: 1fr;
+    gap: 1.5rem 0;
+  }
+}
+
 .reason-list li {
   display: flex;
   gap: 0.55rem;
   color: var(--ink-soft);
   padding: 0.12rem 0;
+  word-break: keep-all;
 }
 
 .reason-list li::before {
@@ -1090,6 +1397,40 @@ h3.sub {
   line-height: 1.55;
 }
 
+.score-card-split {
+  display: grid;
+  /* 왼쪽엔 "버핏 1.0"과 큰 점수 숫자뿐이라 160~220px는 과하게 넓었다. 그
+     남는 폭을 오른쪽 기준 박스 그리드로 돌려주면 2열로 다시 접힐 여지가
+     생긴다. */
+  grid-template-columns: minmax(96px, 140px) minmax(0, 1fr);
+  gap: 1.75rem;
+  /* 왼쪽 요약은 오른쪽 기준 칸보다 훨씬 짧다. start로 위에 붙이면 그 아래로
+     빈 칸이 크게 남으므로 세로 가운데로 둬 여백을 위아래로 나눈다. */
+  align-items: center;
+}
+
+.score-card-summary {
+  min-width: 0;
+}
+
+.score-card-criteria {
+  min-width: 0;
+  padding-left: 1.75rem;
+  border-left: 1px solid var(--line);
+}
+
+@media (max-width: 640px) {
+  .score-card-split {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .score-card-criteria {
+    padding-left: 0;
+    border-left: 0;
+  }
+}
+
 .score-model-note {
   margin: 0.85rem 0 0;
   padding: 0.85rem 0.9rem;
@@ -1115,82 +1456,51 @@ h3.sub {
 
 .criterion-audit {
   margin-top: 2rem;
-  overflow-x: auto;
-}
-
-.criterion-audit summary {
-  cursor: pointer;
-  color: var(--wine);
-  font-size: 0.9rem;
-  font-weight: 700;
-}
-
-.criterion-audit table {
-  width: 100%;
-  min-width: 760px;
-  margin-top: 1rem;
-  border-collapse: collapse;
-  font-size: 0.86rem;
-}
-
-.criterion-audit th,
-.criterion-audit td {
-  padding: 0.65rem 0.6rem;
-  border-bottom: 1px solid var(--line);
-  vertical-align: top;
-  text-align: left;
-}
-
-.criterion-audit thead th {
-  color: var(--ink-faint);
-  font-size: 0.72rem;
-  font-weight: 800;
-}
-
-.criterion-audit tbody th {
-  width: 10rem;
-  color: var(--ink);
-  font-weight: 800;
-}
-
-.criterion-audit tbody th > .criterion-weight {
-  display: block;
-  margin-top: 0.2rem;
-  color: var(--ink-faint);
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  font-weight: 500;
-}
-
-.criterion-audit td:nth-child(2) {
-  width: 15rem;
-  color: var(--ink-soft);
-}
-
-.criterion-audit td:last-child {
-  width: 6.5rem;
-  font-weight: 800;
-  text-align: right;
-  white-space: nowrap;
-}
-
-.criterion-audit tr[data-status="pass"] td:last-child {
-  color: var(--ink);
-}
-
-.criterion-audit tr[data-status="fail"] td:last-child {
-  color: var(--ochre-line);
-}
-
-.criterion-audit tr[data-status="unknown"] td:last-child {
-  color: var(--ink-faint);
 }
 
 .criterion-audit h3 {
-  margin: 1.4rem 0 0;
+  margin: 0;
   color: var(--ink-soft);
   font-size: 0.82rem;
   font-weight: 800;
+}
+
+/* 라벨-값 한 쌍이 좁은 표 한 줄을 다 차지해 값이 오른쪽 멀리 붕 떠 보이던
+   것을, 2열로 나눠 빈 오른쪽을 채운다. */
+.metric-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 2rem;
+  margin: 1rem 0 0;
+}
+
+.metric-facts > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--line);
+  min-width: 0;
+}
+
+.metric-facts dt {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.metric-facts dd {
+  margin: 0;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .metric-facts {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ---------- 두 렌즈 ---------- */
@@ -1252,6 +1562,128 @@ h3.sub {
   margin: 0;
   color: var(--ink-soft);
   font-size: 0.92rem;
+}
+
+/* 종목을 아직 안 고른 오른쪽 칸, "채점 방식" 카드 맨 위. 대가 이름과 한 줄
+   소개만 짧게 — 나머지 설명은 /learn/masters에 있다. */
+.criteria-legend-intro {
+  margin: 0 0 1.5rem;
+}
+
+.criteria-legend-intro h2 {
+  margin: 0 0 0.4rem;
+  color: var(--ink);
+  font-size: clamp(1.15rem, 2vw, 1.45rem);
+  line-height: 1.3;
+}
+
+.criteria-legend-intro p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+}
+
+.criteria-legend-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.criteria-legend-links .btn {
+  font-size: 0.86rem;
+}
+
+.universe-explainer-card,
+.scoring-explainer-card,
+.unscored-masters-card {
+  margin-top: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.universe-explainer-card p {
+  margin: 0 0 0.75rem;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.universe-explainer-card .reason-list {
+  margin: 0 0 0.85rem;
+}
+
+.universe-explainer-card p.universe-explainer-total {
+  margin-bottom: 0;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--line);
+  color: var(--ink);
+}
+
+/* 이 카드 안 .scoring-steps는 /learn/scoring과 같은 클래스를 쓰되, 카드
+   자체 padding이 위 여백을 이미 주고, 테두리가 아래위를 갈라주므로
+   목록 자체의 위 마진과 마지막 줄 겹줄 테두리는 뺀다. */
+.scoring-explainer-card .scoring-steps {
+  margin-top: 0;
+}
+
+.scoring-explainer-card .scoring-steps li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.scoring-explainer-more {
+  display: inline-block;
+  margin-top: 0.5rem;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+}
+
+.unscored-masters-card {
+  border-left: 4px solid var(--gold);
+}
+
+.unscored-masters-card > .eyebrow {
+  margin-bottom: 0.9rem;
+  color: var(--gold-deep);
+}
+
+.unscored-masters-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 0 0 1rem;
+}
+
+.unscored-masters-grid strong {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: var(--ink);
+  font-size: 0.92rem;
+}
+
+.unscored-masters-grid p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.unscored-masters-note {
+  margin: 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  color: var(--ink-soft);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+  .unscored-masters-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .magic-formula-flow {
@@ -1335,148 +1767,9 @@ h3.sub {
   }
 }
 
-.screener-model-intro {
-  margin-bottom: 1rem;
-}
-
-.screener-model-boundary {
-  margin-bottom: 2rem;
-  border: 1px dashed var(--line-strong);
-  border-left: 4px solid var(--gold);
-  border-radius: var(--radius);
-  background: var(--surface-sunk);
-}
-
-.screener-model-boundary summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1.05rem 1.25rem;
-  cursor: pointer;
-  list-style: none;
-}
-
-.screener-model-boundary summary::-webkit-details-marker {
-  display: none;
-}
-
-.screener-model-boundary summary:focus-visible {
-  outline: 2px solid var(--gold-deep);
-  outline-offset: 3px;
-}
-
-.screener-model-boundary summary .eyebrow {
-  margin: 0;
-  color: var(--gold-deep);
-}
-
-.screener-model-boundary-hint {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  color: var(--ink-soft);
-  font-size: 0.76rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.screener-model-boundary-hint::after {
-  content: "";
-  width: 0.45rem;
-  height: 0.45rem;
-  border-right: 2px solid currentColor;
-  border-bottom: 2px solid currentColor;
-  transform: translateY(-0.12rem) rotate(45deg);
-  transition: transform 0.15s ease;
-}
-
-.screener-model-boundary[open] .screener-model-boundary-hint::after {
-  transform: translateY(0.12rem) rotate(225deg);
-}
-
-.screener-model-boundary-content {
-  padding: 0 1.25rem 1.15rem;
-}
-
-.screener-model-boundary dl {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin: 0;
-}
-
-.screener-model-boundary dl > div {
-  min-width: 0;
-  padding: 0 1rem;
-  border-left: 1px solid var(--line);
-}
-
-.screener-model-boundary dl > div:first-child {
-  padding-left: 0;
-  border-left: 0;
-}
-
-.screener-model-boundary dl > div:last-child {
-  padding-right: 0;
-}
-
-.screener-model-boundary dt {
-  color: var(--ink);
-  font-size: 0.88rem;
-  font-weight: 800;
-}
-
-.screener-model-boundary dd {
-  margin: 0.2rem 0 0;
-  color: var(--ink-soft);
-  font-size: 0.78rem;
-  line-height: 1.5;
-}
-
-.screener-model-boundary-content > p:last-child {
-  margin: 1rem 0 0;
-  padding-top: 0.85rem;
-  border-top: 1px dotted var(--line-strong);
-  color: var(--ink-soft);
-  font-size: 0.84rem;
-}
-
-@media (max-width: 640px) {
-  .screener-model-boundary {
-    border-left-width: 3px;
-  }
-
-  .screener-model-boundary summary {
-    padding: 1rem;
-  }
-
-  .screener-model-boundary-content {
-    padding: 0 1rem 1rem;
-  }
-
-  .screener-model-boundary dl {
-    grid-template-columns: 1fr;
-  }
-
-  .screener-model-boundary dl > div {
-    padding: 0.65rem 0;
-    border-top: 1px solid var(--line);
-    border-left: 0;
-  }
-
-  .screener-model-boundary dl > div:first-child {
-    padding-top: 0;
-    border-top: 0;
-  }
-
-  .screener-model-boundary dl > div:last-child {
-    padding-bottom: 0;
-  }
-}
-
 .screener-style-tabs {
   display: flex;
-  margin: 0 0 2.5rem;
+  margin: 0 0 1.25rem;
   overflow-x: auto;
   overflow-y: hidden;
   border-bottom: 1px solid var(--line-strong);
@@ -1488,11 +1781,13 @@ h3.sub {
   display: none;
 }
 
+/* 얼굴이 들어오면서 150px으로는 이름이 잘린다. "벤저민 그레이엄"이 안 접히려면
+ * 얼굴 36 + 사이 10 + 좌우 여백 32 위에 글자 자리가 더 있어야 한다. */
 .screener-style-tab {
   display: flex;
-  flex: 1 0 150px;
-  flex-direction: column;
-  gap: 0.15rem;
+  flex: 1 0 220px;
+  align-items: center;
+  gap: 0.6rem;
   margin-bottom: -1px;
   padding: 0.9rem 1rem 0.8rem;
   border-bottom: 3px solid transparent;
@@ -1511,80 +1806,20 @@ h3.sub {
   color: var(--wine-deep);
 }
 
+/* 이름과 배지를 가로로 나란히 둔다. 배지는 /learn의 대가 카드에서 쓰는
+ * 것과 같은 것이다. */
+.screener-tab-text {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
 .screener-tab-name {
-  font-size: 0.9rem;
+  font-size: 1.1rem;
   font-weight: 650;
   white-space: nowrap;
-}
-
-.screener-tab-meta {
-  color: var(--ink-faint);
-  font-family: var(--mono);
-  font-size: 0.64rem;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
-}
-
-.screener-style-tab[aria-current="page"] .screener-tab-meta {
-  color: var(--wine);
-}
-
-.screener-current-label {
-  color: var(--wine);
-}
-
-.criteria-weight-list {
-  display: grid;
-  gap: 0.55rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: 0.88rem;
-}
-
-.criteria-weight-list li {
-  display: grid;
-  gap: 0.25rem;
-  padding: 0.6rem 0;
-  border-bottom: 1px solid var(--line);
-}
-
-.criteria-weight-list li:last-child {
-  border-bottom: 0;
-}
-
-.criteria-weight-list div {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.criteria-weight-list strong {
-  color: var(--ink);
-}
-
-.criteria-weight-list .criteria-weight-meta {
-  flex: none;
-  color: var(--wine);
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  white-space: nowrap;
-}
-
-.criteria-weight-list p {
-  margin: 0;
-  color: var(--ink-soft);
-  font-size: 0.78rem;
-  line-height: 1.45;
-}
-
-@media (max-width: 640px) {
-  .criteria-weight-list div {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 0.2rem;
-  }
 }
 
 .lens-note {
@@ -2468,13 +2703,13 @@ h3.sub {
 }
 
 @media (max-width: 640px) {
+  /* 375px에서도 한 줄을 지킨다. 막대를 줄여 이름 자리를 남긴다. */
   .stock-row {
-    grid-template-columns: 1.6rem 1fr;
+    gap: 0.5rem;
   }
 
-  .stock-score {
-    grid-column: 2;
-    text-align: left;
+  .stock-row-bar {
+    width: 72px;
   }
 
   .stock-market-strip {
@@ -5163,8 +5398,7 @@ a.watch-company-card:hover {
 
 .persona-bubble[data-role="user"] {
   align-self: flex-end;
-  background: var(--gold-soft);
-  border-color: var(--gold-line);
+  background: var(--gold-line);
 }
 
 .persona-disclaimer {

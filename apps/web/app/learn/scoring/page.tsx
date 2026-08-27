@@ -2,35 +2,13 @@ import Link from "next/link";
 import CoverageTable from "@/components/CoverageTable";
 import DataStamp from "@/components/DataStamp";
 import { SCORABLE_MASTERS } from "@/content/masters";
+import { SCORING_STEPS } from "@/content/scoringSteps";
 import { COVERAGE, DATA } from "@/lib/scores";
 import { EXCLUSION_LABELS, indexNames } from "@/lib/scores.types";
 
 export const metadata = {
   title: "종목을 고르고 점수를 만드는 법 — Wisor",
 };
-
-const STEPS = [
-  {
-    title: "기준을 하나씩 판정합니다",
-    body: "각 철학은 재무 항목을 보는 기준 몇 개로 이뤄져 있습니다. 기준마다 충족·미충족을 따로 판정하고, 미충족한 기준도 숨기지 않고 같은 비중으로 보여줍니다.",
-  },
-  {
-    title: "판정할 수 없으면 미충족이 아니라 '판정 불가'입니다",
-    body: "재무 공시에 그 항목이 없으면 0으로 채우지 않습니다. 데이터가 없는 것과 기준을 못 넘은 것은 전혀 다른 정보이고, 뭉개면 공시가 부실한 기업이 구조적으로 불리해집니다.",
-  },
-  {
-    title: "점수는 충족한 기준의 비중 합입니다",
-    body: "기준마다 비중이 다릅니다. 점수는 충족한 기준의 비중을 판정한 기준의 비중으로 나눈 값입니다. 판정 불가인 기준은 분자에서도 분모에서도 빠집니다. 블랙박스 회귀식이 아닙니다.",
-  },
-  {
-    title: "판정 불가가 4분의 1을 넘으면 점수를 만들지 않습니다",
-    body: "남은 기준만으로 낸 점수는 그 철학의 판단이라고 부르기 어렵습니다. 이때는 '정보 부족'으로 표시하고 순위에서 뺍니다. 억지로 계산하지 않습니다.",
-  },
-  {
-    title: "모델이 맞지 않는 업종은 아예 판정하지 않습니다",
-    body: "네 철학 모두 사업회사의 대차대조표를 전제합니다. 예금과 대출이 본업인 은행에서는 투하자본이, 부채가 곧 사업인 회사에서는 기업가치가 의미를 잃습니다. 이 업종은 데이터가 없어서가 아니라 모델이 맞지 않아서 점수를 내지 않습니다.",
-  },
-];
 
 export default function Scoring() {
   const spread = COVERAGE.byStyle.map((s) => s.scored);
@@ -93,7 +71,7 @@ export default function Scoring() {
       </p>
 
       <ol className="scoring-steps">
-        {STEPS.map((step, i) => (
+        {SCORING_STEPS.map((step, i) => (
           <li key={step.title}>
             <p className="eyebrow">{i + 1}단계</p>
             <h2 className="sub" style={{ fontSize: "1.05rem", marginTop: "0.25rem" }}>
