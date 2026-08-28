@@ -2356,6 +2356,7 @@ h3.sub {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
+  word-break: keep-all;
 }
 
 .comparison-matrix th,
@@ -2485,15 +2486,18 @@ h3.sub {
   outline-color: var(--paper);
 }
 
-/* 표 옆 레일. 폭을 늘 잡아 두므로 그래프가 열려도 표가 다시 흐르지 않는다 */
+/* 표 옆 레일. 폭을 늘 잡아 두므로 그래프가 열려도 표가 다시 흐르지 않는다.
+   테두리를 골드로 줘서 흰 표(.comparison-matrix) 옆에서도 마스코트 자리가
+   따로 있다는 게 한눈에 보이게 한다 */
 .comparison-rail {
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
   padding: 1rem;
-  border: 1px solid var(--line);
+  border: 1px solid var(--gold);
   border-radius: var(--radius);
   background: var(--surface);
+  word-break: keep-all;
 }
 
 .comparison-rail-title {
@@ -2513,8 +2517,9 @@ h3.sub {
   line-height: 1.5;
 }
 
-/* 그래프를 열기 전까지 이 자리를 버핏이 채운다. 남는 높이를 다 먹되 안쪽은
-   가운데로 모은다 — 위로 붙이면 아래가, 아래로 붙이면 제목과의 사이가 통째로 빈다 */
+/* 그래프를 열기 전까지 이 자리를 마스코트가 채운다. 남는 높이를 다 먹되 안쪽은
+   가운데로 모은다 — 위로 붙이면 아래가, 아래로 붙이면 제목과의 사이가 통째로 빈다.
+   말풍선(quiz-bubble)은 game/lesson.css 것을 그대로 쓴다 */
 .comparison-guide {
   display: flex;
   flex: 1;
@@ -2524,51 +2529,17 @@ h3.sub {
   min-height: 0;
 }
 
-.comparison-bubble {
-  position: relative;
-  margin: 0 0 0.8rem;
-  padding: 0.7rem 0.85rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface-sunk);
-  color: var(--ink-soft);
-  font-size: 0.8rem;
-  line-height: 1.5;
-  text-align: center;
-}
-
-/* 꼬리는 두 겹이다. 바깥이 테두리 색, 1px 위에 얹힌 안쪽이 배경 색 */
-.comparison-bubble::before,
-.comparison-bubble::after {
-  position: absolute;
-  left: 50%;
-  width: 0;
-  height: 0;
-  margin-left: -7px;
-  border-right: 7px solid transparent;
-  border-left: 7px solid transparent;
-  content: "";
-}
-
-.comparison-bubble::before {
-  top: 100%;
-  border-top: 8px solid var(--line);
-}
-
-.comparison-bubble::after {
-  top: calc(100% - 1px);
-  border-top: 8px solid var(--surface-sunk);
-}
-
-/* 캐릭터를 향한 꼬리(삼각형)를 뺀다 */
-.comparison-bubble::before,
-.comparison-bubble::after {
-  display: none;
-}
-
 .comparison-guide .character img {
   height: auto;
   max-height: 150px;
+}
+
+/* 이 자리의 말풍선만 캐릭터를 향한 꼬리(삼각형)를 뺀다. .quiz-bubble은
+   ChapterExercises의 퀴즈 제시 화면과 같이 쓰는 클래스라(game/lesson.css)
+   기본 꼬리는 그대로 두고, 여기서만 스코프를 좁혀 지운다. */
+.comparison-guide .quiz-bubble::before,
+.comparison-guide .quiz-bubble::after {
+  display: none;
 }
 
 .comparison-rail-count .mono {
@@ -2677,6 +2648,7 @@ h3.sub {
 
 .comparison-stack {
   display: none;
+  word-break: keep-all;
 }
 
 .comparison-stack-group + .comparison-stack-group {
@@ -2701,7 +2673,7 @@ h3.sub {
   padding: 0.7rem 0.85rem;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: var(--surface-sunk);
+  background: color-mix(in oklab, var(--gold) 16%, var(--paper));
   color: var(--ink);
   font: inherit;
   text-align: left;
@@ -4549,17 +4521,14 @@ h3.sub {
     --chapter-gutter: 0px;
   }
 
-    .chapter-page-copy,
-    .chapter-stage,
-    .chapter-page .step-bar,
-    .chapter-page .step-nav,
+  .chapter-page-copy,
+  .chapter-stage,
+  .chapter-page .step-bar,
+  .chapter-page .step-nav,
   .chapter-page .disclaimer {
     margin-left: 0;
   }
 
-  .chapter-figure img {
-    height: 110px !important;
-  }
 }
 
 /* ---------- 내 학습: 관심종목 ---------- */
