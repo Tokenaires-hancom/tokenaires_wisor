@@ -170,7 +170,7 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
             <span className="my-page-menu-index" aria-hidden="true">01</span>
             <span>
               <strong>내 학습</strong>
-              <small>진도 · 퀴즈 · 노트 · 복습</small>
+              <small>진도 · 퀴즈 · 복습</small>
             </span>
           </button>
           <button
@@ -185,7 +185,7 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
             <span className="my-page-menu-index" aria-hidden="true">02</span>
             <span>
               <strong>관심 종목</strong>
-              <small>저장한 기업 다시 보기</small>
+              <small>저장한 기업 · 학습노트</small>
             </span>
           </button>
           <button
@@ -431,89 +431,6 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
         )}
       </section>
 
-      <hr className="rule" />
-
-      <h2 className="section">종목 학습노트 ({notes.length})</h2>
-      <p className="lede">
-        기업 관점에서 확인한 것을 모아 둔 기록입니다. 시간이 지난 뒤 처음의 판단 근거를 다시
-        읽는 것이 이 노트의 목적입니다.
-      </p>
-      {notes.length === 0 ? (
-        <p className="lede">
-          아직 작성한 노트가 없습니다. 종목 상세의 <strong>나의 학습노트</strong> 탭에서 첫 노트를
-          남겨보세요.
-        </p>
-      ) : (
-        <div className="stack">
-          {notes.map((note) => (
-            <div key={note.ticker} className="card">
-              <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
-                <div>
-                  <Link href={`/stocks/${note.ticker}`}>
-                    <strong>{note.name}</strong>
-                    <span className="stock-ticker">{note.ticker}</span>
-                  </Link>
-                </div>
-                <span className="visibility">{NOTE_STATUS_LABEL[note.status]}</span>
-              </div>
-
-              {note.whyInterested && (
-                <p style={{ fontSize: "0.92rem", marginTop: "0.9rem", marginBottom: 0 }}>
-                  {note.whyInterested}
-                </p>
-              )}
-
-              <div style={{ marginTop: "1rem" }}>
-                <p className="eyebrow">기업 관점</p>
-                <ul className="reason-list">
-                  {note.strengths.slice(0, 2).map((s, i) => (
-                    <li key={i} data-kind="pass">
-                      {s}
-                    </li>
-                  ))}
-                  {note.risks.slice(0, 1).map((s, i) => (
-                    <li key={i} data-kind="fail">
-                      {s}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {note.openQuestions && (
-                <>
-                  <p className="eyebrow" style={{ marginTop: "1rem" }}>
-                    추가로 확인할 질문
-                  </p>
-                  <p style={{ fontSize: "0.9rem", color: "var(--ink-soft)", margin: 0 }}>
-                    {note.openQuestions}
-                  </p>
-                </>
-              )}
-
-              <div className="stamp">
-                <span>마지막 저장 {new Date(note.updatedAt).toLocaleString("ko-KR")}</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    void deleteNote(note.ticker).then(getNotes).then(setNotes);
-                  }}
-                  style={{
-                    background: "none",
-                    border: 0,
-                    padding: 0,
-                    color: "var(--ink-faint)",
-                    textDecoration: "underline",
-                    font: "inherit",
-                  }}
-                >
-                  노트 지우기
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
       <p className="disclaimer">
         {storageMode === "account"
           ? "학습 기록은 현재 로그인한 계정에 저장됩니다. 같은 계정으로 로그인하면 다른 기기에서도 이어서 볼 수 있습니다."
@@ -529,7 +446,7 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
             <p className="eyebrow">기업 다시 보기</p>
             <h2 id="watchlist-title" className="section">관심 종목</h2>
           </div>
-          <span>{watchlist.length}개 기업</span>
+          <span>{watchlist.length}개 기업 · {notes.length}개 노트</span>
         </div>
         {watchlist.length === 0 ? (
           <div className="watchlist-empty">
@@ -604,6 +521,92 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
             })}
           </ul>
         )}
+
+        <section className="watchlist-notes" aria-labelledby="watchlist-notes-title">
+          <p className="eyebrow">기업 판단 기록</p>
+          <h3 id="watchlist-notes-title" className="watchlist-notes-title">
+            종목 학습노트 ({notes.length})
+          </h3>
+          <p className="lede">
+            기업 관점에서 확인한 것을 모아 둔 기록입니다. 시간이 지난 뒤 처음의 판단 근거를 다시
+            읽는 것이 이 노트의 목적입니다.
+          </p>
+          {notes.length === 0 ? (
+            <p className="lede">
+              아직 작성한 노트가 없습니다. 종목 상세의 <strong>나의 학습노트</strong> 탭에서 첫 노트를
+              남겨보세요.
+            </p>
+          ) : (
+            <div className="stack">
+              {notes.map((note) => (
+                <div key={note.ticker} className="card">
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
+                    <div>
+                      <Link href={`/stocks/${note.ticker}`}>
+                        <strong>{note.name}</strong>
+                        <span className="stock-ticker">{note.ticker}</span>
+                      </Link>
+                    </div>
+                    <span className="visibility">{NOTE_STATUS_LABEL[note.status]}</span>
+                  </div>
+
+                  {note.whyInterested && (
+                    <p style={{ fontSize: "0.92rem", marginTop: "0.9rem", marginBottom: 0 }}>
+                      {note.whyInterested}
+                    </p>
+                  )}
+
+                  <div style={{ marginTop: "1rem" }}>
+                    <p className="eyebrow">기업 관점</p>
+                    <ul className="reason-list">
+                      {note.strengths.slice(0, 2).map((s, i) => (
+                        <li key={i} data-kind="pass">
+                          {s}
+                        </li>
+                      ))}
+                      {note.risks.slice(0, 1).map((s, i) => (
+                        <li key={i} data-kind="fail">
+                          {s}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {note.openQuestions && (
+                    <>
+                      <p className="eyebrow" style={{ marginTop: "1rem" }}>
+                        추가로 확인할 질문
+                      </p>
+                      <p style={{ fontSize: "0.9rem", color: "var(--ink-soft)", margin: 0 }}>
+                        {note.openQuestions}
+                      </p>
+                    </>
+                  )}
+
+                  <div className="stamp">
+                    <span>마지막 저장 {new Date(note.updatedAt).toLocaleString("ko-KR")}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void deleteNote(note.ticker).then(getNotes).then(setNotes);
+                      }}
+                      style={{
+                        background: "none",
+                        border: 0,
+                        padding: 0,
+                        color: "var(--ink-faint)",
+                        textDecoration: "underline",
+                        font: "inherit",
+                      }}
+                    >
+                      노트 지우기
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
       </section>
       )}
 

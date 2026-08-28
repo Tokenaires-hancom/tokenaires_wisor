@@ -16,6 +16,31 @@ import {
   type Progress,
 } from "./store.ts";
 
+async function withBrowserStorage(
+  run: (values: Map<string, string>) => Promise<void>,
+): Promise<void> {
+  const values = new Map<string, string>();
+  const originalWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: {
+      localStorage: {
+        getItem: (key: string) => values.get(key) ?? null,
+        setItem: (key: string, value: string) => values.set(key, value),
+        removeItem: (key: string) => values.delete(key),
+      },
+      dispatchEvent: () => true,
+    },
+  });
+
+  try {
+    await run(values);
+  } finally {
+    if (originalWindow) Object.defineProperty(globalThis, "window", originalWindow);
+    else Reflect.deleteProperty(globalThis, "window");
+  }
+}
+
 test("해당 대가의 완료와 퀴즈만 초기화한다", () => {
   const progress: Progress = {
     lessonsDone: ["master:buffett:1", "master:graham:1"],
@@ -59,21 +84,7 @@ test("비회원 기록이 하나라도 있으면 계정 이전 대상으로 본�
 });
 
 test("비회원의 모든 학습 기록은 브라우저 임시 저장소에 남는다", async () => {
-  const values = new Map<string, string>();
-  const originalWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
-  Object.defineProperty(globalThis, "window", {
-    configurable: true,
-    value: {
-      localStorage: {
-        getItem: (key: string) => values.get(key) ?? null,
-        setItem: (key: string, value: string) => values.set(key, value),
-        removeItem: (key: string) => values.delete(key),
-      },
-      dispatchEvent: () => true,
-    },
-  });
-
-  try {
+  await withBrowserStorage(async () => {
     await toggleWatch("AAPL");
     await markLessonDone("master:buffett:1");
     await recordQuiz("master:buffett:1", 2, 3);
@@ -93,8 +104,29 @@ test("비회원의 모든 학습 기록은 브라우저 임시 저장소에 남�
     assert.equal((await getProgress()).quizResults["master:buffett:1"].correct, 2);
     assert.equal((await getNotes())[0].ticker, "AAPL");
     assert.equal((await getJournal())[0].id, "master:buffett:1#1");
-  } finally {
-    if (originalWindow) Object.defineProperty(globalThis, "window", originalWindow);
-    else Reflect.deleteProperty(globalThis, "window");
-  }
+  });
+});
+
+test("학습노트는 관심 종목 등록과 관계없이 남는다", async () => {
+  await withBrowserStorage(async () => {
+    await saveNote({
+      ticker: "AAPL",
+      name: "Apple",
+      whyInterested: "사업 구조 확인",
+      styleScores: [],
+      strengths: ["현금흐름"],
+      risks: ["집중도"],
+      openQuestions: "다음 분기 마진",
+      status: "digging",
+    });
+
+    assert.deepEqual(await getWatchlist(), []);
+    assert.equal((await getNotes())[0].ticker, "AAPL");
+
+    await toggleWatch("AAPL");
+    await toggleWatch("AAPL");
+
+    assert.deepEqual(await getWatchlist(), []);
+    assert.equal((await getNotes())[0].ticker, "AAPL");
+  });
 });
