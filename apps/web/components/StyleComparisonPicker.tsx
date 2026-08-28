@@ -180,7 +180,7 @@ export default function StyleComparisonPicker({
           <div className="comparison-guide">
             <p className="comparison-bubble" aria-live="polite">
               {total === 0 ? (
-                "표에서 공감되는 칸을 고르세요."
+                "어떤 기준을 따르시나요? 모두 골라보세요."
               ) : (
                 <>
                   <span className="mono">{total}칸</span>을 골랐습니다.
