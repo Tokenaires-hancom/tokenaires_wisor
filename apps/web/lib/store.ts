@@ -1,7 +1,6 @@
 "use client";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { isDue } from "./journalDue.ts";
 
 /** 사용자 데이터 저장소.
  * 로그인 전에는 localStorage에 임시 저장한다. 로그인 세션을 발견하면 임시 기록을
@@ -36,11 +35,14 @@ export type Progress = {
 };
 
 export type JournalEntry = {
+  responseId: string;
   id: string;
   prompt: string;
   text: string;
   at: string;
 };
+
+type StoredJournalEntry = Omit<JournalEntry, "responseId"> & { responseId?: string };
 
 export type LearningStorageMode = "browser" | "account";
 
@@ -74,14 +76,19 @@ function emitStoreChange(): void {
   if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("wisor:store"));
 }
 
-function write(key: string, value: unknown): void {
-  if (typeof window === "undefined") return;
+function write(key: string, value: unknown): boolean {
+  if (typeof window === "undefined") return false;
   try {
     window.localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    return false;
+  }
+  try {
     emitStoreChange();
   } catch {
-    /* 저장 공간이 가득 찬 경우 현재 화면 동작은 유지한다. */
+    /* 저장은 끝났으므로 화면 갱신 이벤트 실패를 저장 실패로 바꾸지 않는다. */
   }
+  return true;
 }
 
 function readLocalState(): LocalLearningState {
@@ -89,7 +96,7 @@ function readLocalState(): LocalLearningState {
     watchlist: read<string[]>(KEYS.watchlist, []),
     notes: read<StudyNote[]>(KEYS.notes, []),
     progress: read<Progress>(KEYS.progress, emptyProgress()),
-    journal: read<JournalEntry[]>(KEYS.journal, []),
+    journal: readLocalJournal(),
   };
 }
 
@@ -113,15 +120,38 @@ type RemoteContext = { supabase: SupabaseClient; userId: string };
 let preparedUserId: string | null = null;
 let preparation: Promise<boolean> | null = null;
 
-async function migrateLocalState(supabase: SupabaseClient): Promise<boolean> {
+async function migrateLocalState(supabase: SupabaseClient, userId: string): Promise<boolean> {
   const local = readLocalState();
   if (!hasLearningState(local)) return true;
+
+  // 기록 이력을 새 복합키로 먼저 저장한다. 구 스키마에서는 이 요청 자체가 실패하므로
+  // 예전 RPC가 (user_id, entry_id) 기준으로 기존 답을 덮어쓸 기회를 주지 않는다.
+  if (local.journal.length > 0) {
+    const { error: journalError } = await supabase.from("journal_entries").upsert(
+      local.journal.map((entry) => ({
+        user_id: userId,
+        response_id: entry.responseId,
+        entry_id: entry.id,
+        prompt: entry.prompt,
+        answer: entry.text,
+        answered_at: entry.at,
+      })),
+      { onConflict: "user_id,response_id", ignoreDuplicates: true },
+    );
+    if (journalError) {
+      console.error(
+        "Wisor journal migration preflight failed",
+        journalError.code ?? journalError.message,
+      );
+      return false;
+    }
+  }
 
   const { error } = await supabase.rpc("import_learning_state", {
     p_watchlist: local.watchlist,
     p_notes: local.notes,
     p_progress: local.progress,
-    p_journal: local.journal,
+    p_journal: [],
   });
   if (error) {
     console.error("Wisor learning state migration failed", error.code ?? error.message);
@@ -141,7 +171,7 @@ async function remoteContext(): Promise<RemoteContext | null> {
   if (error || !data.user) return null;
   if (preparedUserId !== data.user.id || !preparation) {
     preparedUserId = data.user.id;
-    preparation = migrateLocalState(supabase);
+    preparation = migrateLocalState(supabase, data.user.id);
   }
   if (!(await preparation)) {
     invalidateRemotePreparation();
@@ -412,15 +442,34 @@ function recordLocalQuiz(id: string, correct: number, total: number, at: string)
 
 /* 기록형 답 */
 
+function normalizeJournalEntry(entry: StoredJournalEntry): JournalEntry {
+  const answeredAt = new Date(entry.at);
+  const legacyAnsweredAt = Number.isNaN(answeredAt.getTime()) ? entry.at : answeredAt.toISOString();
+  return {
+    ...entry,
+    responseId: entry.responseId ?? `legacy:${entry.id}:${legacyAnsweredAt}`,
+  };
+}
+
+export function journalEntriesNewestFirst(entries: JournalEntry[]): JournalEntry[] {
+  return [...entries].sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
+}
+
+function readLocalJournal(): JournalEntry[] {
+  const entries = read<StoredJournalEntry[]>(KEYS.journal, []).map(normalizeJournalEntry);
+  return journalEntriesNewestFirst(entries);
+}
+
 export async function getJournal(): Promise<JournalEntry[]> {
   const remote = await remoteContext();
-  if (!remote) return read<JournalEntry[]>(KEYS.journal, []);
+  if (!remote) return readLocalJournal();
   const { data, error } = await remote.supabase
     .from("journal_entries")
-    .select("entry_id,prompt,answer,answered_at")
+    .select("response_id,entry_id,prompt,answer,answered_at")
     .order("answered_at", { ascending: false });
-  if (error) return read<JournalEntry[]>(KEYS.journal, []);
+  if (error) return readLocalJournal();
   return (data ?? []).map((row) => ({
+    responseId: String(row.response_id),
     id: String(row.entry_id),
     prompt: String(row.prompt),
     text: String(row.answer),
@@ -433,16 +482,26 @@ export async function saveJournalEntry(
   prompt: string,
   text: string,
 ): Promise<JournalEntry> {
-  const saved: JournalEntry = { id, prompt, text, at: new Date().toISOString() };
+  const saved: JournalEntry = {
+    responseId: globalThis.crypto.randomUUID(),
+    id,
+    prompt,
+    text,
+    at: new Date().toISOString(),
+  };
   const remote = await remoteContext();
   if (!remote) {
     saveLocalJournal(saved);
     return saved;
   }
-  const { error } = await remote.supabase.from("journal_entries").upsert(
-    { user_id: remote.userId, entry_id: id, prompt, answer: text, answered_at: saved.at },
-    { onConflict: "user_id,entry_id" },
-  );
+  const { error } = await remote.supabase.from("journal_entries").insert({
+    user_id: remote.userId,
+    response_id: saved.responseId,
+    entry_id: id,
+    prompt,
+    answer: text,
+    answered_at: saved.at,
+  });
   if (error) {
     remoteWriteFailed("Wisor journal save failed", error);
     saveLocalJournal(saved);
@@ -451,11 +510,7 @@ export async function saveJournalEntry(
 }
 
 function saveLocalJournal(saved: JournalEntry): void {
-  const rest = read<JournalEntry[]>(KEYS.journal, []).filter((entry) => entry.id !== saved.id);
-  write(KEYS.journal, [saved, ...rest]);
-}
-
-export async function dueJournalEntries(afterDays = 90): Promise<JournalEntry[]> {
-  const now = Date.now();
-  return (await getJournal()).filter((entry) => isDue(entry.at, now, afterDays));
+  if (!write(KEYS.journal, journalEntriesNewestFirst([saved, ...readLocalJournal()]))) {
+    throw new Error("기록을 브라우저에 저장하지 못했습니다.");
+  }
 }

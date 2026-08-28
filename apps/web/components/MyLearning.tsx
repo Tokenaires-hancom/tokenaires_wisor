@@ -12,12 +12,11 @@ import WisorTown from "@/components/game/WisorTown";
 import {
   NOTE_STATUS_LABEL,
   deleteNote,
-  dueJournalEntries,
+  getJournal,
   getNotes,
   getProgress,
   getStorageMode,
   getWatchlist,
-  saveJournalEntry,
   type JournalEntry,
   type LearningStorageMode,
   type Progress,
@@ -41,12 +40,37 @@ const PRICE_FORMATTER = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 2,
 });
 
+const JOURNAL_DATE_FORMATTER = new Intl.DateTimeFormat("ko-KR", {
+  dateStyle: "long",
+  timeStyle: "short",
+});
+
+function formatJournalDate(at: string): string {
+  const date = new Date(at);
+  return Number.isNaN(date.getTime()) ? at : JOURNAL_DATE_FORMATTER.format(date);
+}
+
+function journalChapterContext(id: string): { href: string; label: string } | undefined {
+  const match = /^master:([^:]+):(\d+)#/.exec(id);
+  if (!match) return undefined;
+
+  const [, masterId, chapter] = match;
+  const master = MASTER_BY_ID[masterId as keyof typeof MASTER_BY_ID];
+  const chapterNo = Number(chapter);
+  const slot = CHAPTER_SLOTS.find((candidate) => candidate.no === chapterNo);
+  if (!master || !slot) return undefined;
+
+  return {
+    href: `/learn/masters/${masterId}/${chapterNo}`,
+    label: `${master.name.split(" · ")[0]} · ${chapterNo}장 ${slot.label}`,
+  };
+}
+
 export default function MyLearning({ companies }: { companies: Record<string, WatchCompanyInfo> }) {
   const [progress, setProgress] = useState<Progress>({ lessonsDone: [], quizResults: {} });
   const [watchlist, setWatchlist] = useState<string[]>([]);
   const [notes, setNotes] = useState<StudyNote[]>([]);
-  const [due, setDue] = useState<JournalEntry[]>([]);
-  const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [journal, setJournal] = useState<JournalEntry[]>([]);
   const [storageMode, setStorageMode] = useState<LearningStorageMode>("browser");
   const [ready, setReady] = useState(false);
   const [activeSection, setActiveSection] = useState("my-learning");
@@ -54,18 +78,18 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
   useEffect(() => {
     let alive = true;
     async function refresh() {
-      const [p, w, n, j, mode] = await Promise.all([
+      const [p, w, n, journalEntries, mode] = await Promise.all([
         getProgress(),
         getWatchlist(),
         getNotes(),
-        dueJournalEntries(),
+        getJournal(),
         getStorageMode(),
       ]);
       if (!alive) return;
       setProgress(p);
       setWatchlist(w);
       setNotes(n);
-      setDue(j);
+      setJournal(journalEntries);
       setStorageMode(mode);
       setReady(true);
     }
@@ -170,7 +194,7 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
             <span className="my-page-menu-index" aria-hidden="true">01</span>
             <span>
               <strong>내 학습</strong>
-              <small>진도 · 퀴즈 · 복습</small>
+              <small>진도 · 퀴즈 · 기록형 답변</small>
             </span>
           </button>
           <button
@@ -383,51 +407,53 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
 
       <hr className="rule" />
 
-      <section aria-labelledby="review-schedule-title">
-        <p className="eyebrow">복습 일정</p>
-        <h2 id="review-schedule-title" className="section">90일 뒤 다시 보는 기록</h2>
-        {due.length === 0 ? (
-          <p className="lede">
-            지금 다시 볼 기록은 없습니다. 기록형 답은 작성한 지 90일이 지나면 이곳에 나타납니다.
-          </p>
-        ) : (
-          <>
-            <p className="lede">
-              그때의 답과 지금의 생각이 다르면, 무엇이 바뀌었는지가 배운 것입니다.
-            </p>
-            <div className="stack">
-              {due.map((entry) => (
-                <div key={entry.id} className="card">
-                  <h3 className="sub">{entry.prompt}</h3>
-                  <p style={{ fontSize: "0.9rem", color: "var(--ink-soft)" }}>
-                    {entry.at.slice(0, 10)}에 쓴 답 — {entry.text}
-                  </p>
-                  <label className="field">
-                    <span>지금의 답</span>
-                    <textarea
-                      rows={3}
-                      value={drafts[entry.id] ?? ""}
-                      onChange={(event) =>
-                        setDrafts((prev) => ({ ...prev, [entry.id]: event.target.value }))
-                      }
-                    />
-                  </label>
-                  <button
-                    type="button"
-                    className="btn"
-                    disabled={(drafts[entry.id] ?? "").trim() === ""}
-                    onClick={() => {
-                      void saveJournalEntry(entry.id, entry.prompt, drafts[entry.id]).then(async () =>
-                        setDue(await dueJournalEntries()),
-                      );
-                    }}
-                  >
-                    기록하기
-                  </button>
-                </div>
-              ))}
+      <section aria-labelledby="answer-history-title">
+        <p className="eyebrow">기록형 문항</p>
+        <h2 id="answer-history-title" className="section">
+          내가 남긴 답변 ({journal.length})
+        </h2>
+        <p className="lede">
+          최근에 쓴 답부터 모았습니다. 같은 질문에 다시 답해도 이전 기록은 그대로 남습니다.
+        </p>
+        {journal.length === 0 ? (
+          <div className="card answer-history-empty">
+            <div>
+              <strong>아직 남긴 답변이 없습니다</strong>
+              <p>배우기에서 한 챕터를 살펴보고 첫 기록형 답변을 남겨보세요.</p>
             </div>
-          </>
+            <Link href="/learn" className="btn">
+              배우기
+            </Link>
+          </div>
+        ) : (
+          <ol className="answer-history-list">
+            {journal.map((entry) => {
+              const context = journalChapterContext(entry.id);
+
+              return (
+                <li key={entry.responseId} className="answer-history-entry">
+                  <time className="answer-history-date" dateTime={entry.at}>
+                    {formatJournalDate(entry.at)}
+                  </time>
+                  <article className="answer-history-record">
+                    <div className="answer-history-record-heading">
+                      <h3>{entry.prompt}</h3>
+                      {context && (
+                        <Link
+                          href={context.href}
+                          className="answer-history-context"
+                          aria-label={`${context.label} 다시 보기`}
+                        >
+                          {context.label} <span aria-hidden="true">→</span>
+                        </Link>
+                      )}
+                    </div>
+                    <p className="answer-history-answer">{entry.text}</p>
+                  </article>
+                </li>
+              );
+            })}
+          </ol>
         )}
       </section>
 

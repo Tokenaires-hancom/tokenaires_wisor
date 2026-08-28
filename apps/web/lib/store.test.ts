@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   hasLearningState,
@@ -18,6 +19,7 @@ import {
 
 async function withBrowserStorage(
   run: (values: Map<string, string>) => Promise<void>,
+  options: { failWrites?: boolean } = {},
 ): Promise<void> {
   const values = new Map<string, string>();
   const originalWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
@@ -26,7 +28,10 @@ async function withBrowserStorage(
     value: {
       localStorage: {
         getItem: (key: string) => values.get(key) ?? null,
-        setItem: (key: string, value: string) => values.set(key, value),
+        setItem: (key: string, value: string) => {
+          if (options.failWrites) throw new Error("quota exceeded");
+          values.set(key, value);
+        },
         removeItem: (key: string) => values.delete(key),
       },
       dispatchEvent: () => true,
@@ -81,6 +86,21 @@ test("비회원 기록이 하나라도 있으면 계정 이전 대상으로 본�
     }),
     true,
   );
+  assert.equal(
+    hasLearningState({
+      ...empty,
+      journal: [
+        {
+          responseId: "response-1",
+          id: "master:buffett:1#1",
+          prompt: "무엇을 확인했나요?",
+          text: "현금흐름",
+          at: "2026-08-20T00:00:00.000Z",
+        },
+      ],
+    }),
+    true,
+  );
 });
 
 test("비회원의 모든 학습 기록은 브라우저 임시 저장소에 남는다", async () => {
@@ -129,4 +149,94 @@ test("학습노트는 관심 종목 등록과 관계없이 남는다", async () 
     assert.deepEqual(await getWatchlist(), []);
     assert.equal((await getNotes())[0].ticker, "AAPL");
   });
+});
+
+test("같은 기록형 문항에 다시 답해도 이전 답을 남긴다", async () => {
+  await withBrowserStorage(async () => {
+    await saveJournalEntry("master:buffett:1#1", "무엇을 확인했나요?", "첫 답");
+    await saveJournalEntry("master:buffett:1#1", "무엇을 확인했나요?", "다시 쓴 답");
+
+    const entries = await getJournal();
+    assert.equal(entries.length, 2);
+    assert.deepEqual(entries.map((entry) => entry.text), ["다시 쓴 답", "첫 답"]);
+    assert.notEqual(entries[0].responseId, entries[1].responseId);
+  });
+});
+
+test("브라우저 저장에 실패하면 기록 완료로 처리하지 않는다", async () => {
+  await withBrowserStorage(
+    async () => {
+      await assert.rejects(
+        saveJournalEntry("master:buffett:1#1", "무엇을 확인했나요?", "현금흐름"),
+        /기록을 브라우저에 저장하지 못했습니다/,
+      );
+      assert.deepEqual(await getJournal(), []);
+    },
+    { failWrites: true },
+  );
+});
+
+test("브라우저의 예전 기록도 답한 시각의 최신순으로 읽는다", async () => {
+  await withBrowserStorage(async (values) => {
+    values.set(
+      "wisor.journal",
+      JSON.stringify([
+        {
+          id: "master:buffett:1#1",
+          prompt: "첫 질문",
+          text: "오래된 답",
+          at: "2026-01-01T00:00:00.000Z",
+        },
+        {
+          id: "master:graham:1#1",
+          prompt: "둘째 질문",
+          text: "최근 답",
+          at: "2026-02-01T09:00:00+09:00",
+        },
+      ]),
+    );
+
+    const entries = await getJournal();
+    assert.deepEqual(entries.map((entry) => entry.text), ["최근 답", "오래된 답"]);
+    assert.equal(
+      entries[0].responseId,
+      "legacy:master:graham:1#1:2026-02-01T00:00:00.000Z",
+    );
+  });
+});
+
+test("DB도 브라우저와 같은 구버전 기록 식별자 규칙을 사용한다", () => {
+  const schema = readFileSync(new URL("../../../supabase/schema.sql", import.meta.url), "utf8");
+  const migration = readFileSync(
+    new URL("../../../supabase/migrations/20260827_journal_entry_history.sql", import.meta.url),
+    "utf8",
+  );
+  const rpcLegacyId =
+    /'legacy:' \|\| \(entry ->> 'id'\) \|\| ':' \|\|\s*pg_catalog\.to_char\(\s*\(entry ->> 'at'\)::timestamptz at time zone 'UTC',\s*'YYYY-MM-DD"T"HH24:MI:SS\.MS"Z"'\s*\)/;
+
+  assert.match(schema, rpcLegacyId);
+  assert.match(migration, rpcLegacyId);
+  assert.match(
+    migration,
+    /set response_id =\s*'legacy:' \|\| entry_id \|\| ':' \|\|\s*pg_catalog\.to_char\(\s*answered_at at time zone 'UTC',\s*'YYYY-MM-DD"T"HH24:MI:SS\.MS"Z"'\s*\)/,
+  );
+});
+
+test("DB 기록 이력은 앱 사용자에게 조회와 추가만 허용한다", () => {
+  const schema = readFileSync(new URL("../../../supabase/schema.sql", import.meta.url), "utf8");
+  const migration = readFileSync(
+    new URL("../../../supabase/migrations/20260827_journal_entry_history.sql", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(schema, /create policy journal_entries_owner_select[\s\S]*for select/);
+  assert.match(schema, /create policy journal_entries_owner_insert[\s\S]*for insert/);
+  assert.match(schema, /grant select, insert on public\.journal_entries to authenticated/);
+  assert.doesNotMatch(
+    schema,
+    /grant select, insert, update, delete on public\.journal_entries to authenticated/,
+  );
+  assert.match(migration, /drop policy if exists journal_entries_owner_only/);
+  assert.match(migration, /revoke all on public\.journal_entries from authenticated/);
+  assert.match(migration, /grant select, insert on public\.journal_entries to authenticated/);
 });

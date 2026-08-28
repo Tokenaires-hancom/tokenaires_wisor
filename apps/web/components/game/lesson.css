@@ -210,3 +210,16 @@
   font-size: 0.88rem;
   color: var(--ink-soft);
 }
+
+.journal-save-message {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+
+.journal-save-message[data-kind="error"] {
+  padding-left: 0.65rem;
+  border-left: 3px solid var(--ochre);
+  color: var(--ink);
+  font-weight: 650;
+}
