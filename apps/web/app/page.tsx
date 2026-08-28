@@ -8,16 +8,19 @@ import HomeResult from "@/components/home/HomeResult";
 import ScrollTop from "@/components/ScrollTop";
 import { MASTERS } from "@/content/masters";
 import { displayModelVersion } from "@/lib/format";
-import { ranked, styleMeta } from "@/lib/scores";
+import { loadScores, ranked, styleMeta } from "@/lib/scores";
+
+export const dynamic = "force-dynamic";
 
 export default function Home() {
-  const { scored } = ranked("buffett");
+  const data = loadScores();
+  const { scored } = ranked("buffett", data);
   const sample = scored[0];
-  const meta = styleMeta("buffett");
+  const meta = styleMeta("buffett", data);
 
   return (
     <div className="hv-home">
-      <SampleDataFlag />
+      <SampleDataFlag data={data} />
       <ScrollTop />
       <HomeHero />
       <HomePrinciples />
@@ -45,7 +48,9 @@ export default function Home() {
           }}
           stamp={
             <DataStamp
+              data={data}
               price={sample.asOf.price}
+              priceAt={sample.asOf.priceAt ?? null}
               financial={sample.asOf.financial}
               modelVersion={meta.modelVersion}
               confidence={sample.scores.buffett.dataConfidence}

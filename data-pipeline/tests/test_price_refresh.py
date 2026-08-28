@@ -9,6 +9,7 @@ import json
 
 import pytest
 
+from run_batch import build
 from wisor_data import metrics
 from wisor_data.metrics import Fundamentals
 from wisor_data.providers.sec_toss import (
@@ -16,6 +17,7 @@ from wisor_data.providers.sec_toss import (
     read_fundamentals_cache,
     write_fundamentals_cache,
 )
+from wisor_data.scores_contract import ScoresContractError, validate_scores_payload
 
 # 가격이 바뀌면 따라 움직여야 하는 지표.
 PRICE_DEPENDENT = {
@@ -114,6 +116,7 @@ def test_a_ticker_without_a_price_keeps_the_cached_value():
     assert refreshed["BBB"].market_cap == 3300.0
     assert refreshed["BBB"].price_as_of == "2026-08-05"  # 옛 기준일을 그대로 둔다
     assert provider.stale() == ["BBB"]
+    assert provider.refreshed() == ["AAA"]
 
 
 def test_as_of_reports_the_oldest_price_date():
@@ -127,3 +130,44 @@ def test_as_of_reports_the_oldest_price_date():
     provider.load()
 
     assert provider.as_of()["price"] == "2026-08-05"
+
+
+@pytest.mark.parametrize("bad_value", [0.0, -1.0, float("nan"), float("inf")])
+def test_non_positive_or_non_finite_market_data_stays_stale(bad_value):
+    original = company("BAD", price=33.0)
+    provider = CachedPriceProvider(
+        prices={"BAD": bad_value},
+        market_caps={"BAD": 2500.0},
+        companies=[original],
+        price_at="2026-08-07T15:22:51+09:00",
+    )
+
+    refreshed = provider.load()[0]
+
+    assert refreshed.price == 33.0
+    assert refreshed.price_as_of == "2026-08-05"
+    assert provider.stale() == ["BAD"]
+    assert provider.refreshed() == []
+
+
+def test_price_refresh_marks_each_fresh_company_and_rejects_low_coverage():
+    price_at = "2026-08-07T15:22:51+09:00"
+    provider = CachedPriceProvider(
+        prices={"AAA": 20.0},
+        market_caps={"AAA": 2500.0},
+        companies=[company("AAA"), company("BBB")],
+        price_at=price_at,
+    )
+
+    payload = build(provider, price_at=price_at)
+    rows = {row["ticker"]: row for row in payload["companies"]}
+
+    assert rows["AAA"]["asOf"]["priceAt"] == price_at
+    assert "priceAt" not in rows["BBB"]["asOf"]
+    assert payload["asOf"]["priceCoverage"] == {"refreshed": 1, "total": 2}
+    with pytest.raises(ScoresContractError, match="최소 95%"):
+        validate_scores_payload(
+            payload,
+            expected_source="sec-toss",
+            minimum_price_refresh_ratio=0.95,
+        )
