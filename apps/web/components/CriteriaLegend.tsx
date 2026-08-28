@@ -118,7 +118,6 @@ export default function CriteriaLegend({
 
           <p className="magic-formula-note">
             금융·보험·부동산과 유틸리티는 같은 방식으로 비교하기 어려워 순위에서 제외합니다.
-            순위는 매수 신호가 아니라 추가로 살펴볼 순서입니다.
           </p>
         </section>
       )}
