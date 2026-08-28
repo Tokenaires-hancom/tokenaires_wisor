@@ -5,6 +5,7 @@ import HomePrinciples from "@/components/home/HomePrinciples";
 import HomeMasters from "@/components/home/HomeMasters";
 import HomeJourney from "@/components/home/HomeJourney";
 import HomeResult from "@/components/home/HomeResult";
+import SectionSnap from "@/components/home/SectionSnap";
 import ScrollTop from "@/components/ScrollTop";
 import { MASTERS } from "@/content/masters";
 import { displayModelVersion } from "@/lib/format";
@@ -22,6 +23,7 @@ export default function Home() {
     <div className="hv-home">
       <SampleDataFlag data={data} />
       <ScrollTop />
+      <SectionSnap />
       <HomeHero />
       <HomePrinciples />
       <HomeMasters
