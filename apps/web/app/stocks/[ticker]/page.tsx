@@ -2,11 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import DataStamp, { SampleDataFlag } from "@/components/DataStamp";
 import StockDetailBody from "@/components/StockDetailBody";
-import { companies, company, marketCapRanks, styleMeta } from "@/lib/scores";
+import { companies, company, loadScores, marketCapRanks, styleMeta } from "@/lib/scores";
 
-export function generateStaticParams() {
-  return companies().map((c) => ({ ticker: c.ticker }));
-}
+// 배치가 scores.json을 교체하면 다음 요청이 새 값을 읽어야 한다. 정적 생성이면
+// 빌드 시점 값이 굳으므로 이 화면은 요청마다 렌더한다.
+export const dynamic = "force-dynamic";
 
 export default async function StockDetail({
   params,
@@ -17,11 +17,12 @@ export default async function StockDetail({
 }) {
   const { ticker } = await params;
   const { style } = await searchParams;
-  const found = company(ticker);
+  const data = loadScores();
+  const found = company(ticker, data);
   if (!found) notFound();
 
   const styleId = style && found.scores[style] ? style : "buffett";
-  const ranks = marketCapRanks();
+  const ranks = marketCapRanks(data);
 
   /* 종목 상세의 대가 칸에서 다른 철학을 눌러도 진짜 재무 기준일·모델 버전이
      따라오도록, 이 종목이 가진 철학마다 스탬프를 미리 만들어 둔다

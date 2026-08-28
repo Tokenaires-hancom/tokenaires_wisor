@@ -38,7 +38,7 @@ export type Company = {
   sector: string;
   price: number;
   marketCap: number;
-  asOf: { price: string; financial: string };
+  asOf: { price: string; financial: string; priceAt?: string };
   metrics: Record<string, number | null>;
   scores: Record<string, StyleScore>;
   /** 업종이 현재 점수 모델의 전제와 달라 판정하지 않은 종목. 데이터 부족과 다르다. */
@@ -108,7 +108,12 @@ export type ScoresPayload = {
    * 없고, 그때 화면은 '종가'라고 쓴다. 같은 날짜인데 점수가 다른 파일이 하루에
    * 여러 번 생기므로, 날짜만으로는 무엇이 최신인지 말할 수 없다.
    */
-  asOf: { price: string; financial: string; priceAt?: string };
+  asOf: {
+    price: string;
+    financial: string;
+    priceAt?: string;
+    priceCoverage?: { refreshed: number; total: number };
+  };
   universe?: UniverseReport;
   styles: StyleMeta[];
   companies: Company[];

@@ -10,6 +10,7 @@
 """
 from __future__ import annotations
 
+import copy
 import json
 
 import pytest
@@ -234,6 +235,75 @@ def test_search_respects_limit(fake):
 def test_missing_path_raises():
     with pytest.raises(ScoresNotFound):
         scores_source.resolve_path("/nope/scores.json")
+
+
+def _replace_scores(path, payload) -> None:
+    replacement = path.with_name(".scores.json.new")
+    replacement.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+    replacement.replace(path)
+
+
+def test_get_data_reuses_unchanged_file_and_reloads_atomic_replacement(tmp_path):
+    path = tmp_path / "scores.json"
+    first_payload = copy.deepcopy(FAKE)
+    path.write_text(json.dumps(first_payload, ensure_ascii=False), encoding="utf-8")
+
+    first = scores_source.get_data(str(path), reload=True)
+    assert scores_source.get_data(str(path)) is first
+
+    second_payload = copy.deepcopy(FAKE)
+    second_payload["generatedAt"] = "2026-08-07T02:32:16+00:00"
+    _replace_scores(path, second_payload)
+    second = scores_source.get_data(str(path))
+
+    assert second is not first
+    assert second.generated_at == "2026-08-07T02:32:16+00:00"
+
+
+def test_get_data_keeps_last_good_snapshot_and_recovers(tmp_path):
+    path = tmp_path / "scores.json"
+    path.write_text(json.dumps(FAKE, ensure_ascii=False), encoding="utf-8")
+    first = scores_source.get_data(str(path), reload=True)
+
+    replacement = path.with_name(".scores.json.new")
+    replacement.write_text("{", encoding="utf-8")
+    replacement.replace(path)
+    assert scores_source.get_data(str(path)) is first
+
+    recovered_payload = copy.deepcopy(FAKE)
+    recovered_payload["generatedAt"] = "2026-08-07T03:32:16+00:00"
+    _replace_scores(path, recovered_payload)
+    recovered = scores_source.get_data(str(path))
+
+    assert recovered is not first
+    assert recovered.generated_at == "2026-08-07T03:32:16+00:00"
+
+
+def test_get_data_keeps_last_good_snapshot_while_file_is_missing(tmp_path):
+    path = tmp_path / "scores.json"
+    path.write_text(json.dumps(FAKE, ensure_ascii=False), encoding="utf-8")
+    first = scores_source.get_data(str(path), reload=True)
+
+    path.unlink()
+
+    assert scores_source.get_data(str(path)) is first
+
+
+def test_get_data_rejects_parseable_but_empty_replacement(tmp_path):
+    path = tmp_path / "scores.json"
+    path.write_text(json.dumps(FAKE, ensure_ascii=False), encoding="utf-8")
+    first = scores_source.get_data(str(path), reload=True)
+    empty = {
+        "generatedAt": "2026-08-07T04:32:16+00:00",
+        "dataSource": "sec-toss",
+        "asOf": {"price": "2026-08-07", "financial": "2025-12-31"},
+        "styles": [],
+        "companies": [],
+    }
+
+    _replace_scores(path, empty)
+
+    assert scores_source.get_data(str(path)) is first
 
 
 # ---- 실제 scores.json (있을 때만) ---------------------------------------------
