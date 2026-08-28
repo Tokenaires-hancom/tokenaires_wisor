@@ -2412,6 +2412,14 @@ h3.sub {
   max-height: 150px;
 }
 
+/* 이 자리의 말풍선만 캐릭터를 향한 꼬리(삼각형)를 뺀다. .quiz-bubble은
+   ChapterExercises의 퀴즈 제시 화면과 같이 쓰는 클래스라(game/lesson.css)
+   기본 꼬리는 그대로 두고, 여기서만 스코프를 좁혀 지운다. */
+.comparison-guide .quiz-bubble::before,
+.comparison-guide .quiz-bubble::after {
+  display: none;
+}
+
 .comparison-rail-count .mono {
   font-family: var(--mono);
   color: var(--ink);
