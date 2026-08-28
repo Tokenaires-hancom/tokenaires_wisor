@@ -155,19 +155,13 @@ button {
 }
 
 .wordmark {
-  font-size: 1.6rem;
-  letter-spacing: 0.02em;
-  color: var(--wine-deep);
-  transform: translateY(2px);
+  display: flex;
+  align-items: center;
 }
 
-.wordmark span {
-  color: var(--ink-faint);
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.12em;
-  margin-left: 0.5rem;
-  text-transform: uppercase;
+.wordmark-logo {
+  height: 28px;
+  width: auto;
 }
 
 .nav {
@@ -207,11 +201,6 @@ button {
 
   .wordmark {
     flex: none;
-    font-size: 1.45rem;
-  }
-
-  .wordmark span {
-    display: none;
   }
 
   .nav {
@@ -1067,17 +1056,81 @@ h3.sub {
   }
 }
 
-/* 목록 머리의 [채점]·[정보 부족]·[판정 제외] 전환. 아래 화면 끝에 따로 서 있던
- * 두 블록(정보 부족·판정하지 않은 업종)을 여기로 옮긴 것이다 — 눌러도 페이지
- * 이동 없이 왼쪽 목록만 그 묶음으로 바뀐다. */
+/* 목록 머리 한 줄 — 왼쪽 [판정]·[정보 부족]·[판정 제외] 전환과 오른쪽 종목
+ * 검색창을 나눠 쓴다. 눌러도/검색해도 페이지 이동 없이 왼쪽 목록만 바뀐다. */
+.screener-list-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  /* border-bottom을 여기 두지 않는다 — 첫 종목 줄의 위 경계선은
+     .stock-row:first-child가 자기 border-top으로 직접 그린다(아래 참고).
+     경계선을 이 머리가 아니라 줄 자신이 갖고 있어야, 마우스를 올렸을 때
+     회색으로 차는 영역(hover 배경)과 경계선 위치가 항상 정확히 겹친다. */
+  margin: 10px 0 0.5rem;
+  padding-bottom: 0.6rem;
+}
+
 .screener-group-toggle {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.4rem;
-  /* 이 border-bottom 아래 여백(0.5rem)이 .stock-row의 padding-top(0.5rem)과
-     더해져야 종목 줄 사이 간격(0.5rem + 0.5rem)과 첫 줄 위 간격이 똑같아진다. */
-  margin: 0 0 0.5rem;
-  padding-bottom: 0.6rem;
-  border-bottom: 1px solid var(--line);
+}
+
+.screener-search {
+  position: relative;
+  flex: 1 1 9rem;
+  min-width: 8rem;
+  max-width: 13rem;
+}
+
+.screener-search-input {
+  width: 100%;
+  font: inherit;
+  font-size: 0.78rem;
+  padding: 0.4rem 1.6rem 0.4rem 0.7rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+/* 브라우저 기본 검색창 지우기 아이콘은 스타일을 못 맞춰서 끄고, 같은 자리에
+   직접 그린 지우기 버튼(.screener-search-clear)을 쓴다. */
+.screener-search-input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.screener-search-clear {
+  position: absolute;
+  top: 50%;
+  right: 0.35rem;
+  transform: translateY(-50%);
+  width: 1.2rem;
+  height: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--ink-faint);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.screener-search-clear:hover {
+  color: var(--ink);
+  background: var(--surface-sunk);
+}
+
+.screener-search-empty {
+  padding: 1.5rem 0.5rem;
+  color: var(--ink-soft);
+  font-size: 0.88rem;
 }
 
 .screener-group-btn {
@@ -1130,6 +1183,14 @@ h3.sub {
   background: none;
   text-align: left;
   color: inherit;
+}
+
+/* 목록의 첫 줄만 위 경계선도 갖는다. 나머지 줄은 바로 앞줄의 border-bottom이
+   같은 역할을 하므로 필요 없다. 이 선이 있어야 마우스를 올렸을 때 채워지는
+   회색 영역의 위쪽 끝이 어디인지 보인다 — 없으면 첫 줄만 위가 뚫린 채
+   회색이 퍼지는 것처럼 보인다. */
+.stock-row:first-child {
+  border-top: 1px solid var(--line);
 }
 
 .stock-row:hover {
@@ -1190,8 +1251,8 @@ h3.sub {
 }
 
 .pager-arrow {
-  width: 44px;
-  height: 44px;
+  width: 34px;
+  height: 34px;
   border: 1px solid var(--line-strong);
   border-radius: var(--radius);
   background: var(--surface);
@@ -1243,47 +1304,120 @@ h3.sub {
   color: var(--ink-faint);
 }
 
-/* 점수 카드 왼쪽에 붙는 대가 얼굴 칸. 같은 종목을 다른 철학으로 바꿔 본다.
- * flex로 카드 옆에 나란히 두면 카드 폭이 줄어 기준 박스 그리드가 한 줄로
- * 접히면서 카드가 오히려 세로로 길어진다 — 그래서 카드 크기에는 관여하지
- * 않게 얼굴 칸을 통째로 absolute로 빼서 카드 왼쪽 여백(.screener-split-detail의
- * padding-left) 안에 얹는다. 카드 자체는 얼굴 칸이 없을 때와 똑같은 폭·높이를
- * 유지하고, 얼굴 4개는 그 높이에 맞춰 같은 간격으로 늘어선다.
- *
- * 이름을 .master-rail이 아니라 .score-master-rail로 둔 이유 — /learn/masters/[slug]에
- * 이미 같은 이름의 전혀 다른 레일(대가 상세 옆 "다른 대가 보기")이 있어서,
- * 같은 이름을 쓰면 뒤에 나오는 그 규칙(position: relative, padding-top: 7.5rem
- * 등)이 여기를 덮어써 얼굴이 사라지고 위쪽에 빈 여백만 남는다. */
-.score-card-row {
-  position: relative;
-}
-
-.score-master-rail {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: calc(100% + 0.75rem);
+/* 종목 상세 맨 위. 대가 이름 탭(같은 종목을 다른 철학으로 바꿔 본다)과
+ * "나의 학습노트" 버튼이 한 줄을 나눠 쓴다. 밑줄은 행 전체(.score-master-tabs-row)에
+ * 두고, 각 버튼은 기본 stretch로 행 높이를 꽉 채워 자기 border-bottom을 그
+ * 밑줄과 같은 자리에 겹쳐 그린다 — 선택된 탭만 wine으로 칠해져 밑줄 위로 드러난다. */
+.score-master-tabs-row {
   display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 2rem;
 }
 
-.score-master-rail-btn {
-  padding: 2px;
-  border: 2px solid transparent;
-  border-radius: 50%;
+.score-master-tabs {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.score-master-tab {
   background: none;
-  line-height: 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 0.85rem 1.25rem;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
   cursor: pointer;
 }
 
-.score-master-rail-btn:hover {
-  border-color: var(--line-strong);
+.score-master-tab:hover {
+  color: var(--ink);
 }
 
-.score-master-rail-btn[aria-selected="true"] {
-  border-color: var(--wine);
+.score-master-tab[aria-selected="true"] {
+  color: var(--wine);
+  border-bottom-color: var(--wine);
+  font-weight: 600;
+}
+
+/* 학습노트 버튼은 탭이 아니라 항상 눌러 여는 행동이라 .btn(골드 카드 버튼)을
+ * 그대로 쓴다 — 얇은 밑줄 탭보다 확실히 눈에 띄어야 한다. 행이 기본 stretch라
+ * 다른 형제(탭)처럼 늘어나면 버튼이 위아래로 눌린 모양이 되므로 자기 높이만큼만
+ * 차지하게 align-self로 되돌린다. */
+.score-master-tabs-row > .note-open-btn {
+  align-self: center;
+  flex: none;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.7rem;
+}
+
+.score-master-tabs-row > .note-open-btn:hover {
+  box-shadow: 0 3px 0 var(--gold-deep);
+}
+
+.score-master-tabs-row > .note-open-btn:active {
+  transform: translateY(1.5px);
+  box-shadow: 0 1.5px 0 var(--gold-deep);
+}
+
+.note-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(20, 16, 14, 0.4);
+}
+
+.note-modal {
+  width: min(42rem, 100%);
+  max-height: calc(100vh - 3rem);
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 18px 48px color-mix(in srgb, var(--ink) 20%, transparent);
+  overflow: hidden;
+}
+
+.note-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+  flex: 0 0 auto;
+}
+
+.note-modal-head h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.note-modal-close {
+  background: none;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.note-modal-close:hover {
+  color: var(--ink);
+}
+
+.note-modal-body {
+  padding: 1.25rem;
+  overflow-y: auto;
 }
 
 .stock-market-strip {
@@ -1501,29 +1635,6 @@ h3.sub {
   .metric-facts {
     grid-template-columns: 1fr;
   }
-}
-
-/* ---------- 두 렌즈 ---------- */
-
-.lens-tabs {
-  display: flex;
-  border-bottom: 1px solid var(--line);
-  margin-bottom: 2rem;
-}
-
-.lens-tab {
-  background: none;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  padding: 0.85rem 1.25rem;
-  color: var(--ink-soft);
-  font-size: 0.95rem;
-}
-
-.lens-tab[aria-selected="true"] {
-  color: var(--wine);
-  border-bottom-color: var(--wine);
-  font-weight: 600;
 }
 
 /* ---------- 종목 찾기: 투자 스타일 전환 ---------- */
@@ -2267,15 +2378,19 @@ h3.sub {
 }
 
 .comparison-matrix thead th {
-  background: var(--surface-sunk);
+  background: color-mix(in oklab, var(--gold) 16%, var(--paper));
   color: var(--wine-deep);
   font-size: 0.9rem;
-  font-weight: 400;
+  font-weight: 700;
 }
 
 .comparison-matrix thead th:first-child,
 .comparison-matrix tbody th {
   width: 9.5rem;
+}
+
+.comparison-matrix thead th:first-child {
+  font-size: 1.08rem;
 }
 
 /* 얼굴을 이름 위에 쌓는다. 옆에 두면 "벤저민 그레이엄"이 두 줄로 접힌다 */
@@ -2301,15 +2416,15 @@ h3.sub {
 .comparison-matrix small {
   display: block;
   margin-top: 0.35rem;
-  color: var(--ink-faint);
+  color: color-mix(in oklab, var(--wine) 45%, var(--ink-faint));
   font-family: var(--sans);
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 400;
   line-height: 1.45;
 }
 
 .comparison-matrix tbody th {
-  background: var(--surface-sunk);
+  background: color-mix(in oklab, var(--gold) 16%, var(--paper));
   color: var(--ink);
   font-size: 0.8rem;
 }
@@ -2443,6 +2558,12 @@ h3.sub {
 .comparison-bubble::after {
   top: calc(100% - 1px);
   border-top: 8px solid var(--surface-sunk);
+}
+
+/* 캐릭터를 향한 꼬리(삼각형)를 뺀다 */
+.comparison-bubble::before,
+.comparison-bubble::after {
+  display: none;
 }
 
 .comparison-guide .character img {

@@ -44,7 +44,7 @@ export default function ScreenerCompanies({
   selectedTicker,
   onSelect,
 }: {
-  /** 채점 · 정보 부족 · 판정 제외 세 묶음 중 지금 목록 머리에서 고른 묶음.
+  /** 판정 · 정보 부족 · 판정 제외 세 묶음 중 지금 목록 머리에서 고른 묶음.
    *  세 묶음은 종목마다 `scores[style]`이 있는지·score가 null인지가 다르다
    *  (아래 렌더에서 갈라 쓴다) — 묶음이 뭐냐로 컴포넌트를 나누지 않는다. */
   companies: Company[];
