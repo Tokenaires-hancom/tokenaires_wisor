@@ -155,19 +155,13 @@ button {
 }
 
 .wordmark {
-  font-size: 1.6rem;
-  letter-spacing: 0.02em;
-  color: var(--wine-deep);
-  transform: translateY(2px);
+  display: flex;
+  align-items: center;
 }
 
-.wordmark span {
-  color: var(--ink-faint);
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.12em;
-  margin-left: 0.5rem;
-  text-transform: uppercase;
+.wordmark-logo {
+  height: 28px;
+  width: auto;
 }
 
 .nav {
@@ -207,11 +201,6 @@ button {
 
   .wordmark {
     flex: none;
-    font-size: 1.45rem;
-  }
-
-  .wordmark span {
-    display: none;
   }
 
   .nav {
@@ -2389,15 +2378,19 @@ h3.sub {
 }
 
 .comparison-matrix thead th {
-  background: var(--surface-sunk);
+  background: color-mix(in oklab, var(--gold) 16%, var(--paper));
   color: var(--wine-deep);
   font-size: 0.9rem;
-  font-weight: 400;
+  font-weight: 700;
 }
 
 .comparison-matrix thead th:first-child,
 .comparison-matrix tbody th {
   width: 9.5rem;
+}
+
+.comparison-matrix thead th:first-child {
+  font-size: 1.08rem;
 }
 
 /* 얼굴을 이름 위에 쌓는다. 옆에 두면 "벤저민 그레이엄"이 두 줄로 접힌다 */
@@ -2423,15 +2416,15 @@ h3.sub {
 .comparison-matrix small {
   display: block;
   margin-top: 0.35rem;
-  color: var(--ink-faint);
+  color: color-mix(in oklab, var(--wine) 45%, var(--ink-faint));
   font-family: var(--sans);
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 400;
   line-height: 1.45;
 }
 
 .comparison-matrix tbody th {
-  background: var(--surface-sunk);
+  background: color-mix(in oklab, var(--gold) 16%, var(--paper));
   color: var(--ink);
   font-size: 0.8rem;
 }
@@ -2565,6 +2558,12 @@ h3.sub {
 .comparison-bubble::after {
   top: calc(100% - 1px);
   border-top: 8px solid var(--surface-sunk);
+}
+
+/* 캐릭터를 향한 꼬리(삼각형)를 뺀다 */
+.comparison-bubble::before,
+.comparison-bubble::after {
+  display: none;
 }
 
 .comparison-guide .character img {
