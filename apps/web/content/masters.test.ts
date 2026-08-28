@@ -1,6 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { MASTERS } from "./masters.ts";
+import { MASTERS, SCORABLE_MASTERS } from "./masters.ts";
+
+test("점수형 대가와 자가진단형 대가의 경계를 고정한다", () => {
+  assert.deepEqual(
+    SCORABLE_MASTERS.map((master) => master.id),
+    ["buffett", "graham", "lynch", "greenblatt"],
+  );
+});
 
 test("일곱 대가 모두 세 가지 업적과 근거를 가진다", () => {
   assert.equal(MASTERS.length, 7);

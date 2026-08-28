@@ -7,8 +7,10 @@ scores.json이 없으면 서버 테스트는 건너뛴다(세션 보관소 테�
 """
 from __future__ import annotations
 
+import copy
 import json
 import threading
+from pathlib import Path
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
@@ -440,3 +442,64 @@ def test_checklist_session_has_no_judgement(live):
     assert status == 200
     assert back["evaluation"] == "checklist"
     assert back["judgement"] is None
+
+
+@needs_scores
+def test_runtime_reload_updates_new_requests_but_keeps_open_session_snapshot(tmp_path):
+    payload = json.loads(Path(_SCORES.path).read_text(encoding="utf-8"))
+    ticker = payload["companies"][0]["ticker"]
+
+    def set_version(data, generated_at, model_version):
+        data["generatedAt"] = generated_at
+        for style in data["styles"]:
+            if style["id"] in {"buffett", "graham"}:
+                style["modelVersion"] = model_version
+        company = next(row for row in data["companies"] if row["ticker"] == ticker)
+        for style_id in ("buffett", "graham"):
+            company["scores"][style_id]["modelVersion"] = model_version
+
+    old_payload = copy.deepcopy(payload)
+    set_version(old_payload, "2026-08-26T00:00:00+00:00", "runtime-old")
+    path = tmp_path / "scores.json"
+    path.write_text(json.dumps(old_payload, ensure_ascii=False), encoding="utf-8")
+    initial = scores_source.get_data(str(path), reload=True)
+
+    httpd = make_server("127.0.0.1", 0, adapter=MockAdapter(), data=initial)
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    host, port = httpd.server_address[:2]
+    base = f"http://{host}:{port}"
+    try:
+        status, old_session, _ = _call(
+            base, "POST", "/sessions", {"ticker": ticker, "persona": "buffett"}
+        )
+        assert status == 201
+        assert old_session["judgement"]["modelVersion"] == "runtime-old"
+
+        new_payload = copy.deepcopy(payload)
+        set_version(new_payload, "2026-08-26T01:00:00+00:00", "runtime-new")
+        replacement = tmp_path / ".scores.json.new"
+        replacement.write_text(json.dumps(new_payload, ensure_ascii=False), encoding="utf-8")
+        replacement.replace(path)
+
+        status, meta, _ = _call(base, "GET", "/meta")
+        assert status == 200
+        assert meta["generatedAt"] == "2026-08-26T01:00:00+00:00"
+
+        status, new_session, _ = _call(
+            base, "POST", "/sessions", {"ticker": ticker, "persona": "buffett"}
+        )
+        assert status == 201
+        assert new_session["judgement"]["modelVersion"] == "runtime-new"
+
+        status, switched, _ = _call(
+            base,
+            "POST",
+            f"/sessions/{old_session['sessionId']}/persona",
+            {"persona": "graham"},
+        )
+        assert status == 200
+        assert switched["judgement"]["modelVersion"] == "runtime-old"
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
