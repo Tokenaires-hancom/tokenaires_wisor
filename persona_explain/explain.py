@@ -27,6 +27,7 @@ METRIC_LABELS = {
     "PER": "PER(주가수익비율)",
     "PEG": "PEG(성장 대비 가격)",
     "ROIC_5y_avg": "5년 평균 ROIC",
+    "magic_formula_ROC": "마법공식 자본수익률",
     "FCF_margin": "FCF 마진",
     "FCF_yield": "FCF 수익률",
     "netDebt_to_EBITDA": "순부채/EBITDA",
