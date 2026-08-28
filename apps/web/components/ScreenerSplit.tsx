@@ -3,12 +3,13 @@
 import { useState, type ReactNode } from "react";
 import ScreenerCompanies from "@/components/ScreenerCompanies";
 import StockDetailBody from "@/components/StockDetailBody";
+import { filterCompaniesByQuery } from "@/lib/searchCompanies";
 import type { Company } from "@/lib/scores.types";
 
 type Group = "scored" | "unscored" | "unscorable";
 
 const GROUP_LABEL: Record<Group, string> = {
-  scored: "채점",
+  scored: "판정",
   unscored: "정보 부족",
   unscorable: "판정 제외",
 };
@@ -17,7 +18,7 @@ const GROUP_LABEL: Record<Group, string> = {
  *  않고 오른쪽만 바뀐다 — 목록에서 종목을 고르면 이 컴포넌트 안 state만 바뀐다.
  *
  *  `DataStamp`는 `lib/scores`(서버 전용)를 읽으므로 이 클라이언트 컴포넌트가
- *  직접 부르지 못한다. 서버(`page.tsx`)가 채점·정보 부족·판정 제외 종목마다,
+ *  직접 부르지 못한다. 서버(`page.tsx`)가 판정·정보 부족·판정 제외 종목마다,
  *  그 종목이 가진 철학마다 미리 렌더링해 `stamps`로 넘긴다 —
  *  `components/StockDetailBody.tsx`의 `stamps` prop과 같은 이유, 같은 방식이다.
  *  `sampleFlag`와 `emptyState`(=`CriteriaLegend`)도 같은 이유로 서버가 미리
@@ -53,12 +54,13 @@ export default function ScreenerSplit({
      초기화돼 종목 선택 전 기본 화면(emptyState)으로 돌아간다. 탭을 넘어서까지
      들고 다니지 않는다.
 
-     목록 머리에서 고른 묶음(채점/정보 부족/판정 제외)도 같은 이유로 여기 둔다 —
+     목록 머리에서 고른 묶음(판정/정보 부족/판정 제외)도 같은 이유로 여기 둔다 —
      철학 탭을 바꾸면 세 묶음의 개수 자체가 달라지므로(버핏은 정보 부족 0, 그린블랫은
      67) 탭을 넘어 들고 다닐 이유가 없다. */
   const [group, setGroup] = useState<Group>("scored");
+  const [query, setQuery] = useState("");
   const [selectedTicker, setSelectedTicker] = useState<string | null>(null);
-  /* 판정 제외 종목을 고른 채로 [채점] 묶음으로 돌아가도(또는 그 반대) 오른쪽
+  /* 판정 제외 종목을 고른 채로 [판정] 묶음으로 돌아가도(또는 그 반대) 오른쪽
      칸은 그대로 있어야 한다 — 묶음 전환은 왼쪽 목록만 바꾸는 필터이지 오른쪽의
      선택을 지우는 동작이 아니다. 그래서 세 배열을 다 뒤진다. */
   const selected = selectedTicker
@@ -67,40 +69,82 @@ export default function ScreenerSplit({
       unscorable.find((c) => c.ticker === selectedTicker)
     : undefined;
 
-  const visible = group === "scored" ? scored : group === "unscored" ? unscored : unscorable;
+  /* 검색어가 있으면 묶음 탭과 무관하게 세 묶음을 합쳐 찾는다 — "액센츄어"가
+     [정보 부족] 묶음에 있어도 지금 [판정] 탭을 보고 있으면 찾을 수 있어야
+     한다. 검색어를 지우면 원래 보고 있던 묶음으로 그대로 돌아간다. */
+  const searching = query.trim().length > 0;
+  const visible = searching
+    ? filterCompaniesByQuery([...scored, ...unscored, ...unscorable], query)
+    : group === "scored"
+    ? scored
+    : group === "unscored"
+    ? unscored
+    : unscorable;
 
   return (
     <div className="screener-split">
       <div className="screener-split-list">
-        <div className="screener-group-toggle" role="tablist" aria-label="목록 묶음">
-          {(["scored", "unscored", "unscorable"] as const).map((g) => {
-            const count = g === "scored" ? scored.length : g === "unscored" ? unscored.length : unscorable.length;
-            return (
+        <div className="screener-list-head">
+          <div className="screener-group-toggle" role="tablist" aria-label="목록 묶음">
+            {(["scored", "unscored", "unscorable"] as const).map((g) => {
+              const count = g === "scored" ? scored.length : g === "unscored" ? unscored.length : unscorable.length;
+              return (
+                <button
+                  key={g}
+                  type="button"
+                  role="tab"
+                  className="screener-group-btn"
+                  aria-selected={group === g}
+                  disabled={count === 0 || searching}
+                  onClick={() => setGroup(g)}
+                >
+                  {GROUP_LABEL[g]} {count}
+                </button>
+              );
+            })}
+          </div>
+          <div className="screener-search">
+            <input
+              type="search"
+              className="screener-search-input"
+              aria-label="종목 검색"
+              placeholder="회사 이름 또는 티커"
+              autoComplete="off"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            {searching && (
               <button
-                key={g}
                 type="button"
-                role="tab"
-                className="screener-group-btn"
-                aria-selected={group === g}
-                disabled={count === 0}
-                onClick={() => setGroup(g)}
+                className="screener-search-clear"
+                aria-label="검색어 지우기"
+                onClick={() => setQuery("")}
               >
-                {GROUP_LABEL[g]} {count}
+                ×
               </button>
-            );
-          })}
+            )}
+          </div>
         </div>
-        {sampleFlag}
-        <ScreenerCompanies
-          /* 묶음이 바뀌면 페이지를 1로 되돌린다. ScreenerCompanies 안의 페이지
-             상태는 이 컴포넌트가 모른다 — key를 바꿔 통째로 다시 만드는 편이
-             내부 상태를 이 컴포넌트로 끌어올리는 것보다 간단하다. */
-          key={group}
-          companies={visible}
-          style={style}
-          selectedTicker={selectedTicker}
-          onSelect={setSelectedTicker}
-        />
+        {/* .screener-list-head는 이제 margin-bottom이 없다(첫 종목 줄과의 간격은
+           .stock-row 자신의 padding-top만으로 충분하다 — 위 스타일 주석 참고).
+           예시 데이터 배지가 뜰 때만 그 자리에 여백이 따로 필요하다. */}
+        {sampleFlag && <div style={{ marginTop: "0.5rem" }}>{sampleFlag}</div>}
+        {searching && visible.length === 0 ? (
+          <p className="screener-search-empty">
+            &lsquo;{query.trim()}&rsquo;와 일치하는 종목이 없습니다. 회사 이름이나 티커로 다시 찾아보세요.
+          </p>
+        ) : (
+          <ScreenerCompanies
+            /* 묶음이나 검색어가 바뀌면 페이지를 1로 되돌린다. ScreenerCompanies 안의
+               페이지 상태는 이 컴포넌트가 모른다 — key를 바꿔 통째로 다시 만드는 편이
+               내부 상태를 이 컴포넌트로 끌어올리는 것보다 간단하다. */
+            key={searching ? `search:${query}` : group}
+            companies={visible}
+            style={style}
+            selectedTicker={selectedTicker}
+            onSelect={setSelectedTicker}
+          />
+        )}
       </div>
       <div className="screener-split-detail">
         {selected ? (
