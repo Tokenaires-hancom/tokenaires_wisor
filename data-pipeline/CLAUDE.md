@@ -5,9 +5,11 @@
 
 ## 이 배치가 하는 일
 
-재무 원천 → 파생 지표 → 스타일 점수 → `apps/web/lib/generated/scores.json`.
+재무 원천 → 파생 지표 → 스타일 점수 → 단일 `scores.json`.
 
-화면은 이 JSON 하나만 읽으므로, 여기서 나가는 값이 곧 사용자가 보는 값입니다.
+로컬 기본 출력은 `apps/web/lib/generated/scores.json`이고, OCI에서는 `--out`으로 런타임
+데이터 디렉터리의 후보 파일을 지정합니다. 화면은 이 JSON 하나만 읽으므로 여기서 나가는
+값이 곧 사용자가 보는 값입니다. 출력은 같은 디렉터리의 임시 파일을 완성한 뒤 원자 교체합니다.
 
 **두 가지 주기로 돕니다.** 수명이 다른 두 값을 한 실행에 묶지 않습니다.
 
@@ -95,6 +97,8 @@ python run_batch.py --provider sec-toss --universe data/universe_us.json
 # 체결가만 갱신. 3초면 끝난다
 python run_batch.py --provider sec-toss --universe data/universe_us.json --mode prices
 
+# OCI 런타임 파일 게시와 검증은 deploy/oci/wisor-batch.sh가 맡는다
+
 pytest -q
 ```
 
@@ -109,8 +113,10 @@ pytest -q
 `full`은 12종목만 수집하고, `prices`는 그중 캐시에 있는 종목만 갱신한 뒤 나머지는 조용히
 옛 값을 유지합니다(`CachedPriceProvider.stale`).
 
-`.github/workflows/scores.yml`은 지금 이 옵션 없이 배치를 부릅니다. 아직 한 번도
-실행된 적이 없어(`wisor-batch` 커밋 없음) 문제가 드러나지 않았을 뿐입니다.
-워크플로는 2번 영역이라 별건으로 넘겼습니다.
+`.github/workflows/scores.yml`의 수동 비상 실행도 `--provider sec-toss`와 실유니버스를
+명시합니다. OCI timer와 동시에 실행하면 토스 자격증명이 충돌할 수 있으므로 먼저 timer를
+멈춥니다.
 
-배치를 돌린 뒤 `scores.json`을 함께 커밋합니다. 그리고 상위 종목 몇 개는 눈으로 봅니다. **숫자가 통과했다고 결과가 말이 되는 것은 아닙니다.**
+추적 fallback을 갱신하는 릴리스에서는 `scores.json`을 함께 커밋합니다. OCI 정기 배치는
+커밋하지 않고 `deploy/oci/wisor-batch.sh`가 런타임 파일을 게시합니다. 어느 경로든 상위 종목
+몇 개는 눈으로 봅니다. **숫자가 통과했다고 결과가 말이 되는 것은 아닙니다.**

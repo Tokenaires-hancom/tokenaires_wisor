@@ -17,6 +17,8 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import stat
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -34,6 +36,7 @@ from wisor_data.providers.sec_toss import (
     SecTossProvider,
     read_fundamentals_cache,
 )
+from wisor_data.scores_contract import validate_scores_payload
 from wisor_data.styles import buffett, graham, greenblatt, lynch
 from wisor_data.styles.base import StyleScore
 
@@ -44,6 +47,33 @@ ROOT = Path(__file__).resolve().parent
 DEFAULT_OUT = ROOT.parent / "apps" / "web" / "lib" / "generated" / "scores.json"
 # 기준 시각은 읽는 사람 기준으로 적는다. 화면도 이 값을 그대로 보여준다.
 SEOUL = ZoneInfo("Asia/Seoul")
+
+
+def write_json_atomic(path: Path, payload: dict) -> None:
+    """같은 디렉터리에서 완성한 파일만 공개해 읽는 쪽에 반쪽 JSON을 보이지 않는다."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    mode = stat.S_IMODE(path.stat().st_mode) if path.exists() else 0o644
+    fd, temporary = tempfile.mkstemp(
+        dir=path.parent,
+        prefix=f".{path.name}.",
+        suffix=".tmp",
+    )
+    temporary_path = Path(temporary)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            json.dump(payload, handle, ensure_ascii=False, indent=2)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.chmod(temporary_path, mode)
+        os.replace(temporary_path, path)
+        if os.name != "nt":
+            directory_fd = os.open(path.parent, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+            try:
+                os.fsync(directory_fd)
+            finally:
+                os.close(directory_fd)
+    finally:
+        temporary_path.unlink(missing_ok=True)
 
 
 def _unscorable(style, reason: str = UNSCORABLE_REASON) -> StyleScore:
@@ -99,6 +129,11 @@ def _universe_report(provider, universe_meta: dict | None, passed, issues) -> di
 
 def build(provider, universe_meta: dict | None = None, price_at: str | None = None) -> dict:
     companies = provider.load()
+    refreshed_tickers = (
+        set(provider.refreshed())
+        if price_at and callable(getattr(provider, "refreshed", None))
+        else set()
+    )
     passed, issues = quality.partition(companies)
 
     fatal = [i for i in issues if i.fatal]
@@ -136,13 +171,16 @@ def build(provider, universe_meta: dict | None = None, price_at: str | None = No
                 ).to_dict()
         else:
             scores = {s.id: _unscorable(s).to_dict() for s in STYLES}
+        company_as_of = {"price": f.price_as_of, "financial": f.financial_as_of}
+        if price_at and f.ticker in refreshed_tickers:
+            company_as_of["priceAt"] = price_at
         rows.append({
             "ticker": f.ticker,
             "name": f.name,
             "sector": f.sector,
             "price": f.price,
             "marketCap": m.market_cap,
-            "asOf": {"price": f.price_as_of, "financial": f.financial_as_of},
+            "asOf": company_as_of,
             "metrics": {
                 "roicAvg5y": m.roic_avg_5y,
                 "magicFormulaRoc": m.magic_formula_roc,
@@ -176,6 +214,11 @@ def build(provider, universe_meta: dict | None = None, price_at: str | None = No
     # 전 거래일 종가로 만든 파일에는 이 값이 없고, 화면은 그때 '종가'라고 쓴다.
     if price_at:
         as_of["priceAt"] = price_at
+        included_tickers = {fundamentals.ticker for fundamentals, _ in prepared}
+        as_of["priceCoverage"] = {
+            "refreshed": len(included_tickers & refreshed_tickers),
+            "total": len(included_tickers),
+        }
 
     return {
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -223,8 +266,21 @@ def main() -> None:
         default=str(ROOT / ".cache" / "sec-toss.jsonl"),
         help="중간에 끊겼을 때 이어받을 파일. 같은 날 종가에 대해서만 재사용한다",
     )
+    parser.add_argument(
+        "--keep-checkpoint",
+        action="store_true",
+        help="외부 게시 검증이 끝난 뒤 지우도록 full 체크포인트를 보존한다",
+    )
     parser.add_argument("--limit", type=int, help="유니버스 앞에서 N종목만 (시험 실행용)")
+    parser.add_argument(
+        "--minimum-price-refresh-ratio",
+        type=float,
+        default=0.95,
+        help="prices 결과에서 가격과 시가총액을 모두 새로 받은 최소 종목 비율",
+    )
     args = parser.parse_args()
+    if not 0 < args.minimum_price_refresh_ratio <= 1:
+        parser.error("--minimum-price-refresh-ratio는 0보다 크고 1 이하여야 합니다.")
 
     universe_path = Path(args.universe)
     raw_universe = json.loads(universe_path.read_text(encoding="utf-8"))
@@ -266,10 +322,18 @@ def main() -> None:
             print(f"[market-cap] API 시가총액 {len(market_caps)}종목")
             provider = CachedPriceProvider(prices, market_caps, companies, price_at)
     payload = build(provider, universe_meta, price_at)
+    validate_scores_payload(
+        payload,
+        expected_source=provider.source_name,
+        minimum_price_refresh_ratio=(
+            args.minimum_price_refresh_ratio if args.mode == "prices" else None
+        ),
+    )
 
     out = Path(args.out)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    write_json_atomic(out, payload)
+    if args.provider == "sec-toss" and args.mode == "full" and not args.keep_checkpoint:
+        Path(args.checkpoint).unlink(missing_ok=True)
 
     print(f"\n[출력] {out} · {len(payload['companies'])}종목")
     for style in payload["styles"]:
