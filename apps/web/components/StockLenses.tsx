@@ -10,13 +10,6 @@ import { METRIC_LABELS, type Company } from "@/lib/scores.types";
 import { NOTE_STATUS_LABEL, getNote, saveNote, type NoteStatus } from "@/lib/store";
 import { track } from "@/lib/analytics";
 
-type Lens = "business" | "note";
-
-const LENS_LABEL: Record<Lens, string> = {
-  business: "기준 판정",
-  note: "나의 학습노트",
-};
-
 function scoreModelLabel(id: string, company: Company) {
   if (id === "greenblatt") return "그린블랫";
   return MASTER_BY_ID[id as keyof typeof MASTER_BY_ID]?.name.split(" · ")[0] ?? id;
@@ -29,60 +22,98 @@ export default function StockLenses({
 }: {
   company: Company;
   initialStyle: string;
-  /** 기준 판정 탭 안 대가 얼굴을 눌렀을 때 부른다. 어느 철학을 보여줄지는
-   *  상태를 들고 있는 `StockDetailBody`가 정하고, 여기는 prop으로만 받는다. */
+  /** 상단 대가 탭을 눌렀을 때 부른다. 어느 철학을 보여줄지는 상태를 들고
+   *  있는 `StockDetailBody`가 정하고, 여기는 prop으로만 받는다. */
   onChangeStyle: (styleId: string) => void;
 }) {
-  const [lens, setLens] = useState<Lens>("business");
   const styleId = initialStyle;
+  const styleIds = Object.keys(company.scores);
   const score = company.scores[styleId];
   const displayedModelVersion = score ? displayModelVersion(score.modelVersion) : "";
+  const [noteOpen, setNoteOpen] = useState(false);
+
+  useEffect(() => {
+    if (!noteOpen) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setNoteOpen(false);
+    }
+    document.addEventListener("keydown", onKeyDown);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [noteOpen]);
 
   return (
     <>
-      <div className="lens-tabs" role="tablist" aria-label="종목을 보는 관점">
-        {(Object.keys(LENS_LABEL) as Lens[]).map((key) => (
-          <button
-            key={key}
-            role="tab"
-            type="button"
-            className="lens-tab"
-            aria-selected={lens === key}
-            onClick={() => setLens(key)}
-          >
-            {LENS_LABEL[key]}
-          </button>
-        ))}
+      <div className="score-master-tabs-row">
+        {styleIds.length > 1 && (
+          <div className="score-master-tabs" role="tablist" aria-label="대가 선택">
+            {styleIds.map((id) => {
+              const master = MASTER_BY_ID[id as keyof typeof MASTER_BY_ID];
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  role="tab"
+                  className="score-master-tab"
+                  aria-selected={styleId === id}
+                  onClick={() => onChangeStyle(id)}
+                >
+                  {master?.name ?? id}
+                </button>
+              );
+            })}
+          </div>
+        )}
+        <button type="button" className="btn note-open-btn" onClick={() => setNoteOpen(true)}>
+          나의 학습노트
+        </button>
       </div>
 
-      {lens === "business" && (
-        <BusinessLens company={company} styleId={styleId} onChangeStyle={onChangeStyle} />
-      )}
-      {lens === "note" && <NoteLens company={company} styleId={styleId} />}
+      <BusinessLens company={company} styleId={styleId} />
 
-      {lens === "business" && score && (
+      {score && (
         <p className="disclaimer">
           이 결과는 {displayedModelVersion} 모델이 공개된 재무데이터에 같은 규칙을 적용한 것입니다.
           기업을 좁히는 출발점이며, 매수·매도 판단이 아닙니다.
         </p>
       )}
+
+      {/* 학습노트는 페이지를 옮기지 않고 모달로 띄운다 — 종목을 보던 자리(기준
+         판정)로 그대로 돌아올 수 있어야 하고, 노트는 그 자리를 대체할 만큼
+         자주 여닫는 화면이 아니다. */}
+      {noteOpen && (
+        <div className="note-modal-backdrop" onClick={() => setNoteOpen(false)}>
+          <div
+            className="note-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="note-modal-heading"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="note-modal-head">
+              <h2 id="note-modal-heading">나의 학습노트</h2>
+              <button type="button" className="note-modal-close" onClick={() => setNoteOpen(false)}>
+                닫기
+              </button>
+            </div>
+            <div className="note-modal-body">
+              <NoteLens company={company} styleId={styleId} />
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
 
-function BusinessLens({
-  company,
-  styleId,
-  onChangeStyle,
-}: {
-  company: Company;
-  styleId: string;
-  onChangeStyle: (styleId: string) => void;
-}) {
+function BusinessLens({ company, styleId }: { company: Company; styleId: string }) {
   const score = company.scores[styleId];
   if (!score) return <p>이 철학의 점수가 없습니다.</p>;
   const displayedModelVersion = displayModelVersion(score.modelVersion);
-  const styleIds = Object.keys(company.scores);
 
   const passed = score.criteria.filter((c) => c.status === "pass");
   const failed = score.criteria.filter((c) => c.status === "fail");
@@ -98,68 +129,43 @@ function BusinessLens({
 
   return (
     <div className="business-lens-grid">
-      <div className="score-card-row">
-        {/* 같은 종목을 다른 대가 기준으로 바꿔 본다. 카드 높이만큼만 차지해
-           카드에 바로 붙어 보이게 한다(전체 상세 높이를 다 쓰지 않는다). */}
-        {styleIds.length > 1 && (
-          <div className="score-master-rail" role="tablist" aria-label="대가 선택">
-            {styleIds.map((id) => {
-              const master = MASTER_BY_ID[id as keyof typeof MASTER_BY_ID];
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  role="tab"
-                  className="score-master-rail-btn"
-                  aria-selected={styleId === id}
-                  aria-label={`${master?.name ?? id}의 관점으로 보기`}
-                  onClick={() => onChangeStyle(id)}
-                >
-                  <img className="investor-avatar" src={`/investors/${id}.png`} alt="" width={40} height={40} />
-                </button>
-              );
-            })}
-          </div>
-        )}
-
-        <div className="card">
-          {/* 점수가 있으면 좌(요약)·우(기준)로 나눈다 — "몇 점인가"와 "왜 그
-             점수인가"는 다른 질문이라 시각적으로도 가른다. 판정 대상이 아니면
-             비교할 기준 자체가 없으니 나누지 않는다. */}
-          <div className={unscorableReason ? undefined : "score-card-split"}>
-            <div className={unscorableReason ? undefined : "score-card-summary"}>
-              <p className="eyebrow">
-                {unscorableReason
-                  ? `${displayedModelVersion} · 판정 대상 아님`
-                  : rankModel
-                  ? `${displayedModelVersion} · 질 ${score.rankComponents?.quality}위 · 가격 ${score.rankComponents?.value}위`
-                  : displayedModelVersion}
-              </p>
-              <div style={{ display: "flex", alignItems: "baseline", gap: "0.6rem", marginBottom: "1rem" }}>
-                <span className="score-value" style={{ fontSize: "2.2rem" }}>
-                  {score.rank !== undefined ? `#${score.rank}` : (score.score ?? "—")}
-                </span>
-                <span className="score-of">
-                  {score.rank !== undefined ? "종합 순위" : score.score !== null ? "점" : score.dataConfidence}
-                </span>
-              </div>
+      <div className="card">
+        {/* 점수가 있으면 좌(요약)·우(기준)로 나눈다 — "몇 점인가"와 "왜 그
+           점수인가"는 다른 질문이라 시각적으로도 가른다. 판정 대상이 아니면
+           비교할 기준 자체가 없으니 나누지 않는다. */}
+        <div className={unscorableReason ? undefined : "score-card-split"}>
+          <div className={unscorableReason ? undefined : "score-card-summary"}>
+            <p className="eyebrow">
+              {unscorableReason
+                ? `${displayedModelVersion} · 판정 대상 아님`
+                : rankModel
+                ? `${displayedModelVersion} · 질 ${score.rankComponents?.quality}위 · 가격 ${score.rankComponents?.value}위`
+                : displayedModelVersion}
+            </p>
+            <div style={{ display: "flex", alignItems: "baseline", gap: "0.6rem", marginBottom: "1rem" }}>
+              <span className="score-value" style={{ fontSize: "2.2rem" }}>
+                {score.rank !== undefined ? `#${score.rank}` : (score.score ?? "—")}
+              </span>
+              <span className="score-of">
+                {score.rank !== undefined ? "종합 순위" : score.score !== null ? "점" : score.dataConfidence}
+              </span>
             </div>
-            {/* 왜 점수가 없는지는 '데이터가 없다'와 '모델이 안 맞는다'가 전혀 다르다 */}
-            {unscorableReason ? (
-              <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--ink-soft)" }}>
-                {unscorableReason} 아래 지표는 그대로 확인할 수 있습니다.
-              </p>
-            ) : (
-              <div className="score-card-criteria">
-                <CriteriaBar criteria={score.criteria} showBreakdown showLegend showWeight={false} />
-                <p className="score-formula">
-                  {rankModel
-                    ? `순위식: 품질 순위 ${score.rankComponents?.quality} + 가격 순위 ${score.rankComponents?.value}. 합이 낮을수록 상위입니다.`
-                    : `판정 가능한 ${judgedWeight}점 중 ${passedWeight}점을 채워 ${score.score ?? "—"}점입니다. 판정 불가 기준은 계산에서 뺍니다.`}
-                </p>
-              </div>
-            )}
           </div>
+          {/* 왜 점수가 없는지는 '데이터가 없다'와 '모델이 안 맞는다'가 전혀 다르다 */}
+          {unscorableReason ? (
+            <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--ink-soft)" }}>
+              {unscorableReason} 아래 지표는 그대로 확인할 수 있습니다.
+            </p>
+          ) : (
+            <div className="score-card-criteria">
+              <CriteriaBar criteria={score.criteria} showBreakdown showLegend showWeight={false} />
+              <p className="score-formula">
+                {rankModel
+                  ? `순위식: 품질 순위 ${score.rankComponents?.quality} + 가격 순위 ${score.rankComponents?.value}. 합이 낮을수록 상위입니다.`
+                  : `판정 가능한 ${judgedWeight}점 중 ${passedWeight}점을 채워 ${score.score ?? "—"}점입니다. 판정 불가 기준은 계산에서 뺍니다.`}
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -267,7 +273,7 @@ function NoteLens({ company, styleId }: { company: Company; styleId: string }) {
   }
 
   return (
-    <div style={{ maxWidth: "680px" }}>
+    <div>
       <label className="field">
         <span>1. 이 기업에 관심을 가진 이유</span>
         <textarea rows={3} value={why} onChange={(e) => setWhy(e.target.value)} placeholder="내 말로 적어보세요." />
