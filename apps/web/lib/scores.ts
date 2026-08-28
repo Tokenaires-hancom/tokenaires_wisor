@@ -10,6 +10,7 @@
  */
 
 import { styleCoverage, type Coverage } from "./coverage";
+import { financialRange } from "./financialRange";
 import raw from "./generated/scores.json";
 import { rank, type Ranking } from "./ranking";
 import type { Company, ScoresPayload, StyleMeta } from "./scores.types";
@@ -35,15 +36,8 @@ export const DATA = raw as unknown as ScoresPayload;
 
 export const IS_SAMPLE_DATA = DATA.dataSource === "sample";
 
-/** 유니버스 전체가 걸쳐 있는 재무 기준일의 범위.
- *
- * DATA.asOf.financial은 가장 이른 날 하나뿐이라, 목록 화면에서 8종목에 대해
- * 틀린 날짜가 된다. 종목별 날짜는 companies[].asOf에 이미 있으므로 여기서 모은다.
- */
-export const FINANCIAL_RANGE = (() => {
-  const dates = DATA.companies.map((c) => c.asOf.financial).sort();
-  return { from: dates[0] ?? DATA.asOf.financial, to: dates[dates.length - 1] ?? DATA.asOf.financial };
-})();
+/** 유니버스 전체가 걸쳐 있는 재무 기준일의 범위. 계산은 financialRange.ts에 있다. */
+export const FINANCIAL_RANGE = financialRange(DATA.companies, DATA.asOf.financial);
 
 export function styleMeta(styleId: string): StyleMeta | undefined {
   return DATA.styles.find((s) => s.id === styleId);
