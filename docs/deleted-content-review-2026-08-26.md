@@ -27,6 +27,7 @@
 |---|---|---|
 | `DuoQuiz`, `Quiz` | ✅ 안전 | 삭제 전에도 import가 없었고 현재 흐름은 `ChapterExercises`가 담당합니다. |
 | 장별 mood API·반응 이미지 | ✅ 안전 | 정의·자체 테스트 외 소비자가 없고, 사용 중인 `guide`·`stand` 자산은 남았습니다. |
+| `mascot/idle.webp` | ❌ 판정 번복 | 검토 시점에는 참조가 0건이었으나 develop의 wisor-town이 다시 씁니다. 되살렸습니다. |
 | TypeScript 편의 함수·이벤트 타입 | ✅ 안전 | 삭제 전 호출처가 없었고 엄격한 미사용 검사를 통과했습니다. |
 | CSS 미사용 selector | ✅ 대체로 안전 | 정확한 현재 markup 참조가 없거나 `master-tabs.css`에 같은 역할의 규칙이 있습니다. |
 | 챕터 중앙 정렬 변경 | ⚠️ 확인 필요 | 외곽 `.wrap`의 padding까지 720px 안에 들어가 데스크톱 본문이 더 좁아졌습니다. |
@@ -56,11 +57,16 @@
 
 - `chapterMood.ts`는 자체 테스트 외 호출처가 없었습니다.
 - 버핏의 장별 반응 이미지를 소비하던 화면은 앞선 변경에서 이미 제거됐습니다.
-- 삭제한 `aha.webp`, `great.webp`, `main.png`, `nope.webp`, `proud.webp`, `mascot/idle.webp`의
-  현재 소스·빌드 문자열 참조는 0건입니다.
-- 현재 사용 중인 `guide.webp`, 각 대가의 `stand.webp`, 게임의 `correct`·`wrong`·`celebrate`·
-  `teach` 자산은 보존됐습니다.
-- 삭제된 바이너리 합계는 1,688,695 bytes, 약 1.61 MiB입니다.
+- 삭제한 `aha.webp`, `great.webp`, `main.png`, `nope.webp`, `proud.webp`의
+  2026-08-26 시점 소스·빌드 문자열 참조는 0건이었습니다.
+- 보존한 자산은 `guide.webp`, 각 대가의 `stand.webp`, 게임의 `correct`·`wrong`·`celebrate`·
+  `teach`, 그리고 `mascot/idle.webp`입니다.
+- **`mascot/idle.webp`는 이 보고서의 판정을 뒤집어 되살렸습니다.** 2026-08-26에는 참조가
+  0건이었으나, develop의 wisor-town 작업이 `MascotState`에 `idle`을 다시 쓰기 시작했습니다
+  (`ChapterExercises`의 피드백 기본값, `WisorTown`의 `mascot` 기본값). `Mascot`은
+  `/mascot/${state}.webp`를 그리므로 자산까지 함께 필요합니다. develop 위로 rebase하면서
+  `MascotState`에서 `idle`을 빼는 변경과 자산 삭제를 둘 다 되돌렸습니다.
+- 삭제된 바이너리 합계는 1,571,193 bytes, 약 1.50 MiB입니다.
 
 ### TypeScript API와 CSS
 
