@@ -9,9 +9,9 @@ MockAdapter는 늘 정상 응답을 주므로 재생성 분기를 발동시킬 �
 
 import pytest
 
-from chat import PersonaChat
+from chat import FREE_CHAT_OPENING, PersonaChat
 from explain import OK, BLOCKED_MESSAGE, MockAdapter, explain
-from personas import CHAT_RULES, build_system_prompt
+from personas import CHAT_RULES, FREE_CHAT_RULES, build_system_prompt
 
 METRICS = {
     "PBR": 1.2,               # 그레이엄 기준 충족(≤1.5)
@@ -54,6 +54,18 @@ class CountingAdapter:
     def chat(self, system, messages, temperature=0.0):
         self.calls += 1
         return self._inner.chat(system, messages, temperature)
+
+
+class SuccessfulCallsThenEmptyAdapter:
+    """지정한 호출 수까지 답한 뒤 빈 응답만 돌려준다."""
+
+    def __init__(self, successful_calls: int):
+        self.successful_calls = successful_calls
+        self.calls = 0
+
+    def chat(self, system, messages, temperature=0.0):
+        self.calls += 1
+        return CLEAN_ANSWER if self.calls <= self.successful_calls else ""
 
 
 def new_session(persona: str = "buffett", **kwargs) -> PersonaChat:
@@ -253,6 +265,91 @@ def test_first_person_rule_present():
     prompt = build_system_prompt("buffett", chat_mode=True)
     assert "1인칭으로 말한다" in prompt
     assert "자기를 3인칭으로" in prompt
+
+
+# ---- 종목 없는 자유 대화 ----------------------------------------------------
+
+def test_free_chat_requires_explicit_mode():
+    with pytest.raises(ValueError, match="metrics 또는 company"):
+        PersonaChat("buffett")
+    with pytest.raises(ValueError, match="함께 넣을 수 없습니다"):
+        PersonaChat("buffett", METRICS, free_chat=True)
+
+
+def test_free_chat_uses_its_own_anchor_and_prompt():
+    s = PersonaChat("buffett", adapter=MockAdapter(), free_chat=True)
+    prompt = build_system_prompt("buffett", chat_mode=True, free_chat=True)
+
+    assert s.free_chat is True
+    assert s.anchor().startswith("<대화맥락>")
+    assert "<지표>" not in s.anchor()
+    assert "<회사>" not in s.anchor()
+    assert s.metrics_block() is None
+    assert s.company_block() is None
+    assert FREE_CHAT_RULES in prompt
+    assert prompt.endswith(FREE_CHAT_RULES)
+    assert CHAT_RULES not in prompt
+    assert "특정 회사의 수치나 현재 상황을 물으면 종목을 선택" in prompt
+    assert "대가 본문에 적힌 투자 기준 수치는" in prompt
+    assert "특정 회사의 실제 수치나 현재 시장 수치" in prompt
+    assert "역사적 일화, 전기, 실제 투자 행동" in prompt
+    assert "확인되지 않은 기억임을 밝힌다" in prompt
+    assert "[숫자 규칙]" not in prompt
+    assert "[내 방식은 채점하지 않는다]" not in prompt
+
+
+def test_every_persona_free_chat_prompt_ends_with_context_rules():
+    from personas import PERSONAS
+
+    for key in PERSONAS:
+        prompt = build_system_prompt(key, chat_mode=True, free_chat=True)
+        assert prompt.endswith(FREE_CHAT_RULES), key
+        assert CHAT_RULES not in prompt, key
+        assert "[내 방식은 채점하지 않는다]" not in prompt, key
+
+
+def test_free_chat_calls_model_only_for_the_first_real_question():
+    adapter = CountingAdapter()
+    s = PersonaChat("buffett", adapter=adapter, free_chat=True)
+
+    opening = s.start()
+    assert opening.text == FREE_CHAT_OPENING
+    assert adapter.calls == 0
+
+    reply = s.ask("복리의 핵심은 무엇인가요?")
+    assert reply.verdict == OK
+    assert adapter.calls == 1
+    assert s.messages()[-2]["content"] == "복리의 핵심은 무엇인가요?"
+
+
+def test_free_chat_switches_persona_without_adding_company_context():
+    s = PersonaChat("buffett", adapter=MockAdapter(), free_chat=True)
+    s.start()
+    s.ask("무엇을 가장 먼저 보나요?")
+
+    s.switch_persona("fisher")
+
+    assert s.free_chat is True
+    assert s.persona_key == "fisher"
+    assert s.judgement is None
+    assert s.anchor().startswith("<대화맥락>")
+    assert s.messages() == [{"role": "user", "content": s.anchor()}]
+    assert s.start().text == FREE_CHAT_OPENING
+
+
+def test_blocked_persona_switch_restores_previous_history():
+    adapter = SuccessfulCallsThenEmptyAdapter(successful_calls=2)
+    s = PersonaChat("buffett", METRICS, adapter=adapter)
+    s.start()
+    s.ask("첫 질문")
+    previous_messages = s.messages()
+
+    reply = s.switch_persona_and_start("graham")
+
+    assert reply.blocked is True
+    assert reply.persona == "buffett"
+    assert s.persona_key == "buffett"
+    assert s.messages() == previous_messages
 
 
 # ---- 단발 해설 회귀 ----------------------------------------------------------

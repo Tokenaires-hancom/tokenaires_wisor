@@ -115,6 +115,16 @@ def format_company_block(name: str | None = None, ticker: str | None = None,
     return "<회사>\n" + "\n".join(lines) + "\n</회사>"
 
 
+def format_free_chat_block() -> str:
+    """종목 없이 투자 철학을 묻는 세션의 고정 앵커."""
+    return (
+        "<대화맥락>\n"
+        "종목이 지정되지 않았다. 특정 회사나 재무 수치를 가정하지 않는다.\n"
+        "선택한 투자 대가의 철학, 판단 기준, 공부 방법을 중심으로 대화한다.\n"
+        "</대화맥락>"
+    )
+
+
 def format_criteria_block(judgement) -> str:
     """페르소나별 기준 판정 → <기준판정> 블록.
 
