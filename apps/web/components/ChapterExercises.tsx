@@ -406,9 +406,10 @@ function Guided({
 }) {
   return (
     <>
-      <p className="eyebrow">써보기 · 점수 없음</p>
-      <Mascot state="teach" />
-      <h3 className="sub">{exercise.prompt}</h3>
+      <div className="quiz-presenter">
+        <h3 className="quiz-bubble sub">{exercise.prompt}</h3>
+        <Mascot state="teach" />
+      </div>
       <label className="field">
         <span>내 답</span>
         <textarea
@@ -485,9 +486,10 @@ function Journal({
 }) {
   return (
     <>
-      <p className="eyebrow">기록 · 90일 뒤 다시 묻습니다</p>
-      <Mascot state="teach" />
-      <h3 className="sub">{exercise.prompt}</h3>
+      <div className="quiz-presenter">
+        <h3 className="quiz-bubble sub">{exercise.prompt}</h3>
+        <Mascot state="teach" />
+      </div>
       <label className="field">
         <span>내 기록</span>
         <textarea
