@@ -137,7 +137,12 @@ export default function AuthForm({ nextPath, callbackError = false }: Props) {
 
       <div className="auth-panel-body">
         <p className="eyebrow">WISOR ACCOUNT</p>
-        <h1 id="auth-title">{mode === "signin" ? "학습을 이어가세요" : "학습 기록을 저장하세요"}</h1>
+        <h1 id="auth-title">{mode === "signin" ? "학습을 이어가세요" : "학습 기록을 묶어 두세요"}</h1>
+        <p className="auth-intro">
+          {mode === "signin"
+            ? "Wisor 계정으로 본인을 확인하고 학습 화면으로 돌아갑니다."
+            : "이메일을 확인하면 Wisor에서 사용할 계정이 만들어집니다."}
+        </p>
 
         <button className="auth-google" type="button" disabled={busy} onClick={signInWithGoogle}>
           <span aria-hidden="true">G</span>
