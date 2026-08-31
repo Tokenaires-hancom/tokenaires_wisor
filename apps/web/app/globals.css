@@ -2276,10 +2276,12 @@ h3.sub {
   width: 100%;
   color: var(--ink);
   font-size: 0.92rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .choice:hover {
   border-color: var(--wine-line);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--wine) 35%, transparent);
 }
 
 .choice[data-state="correct"] {

@@ -352,11 +352,8 @@ function Graded({
   feedbackState?: "correct" | "wrong";
   onPick: (choice: number) => void;
 }) {
-  const multiple = exercise.answers.length > 1;
-
   return (
     <>
-      <p className="eyebrow">확인 문항{multiple ? " · 복수 정답" : ""}</p>
       <div className="quiz-presenter">
         <h3 className="quiz-bubble sub">{exercise.prompt}</h3>
         <Mascot key={feedbackState ?? "idle"} state={feedbackState ?? "idle"} />
