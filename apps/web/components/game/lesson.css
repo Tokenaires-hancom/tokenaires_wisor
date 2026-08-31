@@ -121,22 +121,22 @@
   margin: 0;
   text-align: center;
 }
-/* 꼬리: 위쪽(캐릭터)을 향한다 */
+/* 꼬리: 아래쪽(캐릭터)을 향한다 */
 .quiz-bubble::before {
   content: "";
   position: absolute;
-  top: -9px;
+  bottom: -9px;
   left: calc(50% - 9px);
   border: 9px solid transparent;
-  border-bottom-color: var(--line);
+  border-top-color: var(--line);
 }
 .quiz-bubble::after {
   content: "";
   position: absolute;
-  top: -6px;
+  bottom: -6px;
   left: calc(50% - 8px);
   border: 8px solid transparent;
-  border-bottom-color: var(--paper);
+  border-top-color: var(--paper);
 }
 
 /* 상단 진행 바 (채워짐) */

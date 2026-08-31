@@ -358,8 +358,8 @@ function Graded({
     <>
       <p className="eyebrow">확인 문항{multiple ? " · 복수 정답" : ""}</p>
       <div className="quiz-presenter">
-        <Mascot key={feedbackState ?? "idle"} state={feedbackState ?? "idle"} />
         <h3 className="quiz-bubble sub">{exercise.prompt}</h3>
+        <Mascot key={feedbackState ?? "idle"} state={feedbackState ?? "idle"} />
       </div>
       <div role="group" aria-label={exercise.prompt}>
         {exercise.choices.map((choice, choiceIndex) => {
