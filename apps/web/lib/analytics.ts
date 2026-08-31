@@ -2,10 +2,7 @@
  *  MVP는 콘솔에만 남긴다. 실제 수집 도구는 2번 담당이 이 함수 하나만 바꿔 연결한다. */
 
 export type WisorEvent =
-  | "master_lesson_started"
   | "master_lesson_completed"
-  | "style_screener_opened"
-  | "stock_detail_opened"
   | "study_note_saved"
   | "watchlist_added"
   | "persona_chat_opened"

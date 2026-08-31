@@ -6,7 +6,7 @@
 
 여기서 꺼내 쓰는 것 세 가지:
 
-- ``metrics``  종목별 지표 14개. camelCase 원본과 내부 키 둘 다 제공한다.
+- ``metrics``  종목별 지표 15개. camelCase 원본과 내부 키 둘 다 제공한다.
 - ``styles``   페르소나별 기준 정의(code/label/weight/detail).
                기준을 코드에 하드코딩하지 않고 여기서 읽으므로, 팀이 임계값을
                바꾸면 챗봇이 자동으로 따라간다.
@@ -18,6 +18,8 @@
 from __future__ import annotations
 
 import json
+import logging
+import math
 import os
 import threading
 from dataclasses import dataclass
@@ -25,6 +27,7 @@ from dataclasses import dataclass
 from explain import NO_VALUE, load_dotenv_file, render_metrics_block
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
+_LOG = logging.getLogger(__name__)
 
 # scores.json을 찾을 후보 경로. 앞에 있는 것이 우선.
 PATH_CANDIDATES = (
@@ -44,6 +47,7 @@ PATH_CANDIDATES = (
 # (라벨, 표기형식, cap) — 형식과 cap까지 같아야 챗봇의 숫자 표기가 화면과 일치한다.
 METRIC_SPEC: dict[str, tuple[str, str, float | None]] = {
     "roicAvg5y": ("자본수익률(5년 평균)", "pct", None),
+    "magicFormulaRoc": ("마법공식 자본수익률", "pct", None),
     "fcfMargin": ("잉여현금흐름 마진", "pct", None),
     "fcfYield": ("잉여현금흐름 수익률", "pct", None),
     "netDebtToEbitda": ("순부채 / EBITDA", "x", None),
@@ -63,6 +67,7 @@ METRIC_SPEC: dict[str, tuple[str, str, float | None]] = {
 # 손으로 넣는 경로와 데이터에서 오는 경로가 같은 이름을 쓰게 맞춰 준다.
 SCORES_KEY_TO_METRIC = {
     "roicAvg5y": "ROIC_5y_avg",
+    "magicFormulaRoc": "magic_formula_roc",
     "fcfMargin": "FCF_margin",
     "fcfYield": "FCF_yield",
     "netDebtToEbitda": "netDebt_to_EBITDA",
@@ -212,12 +217,71 @@ class Judgement:
 # ---- 로더 -------------------------------------------------------------------
 
 class ScoresData:
-    """scores.json 한 벌. 한 번 읽어 메모리에 들고 있는다(3.7MB)."""
+    """scores.json 한 벌과 그 파일 버전. 완전히 읽은 뒤에만 공개한다."""
 
     def __init__(self, path: str):
         self.path = path
         with open(path, encoding="utf-8") as f:
             payload = json.load(f)
+            self.file_version = _file_version(os.fstat(f.fileno()))
+
+        if not isinstance(payload, dict):
+            raise ValueError("scores.json 최상위 값은 객체여야 합니다.")
+        if not isinstance(payload.get("generatedAt"), str) or not payload["generatedAt"]:
+            raise ValueError("scores.json에 generatedAt이 없습니다.")
+        if not isinstance(payload.get("dataSource"), str) or not payload["dataSource"]:
+            raise ValueError("scores.json에 dataSource가 없습니다.")
+        as_of = payload.get("asOf")
+        if (not isinstance(as_of, dict) or
+                not isinstance(as_of.get("price"), str) or
+                not isinstance(as_of.get("financial"), str) or
+                (as_of.get("priceAt") is not None and
+                 not isinstance(as_of.get("priceAt"), str))):
+            raise ValueError("scores.json의 asOf 기준일이 올바르지 않습니다.")
+        styles = payload.get("styles")
+        companies = payload.get("companies")
+        if not isinstance(styles, list) or not styles:
+            raise ValueError("scores.json의 styles 배열이 비어 있습니다.")
+        if not isinstance(companies, list) or not companies:
+            raise ValueError("scores.json의 companies 배열이 비어 있습니다.")
+
+        style_ids = []
+        for meta in styles:
+            if (not isinstance(meta, dict) or
+                    not isinstance(meta.get("id"), str) or not meta["id"] or
+                    not isinstance(meta.get("criteria"), list)):
+                raise ValueError("scores.json의 style 구조가 올바르지 않습니다.")
+            style_ids.append(meta["id"])
+        if len(style_ids) != len(set(style_ids)):
+            raise ValueError("scores.json의 style id가 중복됐습니다.")
+
+        normalized_tickers = []
+        for row in companies:
+            if not isinstance(row, dict) or not isinstance(row.get("ticker"), str):
+                raise ValueError("scores.json의 company ticker가 올바르지 않습니다.")
+            ticker = row["ticker"].strip().upper()
+            scores = row.get("scores")
+            company_as_of = row.get("asOf")
+            if (not ticker or not isinstance(row.get("name"), str) or
+                    not isinstance(row.get("price"), (int, float)) or
+                    isinstance(row.get("price"), bool) or
+                    not math.isfinite(row["price"]) or row["price"] <= 0 or
+                    not isinstance(row.get("marketCap"), (int, float)) or
+                    isinstance(row.get("marketCap"), bool) or
+                    not math.isfinite(row["marketCap"]) or row["marketCap"] <= 0 or
+                    not isinstance(company_as_of, dict) or
+                    not isinstance(company_as_of.get("price"), str) or
+                    not isinstance(company_as_of.get("financial"), str) or
+                    (company_as_of.get("priceAt") is not None and
+                     not isinstance(company_as_of.get("priceAt"), str)) or
+                    not isinstance(row.get("metrics"), dict) or
+                    not isinstance(scores, dict) or
+                    any(style_id in scores and not isinstance(scores[style_id], dict)
+                        for style_id in style_ids)):
+                raise ValueError(f"scores.json의 {ticker or 'company'} 구조가 올바르지 않습니다.")
+            normalized_tickers.append(ticker)
+        if len(normalized_tickers) != len(set(normalized_tickers)):
+            raise ValueError("scores.json의 ticker가 대소문자 구분 없이 중복됐습니다.")
 
         self.generated_at = payload.get("generatedAt")
         self.data_source = payload.get("dataSource")
@@ -340,6 +404,31 @@ class ScoresData:
 
 _lock = threading.Lock()
 _data: ScoresData | None = None
+_rejected_version: object | None = None
+
+
+def _file_version(stat_result) -> tuple:
+    """수정 시각의 앞뒤가 아니라 파일 자체가 바뀌었는지를 판별한다."""
+    return (
+        stat_result.st_dev,
+        stat_result.st_ino,
+        stat_result.st_size,
+        stat_result.st_mtime_ns,
+    )
+
+
+def _same_path(first: str, second: str) -> bool:
+    return os.path.normcase(os.path.abspath(first)) == os.path.normcase(os.path.abspath(second))
+
+
+def _keep_last_good(previous: ScoresData | None, version, exc: Exception) -> ScoresData:
+    global _rejected_version
+    if previous is None:
+        raise exc
+    if version != _rejected_version:
+        _LOG.error("새 scores.json을 읽지 못해 이전 데이터를 유지합니다: %s", exc)
+        _rejected_version = version
+    return previous
 
 
 def resolve_path(path: str | None = None) -> str:
@@ -367,31 +456,50 @@ def resolve_path(path: str | None = None) -> str:
 
 
 def get_data(path: str | None = None, reload: bool = False) -> ScoresData:
-    """단일 인스턴스를 돌려준다. 서버가 여러 스레드로 도니 잠금을 쓴다."""
-    global _data
+    """파일이 바뀌면 새 스냅샷으로 교체하고, 실패하면 마지막 정상본을 유지한다."""
+    global _data, _rejected_version
     with _lock:
-        if _data is None or reload or (path and path != _data.path):
-            _data = ScoresData(resolve_path(path))
+        try:
+            resolved = resolve_path(path)
+        except ScoresNotFound as exc:
+            requested = path or os.getenv("SCORES_JSON_PATH")
+            same_requested = _data is not None and (
+                (requested is not None and _same_path(requested, _data.path)) or
+                (requested is None and any(_same_path(candidate, _data.path)
+                                           for candidate in PATH_CANDIDATES))
+            )
+            if same_requested:
+                return _keep_last_good(
+                    _data, ("unavailable", type(exc).__name__, str(exc)), exc)
+            raise
+
+        same_path = _data is not None and _same_path(resolved, _data.path)
+        previous = _data if same_path else None
+        try:
+            version = _file_version(os.stat(resolved))
+        except OSError as exc:
+            return _keep_last_good(
+                previous, ("unavailable", type(exc).__name__, exc.errno), exc)
+
+        if same_path and not reload and version == _data.file_version:
+            return _data
+        if same_path and not reload and version == _rejected_version:
+            return _data
+
+        try:
+            candidate = ScoresData(resolved)
+        except (OSError, UnicodeDecodeError, ValueError, KeyError, TypeError) as exc:
+            return _keep_last_good(previous, version, exc)
+
+        if previous is not None and previous.generated_at != candidate.generated_at:
+            _LOG.info(
+                "scores.json을 다시 읽었습니다: %s -> %s",
+                previous.generated_at,
+                candidate.generated_at,
+            )
+        _data = candidate
+        _rejected_version = None
         return _data
-
-
-# ---- 편의 함수 --------------------------------------------------------------
-
-def get_company(ticker: str) -> Company:
-    return get_data().company(ticker)
-
-
-def search_companies(query: str, limit: int = 10) -> list[dict]:
-    return get_data().search(query, limit)
-
-
-def metrics_for(ticker: str) -> dict:
-    """내부 키 → 원본 숫자."""
-    return get_data().company(ticker).metrics
-
-
-def criteria_for(ticker: str, style: str) -> Judgement:
-    return get_data().judgement(ticker, style)
 
 
 if __name__ == "__main__":

@@ -42,52 +42,24 @@
 
 /* ---------- 한 화면씩 멈추는 스크롤 ----------
 
-   섹션마다 하나씩 서고, masters를 붙잡는 폭(마우스 1200px 이상, HomeMasters.tsx의
-   PIN_WHEN)에서는 카드 한 장씩 선다. 스크롤을 가로채지 않고 브라우저의 스크롤
-   스냅에 맡긴다 — 휠·트랙패드·키보드·스크롤바가 평소대로 동작하고, 멈추는
-   자리만 정해 준다. 전환이 부드러운 것은 html의 scroll-behavior: smooth 덕이다.
+   masters를 붙잡는 폭(마우스 1200px 이상, HomeMasters.tsx의 PIN_WHEN)에서는
+   카드 한 장씩 선다 — 카드 정지점(.hv-masters-stop)이 브라우저 네이티브
+   scroll-snap-align의 대상이고, html의 scroll-snap-type이 그 스냅을 켠다.
 
-   태블릿(768~1199px)과 손가락 환경은 이 스냅이 없으면 momentum 스크롤이 아무
-   데서나 멈춘다 — masters 제목이 고정 머리띠(61px) 밑에 반쯤 걸린 채 서는 것도
-   그래서다. 세 폭 모두 같은 규칙을 쓰되, masters 자신이 정지점이 되는지만
-   갈린다: 카드를 붙잡는 동안에는(pointer:fine, ≥1200px) 카드 정지점
-   (.hv-masters-stop)이 대신 서므로 섹션째로 서면 카드가 흐를 자리가 없어진다.
-   그 조건 밖에서는(태블릿·손가락) 붙잡기 자체가 안 켜지므로 masters도 다른
-   섹션과 똑같이 선다.
-
-   세로가 짧은 화면에서는 mandatory 대신 proximity로 낮춰 섹션이 화면보다 높을
-   때 아래쪽에 손이 닿게 남겨 둔다. */
+   그 밖의 큰 섹션끼리(헤어로 ↔ 원칙 ↔ masters ↔ 여정 ↔ 결과) 넘어가는 건
+   더는 네이티브 스냅이 맡지 않는다 — SectionSnap.tsx가 대신한다. 예전엔
+   .hv-scene 전부가 scroll-snap-align: start였는데, mandatory든 proximity든
+   스크롤이 멈추는 순간 무조건 가까운 섹션으로 잡아당겨서 손대지 않은 채로도
+   화면이 홱 넘어가 버렸다. 그래서 .hv-scene에서는 이 속성을 뗐다 — 카드
+   정지점과 html의 scroll-snap-type만 그대로 두고, 나머지는 JS가 스크롤 방향으로
+   다음(또는 이전) 섹션까지 천천히 당기는 방식으로 대신한다. */
 @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
   html.hv-home-active {
     scroll-snap-type: y proximity;
   }
-
-  @media (min-width: 1200px) and (min-height: 800px) {
-    html.hv-home-active {
-      scroll-snap-type: y mandatory;
-    }
-  }
-
-  .hv-scene {
-    scroll-snap-align: start;
-    /* scroll-snap-stop: always는 쓰지 않는다. 매 지점마다 관성을 끊어 세워서
-       한 화면씩 서기는 해도 손맛이 뻑뻑해진다. 관성이 지나가게 두고 멈추는
-       자리만 정해 준다. */
-    /* 상단 고정 헤더(61px)에 섹션 머리가 가리지 않도록 그만큼 위에서 선다. */
-    scroll-margin-top: 61px;
-  }
 }
 
-/* masters가 붙잡히는 폭·입력장치에서만 섹션째로 서는 것을 끈다 — HomeMasters.tsx의
-   PIN_WHEN과 정확히 같은 조건이어야 한다. 여기서만 통 안의 카드 정지점이 대신 선다. */
-@media (min-width: 1200px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  .hv-masters,
-  .hv-masters-pin-outer {
-    scroll-snap-align: none;
-  }
-}
-
-.hv-home :where(h1, h2, .hv-display) {
+.hv-home :where(h1, h2) {
   font-family: var(--hv-display);
   font-weight: 400;
   letter-spacing: normal;
@@ -1838,10 +1810,6 @@
     animation-delay: 0.22s;
   }
 
-  .hv-principles[data-in] .hv-principles-line-last {
-    animation-delay: 0.3s;
-  }
-
   .hv-principles[data-in] .hv-principles-intro {
     --hv-rise: 0.972cqw;
     animation: hv-rise 0.45s 0.42s ease-out backwards;
@@ -1863,11 +1831,6 @@
 
   .hv-principles[data-in] .hv-principles-thread {
     animation: hv-thread-in 0.45s 1s ease-out backwards;
-  }
-
-  .hv-principles[data-in] .hv-principles-anchor-title {
-    --hv-rise: 0.833cqw;
-    animation: hv-rise 0.42s 1.02s ease-out backwards;
   }
 
   .hv-principles[data-in] .hv-principles-anchor-item {

@@ -28,16 +28,6 @@ def cagr(series: Sequence[float], years: Optional[int] = None) -> Optional[float
     return (last / first) ** (1 / n) - 1
 
 
-def median(values: Sequence[float]) -> Optional[float]:
-    vals = sorted(v for v in values if v is not None)
-    if not vals:
-        return None
-    mid = len(vals) // 2
-    if len(vals) % 2:
-        return vals[mid]
-    return (vals[mid - 1] + vals[mid]) / 2
-
-
 @dataclass
 class Fundamentals:
     """한 종목의 원천 데이터. 금액 단위는 백만 USD, 연도 시계열은 오래된 것부터."""
