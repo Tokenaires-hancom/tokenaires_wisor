@@ -2910,11 +2910,10 @@ h3.sub {
   color: var(--ink-soft);
   font-size: 0.9rem;
   text-decoration: none;
-  transition: color 0.15s ease, font-size 0.15s ease;
+  transition: color 0.15s ease;
 }
 .chapter-back-link:hover {
   color: var(--wine);
-  font-size: 0.94rem;
 }
 
 .chapter-route {
