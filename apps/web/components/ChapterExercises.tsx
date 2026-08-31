@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { isCorrect } from "@/content/curriculum/grading";
 import Mascot from "@/components/game/Mascot";
+import WaveMascot from "@/components/game/WaveMascot";
 import LessonPath from "@/components/game/LessonPath";
 import WisorTown from "@/components/game/WisorTown";
 import "@/components/game/lesson.css";
@@ -226,12 +227,16 @@ export default function ChapterExercises({
           aria-label={`${stepLabel(step)} 단계, ${at + 1}/${steps.length}`}
         >
         {step.kind === "read" && (
-          <div className="prose">
-            <Mascot state="teach" />
-            {body.map((paragraph, index) => (
-              <p key={index}>{paragraph}</p>
-            ))}
-            {sources && sources.length > 0 && <Sources sources={sources} />}
+          <div className="prose-rail">
+            <div className="prose-rail-mascot">
+              <WaveMascot />
+            </div>
+            <div className="prose">
+              {body.map((paragraph, index) => (
+                <p key={index}>{paragraph}</p>
+              ))}
+              {sources && sources.length > 0 && <Sources sources={sources} />}
+            </div>
           </div>
         )}
 
@@ -347,14 +352,11 @@ function Graded({
   feedbackState?: "correct" | "wrong";
   onPick: (choice: number) => void;
 }) {
-  const multiple = exercise.answers.length > 1;
-
   return (
     <>
-      <p className="eyebrow">확인 문항{multiple ? " · 복수 정답" : ""}</p>
       <div className="quiz-presenter">
-        <Mascot key={feedbackState ?? "idle"} state={feedbackState ?? "idle"} />
         <h3 className="quiz-bubble sub">{exercise.prompt}</h3>
+        <Mascot key={feedbackState ?? "idle"} state={feedbackState ?? "idle"} />
       </div>
       <div role="group" aria-label={exercise.prompt}>
         {exercise.choices.map((choice, choiceIndex) => {
@@ -446,7 +448,9 @@ function Sources({ sources }: { sources: SourceNote[] }) {
   return (
     <details className="source-note">
       <summary>
-        <span>출처 {sources.length}개</span>
+        <span>
+          <span className="source-note-label">출처</span> {sources.length}개
+        </span>
         <span className="source-note-tally">
           {tally.map((entry) => `${entry.kind} ${entry.count}`).join(" · ")}
         </span>
