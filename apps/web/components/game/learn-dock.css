@@ -1,9 +1,17 @@
-/* 배우기 좌측 접이식 게임 패널 — 데스크톱 전용. */
-.learn-dock-fab {
+/* 배우기 우측 하단 팝업형 게임 패널. */
+.learn-dock {
   position: fixed;
-  left: 18px;
-  bottom: 18px;
+  right: 1.25rem;
+  /* ASK 대가에게 묻기(persona-fab) 위에 쌓는다: 1.25rem(그 버튼의 bottom) + 3.5rem(그 버튼 높이) + 0.75rem(간격) */
+  bottom: 5.5rem;
   z-index: 45;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.learn-dock-fab {
   background: var(--wine);
   color: #fff;
   border: none;
@@ -19,24 +27,18 @@
   transform: translateY(-2px);
 }
 
+/* 화면을 다 채우던 좌측 슬라이드 패널 대신, 버튼 위에 뜨는 팝업 카드.
+   내용(Match3 보드)만큼만 높이를 차지하고 남는 여백을 만들지 않는다. */
 .learn-dock-panel {
-  position: fixed;
-  left: 0;
-  top: 0;
-  bottom: 0;
   width: 380px;
-  max-width: 88vw;
-  z-index: 50;
+  max-width: min(380px, calc(100vw - 2.5rem));
+  max-height: calc(100dvh - 9rem);
   background: var(--surface);
-  border-right: 1px solid var(--line);
-  box-shadow: 8px 0 28px rgba(42, 35, 32, 0.14);
-  padding: 1rem 1.1rem 2rem;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 14px 32px rgba(42, 35, 32, 0.18);
+  padding: 1rem 1.1rem 1.2rem;
   overflow-y: auto;
-  transform: translateX(-100%);
-  transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.3, 1);
-}
-.learn-dock[data-open="true"] .learn-dock-panel {
-  transform: translateX(0);
 }
 
 .learn-dock-head {
@@ -58,9 +60,10 @@
   padding: 0.2rem;
 }
 
-/* 모바일: 좌측 고정 패널이 안 들어가므로 통째로 숨긴다. */
-@media (max-width: 1000px) {
+/* persona-dock의 640px 이하 위치 변경(globals.css)에 맞춰 같이 따라간다. */
+@media (max-width: 640px) {
   .learn-dock {
-    display: none;
+    right: 1rem;
+    bottom: 5.25rem;
   }
 }

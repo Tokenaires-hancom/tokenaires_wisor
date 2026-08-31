@@ -2,6 +2,7 @@ import "../../../master-tabs.css";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import MasterPath from "@/components/MasterPath";
+import LearnGameDock from "@/components/game/LearnGameDock";
 import MobileMasterDock from "@/components/MobileMasterDock";
 import MasterTabs, { type MasterTab } from "@/components/MasterTabs";
 import { CURRICULUM_BY_MASTER } from "@/content/curriculum";
@@ -220,6 +221,8 @@ export default async function MasterLesson({ params }: { params: Promise<{ slug:
           </section>
         </div>
       </div>
+
+      <LearnGameDock masterId={master.id} />
     </div>
   );
 }
