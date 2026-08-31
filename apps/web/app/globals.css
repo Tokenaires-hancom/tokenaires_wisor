@@ -11,6 +11,10 @@
  */
 
 :root {
+  /* details/summary 펼침 애니메이션이 block-size: auto까지 트랜지션하려면 필요하다.
+     지원 안 하는 브라우저에서는 조용히 무시되고 그냥 즉시 열린다. */
+  interpolate-size: allow-keywords;
+
   --paper: #ffffff;
   --surface: #ffffff;
   --surface-sunk: #f7f7f7;
@@ -160,7 +164,7 @@ button {
 }
 
 .wordmark-logo {
-  height: 28px;
+  height: 34px;
   width: auto;
 }
 
@@ -1951,10 +1955,13 @@ h3.sub {
   font-weight: 700;
   letter-spacing: -0.01em;
   box-shadow: 0 4px 0 var(--gold-deep);
+  transition: background 0.08s ease, transform 0.08s ease, box-shadow 0.08s ease;
 }
 
+/* gold-deep(어두운 갈색조)을 채움색으로 쓰면 탁해 보여서, 채움은 더 밝은
+   쪽으로 섞고 아래 그림자만 gold-deep을 유지해 눌림 단차를 살린다 */
 .btn:hover {
-  background: var(--gold-deep);
+  background: color-mix(in srgb, var(--gold) 88%, white);
   box-shadow: 0 4px 0 var(--gold-deep);
 }
 
@@ -2034,10 +2041,12 @@ h3.sub {
   width: 100%;
   color: var(--ink);
   font-size: 0.92rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .choice:hover {
   border-color: var(--wine-line);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--wine) 35%, transparent);
 }
 
 .choice[data-state="correct"] {
@@ -2591,7 +2600,7 @@ h3.sub {
 }
 .step-bar li[data-state="current"] {
   height: 9px;
-  background: var(--wine-soft);
+  background: var(--wine);
   border: 2px solid var(--wine);
 }
 
@@ -2603,8 +2612,22 @@ h3.sub {
   margin: 0 0 0.75rem;
 }
 
+.chapter-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: fit-content;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.chapter-back-link:hover {
+  color: var(--wine);
+}
+
 .chapter-route {
-  margin: 1.25rem 0 1.5rem;
+  margin: 0.85rem 0 1.5rem;
 }
 
 .chapter-route ol {
@@ -2630,11 +2653,11 @@ h3.sub {
 
 .chapter-route a {
   display: grid;
-  min-height: 4.25rem;
+  min-height: 3.2rem;
   grid-template-columns: auto minmax(0, 1fr);
   gap: 0.1rem 0.4rem;
   align-items: center;
-  padding: 0.65rem 0.7rem;
+  padding: 0.45rem 0.7rem;
   box-sizing: border-box;
   color: var(--ink-soft);
   text-decoration: none;
@@ -3400,7 +3423,12 @@ h3.sub {
   border-radius: 8px;
   padding: 0.6rem 0.8rem;
   background: var(--surface-sunk);
-  max-width: 40em;
+  /* .prose 칼럼(본문 문단)과 오른쪽 끝을 맞춘다 — 별도 상한을 두지 않는다 */
+  max-width: 100%;
+  transition: border-color 0.2s ease;
+}
+.source-note:hover {
+  border-color: var(--gold);
 }
 
 .source-note summary {
@@ -3412,6 +3440,27 @@ h3.sub {
   font-size: 0.84rem;
   font-weight: 600;
   color: var(--ink);
+  border-radius: 6px;
+  margin: -0.3rem -0.4rem;
+  padding: 0.3rem 0.4rem;
+}
+.source-note-label {
+  transition: color 0.2s ease;
+}
+.source-note summary:hover .source-note-label {
+  color: var(--wine);
+}
+
+/* 펼침 애니메이션: 최신 브라우저는 부드럽게 열리고, 지원 안 하면 바로 열린다 */
+.source-note::details-content {
+  overflow: hidden;
+  opacity: 0;
+  block-size: 0;
+  transition: block-size 0.25s ease, opacity 0.2s ease;
+}
+.source-note[open]::details-content {
+  opacity: 1;
+  block-size: auto;
 }
 
 .source-note-tally {
@@ -4144,17 +4193,22 @@ h3.sub {
 /* ---------- 챕터 단계 ---------- */
 
 .chapter-page {
-  max-width: 720px;
+  --chapter-gutter: 176px;
+  max-width: 1080px;
+  padding-block: 3.5rem 5rem;
 }
 
-.chapter-page-copy,
+.chapter-page-copy {
+  max-width: 720px;
+  margin-left: var(--chapter-gutter);
+}
+
 .chapter-page .step-bar,
 .chapter-page .step-nav,
 .chapter-page .disclaimer,
-.chapter-stage {
-  width: 100%;
+.chapter-page .lesson-feedback {
   max-width: 720px;
-  margin-inline: auto;
+  margin-left: var(--chapter-gutter);
 }
 
 .chapter-page .chapter-page-copy .rule {
@@ -4175,6 +4229,31 @@ h3.sub {
 .chapter-page .disclaimer {
   margin-top: 1rem;
   padding-top: 0.75rem;
+}
+
+.chapter-stage {
+  max-width: 720px;
+  margin-left: var(--chapter-gutter);
+}
+
+@media (max-width: 860px) {
+  .chapter-page {
+    --chapter-gutter: 0px;
+    padding-block: 2rem 3rem;
+  }
+
+    .chapter-page-copy,
+    .chapter-stage,
+    .chapter-page .step-bar,
+    .chapter-page .step-nav,
+    .chapter-page .disclaimer,
+  .chapter-page .lesson-feedback {
+    margin-left: 0;
+  }
+
+  .chapter-figure img {
+    height: 110px !important;
+  }
 }
 
 /* ---------- 내 학습: 관심종목 ---------- */
