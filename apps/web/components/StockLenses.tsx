@@ -10,7 +10,7 @@ import { METRIC_LABELS, type Company } from "@/lib/scores.types";
 import { NOTE_STATUS_LABEL, getNote, saveNote, type NoteStatus } from "@/lib/store";
 import { track } from "@/lib/analytics";
 
-function scoreModelLabel(id: string, company: Company) {
+function scoreModelLabel(id: string) {
   if (id === "greenblatt") return "그린블랫";
   return MASTER_BY_ID[id as keyof typeof MASTER_BY_ID]?.name.split(" · ")[0] ?? id;
 }
@@ -78,7 +78,6 @@ export default function StockLenses({
       {score && (
         <p className="disclaimer">
           이 결과는 {displayedModelVersion} 모델이 공개된 재무데이터에 같은 규칙을 적용한 것입니다.
-          기업을 좁히는 출발점이며, 매수·매도 판단이 아닙니다.
         </p>
       )}
 
@@ -260,7 +259,7 @@ function NoteLens({ company, styleId }: { company: Company; styleId: string }) {
       whyInterested: why,
       styleScores: Object.entries(company.scores).map(([id, s]) => ({
         styleId: id,
-        label: scoreModelLabel(id, company),
+        label: scoreModelLabel(id),
         score: s.score,
       })),
       strengths: score?.reasons ?? [],
@@ -284,7 +283,7 @@ function NoteLens({ company, styleId }: { company: Company; styleId: string }) {
         <ul className="reason-list">
           {Object.entries(company.scores).map(([id, s]) => (
             <li key={id} data-kind={s.score === null ? "unknown" : "pass"}>
-              {scoreModelLabel(id, company)} —{" "}
+              {scoreModelLabel(id)} —{" "}
               {s.rank !== undefined ? `종합 ${s.rank}위` : s.score === null ? s.dataConfidence : `${s.score}점`}
             </li>
           ))}

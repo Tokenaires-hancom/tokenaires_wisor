@@ -1,7 +1,8 @@
-# Render 배포 설정 (Blueprint)
+# 기존 Render 복구용 배포 설정 (Blueprint)
 #
-# 운영 배포는 Render의 별도 두 서비스다. 웹은 Node, 챗봇은 Python이라 한 서비스에
-# 넣으려면 두 런타임을 담은 Dockerfile과 프로세스 매니저가 필요하다. 나누는 쪽을 택했다.
+# 공식 운영은 OCI의 wisor.site다. 아직 응답하는 기존 Render Web·Persona 서비스를
+# 외부 대시보드에서 폐기하기 전까지, 이 파일은 그 구성을 재현하는 참고 계약으로 남긴다.
+# 웹은 Node, 챗봇은 Python이라 Render에서도 두 서비스로 나눴다.
 #
 # 이 파일은 두 서비스를 저장소에 명시해 두기 위한 것이다. 지금 도는 서비스는 Render
 # UI에서 손으로 만들었고, Blueprint는 사람이 명시적으로 동기화하기 전까지 아무것도

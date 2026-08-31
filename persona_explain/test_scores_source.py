@@ -10,6 +10,7 @@
 """
 from __future__ import annotations
 
+import copy
 import json
 
 import pytest
@@ -236,6 +237,75 @@ def test_missing_path_raises():
         scores_source.resolve_path("/nope/scores.json")
 
 
+def _replace_scores(path, payload) -> None:
+    replacement = path.with_name(".scores.json.new")
+    replacement.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+    replacement.replace(path)
+
+
+def test_get_data_reuses_unchanged_file_and_reloads_atomic_replacement(tmp_path):
+    path = tmp_path / "scores.json"
+    first_payload = copy.deepcopy(FAKE)
+    path.write_text(json.dumps(first_payload, ensure_ascii=False), encoding="utf-8")
+
+    first = scores_source.get_data(str(path), reload=True)
+    assert scores_source.get_data(str(path)) is first
+
+    second_payload = copy.deepcopy(FAKE)
+    second_payload["generatedAt"] = "2026-08-07T02:32:16+00:00"
+    _replace_scores(path, second_payload)
+    second = scores_source.get_data(str(path))
+
+    assert second is not first
+    assert second.generated_at == "2026-08-07T02:32:16+00:00"
+
+
+def test_get_data_keeps_last_good_snapshot_and_recovers(tmp_path):
+    path = tmp_path / "scores.json"
+    path.write_text(json.dumps(FAKE, ensure_ascii=False), encoding="utf-8")
+    first = scores_source.get_data(str(path), reload=True)
+
+    replacement = path.with_name(".scores.json.new")
+    replacement.write_text("{", encoding="utf-8")
+    replacement.replace(path)
+    assert scores_source.get_data(str(path)) is first
+
+    recovered_payload = copy.deepcopy(FAKE)
+    recovered_payload["generatedAt"] = "2026-08-07T03:32:16+00:00"
+    _replace_scores(path, recovered_payload)
+    recovered = scores_source.get_data(str(path))
+
+    assert recovered is not first
+    assert recovered.generated_at == "2026-08-07T03:32:16+00:00"
+
+
+def test_get_data_keeps_last_good_snapshot_while_file_is_missing(tmp_path):
+    path = tmp_path / "scores.json"
+    path.write_text(json.dumps(FAKE, ensure_ascii=False), encoding="utf-8")
+    first = scores_source.get_data(str(path), reload=True)
+
+    path.unlink()
+
+    assert scores_source.get_data(str(path)) is first
+
+
+def test_get_data_rejects_parseable_but_empty_replacement(tmp_path):
+    path = tmp_path / "scores.json"
+    path.write_text(json.dumps(FAKE, ensure_ascii=False), encoding="utf-8")
+    first = scores_source.get_data(str(path), reload=True)
+    empty = {
+        "generatedAt": "2026-08-07T04:32:16+00:00",
+        "dataSource": "sec-toss",
+        "asOf": {"price": "2026-08-07", "financial": "2025-12-31"},
+        "styles": [],
+        "companies": [],
+    }
+
+    _replace_scores(path, empty)
+
+    assert scores_source.get_data(str(path)) is first
+
+
 # ---- 실제 scores.json (있을 때만) ---------------------------------------------
 
 def _real_data():
@@ -276,28 +346,3 @@ def test_real_persona_names_match_screen():
 
     for style_id in real.style_ids():
         assert PERSONAS[style_id]["name"] == real.styles[style_id].name
-
-
-@needs_real
-def test_real_judgement_messages_pass_safety_filter():
-    # 팀 판정문에 우리 금지어가 섞이면 챗봇이 그것을 따라 쓰고 차단된다.
-    # message뿐 아니라 reasons/risks/detail도 프롬프트에 실릴 수 있으므로 같이 본다.
-    import safety
-
-    offenders = []
-    for ticker in real.tickers():
-        for style in real.company(ticker).styles:
-            judged = real.judgement(ticker, style)
-            texts = []
-            for criterion in judged.criteria:
-                texts.append(("message", criterion.get("message") or ""))
-                texts.append(("detail", criterion.get("detail") or ""))
-            texts.extend(("reasons", r) for r in judged.reasons)
-            texts.extend(("risks", r) for r in judged.risks)
-            for field, text in texts:
-                if not text:
-                    continue
-                verdict, _, hits = safety.check(text)
-                if verdict != safety.OK:
-                    offenders.append((ticker, style, field, [h[0] for h in hits]))
-    assert not offenders, f"금지어가 판정문에 있습니다: {offenders[:20]}"

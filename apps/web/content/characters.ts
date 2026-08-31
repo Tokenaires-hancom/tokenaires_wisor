@@ -7,10 +7,8 @@
  *  새 캐릭터를 그리면 public/characters/<id>/ 에 같은 파일 이름으로 넣고
  *  아래 배열에 id 한 줄을 더한다. */
 
-export type CharacterMood = "guide" | "great" | "nope" | "proud" | "aha";
-
 const STAND_READY = ["buffett", "graham", "lynch", "fisher", "greenblatt", "marks", "soros"];
-const MOOD_READY = ["buffett"];
+const GUIDE_READY = ["buffett"];
 
 export function hasCharacter(id: string): boolean {
   return STAND_READY.includes(id);
@@ -20,6 +18,6 @@ export function characterStand(id: string): string | null {
   return hasCharacter(id) ? `/characters/${id}/stand.webp` : null;
 }
 
-export function characterMood(id: string, mood: CharacterMood): string | null {
-  return MOOD_READY.includes(id) ? `/characters/${id}/${mood}.webp` : null;
+export function characterGuide(id: string): string | null {
+  return GUIDE_READY.includes(id) ? `/characters/${id}/guide.webp` : null;
 }

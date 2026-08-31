@@ -331,6 +331,7 @@
   z-index: 1;
   display: flex;
   justify-content: center;
+  align-items: center;
   width: 100%;
   height: 52px;
   margin: 0 0 -0.35rem;
@@ -345,7 +346,7 @@
 }
 .town-coin .duo-mascot img {
   width: 52px;
-  height: 52px;
+  height: auto;
 }
 .town-coin[data-celebrate="true"] .duo-mascot img {
   animation: town-mascot-spin 0.52s ease-in-out infinite;
