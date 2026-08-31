@@ -4564,7 +4564,8 @@ h3.sub {
 
 .chapter-page .step-bar,
 .chapter-page .step-nav,
-.chapter-page .disclaimer {
+.chapter-page .disclaimer,
+.chapter-page .lesson-feedback {
   max-width: 720px;
   margin-left: var(--chapter-gutter);
 }
@@ -4604,7 +4605,8 @@ h3.sub {
     .chapter-stage,
     .chapter-page .step-bar,
     .chapter-page .step-nav,
-  .chapter-page .disclaimer {
+    .chapter-page .disclaimer,
+  .chapter-page .lesson-feedback {
     margin-left: 0;
   }
 

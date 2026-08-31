@@ -181,8 +181,10 @@
   background: color-mix(in srgb, var(--wine) 12%, var(--surface));
   border: 1px solid var(--wine);
 }
+/* 탁한 ochre를 배경 전체에 진하게 깔면 무거워 보여서, 배경은 다른 카드와
+   같은 surface-sunk로 두고 ochre는 테두리·제목에만 남긴다. */
 .lesson-feedback[data-kind="wrong"] {
-  background: color-mix(in srgb, var(--ochre) 16%, var(--surface));
+  background: var(--surface-sunk);
   border: 1px solid var(--ochre);
 }
 @keyframes lesson-rise {
