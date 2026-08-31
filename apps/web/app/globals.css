@@ -2102,7 +2102,7 @@ h3.sub {
 
 .comparison-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 14rem;
+  grid-template-columns: minmax(0, 1fr) 21rem;
   gap: 1.5rem;
 }
 
@@ -2182,8 +2182,9 @@ h3.sub {
   margin-top: 0.35rem;
   color: color-mix(in oklab, var(--wine) 45%, var(--ink-faint));
   font-family: var(--sans);
-  font-size: 0.78rem;
-  font-weight: 400;
+  font-size: calc(0.78rem + 1px);
+  font-style: italic;
+  font-weight: 700;
   line-height: 1.45;
 }
 
@@ -2199,6 +2200,7 @@ h3.sub {
   height: inherit;
   color: var(--ink-soft);
   font-size: 0.8rem;
+  font-weight: 700;
   line-height: 1.45;
 }
 
@@ -2276,7 +2278,7 @@ h3.sub {
 .comparison-rail-count {
   margin: 0;
   color: var(--ink-soft);
-  font-size: 0.8rem;
+  font-size: calc(0.8rem + 2px);
   line-height: 1.5;
 }
 
@@ -2305,8 +2307,16 @@ h3.sub {
   display: none;
 }
 
+.comparison-guide .quiz-bubble {
+  font-size: calc(1rem - 2px);
+  font-weight: 700;
+}
+
 .comparison-rail-count .mono {
   font-family: var(--mono);
+  /* .mono의 기본 font-size(0.75rem)가 이 문단 글자보다 작아서 덮어써야 한다 */
+  font-size: 1em;
+  font-weight: 700;
   color: var(--ink);
 }
 
@@ -2332,13 +2342,18 @@ h3.sub {
    색만으로는 못 가른다 — 얼굴·이름·퍼센트를 반드시 함께 붙인다.
    글자는 본문 색을 쓴다. 막대 색을 글자에 옮기지 않는다 */
 .comparison-chart {
-  margin: 0;
+  /* .comparison-rail의 flex gap(0.9rem)에 얹어, "N칸을 골랐습니다"와 첫
+     인물 사이를 그 아래 인물 간 간격만큼 넉넉하게 띄운다 */
+  margin: 0.75rem 0 0;
   padding: 0;
   list-style: none;
 }
 
+/* 인물 일곱 명은 픽 개수와 무관하게 항상 다 나온다(0%도 그린다) — 목록 높이가
+   고정이라, 사이 간격을 넓히면 아래 여백(.comparison-reset의 margin-top:auto가
+   먹는 자리)이 다시 뺏겨 온다. 그래서 일곱 명 사이에 고르게 나눠 준다 */
 .comparison-chart li + li {
-  margin-top: 0.85rem;
+  margin-top: 1.6rem;
 }
 
 .comparison-chart-label {
@@ -2390,21 +2405,33 @@ h3.sub {
 }
 
 .comparison-reset {
-  /* 남는 자리를 전부 위로 밀어 바닥에 붙인다. 자리가 없으면 gap이 받는다 */
+  /* 남는 자리를 전부 위로 밀어 바닥에 붙인다. 자리가 없으면 gap이 받는다.
+     align-self로 폭을 내용만큼만 잡는다 — rail의 기본 stretch를 두면
+     버튼이 레일 너비 그대로 커진다 */
   margin-top: auto;
-  padding: 0;
-  border: 0;
-  border-bottom: 1px solid var(--line);
-  background: none;
-  color: var(--ink-soft);
+  align-self: center;
+  padding: 0.42rem 0.95rem;
+  border: 1px solid var(--wine);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--wine);
   font: inherit;
   font-size: 0.78rem;
+  font-weight: 700;
   cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
 }
 
 .comparison-reset:hover {
-  color: var(--wine);
-  border-bottom-color: var(--wine);
+  background: var(--wine);
+  color: var(--paper);
+}
+
+/* 살펴보기 버튼 바로 아래 놓이는 자리에서는 아래쪽 여백을 자기가 만들 이유가
+   없다 — margin-top:auto는 표 밑에 혼자 남는 기본 자리(.comparison-reset)를
+   위한 것이라 여기서는 끈다 */
+.comparison-reset-inline {
+  margin-top: 0.6rem;
 }
 
 /* ---------- 좁은 화면: 질문 단위로 다시 쌓는다 ---------- */

@@ -179,27 +179,31 @@ export default function StyleComparisonPicker({
             캐릭터-말풍선 순서와 꼬리 방향은 ChapterExercises의 퀴즈 제시 화면
             (game/lesson.css의 quiz-presenter·quiz-bubble)과 같다 — 새 말풍선을
             또 만들지 않고 그걸 그대로 쓴다. */}
-        {!opened && (
+        {!opened && total === 0 && (
           <div className="comparison-guide">
             <picture className="character">
               <img src="/mascot/teach.webp" alt="" height={150} style={{ height: 150 }} />
             </picture>
             <p className="quiz-bubble" aria-live="polite">
-              {total === 0 ? (
-                "어떤 기준을 따르시나요? 모두 골라보세요."
-              ) : (
-                <>
-                  <span className="mono">{total}칸</span>을 골랐습니다.
-                </>
-              )}
+              어떤 기준을 따르시나요? 모두 골라보세요.
             </p>
           </div>
         )}
 
-        {total > 0 && !opened && (
-          <button type="button" className="comparison-open" onClick={() => setOpened(true)}>
-            클릭하여 내 기준 살펴보기
-          </button>
+        {/* 고른 뒤에는 "N칸을 골랐습니다" 문구 대신 그 자리에 바로 살펴보기 버튼을 둔다 —
+            문구가 하던 일(몇 칸 골랐는지 알림)을 버튼이 이어받는다 */}
+        {!opened && total > 0 && (
+          <div className="comparison-guide">
+            <picture className="character">
+              <img src="/mascot/teach.webp" alt="" height={150} style={{ height: 150 }} />
+            </picture>
+            <button type="button" className="comparison-open" onClick={() => setOpened(true)}>
+              클릭하여 내 기준 살펴보기
+            </button>
+            <button type="button" className="comparison-reset comparison-reset-inline" onClick={reset}>
+              기준 초기화
+            </button>
+          </div>
         )}
 
         {opened && (
@@ -241,9 +245,9 @@ export default function StyleComparisonPicker({
           </ul>
         )}
 
-        {total > 0 && (
+        {opened && total > 0 && (
           <button type="button" className="comparison-reset" onClick={reset}>
-            고른 칸 지우기
+            기준 초기화
           </button>
         )}
       </aside>
