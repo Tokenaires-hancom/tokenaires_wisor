@@ -222,15 +222,6 @@ export function isSampleData(data: ScoresPayload = loadScores()): boolean {
   return data.dataSource === "sample";
 }
 
-/** 유니버스 전체가 걸쳐 있는 재무 기준일의 범위. */
-export function financialRange(data: ScoresPayload = loadScores()): { from: string; to: string } {
-  const dates = data.companies.map((company) => company.asOf.financial).sort();
-  return {
-    from: dates[0] ?? data.asOf.financial,
-    to: dates[dates.length - 1] ?? data.asOf.financial,
-  };
-}
-
 export function styleMeta(
   styleId: string,
   data: ScoresPayload = loadScores()
