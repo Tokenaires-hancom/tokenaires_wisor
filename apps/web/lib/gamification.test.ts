@@ -5,7 +5,6 @@ import {
   xpTotal,
   streakDays,
   dailyGoalMet,
-  isChapterUnlocked,
   masterBadges,
   masterProgress,
 } from "./gamification.ts";
@@ -79,21 +78,6 @@ test("오늘 퀴즈를 했으면 데일리 골 달성", () => {
 test("오늘 안 했으면 데일리 골 미달성", () => {
   assert.equal(dailyGoalMet(quizzedOn([1]), NOW), false);
   assert.equal(dailyGoalMet(progress([]), NOW), false);
-});
-
-test("각 대가의 1장은 항상 열려 있다", () => {
-  assert.equal(isChapterUnlocked(progress([]), "buffett", 1), true);
-});
-
-test("앞 장을 끝내야 다음 장이 열린다", () => {
-  const p = progress(["master:buffett:1"]);
-  assert.equal(isChapterUnlocked(p, "buffett", 2), true);
-  assert.equal(isChapterUnlocked(p, "buffett", 3), false);
-});
-
-test("대가끼리는 독립이다(버핏 1장으로 그레이엄 2장은 안 열림)", () => {
-  const p = progress(["master:buffett:1"]);
-  assert.equal(isChapterUnlocked(p, "graham", 2), false);
 });
 
 test("대가의 5개 장을 다 끝내면 배지를 받는다", () => {

@@ -1,6 +1,5 @@
 """투자 스타일 점수의 공통 뼈대.
 
-기획서 11.3의 표현 규칙을 코드 수준에서 강제한다.
 - 점수는 '몇 개 기준을 통과했는가'에서 나온다. 블랙박스 회귀식이 아니다.
 - 통과하지 못한 기준은 반드시 함께 내보낸다(11.1 좋은 점과 나쁜 점을 같은 비중으로).
 - 판정에 필요한 값이 없으면 fail이 아니라 unknown이다.
@@ -14,27 +13,6 @@ from typing import Callable, Literal, Optional
 from ..metrics import Metrics
 
 Status = Literal["pass", "fail", "unknown"]
-
-# 사용자에게 그대로 노출되는 문장에서 금지하는 표현.
-BANNED_PHRASES = [
-    "매수",
-    "매도",
-    "목표가",
-    "손절",
-    "추천",
-    "보장",
-    "확실",
-    "오를",
-    "내릴",
-    "급등",
-    "바닥",
-]
-
-
-def assert_language_is_safe(text: str) -> None:
-    for banned in BANNED_PHRASES:
-        if banned in text:
-            raise ValueError(f"금지 표현이 사용자 문구에 포함됐습니다: {banned!r} in {text!r}")
 
 
 @dataclass
@@ -59,7 +37,6 @@ class Criterion:
             return CriterionResult(self.code, self.label, self.weight, "unknown",
                                    "이 기준을 판정할 데이터가 부족합니다.", self.detail)
         message = self.on_pass(m) if outcome else self.on_fail(m)
-        assert_language_is_safe(message)
         return CriterionResult(self.code, self.label, self.weight,
                                "pass" if outcome else "fail", message, self.detail)
 

@@ -72,17 +72,6 @@ export function dailyGoalMet(progress: ProgressLike, now: number): boolean {
   });
 }
 
-/** 챕터 잠금 해제 여부. 대가 안에서는 순차(앞 장 완료해야 다음), 1장은 항상 열림.
- *  대가끼리는 독립이라 한 대가의 진도가 다른 대가를 열지 않는다. */
-export function isChapterUnlocked(
-  progress: ProgressLike,
-  masterId: string,
-  chapterNo: number,
-): boolean {
-  if (chapterNo <= 1) return true;
-  return progress.lessonsDone.includes(`master:${masterId}:${chapterNo - 1}`);
-}
-
 /** 5개 장을 모두 끝낸 대가들의 id. 완료 배지 표시용. */
 export function masterBadges(progress: ProgressLike): string[] {
   const done = new Set(progress.lessonsDone);

@@ -1,6 +1,6 @@
 # 시스템 설계도 — Wisor
 
-> 기준 시점 2026-08-18 · 저장소 실제 코드에서 확인한 구조입니다.
+> 기준 시점 2026-08-26 · 저장소 실제 코드에서 확인한 구조입니다.
 > 제품 의도와 규칙은 루트 `CLAUDE.md`, 영역별 상세는 각 디렉터리의 `CLAUDE.md`에 있습니다.
 > 이 문서는 **무엇이 어디서 돌고, 무엇이 무엇에 의존하는가**만 다룹니다.
 
@@ -8,11 +8,12 @@
 
 ## 0. 한 문장 요약
 
-Wisor는 **파이썬 배치가 만든 JSON 하나를 Next.js가 빌드 시점에 정적으로 구워내는 시스템**이고,
-런타임에 살아 움직이는 부분은 해설 챗봇 API 하나뿐입니다.
+Wisor는 **파이썬 배치가 만든 JSON 하나를 Next.js가 빌드 시점에 정적으로 구워내는 시스템**입니다.
+OCI에서는 Web·해설 API 컨테이너와 운영 데이터 배치를 서로 분리해 실행합니다.
 
 이 한 문장이 아래 모든 설계 판단의 이유입니다. 재무데이터가 브라우저로 나가지 않는 것도,
-점수가 바뀌려면 커밋이 필요한 것과, 비회원 기록이 인증 뒤 계정 데이터로 병합되는 방식도 여기서 나옵니다.
+Web과 Persona가 같은 운영 데이터를 쓰는 방식과 비회원 기록이 인증 뒤 계정 데이터로
+병합되는 방식도 여기서 나옵니다.
 
 ---
 
@@ -84,7 +85,7 @@ flowchart TB
 | 해설 챗봇 API | Python 3.11+ (표준 라이브러리 `ThreadingHTTPServer`) | `persona_explain/` | 대가 페르소나로 지표 해설. 세션은 메모리 | — |
 | 사용자 데이터 | 브라우저 + Supabase | `apps/web/lib/store.ts` | 비회원 임시 저장, 회원 계정 저장과 자동 이전 | 2번 |
 | 사용자 DB | PostgreSQL (Supabase) | `supabase/schema.sql`, `supabase/migrations/` | 진도·퀴즈·관심종목·학습노트·기록형 답, 사용자별 RLS | 2번 |
-| PR 자동검사 | GitHub Actions | `.github/workflows/`, `scripts/pr_checks/` | 경계 검사·형식 검사·Claude 리뷰 2종 | 2번 |
+| PR 자동검사 | GitHub Actions | `.github/workflows/check.yml`, `scripts/pr_checks/` | 배포 계약·데이터·웹 테스트·빌드·타입·번들 경계 검사 | 2번 |
 
 의존성은 웹이 `next`·`react`·`react-dom` 셋뿐이고, 배치는 표준 라이브러리 + `pytest`뿐입니다.
 챗봇 서버는 HTTP 프레임워크를 쓰지 않지만 무의존은 아닙니다 —
@@ -100,42 +101,47 @@ flowchart TB
 flowchart LR
     U(["사용자"])
 
-    subgraph RENDER["Render"]
-        W["웹 서비스 · wisor-w0fu.onrender.com · next start"]
-        P["챗봇 API · tokenaires-wisor.onrender.com · python server.py"]
+    subgraph OCI["OCI · wisor.site"]
+        N["Nginx"]
+        W["Web 컨테이너 · next start"]
+        P["Persona 컨테이너 · python server.py"]
+        B["wisor-batch.timer"]
+        D["검증·전환"]
     end
 
     subgraph GH["GitHub"]
         REPO[("저장소 · scores.json 포함")]
-        ACT["Actions · scores.yml"]
+        ACT["Actions · deploy-oci.yml"]
     end
 
     LLMP["LLM 공급자 · OpenAI 호환 엔드포인트"]
 
-    U --> W
+    U --> N --> W
     W -->|"rewrite /api/persona/:path* · PERSONA_API_ORIGIN"| P
     P --> LLMP
-    ACT -->|"커밋 push"| REPO
-    REPO -->|"재빌드 트리거"| W
+    REPO -->|"main 애플리케이션 변경"| ACT
+    ACT -->|"제한 SSH · commit SHA"| D
+    D --> W
+    D --> P
+    B -->|"운영 데이터 갱신"| W
+    B -->|"같은 scores.json"| P
 ```
 
-두 서비스를 나눈 이유는 **런타임이 다르기 때문**입니다. 웹은 Node, 챗봇은 Python이라
-한 서비스에 넣으려면 두 런타임을 담은 Dockerfile과 프로세스 매니저가 필요합니다.
+Web과 Persona 컨테이너를 나눈 이유는 **런타임이 다르기 때문**입니다. 웹은 Node,
+챗봇은 Python이고 Nginx가 둘을 `https://wisor.site` 한 주소로 연결합니다.
 
 브라우저는 챗봇 서버 주소를 모릅니다. `/api/persona`만 보고, Next의 rewrite가
 `PERSONA_API_ORIGIN`으로 넘깁니다(`apps/web/next.config.mjs`).
 이 값은 서버 환경변수라 브라우저에 노출되지 않습니다.
 
-콜드스타트는 예열로 다룹니다. `apps/web/components/PersonaChatFab.tsx`가
-마운트 시 `getHealth()`를 한 번 던져, 사용자가 버튼을 누르기 전에 서버가 깨어나도록 합니다.
+`apps/web/components/PersonaChatFab.tsx`는 마운트 시 `getHealth()`를 한 번 보내고,
+사용자가 버튼을 열 때 다시 확인합니다.
 
-배포 설정은 루트 `render.yaml`에 두 서비스로 적혀 있고, 환경변수와 주의사항은
-[배포 문서](./deploy.md)에 있습니다. 이전 배포처였던 `netlify.toml`은 삭제했습니다.
+`main` 애플리케이션 변경은 `.github/workflows/deploy-oci.yml`이 검사한 뒤 commit SHA
+단위로 배포합니다. 전환과 롤백 계약은 [OCI 자동 배포 문서](./oci-autodeploy.md)에 있습니다.
 
-> ⚠️ `render.yaml`은 저장소에 있기만 해서는 **아무 일도 하지 않습니다.** 지금 도는 두
-> 서비스는 Render UI에서 손으로 만들었고, Blueprint는 사람이 명시적으로 동기화할 때만
-> 적용됩니다. **Blueprint는 서비스를 이름으로 찾으므로**, 동기화 전에
-> [배포 문서](./deploy.md)의 "Blueprint로 동기화하기 전에"에서 이름을 대조하세요.
+기존 Render Web·Persona 서비스는 아직 살아 있어 `render.yaml`을 장애 시 참고할 설정으로
+보존합니다. 공식 운영 주소와 자동 배포 대상은 OCI입니다.
 
 ---
 
@@ -203,10 +209,11 @@ flowchart TB
 - 타입과 라벨 → `apps/web/lib/scores.types.ts` (클라이언트 안전)
 - 데이터 → 서버 컴포넌트가 필요한 만큼만 props로 (`apps/web/app/me/page.tsx`가 예시)
 
-**scores.json이 바뀌어도 커밋 없이는 배포된 화면이 바뀌지 않습니다.** 빌드 시점에 번들로
-들어가기 때문입니다. `scores.yml`이 값이 같으면 빈 커밋을 만들지 않는 이유가 이것입니다.
+Web은 `scores.json`을 빌드 시점에 번들로 굽습니다. OCI의 `wisor-batch.timer`는 검증된
+데이터로 Web·Persona를 함께 전환해 두 서비스의 기준일이 어긋나지 않게 합니다.
+`.github/workflows/scores.yml`은 예약 작업이 아니라 사람이 실행하는 복구 수단입니다.
 
-### 4.3 해설 챗봇 (런타임에 동적인 유일한 경로)
+### 4.3 해설 챗봇 (런타임 동적 API)
 
 ```mermaid
 sequenceDiagram
@@ -321,13 +328,12 @@ flowchart LR
 
 ## 6. 구조로 강제되는 규칙
 
-원칙이 문서에만 있으면 지켜지지 않습니다. 네 가지는 실행되는 코드로 막습니다.
+원칙이 문서에만 있으면 지켜지지 않습니다. 세 가지는 실행되는 코드로 막습니다.
 
 | 규칙 | 강제 지점 | 어기면 |
 |---|---|---|
 | **없는 값을 0으로 채우지 않는다** | `metrics.py`가 재료 없으면 `None`, `Criterion.test`가 `None`이면 `unknown`, 분모에서 제외 | `tests/test_scoring.py` 실패 |
 | **재무데이터가 브라우저로 안 나간다** | `lib/scores.ts` 서버 전용 + `scripts/pr_checks/boundary_check.py` | 브라우저에서 모듈 평가 시 예외 · PR 자동검사 위반 |
-| **사용자 문구에 권유가 없다** | `data-pipeline/wisor_data/styles/base.py`의 `BANNED_PHRASES` 검사 | **배치가 예외로 죽습니다.** 의도된 동작입니다 |
 | **`scores.json`을 손으로 안 고친다** | `.claude/hooks/verify.sh` (PostToolUse) | 경고. 막지는 않음 |
 
 `unknown`을 따로 두는 이유가 이 시스템에서 가장 중요합니다.
@@ -378,17 +384,21 @@ wisor/
 
 ```mermaid
 flowchart TB
-    C1["scores.yml · 3시간마다 --mode prices"] --> DIFF{"값이 바뀌었나"}
-    C2["scores.yml · 하루 1회 KST 07시 --mode full"] --> DIFF
-    DIFF -->|"예"| CM["scores.json 커밋"] --> RB["재빌드"]
-    DIFF -->|"아니오"| SKIP["커밋 안 함"]
+    M["main 애플리케이션 변경"] --> CI["deploy-oci.yml · 필수 검사"]
+    CI --> SSH["제한 SSH · commit SHA"] --> OCI["OCI 검증·전환 또는 롤백"]
+
+    T["OCI wisor-batch.timer"] --> DATA["가격·재무 갱신"]
+    DATA --> VERIFY{"데이터 검증"}
+    VERIFY -->|"통과"| SWAP["Web·Persona 함께 전환"]
+    VERIFY -->|"실패"| KEEP["기존 데이터 유지"]
 
     P1["check.yml · 두 영역 테스트 · 빌드 · 타입 · 유출 검사 (사실)"]
     P2["clean-check · push 전 로컬 · 클린 코드 5원칙 (판단)"]
 ```
 
 **`check.yml`은 병합을 막습니다.** 브랜치 보호의 필수 상태 검사(`check`)로 등록돼
-있고, 기계가 판정하는 사실만 봅니다. `docs/**`만 바뀐 PR은 `paths-ignore`로 건너뜁니다.
+있고, 기계가 판정하는 사실만 봅니다. 필수 검사가 보고 대기에 머물지 않도록 문서만 바뀐
+PR도 같은 워크플로를 실행합니다.
 
 **판단은 push 전 로컬에서 합니다.** `.claude/hooks/pre-push-check.sh`가 `git push`를
 한 번 막고 `clean-check`가 5원칙을 항목별로 판정합니다. **판정 결과는 아무것도 막지
@@ -411,34 +421,21 @@ PR에서 같은 셋을 다시 돌립니다.
 | 기준 추가·삭제 | `styles/*.py`의 `Criterion` | **기준 개수를 언급한 UI 문구** · `test_criteria_count_is_eight_for_buffett` · 배치 재실행 · 기준 막대 칸 수 |
 | 새 페이지 | `app/` | `generateStaticParams` 우선 · `params`는 Promise(await) · 점수 화면이면 `<DataStamp>` 필수 |
 
-`providers/base.py`의 `VendorProvider`는 실데이터 이전에 자리를 잡아 둔 스텁입니다.
-`--provider`가 받는 값은 `sample`과 `sec-toss`뿐이라 지금은 쓰이지 않습니다.
-
 ---
 
 ## 10. 알려진 불일치와 미결
 
 구조를 읽을 때 오해하기 쉬운 지점들입니다.
 
-**배포처 불일치는 해소했습니다.** `render.yaml`을 추가하고 `netlify.toml`을 삭제했으며,
-`scores.yml`·`pr-review.yml`의 Netlify 언급도 함께 고쳤습니다. 다만 `render.yaml`의
-서비스 이름·플랜은 URL에서 추론한 값이라 **Blueprint 동기화 전에 대조가 필요하고**,
-**main 병합 전에 Netlify 사이트의 자동 배포를 끊어야 합니다** ([배포 문서](./deploy.md)).
-
-아래 한 건은 **기록만 하고 고치지 않았습니다.**
-
-| 항목 | 실제 | 저장소가 말하는 것 |
-|---|---|---|
-| 점수 JSON ↔ 챗봇 지표 변환표 | `scores.json`에는 `magicFormulaRoc`가 있음 | `persona_explain/scores_source.py`의 변환표에 키가 없어 계약 테스트 1건 실패. 웹·배치에는 영향 없지만 해당 지표를 챗봇 앵커에 싣지 못함 |
+**공식 운영은 OCI입니다.** `render.yaml`은 아직 응답하는 기존 Render 서비스의 복구 참고용이고,
+Netlify 설정 파일은 없습니다. 저장소 밖 Netlify 연결 상태는 이 문서만으로 판정할 수 없습니다.
 
 미결 작업.
 
 - [ ] Supabase 연결 — `lib/store.ts` 함수 본문 교체
 - [ ] 점수 문구를 코드+값으로 분리 (5장 참고)
 - [ ] 프론트엔드 스모크 테스트 1개 (학습 → 퀴즈 → 스크리너 → 상세 → 노트 저장)
-- [ ] `magicFormulaRoc`를 챗봇 지표 변환표와 사용자 라벨에 연결하고 `persona_explain` 테스트 복구
-- [ ] `render.yaml`의 서비스 이름·플랜을 Render 대시보드와 대조 — 2번
-- [ ] main 병합 전 Netlify 사이트 자동 배포 해제 — 2번
+- [ ] 기존 Render·Netlify 서비스를 계속 보존할지 외부 대시보드에서 결정 — 2번
 
 ---
 

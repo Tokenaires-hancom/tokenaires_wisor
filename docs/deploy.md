@@ -40,7 +40,7 @@ Web·Persona 이미지가 모두 healthy이며 외부 경로가 응답할 때만
 `PERSONA_API_ORIGIN`이 없어 `/api/persona/health`가 500을 냈습니다. 루트 `netlify.toml`은
 삭제했고, 되살릴 일이 생기면 git 이력에서 꺼냅니다.
 
-> 🚨 **main에 병합하기 전에 Netlify 사이트의 자동 배포를 먼저 끊어야 합니다.**
+> 🚨 **Netlify 대시보드에서 저장소 연결과 자동 배포가 끊겼는지 확인해야 합니다.**
 >
 > 삭제한 `netlify.toml`은 주석에 이렇게 적혀 있었습니다 — *"Netlify UI의 Build settings는
 > 비워 둔다. 이 파일이 UI 설정을 덮어쓰므로"*, 그리고 *"이 줄이 없으면 base 디렉터리가
@@ -50,9 +50,8 @@ Web·Persona 이미지가 모두 healthy이며 외부 경로가 응답할 때만
 > 채로 그 사이트가 다시 빌드되면 `base`·`publish`·`command`가 전부 없어
 > **소스가 공개됐던 사고가 재현됩니다.**
 >
-> 사이트는 아직 살아 있습니다(`.netlify/state.json`의 siteId `480354c6-8aa8-462d-a333-4d7cc483c21f`).
-> 지금 브랜치는 `feat/*`라 운영 배포가 걸리지 않지만, **main 병합이 방아쇠입니다.**
-> 병합 전에 Netlify 대시보드에서 저장소 연결을 해제하거나 자동 배포를 끄세요. — 2번
+> 로컬 `.netlify/` 상태는 삭제했습니다. 로컬 파일 삭제는 외부 사이트나 Git 연결을 끊지
+> 않으므로, 남은 연결 여부는 Netlify 대시보드에서 확인하고 필요하면 해제하세요. — 2번
 
 ---
 
@@ -103,16 +102,18 @@ persona_explain/../apps/web/lib/generated/scores.json
 
 ---
 
-## `scores.json` 갱신이 배포로 이어지는 경로
+## `scores.json` 운영 갱신 경로
 
 ```
-.github/workflows/scores.yml (3시간마다 / 하루 1회)
-  → 배치 실행 → 값이 바뀌었을 때만 커밋
-  → 커밋 push → Render 재빌드
+OCI wisor-batch.timer
+  → /opt/wisor/batch-source의 고정된 코드로 배치 실행
+  → 데이터 검증
+  → Web·Persona를 같은 scores.json으로 함께 전환
 ```
 
-`scores.json`은 빌드 시점에 번들로 들어갑니다. **커밋 없이는 배포된 화면이 바뀌지 않습니다.**
-값이 그대로면 커밋하지 않는 이유가 이것입니다 — 빈 커밋 하나가 빌드 시간을 씁니다.
+`.github/workflows/scores.yml`은 예약 실행을 하지 않는 수동 복구 수단입니다. 선택한 브랜치에
+생성 파일을 커밋하지만, 생성 파일만 바뀐 push는 OCI 앱 자동 배포 대상에서 제외됩니다.
+운영 데이터 전환은 서버 배치 경로를 사용합니다.
 
 ---
 

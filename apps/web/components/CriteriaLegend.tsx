@@ -2,7 +2,7 @@ import CriteriaBar from "@/components/CriteriaBar";
 import CriteriaLegendExtras from "@/components/CriteriaLegendExtras";
 import DataStamp from "@/components/DataStamp";
 import type { Master } from "@/content/masters";
-import { DATA } from "@/lib/scores";
+import { loadScores } from "@/lib/scores";
 import { EXCLUSION_LABELS, indexNames, type CriterionResult, type StyleMeta } from "@/lib/scores.types";
 
 /** "이 철학이 종목을 어떻게 읽는가"를 설명하는 카드 — 지금은 `/screener/[style]`의
@@ -41,7 +41,7 @@ export default function CriteriaLegend({
      같은 숫자다(스타일별로 갈라지는 건 그 뒤 채점 단계). CriteriaLegendExtras가
      클라이언트라 lib/scores(서버 전용)를 못 읽으므로, 여기서 미리 만들어 넘긴다 —
      DataStamp를 stamp prop으로 넘기는 것과 같은 이유, 같은 방식이다. */
-  const universe = DATA.universe;
+  const universe = loadScores().universe;
   const universeExplainer = universe && (
     <div className="universe-explainer-card">
       <p>
@@ -118,7 +118,6 @@ export default function CriteriaLegend({
 
           <p className="magic-formula-note">
             금융·보험·부동산과 유틸리티는 같은 방식으로 비교하기 어려워 순위에서 제외합니다.
-            순위는 매수 신호가 아니라 추가로 살펴볼 순서입니다.
           </p>
         </section>
       )}
