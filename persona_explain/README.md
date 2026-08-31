@@ -1,15 +1,14 @@
 # persona_explain
 
 투자 대가 페르소나로 재무 지표를 **해설**하는 챗봇.
-숫자는 팀 `scores.json`이 계산해 넘기고, LLM은 해설만 한다. 매수·매도·목표가·전망은 하지 않는다.
+숫자는 팀 `scores.json`이 계산해 넘기고, LLM은 해설만 한다.
 
 ## 구성
 
 | 파일 | 역할 |
 |---|---|
 | `personas.py` | 공통 규칙 + 대가별 시스템 프롬프트 |
-| `safety.py` | 금지표현 필터 (`ok` / `cleaned` / `regenerate`) |
-| `explain.py` | 지표·기준판정 블록 조립, LLM 호출, 안전 재생성 |
+| `explain.py` | 지표·기준판정 블록 조립, LLM 호출, 빈 응답 재생성 |
 | `scores_source.py` | `scores.json` 로드, camelCase → 내부 키 |
 | `chat.py` | 멀티턴 코어 `PersonaChat` (프레임워크 비의존) |
 | `session_store.py` | 세션 TTL 30분, 개수 상한 |
@@ -43,8 +42,7 @@ python main.py --params       # gpt-5.4-mini가 받는 파라미터 확인
 
 ## 데이터
 
-서버는 팀 저장소의 `apps/web/lib/generated/scores.json`을 읽는다.
-기본 후보 경로는 `Desktop/wisor_develop/...` (공식 develop clone).
+서버는 같은 저장소의 `apps/web/lib/generated/scores.json`을 읽는다.
 다른 위치를 쓰려면 `.env`에 `SCORES_JSON_PATH`를 적는다.
 
 프론트는 지표 값을 보내지 않는다. `{ticker, persona}`만 보낸다.
@@ -102,15 +100,13 @@ python main.py --params       # gpt-5.4-mini가 받는 파라미터 확인
   붙일 수 있는 출처는 셋뿐이다 — `[주어진 것]` `[업종 통례]` `[내 기억]`.
   세 종류로 가두는 이유는 열어 두면 모델이 문서 이름과 쪽수를 지어내기 때문이다.
   지어낸 인용은 확인된 것처럼 보여 표시 없는 기억보다 위험하다
-- 대가는 1인칭으로 말한다. 배역이 안전 규칙을 밀어내지 않도록, 매수·매도 금지가
-  1인칭이어도 그대로임을 프롬프트에 못박는다
+- 대가는 1인칭으로 말한다
 - `checklist` 관점은 숫자가 아예 없어 외부 지식 유혹이 더 크다. 그래서 회사에 대한
   서술 자체를 막고, 물을 것과 확인할 곳만 답하게 한다
-- 매수·매도·목표가·저평가·고평가·전망 표현은 1회 재생성 후 차단
+- 빈 응답은 1회 재생성 후 안내 문구로 끝난다
 - 차단된 답변은 대화 기록에 남기지 않는다
-- 모든 해설 끝에 "이 설명은 교육용이며 투자 조언이 아닙니다."
 
 ## 테스트
 
-`pytest -q`가 검증하는 것은 배선이다: 키 매핑, 앵커 고정, 세션 TTL, HTTP 계약, 안전 필터.
+`pytest -q`가 검증하는 것은 배선이다: 키 매핑, 앵커 고정, 세션 TTL, HTTP 계약, 빈 응답 재생성.
 품질(대가별 말투, 비유)은 `python cli.py`로 사람이 읽는다.

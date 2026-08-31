@@ -12,8 +12,8 @@ Tailwind, CSS-in-JS, UI 라이브러리를 쓰지 않습니다. 스타일은 `ap
 ## 데이터
 
 ```
-lib/generated/scores.json   ← data-pipeline/run_batch.py가 만든다. 손으로 고치지 않는다
-lib/scores.ts               ← 서버 전용. 데이터 조회 함수
+lib/generated/scores.json   ← 로컬·빌드 fallback. data-pipeline이 만들며 손으로 고치지 않는다
+lib/scores.ts               ← 서버 전용. SCORES_JSON_PATH 우선 런타임 로더
 lib/scores.types.ts         ← 클라이언트 안전. 타입과 라벨만
 content/masters.ts          ← 대가 3명 학습 콘텐츠 + 퀴즈
 lib/store.ts                ← 사용자 데이터 저장. Supabase 교체 지점
@@ -22,7 +22,7 @@ lib/analytics.ts            ← 측정 이벤트
 
 ### 서버 전용 경계
 
-**클라이언트 컴포넌트는 `lib/scores.ts`를 import하지 않습니다.** 이 파일은 모듈 최상단에서 scores.json을 통째로 가져오므로, 클라이언트에서 참조하면 재무데이터 전부가 브라우저 번들에 실립니다. 500종목이면 5MB에 가깝습니다.
+**클라이언트 컴포넌트는 `lib/scores.ts`를 import하지 않습니다.** 이 파일은 Node 파일시스템으로 scores.json 전체를 읽으므로 클라이언트에서 실행할 수 없고, 경계를 흐리면 재무데이터가 브라우저 번들로 들어갈 수 있습니다. 500종목이면 5MB에 가깝습니다.
 
 - 타입과 라벨 → `lib/scores.types.ts`에서 가져옵니다
 - 데이터 → 서버 컴포넌트가 필요한 만큼만 props로 내려보냅니다 (`app/me/page.tsx`가 예시입니다)
@@ -75,7 +75,7 @@ lib/analytics.ts            ← 측정 이벤트
 
 ## 새 페이지를 만들 때
 
-1. `generateStaticParams`로 정적 생성 가능한지 먼저 봅니다. 지금 30개 페이지가 전부 정적입니다
+1. 배치 데이터와 무관한 페이지는 `generateStaticParams`로 정적 생성 가능한지 먼저 봅니다. `scores.json`을 읽는 페이지는 런타임 교체를 반영하도록 동적 렌더링합니다
 2. Next 15에서 `params`와 `searchParams`는 Promise입니다. `await` 합니다
 3. 상태가 필요할 때만 `"use client"`를 붙입니다
 4. 점수를 보여주는 화면에는 `<DataStamp>`를 반드시 넣습니다

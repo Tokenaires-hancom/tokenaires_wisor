@@ -5,8 +5,7 @@
 tidy()는 그걸 지운다.
 """
 
-import safety
-from explain import generate, tidy
+from explain import OK, generate, tidy
 
 
 class MarkdownAdapter:
@@ -15,8 +14,7 @@ class MarkdownAdapter:
     def chat(self, system, messages, temperature=0.0):
         return (
             "- **자본 효율성**: **충족** → 좋은 편입니다.  \n"
-            "“현금이 남는 사업”에 가깝습니다.  \n"
-            "이 설명은 교육용이며 투자 조언이 아닙니다.  "
+            "“현금이 남는 사업”에 가깝습니다.  "
         )
 
 
@@ -41,13 +39,13 @@ def test_tidy_keeps_arrows_and_bullets():
 
 
 def test_tidy_is_idempotent_on_clean_text():
-    clean = "충족입니다.\n이 설명은 교육용이며 투자 조언이 아닙니다."
+    clean = "충족입니다.\n현금이 남는 사업에 가깝습니다."
     assert tidy(clean) == clean
 
 
 def test_generate_output_is_tidied():
     text, verdict, _ = generate(MarkdownAdapter(), "sys", [{"role": "user", "content": "q"}])
-    assert verdict == safety.OK
+    assert verdict == OK
     assert "**" not in text
     assert "“" not in text and "”" not in text
     # 줄 끝 공백이 남지 않는다

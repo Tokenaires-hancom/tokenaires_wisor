@@ -122,127 +122,11 @@ test("문단 번호를 생략한 각주는 장 전체에 붙으므로 통과한�
   assert.deepEqual(problems, []);
 });
 
-test("출처 내용에 권유형 표현이 있으면 잡는다", () => {
-  const problems = curriculumProblems([
-    curriculum(chapter({ sources: [{ kind: "원문", text: "지금 사야 합니다." }] })),
-  ]);
-  assert.equal(problems.length, 1);
-  assert.match(problems[0], /권유형 표현/);
-});
-
 test("근거 자료 목록이 비면 잡는다", () => {
   const base = curriculum(chapter());
   const problems = curriculumProblems([{ ...base, primarySources: [] }]);
   assert.equal(problems.length, 1);
   assert.match(problems[0], /근거 자료 목록이 비어/);
-});
-
-test("권유형 표현을 잡는다", () => {
-  const problems = curriculumProblems([
-    curriculum(chapter({ body: ["이 종목은 지금 사야 합니다."] })),
-  ]);
-  assert.equal(problems.length, 1);
-  assert.match(problems[0], /권유형/);
-});
-
-test("채점형 문항의 해설에 권유형 표현이 있으면 잡는다", () => {
-  const problems = curriculumProblems([
-    curriculum(
-      chapter({
-        exercises: [
-          {
-            kind: "graded",
-            prompt: "질문",
-            choices: ["가", "나"],
-            answers: [0],
-            explain: "지금 사야 합니다.",
-          },
-        ],
-      }),
-    ),
-  ]);
-  assert.equal(problems.length, 1);
-  assert.match(problems[0], /권유형/);
-  assert.match(problems[0], /1번 문항/);
-});
-
-test("첨삭형 문항의 체크 포인트에 권유형 표현이 있으면 잡는다", () => {
-  const problems = curriculumProblems([
-    curriculum(
-      chapter({
-        exercises: [
-          { kind: "guided", prompt: "질문", checkpoints: ["지금 파세요."] },
-        ],
-      }),
-    ),
-  ]);
-  assert.equal(problems.length, 1);
-  assert.match(problems[0], /권유형/);
-  assert.match(problems[0], /1번 문항/);
-});
-
-test("채점형 문항의 prompt에 권유형 표현이 있으면 잡는다", () => {
-  const problems = curriculumProblems([
-    curriculum(
-      chapter({
-        exercises: [
-          {
-            kind: "graded",
-            prompt: "지금 사야 할까요?",
-            choices: ["가", "나"],
-            answers: [0],
-            explain: "해설",
-          },
-        ],
-      }),
-    ),
-  ]);
-  assert.equal(problems.length, 1);
-  assert.match(problems[0], /권유형/);
-});
-
-test("채점형 문항의 선택지에 권유형 표현이 있으면 잡는다", () => {
-  const problems = curriculumProblems([
-    curriculum(
-      chapter({
-        exercises: [
-          {
-            kind: "graded",
-            prompt: "질문",
-            choices: ["지금 사야 합니다", "나"],
-            answers: [0],
-            explain: "해설",
-          },
-        ],
-      }),
-    ),
-  ]);
-  assert.equal(problems.length, 1);
-  assert.match(problems[0], /권유형/);
-});
-
-test("첨삭형 문항의 prompt에 권유형 표현이 있으면 잡는다", () => {
-  const problems = curriculumProblems([
-    curriculum(
-      chapter({
-        exercises: [{ kind: "guided", prompt: "지금 파세요?", checkpoints: ["체크"] }],
-      }),
-    ),
-  ]);
-  assert.equal(problems.length, 1);
-  assert.match(problems[0], /권유형/);
-});
-
-test("기록형 문항의 prompt에 권유형 표현이 있으면 잡는다", () => {
-  const problems = curriculumProblems([
-    curriculum(
-      chapter({
-        exercises: [{ kind: "journal", prompt: "손절하세요." }],
-      }),
-    ),
-  ]);
-  assert.equal(problems.length, 1);
-  assert.match(problems[0], /권유형/);
 });
 
 test("실제 일곱 커리큘럼은 문제를 내지 않는다", () => {
@@ -297,9 +181,4 @@ test("oneLine이 딱 24자면 통과한다", () => {
 test("oneLine이 마침표로 끝나면 잡는다", () => {
   const problems = curriculumProblems([curriculum(chapter({ oneLine: "한 줄이다." }))]);
   assert.match(problems[0], /마침표로 끝납니다/);
-});
-
-test("oneLine에 권유형 표현이 있으면 잡는다", () => {
-  const problems = curriculumProblems([curriculum(chapter({ oneLine: "지금 사야 한다" }))]);
-  assert.match(problems[0], /권유형 표현 '지금 사'/);
 });

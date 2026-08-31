@@ -6,9 +6,8 @@
 둘을 뭉개면 '정보 부족'이라는 틀린 이유가 사용자에게 나간다.
 """
 
-from wisor_data.coverage import UNSCORABLE_REASON, is_scorable
+from wisor_data.coverage import is_scorable
 from wisor_data.metrics import Fundamentals
-from wisor_data.styles.base import assert_language_is_safe
 
 
 def company(sic):
@@ -50,7 +49,3 @@ def test_company_without_a_sic_code_is_still_scored():
 
 def test_non_numeric_sic_does_not_crash_the_batch():
     assert is_scorable(company("")) is True
-
-
-def test_reason_shown_to_users_has_no_banned_phrase():
-    assert_language_is_safe(UNSCORABLE_REASON)

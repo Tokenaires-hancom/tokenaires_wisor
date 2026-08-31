@@ -4,10 +4,11 @@
   justify-content: center;
   position: relative;
   margin-bottom: 0.5rem;
+  background: transparent;
 }
 .duo-mascot img {
-  width: 132px;
-  height: 132px;
+  width: 396px;
+  height: 396px;
   object-fit: contain;
   animation: duo-in 0.45s cubic-bezier(0.2, 1.4, 0.4, 1);
 }

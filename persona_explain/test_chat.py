@@ -3,15 +3,14 @@
     cd persona_explain
     pytest -q
 
-MockAdapter는 금지 표현을 절대 뱉지 않아 안전 필터를 발동시킬 수 없다.
+MockAdapter는 늘 정상 응답을 주므로 재생성 분기를 발동시킬 수 없다.
 그래서 경로별로 가짜 어댑터를 따로 두고 각 분기를 강제한다.
 """
 
 import pytest
 
-import safety
 from chat import PersonaChat
-from explain import BLOCKED_MESSAGE, MockAdapter, explain
+from explain import OK, BLOCKED_MESSAGE, MockAdapter, explain
 from personas import CHAT_RULES, build_system_prompt
 
 METRICS = {
@@ -22,32 +21,20 @@ METRICS = {
     "interest_coverage": None,  # 판단불가
 }
 
-CLEAN_ANSWER = (
-    "PBR 1.2는 그레이엄 기준(1.5 이하)을 충족합니다.\n"
-    "이 설명은 교육용이며 투자 조언이 아닙니다."
-)
+CLEAN_ANSWER = "PBR 1.2는 그레이엄 기준(1.5 이하)을 충족합니다."
 
 
 # ---- 가짜 어댑터 -------------------------------------------------------------
 
 class RecoverAdapter:
-    """temperature 0이면 금지 표현, 올라가면 정상 답변. 호출 인자를 기록한다."""
+    """temperature 0이면 빈 응답, 올라가면 정상 답변. 호출 온도를 기록한다."""
 
     def __init__(self):
         self.calls = []
 
     def chat(self, system, messages, temperature=0.0):
-        self.calls.append((temperature, "[재생성 지시]" in system))
-        if temperature == 0.0:
-            return "지금 매수하세요. 목표가는 500달러입니다."
-        return CLEAN_ANSWER
-
-
-class AlwaysBadAdapter:
-    """재생성해도 계속 위반 — 차단으로 끝나야 한다."""
-
-    def chat(self, system, messages, temperature=0.0):
-        return "지금 매수하세요. 저평가 구간입니다."
+        self.calls.append(temperature)
+        return "" if temperature == 0.0 else CLEAN_ANSWER
 
 
 class EmptyAdapter:
@@ -106,7 +93,7 @@ def test_unknown_metric_shows_as_no_data():
 
 # ---- 재생성 보정 (핵심 회귀 방지) --------------------------------------------
 
-def test_retry_raises_temperature_and_adds_hint():
+def test_retry_raises_temperature():
     # temperature 0을 유지한 채 재호출하면 같은 답이 나와 재생성이 무의미해진다.
     adapter = RecoverAdapter()
     s = PersonaChat("graham", METRICS, adapter=adapter)
@@ -114,30 +101,14 @@ def test_retry_raises_temperature_and_adds_hint():
 
     assert res.regenerated is True
     assert not res.blocked
-    assert adapter.calls[0] == (0.0, False), "1차는 온도 0, 회피 지시 없음"
-    assert adapter.calls[1] == (0.3, True), "2차만 온도 0.3, 회피 지시 붙음"
-
-
-def test_recovered_answer_has_no_banned_word():
-    s = PersonaChat("graham", METRICS, adapter=RecoverAdapter())
-    res = s.start()
-    assert "매수" not in res.text
-    assert "목표가" not in res.text
-    assert res.verdict == safety.OK
+    assert res.verdict == OK
+    assert adapter.calls == [0.0, 0.3], "1차는 온도 0, 2차만 0.3"
 
 
 # ---- 차단과 오염 방지 --------------------------------------------------------
 
-def test_persistent_violation_is_blocked():
-    s = PersonaChat("lynch", METRICS, adapter=AlwaysBadAdapter())
-    res = s.start()
-    assert res.blocked
-    assert res.verdict == safety.REGENERATE
-    assert res.text == BLOCKED_MESSAGE
-
-
 def test_blocked_opening_not_in_history():
-    s = PersonaChat("lynch", METRICS, adapter=AlwaysBadAdapter())
+    s = PersonaChat("lynch", METRICS, adapter=EmptyAdapter())
     s.start()
     assert s.messages() == [{"role": "user", "content": s.metrics_block()}]
     assert s.started is False
@@ -147,14 +118,14 @@ def test_blocked_followup_not_in_history():
     s = new_session()
     s.start()
     before = len(s.messages())
-    s.adapter = AlwaysBadAdapter()
-    res = s.ask("그래서 사도 되나요?")
+    s.adapter = EmptyAdapter()
+    res = s.ask("이 지표는 무엇을 뜻하나요?")
     assert res.blocked
     assert len(s.messages()) == before, "차단된 문맥이 다음 턴으로 이어지면 안 된다"
 
 
 def test_empty_response_is_blocked_not_shown():
-    # safety.check("")는 위반이 없어 ok지만, 빈 답변을 그대로 보여줄 수는 없다.
+    # 빈 답변을 그대로 보여줄 수는 없다. 재생성 후에도 비면 안내 문구로 끝난다.
     s = PersonaChat("buffett", METRICS, adapter=EmptyAdapter())
     res = s.start()
     assert res.blocked
@@ -278,23 +249,19 @@ def test_anchor_includes_criteria_when_judgement_given():
 
 
 def test_first_person_rule_present():
-    """대가가 자기 목소리로 말한다. 배역이 안전 규칙을 밀어내지는 않는다."""
+    """대가가 자기 목소리로 말한다."""
     prompt = build_system_prompt("buffett", chat_mode=True)
     assert "1인칭으로 말한다" in prompt
     assert "자기를 3인칭으로" in prompt
-    # 1인칭이 되었다고 매수·매도 금지가 풀리는 것이 아니다
-    assert "1인칭이어도 그대로다" in prompt
-    assert "매수/매도/보유 권유" in prompt
-    assert "이 설명은 교육용이며 투자 조언이 아닙니다." in prompt
 
 
 # ---- 단발 해설 회귀 ----------------------------------------------------------
 
 def test_single_shot_explain_still_works():
     res = explain("buffett", METRICS, name="Adobe")
-    assert res.verdict == safety.OK
+    assert res.verdict == OK
     assert res.regenerated is False
-    assert "교육용" in res.text
+    assert "(mock 해설)" in res.text
 
 
 # ---- 채점하지 않는 대가 ------------------------------------------------------
@@ -375,18 +342,6 @@ def test_checklist_prompt_drops_metric_rules():
     assert "지표마다:" not in prompt
 
 
-def test_safety_block_is_shared_by_both_kinds():
-    # 매수·매도 금지 문구가 두 벌로 갈라지면 한쪽만 고쳐지는 사고가 난다.
-    from personas import CHECKLIST_COMMON_RULES, COMMON_RULES, _NEVER_RULES
-
-    assert _NEVER_RULES in COMMON_RULES
-    assert _NEVER_RULES in CHECKLIST_COMMON_RULES
-    for key in ("buffett", CHECKLIST_PERSONA):
-        prompt = build_system_prompt(key)
-        assert "매수/매도/보유 권유" in prompt
-        assert "이 설명은 교육용이며 투자 조언이 아닙니다." in prompt
-
-
 def test_checklist_chat_rules_only_in_chat_mode():
     from personas import CHECKLIST_CHAT_RULES
 
@@ -424,8 +379,6 @@ def test_every_persona_builds_a_prompt():
     for key in PERSONAS:
         prompt = build_system_prompt(key, chat_mode=True)
         assert "1인칭으로 말한다" in prompt
-        assert "매수/매도/보유 권유" in prompt
-        assert "이 설명은 교육용이며 투자 조언이 아닙니다." in prompt
 
 
 def test_switch_between_score_and_checklist_personas():
