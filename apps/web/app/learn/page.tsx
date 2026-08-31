@@ -4,7 +4,7 @@ import StyleComparisonTable from "@/components/StyleComparisonTable";
 
 export default function LearnIndex() {
   return (
-    <div className="wrap learn-page">
+    <div className="wrap wrap-wide learn-page">
       <div className="learn-page-header">
         <div>
           <h1 className="thesis">대가들을 통해 투자기준을 세워 보세요</h1>

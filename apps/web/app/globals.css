@@ -3573,8 +3573,9 @@ h3.sub {
 
 /* ---------- 대가 선택 그리드 ---------- */
 
+/* max-width는 wrap-wide(1700px)가 준다 — 헤더 로고와 같은 폭이라야
+   본문 왼쪽 끝이 로고 아래에서 시작한다(Nav.tsx의 isWide 주석 참고). */
 .learn-page {
-  max-width: 1080px;
   padding-block: 2.5rem 5rem;
 }
 
@@ -3627,9 +3628,23 @@ h3.sub {
   animation: wisor-ribbon-arrow-float 1.8s ease-in-out infinite;
 }
 
-/* 대가 카드 그리드와 비교표 사이. 스크롤을 내리면 표가 다음 화면으로 이어진다 */
+/* 대가 카드 그리드와 비교표 사이. 화면 높이가 넉넉한 데스크톱에서는 첫 화면에
+ * 카드 7장까지만 보이고, "당신은 어떤 기준을 따르고 있나요?" 제목은 스크롤을
+ * 내려야 보이게 간격을 크게 잡는다 — 제목이 화면 아래 끝에 반쯤 걸쳐 보이면
+ * 잘린 것처럼 보인다.
+ * .style-comparison 기본 규칙(위)은 1080px 상한 breakout이지만, /learn은
+ * wrap-wide(1700px)라 위 대가 카드 그리드와 좌우 여백을 맞추려면 그 상한을
+ * 걷어내야 한다. /learn/compare는 여전히 좁은 wrap을 쓰므로 거기서는
+ * 이 규칙이 안 걸려 원래 1080px 상한 그대로다. */
 .learn-page .style-comparison {
-  margin-top: 3.5rem;
+  margin-top: 5rem;
+  width: 100%;
+  margin-inline: 0;
+  /* "투자 철학 한눈에 비교하기"로 넘어온 첫 화면에서 위(마스트헤드 아래
+     여백)와 아래(표+레일 바닥부터 화면 끝까지 남는 여백)를 맞춘다.
+     이 둘의 합(scroll-margin-top과 무관하게 화면 높이·콘텐츠 높이로
+     정해지는 값)을 반으로 나눈 값이라 위아래가 똑같아진다. */
+  scroll-margin-top: 6.375rem;
 }
 
 /* 링크로 건너뛴 뒤 제목·설명·표가 한 화면에 들어와야 한다. 표는 일곱 행이라
@@ -3769,7 +3784,7 @@ h3.sub {
   display: grid;
   grid-template-columns: repeat(8, minmax(0, 1fr));
   column-gap: 20px;
-  row-gap: 160px;
+  row-gap: 200px;
   list-style: none;
   margin: 0;
   padding: 0;
