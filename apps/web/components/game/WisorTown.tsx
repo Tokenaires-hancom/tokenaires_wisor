@@ -26,7 +26,7 @@ export default function WisorTown({
   const builtCount = rows.filter((r) => r.complete).length;
   const scenery = townScenery(lvl);
   const highlightIndex = highlightId ? rows.findIndex((r) => r.masterId === highlightId) : -1;
-  const coinAt = highlightIndex >= 0 ? highlightIndex : townMascotPlot(lvl);
+  const coinAt = highlightIndex >= 0 ? highlightIndex : townMascotPlot(rows);
 
   return (
     <section className="town" aria-label="내 투자 마을">
@@ -49,12 +49,6 @@ export default function WisorTown({
         <span className="town-bird town-bird-a" aria-hidden="true" />
         <span className="town-bird town-bird-b" aria-hidden="true" />
         <span className="town-bird town-bird-c" aria-hidden="true" />
-        {Array.from({ length: 5 }).map((_, m) => (
-          <span key={m} className="town-mote" data-i={m} aria-hidden="true" />
-        ))}
-        {Array.from({ length: 6 }).map((_, g) => (
-          <span key={g} className="town-grass" data-i={g} aria-hidden="true" />
-        ))}
         {mascot === "celebrate" &&
           Array.from({ length: 14 }).map((_, c) => (
             <span key={c} className="town-confetti" data-i={c} aria-hidden="true" />

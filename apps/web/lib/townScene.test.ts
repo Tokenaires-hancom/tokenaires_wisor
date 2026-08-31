@@ -17,8 +17,28 @@ test("마을 건물 아래에는 짧은 이름을 쓴다", () => {
   assert.equal(townMasterLabel("buffett"), "버핏");
 });
 
-test("코인은 레벨에 따라 건물 칸을 옮긴다", () => {
-  assert.equal(townMascotPlot(1), 0);
-  assert.equal(townMascotPlot(4), 3);
-  assert.equal(townMascotPlot(9), 6);
+test("코인은 진행 중인 건물 칸에 선다", () => {
+  const rows = [
+    { masterId: "buffett", name: "버핏", done: 5, total: 5, complete: true },
+    { masterId: "graham", name: "그레이엄", done: 2, total: 5, complete: false },
+    { masterId: "lynch", name: "린치", done: 0, total: 5, complete: false },
+  ];
+  assert.equal(townMascotPlot(rows), 1);
+});
+
+test("진행 중인 건물이 없으면 마지막으로 완성한 건물 칸에 선다", () => {
+  const rows = [
+    { masterId: "buffett", name: "버핏", done: 5, total: 5, complete: true },
+    { masterId: "graham", name: "그레이엄", done: 5, total: 5, complete: true },
+    { masterId: "lynch", name: "린치", done: 0, total: 5, complete: false },
+  ];
+  assert.equal(townMascotPlot(rows), 1);
+});
+
+test("아무 진행도 없으면 첫 칸에 선다", () => {
+  const rows = [
+    { masterId: "buffett", name: "버핏", done: 0, total: 5, complete: false },
+    { masterId: "graham", name: "그레이엄", done: 0, total: 5, complete: false },
+  ];
+  assert.equal(townMascotPlot(rows), 0);
 });
