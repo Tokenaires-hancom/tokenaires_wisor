@@ -78,7 +78,6 @@ export default function StockLenses({
       {score && (
         <p className="disclaimer">
           이 결과는 {displayedModelVersion} 모델이 공개된 재무데이터에 같은 규칙을 적용한 것입니다.
-          기업을 좁히는 출발점이며, 매수·매도 판단이 아닙니다.
         </p>
       )}
 

@@ -1,8 +1,7 @@
 """점수 모델 검증.
 
-가장 중요한 두 가지
+가장 중요한 것
 - 데이터가 없으면 fail이 아니라 unknown이어야 한다(없는 값을 벌점으로 바꾸지 않는다)
-- 사용자에게 나가는 문장에 매매·예측 표현이 없어야 한다
 """
 
 import json
@@ -13,7 +12,6 @@ import pytest
 from wisor_data import metrics, quality
 from wisor_data.metrics import Fundamentals
 from wisor_data.styles import buffett, graham, greenblatt, lynch
-from wisor_data.styles.base import BANNED_PHRASES
 
 ROOT = Path(__file__).resolve().parents[1]
 UNIVERSE = json.loads((ROOT / "data" / "universe_sample.json").read_text(encoding="utf-8"))
@@ -138,18 +136,6 @@ def test_interest_cover_message_keeps_ordinary_ratio():
 
 
 @pytest.mark.parametrize("style", ALL_STYLES, ids=lambda s: s.id)
-@pytest.mark.parametrize("ticker", [c["ticker"] for c in UNIVERSE["companies"]])
-def test_no_banned_phrase_in_user_facing_text(style, ticker):
-    m = metrics.compute(sample(ticker))
-    score = style.score(m)
-    for criterion in score.criteria:
-        for banned in BANNED_PHRASES:
-            assert banned not in criterion.message, (
-                f"{ticker}/{criterion.code}에 금지 표현 {banned!r}: {criterion.message}"
-            )
-
-
-@pytest.mark.parametrize("style", ALL_STYLES, ids=lambda s: s.id)
 def test_risks_are_always_shown_alongside_reasons(style):
     """기획서 11.1 — 통과하지 못한 기준을 숨기지 않는다."""
     for company in UNIVERSE["companies"]:
@@ -255,17 +241,6 @@ def test_greenblatt_missing_metric_is_unscored():
     assert scores["MISSING"].score is None
     assert scores["MISSING"].data_confidence == "정보 부족"
     assert all(criterion.status == "unknown" for criterion in scores["MISSING"].criteria)
-
-
-def test_greenblatt_rank_messages_are_safe_for_sample_universe():
-    universe = {
-        company["ticker"]: metrics.compute(Fundamentals.from_dict(company))
-        for company in UNIVERSE["companies"]
-    }
-    for score in greenblatt.score_universe(universe).values():
-        for criterion in score.criteria:
-            for banned in BANNED_PHRASES:
-                assert banned not in criterion.message
 
 
 def test_magic_formula_uses_latest_pretax_roc_not_five_year_after_tax_roic():

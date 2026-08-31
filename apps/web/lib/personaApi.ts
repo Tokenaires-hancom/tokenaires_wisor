@@ -27,7 +27,6 @@ export type ChatMessage = {
   verdict: string;
   regenerated: boolean;
   blocked: boolean;
-  disclaimer: string;
 };
 
 export class PersonaApiError extends Error {
@@ -99,7 +98,6 @@ export async function createSession(ticker: string, persona: string): Promise<Ch
     verdict: string;
     regenerated: boolean;
     blocked: boolean;
-    disclaimer: string;
   }>("POST", "/sessions", { ticker, persona });
   return {
     sessionId: data.sessionId,
@@ -109,7 +107,6 @@ export async function createSession(ticker: string, persona: string): Promise<Ch
     verdict: data.verdict,
     regenerated: data.regenerated,
     blocked: data.blocked,
-    disclaimer: data.disclaimer,
   };
 }
 
@@ -122,7 +119,6 @@ export async function askQuestion(sessionId: string, question: string): Promise<
     verdict: string;
     regenerated: boolean;
     blocked: boolean;
-    disclaimer: string;
   }>("POST", `/sessions/${sessionId}/messages`, { question });
   return {
     sessionId: data.sessionId,
@@ -132,7 +128,6 @@ export async function askQuestion(sessionId: string, question: string): Promise<
     verdict: data.verdict,
     regenerated: data.regenerated,
     blocked: data.blocked,
-    disclaimer: data.disclaimer,
   };
 }
 
@@ -145,7 +140,6 @@ export async function switchPersona(sessionId: string, persona: string): Promise
     verdict: string;
     regenerated: boolean;
     blocked: boolean;
-    disclaimer: string;
   }>("POST", `/sessions/${sessionId}/persona`, { persona });
   return {
     sessionId: data.sessionId,
@@ -155,7 +149,6 @@ export async function switchPersona(sessionId: string, persona: string): Promise
     verdict: data.verdict,
     regenerated: data.regenerated,
     blocked: data.blocked,
-    disclaimer: data.disclaimer,
   };
 }
 

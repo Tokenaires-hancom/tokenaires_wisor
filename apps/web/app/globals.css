@@ -5137,10 +5137,6 @@ a.watch-company-card:hover {
   background: var(--gold-line);
 }
 
-.persona-disclaimer {
-  margin: 0 1rem 0.5rem;
-}
-
 .persona-ask {
   display: grid;
   grid-template-columns: 1fr auto;

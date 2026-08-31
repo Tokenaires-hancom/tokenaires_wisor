@@ -38,8 +38,6 @@ from explain import MockAdapter, OpenAIAdapter, load_dotenv_file
 from personas import PERSONAS, is_checklist, persona_kind
 from session_store import SessionNotFound, SessionStore
 
-DISCLAIMER = "이 설명은 교육용이며 투자 조언이 아닙니다."
-
 # 질문이 길어지면 프롬프트를 밀어내 앵커 뒤의 규칙이 흐려진다.
 MAX_QUESTION_CHARS = 500
 # 본문 상한. 이 API는 짧은 JSON만 받는다.
@@ -257,7 +255,6 @@ def make_handler(adapter, store: SessionStore, data: scores_source.ScoresData,
             meta["personas"] = _supported_personas(snapshot)
             meta["sessionTtlSeconds"] = store.ttl_seconds
             meta["maxQuestionChars"] = MAX_QUESTION_CHARS
-            meta["disclaimer"] = DISCLAIMER
             return 200, meta
 
         def ep_companies(self, _match):
@@ -321,7 +318,6 @@ def make_handler(adapter, store: SessionStore, data: scores_source.ScoresData,
                 "regenerated": reply.regenerated,
                 "blocked": reply.blocked,
                 "expiresIn": round(store.expires_in(session_id)),
-                "disclaimer": DISCLAIMER,
             }
 
         def ep_switch_persona(self, match):
@@ -493,7 +489,6 @@ def _session_payload(chat: PersonaChat, reply) -> dict:
         "verdict": reply.verdict,
         "regenerated": reply.regenerated,
         "blocked": reply.blocked,
-        "disclaimer": DISCLAIMER,
     }
 
 

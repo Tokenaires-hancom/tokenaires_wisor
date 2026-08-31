@@ -171,11 +171,10 @@ def test_health(live):
 
 
 @needs_scores
-def test_meta_has_ttl_and_disclaimer(live):
+def test_meta_has_ttl(live):
     status, body, _ = _call(live["base"], "GET", "/meta")
     assert status == 200
     assert body["sessionTtlSeconds"] == 30 * 60
-    assert "교육용" in body["disclaimer"]
     assert body["asOf"]
 
 
@@ -206,7 +205,6 @@ def test_session_lifecycle(live):
     assert created["opening"]
     assert created["verdict"] == "ok"
     assert created["blocked"] is False
-    assert "교육용" in created["disclaimer"]
     assert created["judgement"]["style"] == "buffett"
 
     status, asked, _ = _call(live["base"], "POST", f"/sessions/{sid}/messages",
