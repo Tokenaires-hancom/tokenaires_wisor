@@ -1961,10 +1961,13 @@ h3.sub {
   font-weight: 700;
   letter-spacing: -0.01em;
   box-shadow: 0 4px 0 var(--gold-deep);
+  transition: background 0.08s ease, transform 0.08s ease, box-shadow 0.08s ease;
 }
 
+/* gold-deep(어두운 갈색조)을 채움색으로 쓰면 탁해 보여서, 채움은 더 밝은
+   쪽으로 섞고 아래 그림자만 gold-deep을 유지해 눌림 단차를 살린다 */
 .btn:hover {
-  background: var(--gold-deep);
+  background: color-mix(in srgb, var(--gold) 88%, white);
   box-shadow: 0 4px 0 var(--gold-deep);
 }
 

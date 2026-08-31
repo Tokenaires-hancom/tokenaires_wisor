@@ -93,7 +93,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.5rem;
   margin: 0.4rem 0 1.2rem;
 }
 .quiz-presenter-char {
@@ -103,13 +103,22 @@
   flex: none;
   object-fit: contain;
 }
+/* 문항 화면에서는 답지 4~5개와 한 화면에 들어가야 해서 다른 자리(설명 단계
+   등)의 마스코트보다 작게 쓴다. */
+.quiz-presenter .duo-mascot {
+  margin-bottom: 0;
+}
+.quiz-presenter .duo-mascot img {
+  width: 240px;
+}
 .quiz-bubble {
   position: relative;
   background: var(--paper);
   border: 1.5px solid var(--line);
   border-radius: 14px;
   padding: 0.75rem 1rem;
-  margin: 0.6rem 0 0;
+  /* 위 gap(.quiz-presenter)이 이미 간격을 주므로 margin-top은 더하지 않는다 */
+  margin: 0;
   text-align: center;
 }
 /* 꼬리: 위쪽(캐릭터)을 향한다 */

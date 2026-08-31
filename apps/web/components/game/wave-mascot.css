@@ -30,6 +30,11 @@
   font-weight: 800;
   letter-spacing: 0.06em;
   color: var(--wine);
+  animation: wave-mascot-up-in 0.25s ease-out;
+}
+@keyframes wave-mascot-up-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
 /* 본문 왼쪽 여백(--chapter-gutter)에 서서 스크롤을 따라오는 안내자.
@@ -123,7 +128,8 @@
   .wave-mascot-arm,
   .wave-mascot-arm-left,
   .wave-mascot-leg-left,
-  .wave-mascot-leg-right {
+  .wave-mascot-leg-right,
+  .wave-mascot-up {
     animation: none;
   }
 }
