@@ -25,9 +25,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-import safety
-from explain import (MockAdapter, format_company_block, format_criteria_block,
-                     format_metrics_block, generate)
+from explain import (OK, REGENERATE, MockAdapter, format_company_block,
+                     format_criteria_block, format_metrics_block, generate)
 from personas import PERSONAS, build_system_prompt, is_checklist
 
 
@@ -35,12 +34,12 @@ from personas import PERSONAS, build_system_prompt, is_checklist
 class ChatReply:
     persona: str
     text: str
-    verdict: str        # safety.OK / CLEANED / REGENERATE
+    verdict: str        # OK / REGENERATE
     regenerated: bool
 
     @property
     def blocked(self) -> bool:
-        return self.verdict == safety.REGENERATE
+        return self.verdict == REGENERATE
 
 
 class PersonaChat:
@@ -118,7 +117,7 @@ class PersonaChat:
     def start(self) -> ChatReply:
         """첫 해설을 만든다. 이미 시작했으면 기존 해설을 그대로 돌려준다."""
         if self._opening is not None:
-            return ChatReply(self.persona_key, self._opening, safety.OK, False)
+            return ChatReply(self.persona_key, self._opening, OK, False)
 
         reply = self._generate(self._build_messages())
         if not reply.blocked:

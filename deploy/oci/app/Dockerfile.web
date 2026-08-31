@@ -39,6 +39,10 @@ COPY --from=build --chown=node:node /app/node_modules ./node_modules
 COPY --from=build --chown=node:node /app/.next ./.next
 COPY --from=build --chown=node:node /app/public ./public
 COPY --from=build --chown=node:node /app/next.config.mjs ./next.config.mjs
+# lib/scores.ts가 이 파일을 런타임에 디스크에서 읽는다. 빌드 때 번들로 들어가던
+# 시절의 COPY 목록을 그대로 두면 이미지에 파일이 없어서 모든 페이지가 500이 되고,
+# healthcheck가 미는 GET / 도 같이 죽어 컨테이너가 healthy가 되지 못한다.
+COPY --from=build --chown=node:node /app/lib/generated/scores.json ./lib/generated/scores.json
 
 USER node
 EXPOSE 3000

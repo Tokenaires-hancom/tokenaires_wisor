@@ -4,19 +4,20 @@ import DataStamp, { SampleDataFlag } from "@/components/DataStamp";
 import CriteriaLegend from "@/components/CriteriaLegend";
 import ScreenerSplit from "@/components/ScreenerSplit";
 import { MASTER_BY_ID } from "@/content/masters";
-import { DATA, marketCapRanks, ranked, styleMeta } from "@/lib/scores";
+import { loadScores, marketCapRanks, ranked, styleMeta } from "@/lib/scores";
 
-export function generateStaticParams() {
-  return DATA.styles.map((model) => ({ style: model.id }));
-}
+// 배치가 scores.json을 교체하면 다음 요청이 새 값을 읽어야 한다. 정적 생성이면
+// 빌드 시점 값이 굳으므로 이 화면은 요청마다 렌더한다.
+export const dynamic = "force-dynamic";
 
 export default async function Screener({ params }: { params: Promise<{ style: string }> }) {
   const { style } = await params;
+  const data = loadScores();
   const master = MASTER_BY_ID[style as keyof typeof MASTER_BY_ID];
-  const meta = styleMeta(style);
+  const meta = styleMeta(style, data);
   if (!master || !meta) notFound();
 
-  const { scored, unscored, unscorable } = ranked(style);
+  const { scored, unscored, unscorable } = ranked(style, data);
 
   /* DataStamp는 lib/scores(서버 전용)를 읽어서 오른쪽 칸(클라이언트 컴포넌트)이
      직접 못 부른다. 세 묶음(채점·정보 부족·판정 제외) 전부 왼쪽 목록에서 고를 수
@@ -29,9 +30,9 @@ export default async function Screener({ params }: { params: Promise<{ style: st
      대가 칸), 지금 철학 하나가 아니라 종목마다 가진 철학 전부의 스탬프를 미리
      만들어 둔다 — 그래야 대가를 바꿔도 그 철학의 진짜 재무 기준일·모델 버전이
      따라온다. */
-  const marketCapRankMap = marketCapRanks();
+  const marketCapRankMap = marketCapRanks(data);
   const marketCapUniverseSize = Object.keys(marketCapRankMap).length;
-  const styleMetaById = Object.fromEntries(DATA.styles.map((m) => [m.id, styleMeta(m.id)]));
+  const styleMetaById = Object.fromEntries(data.styles.map((m) => [m.id, styleMeta(m.id, data)]));
   const stamps = Object.fromEntries(
     [...scored, ...unscored, ...unscorable].map((c) => [
       c.ticker,
@@ -52,7 +53,7 @@ export default async function Screener({ params }: { params: Promise<{ style: st
   return (
     <div className="screener-page wrap wrap-wide">
       <nav className="screener-style-tabs" aria-label="투자 철학 선택">
-        {DATA.styles
+        {data.styles
           .map((model) => {
             const modelMaster = MASTER_BY_ID[model.id as keyof typeof MASTER_BY_ID];
             const isActive = model.id === style;

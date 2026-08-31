@@ -2,12 +2,9 @@
 
 import { usePathname } from "next/navigation";
 
-/** 종목 찾기는 스크롤 없이 한 화면에 우겨넣는 고정 화면이다. 이 고지 두 문단은
- *  약 200px을 쓰는데, 그 자리를 낼 수 없어 이 라우트에서만 숨긴다.
- *
- *  핵심 한 줄("매수 권유가 아닙니다")은 `/screener/[style]/page.tsx`의
- *  `disclaimer` 문단에 이미 있다 — 문구를 새로 쓰지 않는다. 투자자 미보증
- *  문단은 `/learn/masters/[slug]`에도 필요해 다른 화면에서는 그대로 남는다.
+/** 종목 찾기는 스크롤 없이 한 화면에 우겨넣는 고정 화면이다. 이 고지 문단은
+ *  그 자리를 낼 수 없어 이 라우트에서만 숨긴다. 투자자 미보증 문단은
+ *  `/learn/masters/[slug]`에도 필요해 다른 화면에서는 그대로 남는다.
  *
  *  `Nav.tsx`가 이미 같은 방식(`usePathname()`으로 현재 라우트를 갈라 보기)을
  *  쓰고 있어서 처음 보는 패턴이 아니다. */
@@ -18,10 +15,6 @@ export default function SiteFooter() {
   return (
     <footer className="foot">
       <div className="wrap">
-        <p>
-          Wisor는 학습 서비스입니다. 매수·매도 판단, 목표가, 미래 가격 전망을 제공하지
-          않으며 최종 결정은 사용자가 합니다.
-        </p>
         <p>
           투자 철학은 각 투자자가 공개한 원칙을 참고해 Wisor가 재구성한 것입니다. 해당
           투자자가 이 서비스에 참여하거나 이를 보증하지 않습니다.

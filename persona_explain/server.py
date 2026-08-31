@@ -38,8 +38,6 @@ from explain import MockAdapter, OpenAIAdapter, load_dotenv_file
 from personas import PERSONAS, is_checklist, persona_kind
 from session_store import SessionNotFound, SessionStore
 
-DISCLAIMER = "이 설명은 교육용이며 투자 조언이 아닙니다."
-
 # 질문이 길어지면 프롬프트를 밀어내 앵커 뒤의 규칙이 흐려진다.
 MAX_QUESTION_CHARS = 500
 # 본문 상한. 이 API는 짧은 JSON만 받는다.
@@ -47,7 +45,7 @@ MAX_BODY_BYTES = 16 * 1024
 MAX_SEARCH_LIMIT = 50
 
 # 프로세스 전역 LLM 호출 상한(분당). IP 무관이라 X-Forwarded-For 스푸핑에 뚫리지
-# 않는 비용 회로차단이다. per-IP·토큰 제한은 신뢰 가능한 엣지(Netlify/Next)에서
+# 않는 비용 회로차단이다. per-IP·토큰 제한은 신뢰 가능한 엣지(Nginx/Next)에서
 # 해야 정확하므로 여기 두지 않는다. 세션 보관소가 이미 프로세스 메모리인 것과 같은
 # 단일 프로세스 가정을 따른다.
 MAX_LLM_CALLS_PER_MINUTE = 60
@@ -120,10 +118,14 @@ class RateLimitedAdapter:
 
 @dataclass
 class Conversation:
-    """세션 하나. 같은 세션에 요청이 겹쳐 들어와도 순서대로 처리하도록 잠금을 든다."""
+    """세션 하나. 시작 당시 데이터에 고정하고, 겹친 요청은 순서대로 처리한다.
+
+    배치가 scores.json을 원자 교체해도 진행 중인 대화는 시작 당시 값으로 끝난다 —
+    한 대화 안에서 기준일이 바뀌면 앞뒤 답이 어긋난다."""
 
     chat: PersonaChat
     lock: threading.Lock
+    data: scores_source.ScoresData
 
 
 # ---- 요청 검증 ---------------------------------------------------------------
@@ -177,6 +179,10 @@ def make_handler(adapter, store: SessionStore, data: scores_source.ScoresData,
 
     BaseHTTPRequestHandler는 요청마다 새로 만들어지므로 상태를 클래스 쪽에 둔다.
     """
+
+    def current_data() -> scores_source.ScoresData:
+        # 배치가 파일을 교체하면 다음 요청부터 새 스냅샷이 잡힌다.
+        return scores_source.get_data(data.path)
 
     class Handler(BaseHTTPRequestHandler):
         server_version = "PersonaChat/1.0"
@@ -232,24 +238,27 @@ def make_handler(adapter, store: SessionStore, data: scores_source.ScoresData,
         # -- 엔드포인트 --
 
         def ep_health(self, _match):
+            snapshot = current_data()
             return 200, {
                 "status": "ok",
                 "adapter": adapter.name,
                 "model": getattr(adapter, "model", None),
                 "sessions": len(store),
-                "companies": len(data),
-                "personas": _supported_personas(data),
+                "companies": len(snapshot),
+                "generatedAt": snapshot.generated_at,
+                "personas": _supported_personas(snapshot),
             }
 
         def ep_meta(self, _match):
-            meta = data.meta()
-            meta["personas"] = _supported_personas(data)
+            snapshot = current_data()
+            meta = snapshot.meta()
+            meta["personas"] = _supported_personas(snapshot)
             meta["sessionTtlSeconds"] = store.ttl_seconds
             meta["maxQuestionChars"] = MAX_QUESTION_CHARS
-            meta["disclaimer"] = DISCLAIMER
             return 200, meta
 
         def ep_companies(self, _match):
+            snapshot = current_data()
             query = parse_qs(urlsplit(self.path).query)
             q = (query.get("q") or [""])[0]
             raw_limit = (query.get("limit") or ["10"])[0]
@@ -259,17 +268,18 @@ def make_handler(adapter, store: SessionStore, data: scores_source.ScoresData,
                 raise HttpError(400, "invalid_query",
                                 "'limit'은 정수여야 합니다.") from None
             limit = max(1, min(limit, MAX_SEARCH_LIMIT))
-            return 200, {"query": q, "results": data.search(q, limit)}
+            return 200, {"query": q, "results": snapshot.search(q, limit)}
 
         def ep_create_session(self, _match):
+            snapshot = current_data()
             body = _require_object(self._read_json())
             _check_fields(body, {"ticker", "persona"})
             ticker = _text_field(body, "ticker", 16)
             persona = _text_field(body, "persona", 32)
-            _check_persona(persona, data)
+            _check_persona(persona, snapshot)
 
             try:
-                company = data.company(ticker)
+                company = snapshot.company(ticker)
             except scores_source.UnknownTicker:
                 raise HttpError(404, "unknown_ticker",
                                 f"유니버스에 없는 종목입니다: {ticker}") from None
@@ -280,12 +290,12 @@ def make_handler(adapter, store: SessionStore, data: scores_source.ScoresData,
             else:
                 chat = PersonaChat(
                     persona, company=company,
-                    judgement=data.judgement(company.ticker, persona),
-                    criteria_spec=data.styles[persona].criteria,
+                    judgement=snapshot.judgement(company.ticker, persona),
+                    criteria_spec=snapshot.styles[persona].criteria,
                     adapter=adapter,
                 )
             reply = _run(chat.start)
-            session_id = store.create(Conversation(chat, threading.Lock()))
+            session_id = store.create(Conversation(chat, threading.Lock(), snapshot))
             payload = _session_payload(chat, reply)
             payload["sessionId"] = session_id
             payload["expiresIn"] = round(store.expires_in(session_id))
@@ -308,7 +318,6 @@ def make_handler(adapter, store: SessionStore, data: scores_source.ScoresData,
                 "regenerated": reply.regenerated,
                 "blocked": reply.blocked,
                 "expiresIn": round(store.expires_in(session_id)),
-                "disclaimer": DISCLAIMER,
             }
 
         def ep_switch_persona(self, match):
@@ -316,11 +325,18 @@ def make_handler(adapter, store: SessionStore, data: scores_source.ScoresData,
             body = _require_object(self._read_json())
             _check_fields(body, {"persona"})
             persona = _text_field(body, "persona", 32)
-            _check_persona(persona, data)
+            _check_persona(persona, conv.data)
 
             with conv.lock:
                 if persona != conv.chat.persona_key:
-                    conv.chat.switch_persona(persona)
+                    if is_checklist(persona):
+                        conv.chat.switch_persona(persona)
+                    else:
+                        conv.chat.switch_persona(
+                            persona,
+                            judgement=conv.data.judgement(conv.chat.company.ticker, persona),
+                            criteria_spec=conv.data.styles[persona].criteria,
+                        )
                 reply = _run(conv.chat.start)
             payload = _session_payload(conv.chat, reply)
             payload["sessionId"] = session_id
@@ -473,16 +489,17 @@ def _session_payload(chat: PersonaChat, reply) -> dict:
         "verdict": reply.verdict,
         "regenerated": reply.regenerated,
         "blocked": reply.blocked,
-        "disclaimer": DISCLAIMER,
     }
 
 
 def make_server(host: str = "127.0.0.1", port: int = 8000, force_mock: bool = False,
                 adapter=None, store: SessionStore | None = None,
-                limiter: RateLimiter | None = None):
+                limiter: RateLimiter | None = None,
+                data: scores_source.ScoresData | None = None):
     """서버 객체를 만든다. 테스트는 port=0으로 불러 빈 포트를 받아 쓴다."""
     load_dotenv_file()
-    data = scores_source.get_data()
+    if data is None:
+        data = scores_source.get_data()
     if adapter is None:
         adapter, note = build_adapter(force_mock)
     else:

@@ -3,8 +3,7 @@
 프론트(1번 담당)는 이 파일만 보면 된다. 서버는 `python server.py`로 띄운다.
 
 기본 주소: `http://127.0.0.1:8000` (브라우저로 열면 연습장 HTML, `/health` 는 JSON)  
-세션 수명: 마지막 요청부터 **30분**. 만료·재시작 후 404가 오면 세션을 다시 만든다.  
-면책: 모든 해설 응답에 `disclaimer`가 실려 있다. 화면에 그대로 보여 주면 된다.
+세션 수명: 마지막 요청부터 **30분**. 만료·재시작 후 404가 오면 세션을 다시 만든다.
 
 숫자는 프론트가 보내지 않는다. `{ticker, persona}`만 보낸다. 서버가 팀 `scores.json`에서 지표와 기준 판정을 꺼내 쓴다. 그래서 화면에 뜬 숫자와 챗봇이 말하는 숫자가 어긋나지 않는다.
 
@@ -76,8 +75,7 @@
   "verdict": "ok",
   "regenerated": false,
   "blocked": false,
-  "expiresIn": 1800,
-  "disclaimer": "이 설명은 교육용이며 투자 조언이 아닙니다."
+  "expiresIn": 1800
 }
 ```
 
@@ -95,7 +93,7 @@
 { "question": "ROIC가 뭔가요?" }
 ```
 
-200: `{ sessionId, persona, personaName, reply, verdict, regenerated, blocked, expiresIn, disclaimer }`
+200: `{ sessionId, persona, personaName, reply, verdict, regenerated, blocked, expiresIn }`
 
 질문 공백 → 400 `invalid_field`  
 500자 초과 → 400 `too_long`  
@@ -167,7 +165,7 @@ async function startChat(ticker: string, persona: string) {
   });
   const data = await res.json();
   if (!res.ok) throw data.error;
-  return data; // sessionId, opening, disclaimer
+  return data; // sessionId, opening
 }
 
 async function ask(sessionId: string, question: string) {
@@ -182,7 +180,7 @@ async function ask(sessionId: string, question: string) {
     throw Object.assign(new Error("session gone"), { recreate: true });
   }
   if (!res.ok) throw data.error;
-  return data; // reply, disclaimer
+  return data; // reply
 }
 
 async function searchCompanies(q: string) {

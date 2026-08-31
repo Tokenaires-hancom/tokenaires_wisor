@@ -27,17 +27,20 @@ export type ChatMessage = {
   verdict: string;
   regenerated: boolean;
   blocked: boolean;
-  disclaimer: string;
 };
 
 export class PersonaApiError extends Error {
-  constructor(
-    public status: number,
-    public code: string,
-    message: string,
-  ) {
+  /** 필드를 따로 선언하고 생성자에서 넣는다. `constructor(public status: ...)`로 줄이면
+   *  npm test가 쓰는 `node --test`가 이 파일을 못 읽는다 — 타입을 지우기만 할 뿐
+   *  파라미터 프로퍼티가 만들어내는 대입문을 생성하지 못한다. */
+  status: number;
+  code: string;
+
+  constructor(status: number, code: string, message: string) {
     super(message);
     this.name = "PersonaApiError";
+    this.status = status;
+    this.code = code;
   }
 }
 
@@ -95,7 +98,6 @@ export async function createSession(ticker: string, persona: string): Promise<Ch
     verdict: string;
     regenerated: boolean;
     blocked: boolean;
-    disclaimer: string;
   }>("POST", "/sessions", { ticker, persona });
   return {
     sessionId: data.sessionId,
@@ -105,7 +107,6 @@ export async function createSession(ticker: string, persona: string): Promise<Ch
     verdict: data.verdict,
     regenerated: data.regenerated,
     blocked: data.blocked,
-    disclaimer: data.disclaimer,
   };
 }
 
@@ -118,7 +119,6 @@ export async function askQuestion(sessionId: string, question: string): Promise<
     verdict: string;
     regenerated: boolean;
     blocked: boolean;
-    disclaimer: string;
   }>("POST", `/sessions/${sessionId}/messages`, { question });
   return {
     sessionId: data.sessionId,
@@ -128,7 +128,6 @@ export async function askQuestion(sessionId: string, question: string): Promise<
     verdict: data.verdict,
     regenerated: data.regenerated,
     blocked: data.blocked,
-    disclaimer: data.disclaimer,
   };
 }
 
@@ -141,7 +140,6 @@ export async function switchPersona(sessionId: string, persona: string): Promise
     verdict: string;
     regenerated: boolean;
     blocked: boolean;
-    disclaimer: string;
   }>("POST", `/sessions/${sessionId}/persona`, { persona });
   return {
     sessionId: data.sessionId,
@@ -151,7 +149,6 @@ export async function switchPersona(sessionId: string, persona: string): Promise
     verdict: data.verdict,
     regenerated: data.regenerated,
     blocked: data.blocked,
-    disclaimer: data.disclaimer,
   };
 }
 

@@ -91,3 +91,29 @@ def test_checkpoint_from_another_price_date_is_ignored(tmp_path):
 
 def test_missing_checkpoint_is_not_an_error(tmp_path):
     assert read_checkpoint(tmp_path / "none.jsonl", "2026-08-05") == {}
+
+
+def test_incomplete_last_checkpoint_line_is_ignored(tmp_path):
+    path = tmp_path / "checkpoint.jsonl"
+    append_checkpoint(path, "2026-08-05", company("MSFT"))
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write('{"priceDate":')
+
+    restored = read_checkpoint(path, "2026-08-05")
+
+    assert list(restored) == ["MSFT"]
+
+    append_checkpoint(path, "2026-08-05", company("AAPL"))
+    restored_after_append = read_checkpoint(path, "2026-08-05")
+    assert list(restored_after_append) == ["MSFT", "AAPL"]
+
+
+def test_append_separates_a_valid_last_row_without_newline(tmp_path):
+    path = tmp_path / "checkpoint.jsonl"
+    append_checkpoint(path, "2026-08-05", company("MSFT"))
+    path.write_bytes(path.read_bytes().rstrip(b"\n"))
+
+    append_checkpoint(path, "2026-08-05", company("AAPL"))
+
+    restored = read_checkpoint(path, "2026-08-05")
+    assert list(restored) == ["MSFT", "AAPL"]
