@@ -1,5 +1,6 @@
+import { financialRange } from "@/lib/financialRange";
 import { dateRange, displayModelVersion } from "@/lib/format";
-import { financialRange, isSampleData, loadScores } from "@/lib/scores";
+import { isSampleData, loadScores } from "@/lib/scores";
 import type { ScoresPayload } from "@/lib/scores.types";
 
 /** "2026-08-07T15:31:15+09:00" → "2026-08-07 15:31 KST"
@@ -29,7 +30,7 @@ export default function DataStamp({
   confidence?: string;
 }) {
   const snapshot = data ?? loadScores();
-  const range = financialRange(snapshot);
+  const range = financialRange(snapshot.companies, snapshot.asOf.financial);
   const effectivePriceAt = priceAt === null ? undefined : (priceAt ?? snapshot.asOf.priceAt);
   const priceCoverage = snapshot.asOf.priceCoverage;
 
