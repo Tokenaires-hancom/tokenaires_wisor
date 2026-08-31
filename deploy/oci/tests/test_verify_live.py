@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import io
+import json
 import sys
 import unittest
 from contextlib import redirect_stdout
@@ -89,6 +90,42 @@ class ImagesOnlyCliTests(unittest.TestCase):
         verify_images.assert_called_once_with("tag", "code", "data")
         verify_metadata.assert_not_called()
         self.assertEqual(stdout.getvalue(), "IMAGES_OK tag=tag\n")
+
+
+class VerifyServedDataTests(unittest.TestCase):
+    CANDIDATE = {
+        "generatedAt": "2026-08-25T22:05:17+00:00",
+        "dataSource": "sec-toss",
+        "companies": [{"ticker": "AAPL"}, {"ticker": "MSFT"}],
+    }
+
+    def served(self, **overrides: object) -> bytes:
+        payload = {
+            "generatedAt": "2026-08-25T22:05:17+00:00",
+            "dataSource": "sec-toss",
+            "companies": 2,
+            # /api/data-version은 이 셋 말고도 더 보낸다. 더 온다고 실패하면 안 된다.
+            "sampleTicker": "AAPL",
+        }
+        payload.update(overrides)
+        return json.dumps(payload).encode("utf-8")
+
+    def test_accepts_the_release_being_deployed(self) -> None:
+        with patch.object(verify_live, "get", return_value=self.served()) as get:
+            verify_live.verify_served_data("web", "http://web/api/data-version", self.CANDIDATE)
+
+        get.assert_called_once_with("http://web/api/data-version")
+
+    def test_rejects_a_service_still_serving_the_previous_release(self) -> None:
+        stale = self.served(generatedAt="2026-08-20T00:00:00+00:00")
+        with patch.object(verify_live, "get", return_value=stale):
+            with self.assertRaisesRegex(SystemExit, "web metadata differs"):
+                verify_live.verify_served_data("web", "http://web/api/data-version", self.CANDIDATE)
+
+    def test_rejects_a_service_serving_a_different_company_count(self) -> None:
+        with patch.object(verify_live, "get", return_value=self.served(companies=12)):
+            with self.assertRaisesRegex(SystemExit, "persona metadata differs"):
+                verify_live.verify_served_data("persona", "http://persona/meta", self.CANDIDATE)
 
 
 if __name__ == "__main__":
