@@ -8,10 +8,11 @@
 }
 .duo-mascot img {
   width: 396px;
-  height: 396px;
-  object-fit: contain;
+  height: auto;
+  aspect-ratio: 900 / 666;
   animation: duo-in 0.45s cubic-bezier(0.2, 1.4, 0.4, 1);
 }
+
 /* 정답이면 살짝 더 통통 튀며 등장 */
 .duo-mascot[data-state="correct"] img {
   animation: duo-pop 0.55s cubic-bezier(0.2, 1.5, 0.35, 1);
