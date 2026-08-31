@@ -43,8 +43,7 @@ python main.py --params       # gpt-5.4-mini가 받는 파라미터 확인
 
 ## 데이터
 
-서버는 팀 저장소의 `apps/web/lib/generated/scores.json`을 읽는다.
-기본 후보 경로는 `Desktop/wisor_develop/...` (공식 develop clone).
+서버는 같은 저장소의 `apps/web/lib/generated/scores.json`을 읽는다.
 다른 위치를 쓰려면 `.env`에 `SCORES_JSON_PATH`를 적는다.
 
 프론트는 지표 값을 보내지 않는다. `{ticker, persona}`만 보낸다.

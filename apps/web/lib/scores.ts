@@ -249,11 +249,6 @@ export function company(
   return data.companies.find((item) => item.ticker.toUpperCase() === ticker.toUpperCase());
 }
 
-/** 티커 → 종목명. 클라이언트에 목록만 필요할 때 이것만 내려보낸다. */
-export function companyNames(data: ScoresPayload = loadScores()): Record<string, string> {
-  return Object.fromEntries(data.companies.map((item) => [item.ticker, item.name]));
-}
-
 /** 티커 → 시가총액 순위(1위부터). 순위를 매기려면 유니버스 전체를 정렬해야 하는데
  *  그 계산은 서버에서만 할 수 있다. 종목 상세를 그리는 클라이언트 컴포넌트가
  *  이 결과를 props로 받는다.

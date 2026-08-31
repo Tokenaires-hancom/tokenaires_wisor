@@ -47,7 +47,7 @@ MAX_BODY_BYTES = 16 * 1024
 MAX_SEARCH_LIMIT = 50
 
 # 프로세스 전역 LLM 호출 상한(분당). IP 무관이라 X-Forwarded-For 스푸핑에 뚫리지
-# 않는 비용 회로차단이다. per-IP·토큰 제한은 신뢰 가능한 엣지(Netlify/Next)에서
+# 않는 비용 회로차단이다. per-IP·토큰 제한은 신뢰 가능한 엣지(Nginx/Next)에서
 # 해야 정확하므로 여기 두지 않는다. 세션 보관소가 이미 프로세스 메모리인 것과 같은
 # 단일 프로세스 가정을 따른다.
 MAX_LLM_CALLS_PER_MINUTE = 60

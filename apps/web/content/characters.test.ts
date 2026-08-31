@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { characterMood, characterStand, hasCharacter } from "./characters.ts";
+import { characterGuide, characterStand, hasCharacter } from "./characters.ts";
 
 test("버핏은 캐릭터를 가지고 있다", () => {
   assert.equal(hasCharacter("buffett"), true);
@@ -25,14 +25,10 @@ test("대가별 전신 이미지 경로", () => {
   assert.equal(characterStand("soros"), "/characters/soros/stand.webp");
 });
 
-test("기분별 애니메이션 경로", () => {
-  assert.equal(characterMood("buffett", "great"), "/characters/buffett/great.webp");
-  assert.equal(characterMood("buffett", "nope"), "/characters/buffett/nope.webp");
-  assert.equal(characterMood("buffett", "guide"), "/characters/buffett/guide.webp");
-  assert.equal(characterMood("buffett", "proud"), "/characters/buffett/proud.webp");
-  assert.equal(characterMood("buffett", "aha"), "/characters/buffett/aha.webp");
+test("안내 애니메이션 경로", () => {
+  assert.equal(characterGuide("buffett"), "/characters/buffett/guide.webp");
 });
 
-test("전용 반응 이미지가 없는 대가는 null", () => {
-  assert.equal(characterMood("lynch", "great"), null);
+test("안내 이미지가 없는 대가는 null", () => {
+  assert.equal(characterGuide("lynch"), null);
 });

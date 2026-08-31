@@ -83,9 +83,6 @@ Nasdaq 스크리너(시가총액). 공급자를 새로 만들면 아래를 지�
 - 가격은 마지막 체결가. 받은 시각을 `asOf.priceAt`에 함께 남깁니다
 - 반환 전 `quality.partition()`을 통과해야 합니다
 
-`providers/base.py`의 `VendorProvider`는 실데이터를 붙이기 전에 자리를 잡아 둔
-스텁입니다. `--provider`가 받는 값은 `sample`과 `sec-toss`뿐이라 지금은 쓰이지 않습니다.
-
 ## 확인
 
 ```bash
@@ -113,9 +110,10 @@ pytest -q
 `full`은 12종목만 수집하고, `prices`는 그중 캐시에 있는 종목만 갱신한 뒤 나머지는 조용히
 옛 값을 유지합니다(`CachedPriceProvider.stale`).
 
-`.github/workflows/scores.yml`의 수동 비상 실행도 `--provider sec-toss`와 실유니버스를
-명시합니다. OCI timer와 동시에 실행하면 토스 자격증명이 충돌할 수 있으므로 먼저 timer를
-멈춥니다.
+운영 자동 갱신은 OCI의 `wisor-batch.timer`가 맡습니다. `.github/workflows/scores.yml`은
+예약 실행을 하지 않는 수동 복구 수단이며, 실행할 때 `--provider sec-toss`와 실유니버스를
+명시하고 `prices` 또는 `full`을 고릅니다. OCI timer와 동시에 실행하면 토스 자격증명이
+충돌할 수 있으므로 먼저 timer를 멈춥니다.
 
 추적 fallback을 갱신하는 릴리스에서는 `scores.json`을 함께 커밋합니다. OCI 정기 배치는
 커밋하지 않고 `deploy/oci/wisor-batch.sh`가 런타임 파일을 게시합니다. 어느 경로든 상위 종목

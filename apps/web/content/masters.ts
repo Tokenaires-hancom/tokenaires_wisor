@@ -1,10 +1,3 @@
-export type QuizItem = {
-  question: string;
-  choices: string[];
-  answer: number;
-  explain: string;
-};
-
 export type Master = {
   id: "buffett" | "graham" | "lynch" | "fisher" | "greenblatt" | "marks" | "soros";
   name: string;

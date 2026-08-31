@@ -1,5 +1,42 @@
 # 인계 노트
 
+## 2026-08-26 · Codex · 삭제 내용 사후 검토
+
+- `7bef53f` 삭제 커밋을 호출 관계·CSS token·Git 객체·운영 워크플로 기준으로 사후 검토하고
+  [`docs/deleted-content-review-2026-08-26.md`](deleted-content-review-2026-08-26.md)에 기록했습니다.
+- 사용 중인 웹·Python 기능이나 유지 대상 고유 작업의 유실은 발견하지 못했습니다. 삭제된
+  `DuoQuiz`에는 마지막 정답을 중복 합산할 수 있는 잠재 저장 오류가 있었습니다.
+- 병합 전 차단 항목은 OCI 데이터 배치입니다. GitHub 예약 실행은 최근 20건 모두 실패했고,
+  남긴 수동 workflow는 운영 데이터를 게시하지 않습니다. 서버 batch wrapper가 필요로 하는
+  `scores_contract`와 unit도 현재 브랜치에 없어 timer·journal·실제 wrapper 확인이 필요합니다.
+- 챕터 외곽 폭을 720px로 줄이면서 좌우 gutter까지 그 안에 포함돼 넓은 화면의 실제 본문 폭이
+  약 592px가 됐습니다. 연결 가능한 인앱 브라우저가 없어 데스크톱·모바일 시각 확인은 남았습니다.
+- Supabase·Netlify·옛 자격증명은 로컬 파일 삭제로 원격 폐기되지 않았습니다. dropped stash 2개와
+  OCI archive commit은 현재 dangling object로 복구 가능하지만 Git GC 이후에는 보장되지 않습니다.
+
+## 2026-08-26 · Codex · 삭제 기능·로컬 잔재 정리
+
+- `chore/remove-obsolete-features`에서 참조가 없는 `DuoQuiz`·`Quiz`, 장별 mood API와 테스트,
+  잠금 판정·점수/설정 편의 함수, 데이터 공급자 스텁과 계산·Persona 편의 함수를 제거했습니다.
+  버핏 안내 자세만 남기고 미사용 반응 이미지 5개와 마스코트 idle 이미지도 삭제했습니다.
+- `globals.css`의 미사용 규칙 475줄을 걷어내고, 캐릭터가 사라진 챕터 화면의 176px 빈 거터를
+  없애 모든 내용을 최대 720px 중앙 칼럼에 맞췄습니다. `/learn/compare`와 `/play`는 유지했습니다.
+- 삭제된 차트 분석 기능의 `supabase/schema.sql` 기준 테이블·함수·RLS·노트 필드를 제거했습니다.
+  이는 새 환경용 기준 스키마 정리일 뿐이며 원격 Supabase에서 `DROP`은 실행하지 않았습니다.
+- 최근 실행이 계속 실패하던 `scores.yml`의 예약 트리거를 없애 수동 복구 실행만 남겼습니다.
+  운영 데이터 자동 갱신은 OCI `wisor-batch.timer`, `main` 애플리케이션 자동 배포는
+  `deploy-oci.yml`이 맡습니다. 아직 응답하는 기존 Render 구성과 `render.yaml`은 보존했습니다.
+- `magicFormulaRoc`를 Persona의 `magic_formula_roc`에 연결해 기존 계약 테스트 실패를 해결하고,
+  배포·설계·학습 문서를 현재 구현과 OCI 운영 기준으로 맞췄습니다.
+- 이 작업공간에서 삭제된 `services/chart-api/`, 차트 `.next-stale-*`, `.netlify/`, 시장심리
+  `.superpowers` 잔재와 삭제 기능의 `.pyc`를 제거해 약 506MiB를 정리했습니다. 중복·삭제 기능만
+  담긴 stash 2개와 임시 OCI archive tag 1개도 삭제했고, 고유 변경이 있는 로컬 브랜치 6개는
+  모두 보존했습니다. 이 로컬 삭제는 복구 지점 없이 수행했으며 외부 서비스·DB는 건드리지 않았습니다.
+- 검증: data-pipeline 132 passed, Persona 95 passed, Web 129 passed, 엄격한 미사용 타입 검사와
+  일반 타입 검사 통과, 439/439 정적 페이지 빌드, 재무데이터 번들 경계 검사, OCI 계약 셸 테스트와
+  Python 테스트 6건 통과. `/`, `/learn`, 버핏 경로·1장, `/learn/compare`, `/play`는 모두 HTTP 200입니다.
+  연결 가능한 인앱 브라우저가 없어 자동 시각 캡처는 진행하지 못했습니다.
+
 ## 2026-08-20 · Codex · 체크리스트 기반 페르소나 채팅 확장
 
 - 점수식이 없는 하워드 막스, 필립 피셔, 조지 소로스도 페르소나 채팅에서 선택할 수 있도록 체크리스트 평가 방식을 추가했습니다.

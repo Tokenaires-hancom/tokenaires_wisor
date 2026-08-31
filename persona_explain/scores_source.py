@@ -6,7 +6,7 @@
 
 여기서 꺼내 쓰는 것 세 가지:
 
-- ``metrics``  종목별 지표 14개. camelCase 원본과 내부 키 둘 다 제공한다.
+- ``metrics``  종목별 지표 15개. camelCase 원본과 내부 키 둘 다 제공한다.
 - ``styles``   페르소나별 기준 정의(code/label/weight/detail).
                기준을 코드에 하드코딩하지 않고 여기서 읽으므로, 팀이 임계값을
                바꾸면 챗봇이 자동으로 따라간다.
@@ -67,7 +67,7 @@ METRIC_SPEC: dict[str, tuple[str, str, float | None]] = {
 # 손으로 넣는 경로와 데이터에서 오는 경로가 같은 이름을 쓰게 맞춰 준다.
 SCORES_KEY_TO_METRIC = {
     "roicAvg5y": "ROIC_5y_avg",
-    "magicFormulaRoc": "magic_formula_ROC",
+    "magicFormulaRoc": "magic_formula_roc",
     "fcfMargin": "FCF_margin",
     "fcfYield": "FCF_yield",
     "netDebtToEbitda": "netDebt_to_EBITDA",
@@ -500,25 +500,6 @@ def get_data(path: str | None = None, reload: bool = False) -> ScoresData:
         _data = candidate
         _rejected_version = None
         return _data
-
-
-# ---- 편의 함수 --------------------------------------------------------------
-
-def get_company(ticker: str) -> Company:
-    return get_data().company(ticker)
-
-
-def search_companies(query: str, limit: int = 10) -> list[dict]:
-    return get_data().search(query, limit)
-
-
-def metrics_for(ticker: str) -> dict:
-    """내부 키 → 원본 숫자."""
-    return get_data().company(ticker).metrics
-
-
-def criteria_for(ticker: str, style: str) -> Judgement:
-    return get_data().judgement(ticker, style)
 
 
 if __name__ == "__main__":

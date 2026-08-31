@@ -98,7 +98,7 @@ Wisor는 네 단계를 한 서비스 안에서 연결합니다.
 |---|---|---|---|
 | 1 | 기획 배경에서 자료를 활용해 신뢰도를 높일 것 | 커리큘럼을 원전 기반으로 세우고 **1차 자료 22건**을 대가별로 화면에 노출 | `/learn/sources`, 각 커리큘럼의 `primarySources` |
 | 2 | 대중 자료 말고 원전을 참조할 것 | 1·2차 자료를 화면에서 분리하고, 나아가 **문단마다 출처의 성격을 태깅** | `content/curriculum/types.ts` |
-| 3 | 게이밍 요소 | 듀오링고식 퀴즈와 대가별 학습 경로·진도. 단 정답이 있는 것만 채점하는 3계층 문항으로 절제(§4.1) | `components/DuoQuiz.tsx`, `MasterPath.tsx` |
+| 3 | 게이밍 요소 | 듀오링고식 퀴즈와 대가별 학습 경로·진도. 단 정답이 있는 것만 채점하는 3계층 문항으로 절제(§4.1) | `components/ChapterExercises.tsx`, `MasterPath.tsx` |
 | 4 | 기술 스택 선정 이유를 밝힐 것 | 영역별 선택과 근거를 표로 명시 | §11.2 |
 | 5 | 주요 API 명세와 전략(필요 데이터·데이터 구조) | 데이터 계약을 코드와 문서 양쪽에 고정 | §3.3 |
 | 6 | 차트 분석 VLM이 실패할 때의 fallback 전략 | **fallback을 만들지 않고 기능을 제거했습니다** | 커밋 `e9055e5` |
@@ -704,16 +704,15 @@ LLM 해설도 같은 필터를 거치고 걸리면 재생성합니다. 주식 �
 ### 11.4 검증 상태 (2026-08-19 재검증)
 
 ```
-data-pipeline   python -m pytest -q   →  128 passed
-apps/web        npm test              →   87 passed, 0 failed
-apps/web        npm run build         →  435/435 static pages ✓
-persona_explain python -m pytest -q   →   78 passed, 1 failed
+data-pipeline   python -m pytest -q   →  132 passed
+apps/web        npm test              →  129 passed, 0 failed
+apps/web        npm run build         →  439/439 static pages ✓
+persona_explain python -m pytest -q   →   95 passed
 ```
 
-챗봇의 실패 1건은 `scores.json`의 `magicFormulaRoc` 지표가
-`persona_explain/scores_source.py`의 `SCORES_KEY_TO_METRIC` 변환표에 아직 없어서 발생합니다.
-웹 화면과 데이터 배치는 정상이나, 그린블랫 마법공식 자본수익률을 챗봇 해설에 넣기 전
-두 경계의 계약을 맞춰야 합니다. 이 문서 작업에서는 코드를 변경하지 않았습니다.
+`scores.json`의 `magicFormulaRoc` 지표는
+`persona_explain/scores_source.py`에서 `magic_formula_roc`로 변환됩니다.
+변환표와 데이터 계약이 어긋나면 챗봇 계약 테스트가 실패해 누락을 잡습니다.
 
 커밋 전 검사를 통과해야 한다는 규칙이 팀 문서에 명시돼 있고, 점수 모델 파일을 수정하면
 해당 테스트가 자동으로 도는 훅이 걸려 있습니다.
