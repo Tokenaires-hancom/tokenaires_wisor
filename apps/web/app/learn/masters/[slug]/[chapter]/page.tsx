@@ -50,7 +50,7 @@ export default async function ChapterPage({
     : 0;
 
   return (
-    <div className="wrap chapter-page" style={{ paddingBlock: "3.5rem 5rem" }}>
+    <div className="wrap chapter-page">
       <div className="chapter-page-copy">
         <Link href={`/learn/masters/${master.id}`} className="chapter-back-link">
           <span aria-hidden="true">←</span>
