@@ -210,6 +210,8 @@ push 전에 `/code-review`를 돌리면 지적이 덜 나옵니다. 필수는 �
 
 ## 브랜치와 커밋
 
+이름과 형식은 여기서 정합니다. **손을 어떻게 움직이는지 — 리모트·fetch·stash·이미 병합됐는지 확인 — 는 `docs/git-workflow.md`에 있습니다.**
+
 ```
 main                 배포 가능한 상태만
   └─ feat/<영역>-<내용>     feat/screener-filter
