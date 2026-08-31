@@ -89,19 +89,24 @@ def verify_container(service: str, repository: str, tag: str) -> None:
         raise SystemExit(f"{service} container health is {health}")
 
 
-def verify_metadata(scores: Path) -> dict[str, object]:
-    candidate = json.loads(scores.read_text(encoding="utf-8"))
-    meta = json.loads(get("http://127.0.0.1:8000/meta"))
+def verify_served_data(service: str, url: str, candidate: dict[str, object]) -> None:
+    """Fail unless the running service serves the data release being deployed."""
+    served = json.loads(get(url))
     expected = {
         "generatedAt": candidate["generatedAt"],
         "dataSource": candidate["dataSource"],
         "companies": len(candidate["companies"]),
     }
-    actual = {key: meta.get(key) for key in expected}
+    actual = {key: served.get(key) for key in expected}
     if actual != expected:
         raise SystemExit(
-            f"persona metadata differs: expected={expected}, actual={actual}"
+            f"{service} metadata differs: expected={expected}, actual={actual}"
         )
+
+
+def verify_metadata(scores: Path) -> dict[str, object]:
+    candidate = json.loads(scores.read_text(encoding="utf-8"))
+    verify_served_data("persona", "http://127.0.0.1:8000/meta", candidate)
     return candidate
 
 
@@ -125,9 +130,12 @@ def main() -> None:
     for service, repository in SERVICES:
         verify_container(service, repository, args.tag)
 
-    web = get("http://127.0.0.1:3000/screener/buffett").decode("utf-8")
-    if "데이터 생성" not in web:
-        raise SystemExit("web screener did not render its data timestamp")
+    # 화면 HTML의 문구를 찾지 않는다. 문구는 기획에 따라 사라지고, 그때 배포만
+    # 조용히 실패한다(2026-08-27·08-28 롤백). 웹이 어느 데이터를 들고 있는지는
+    # /api/data-version이 기계가 읽을 형태로 말해 준다.
+    verify_served_data("web", "http://127.0.0.1:3000/api/data-version", candidate)
+    # 서버 렌더가 죽으면 500이 오므로 get()이 걸러낸다.
+    get("http://127.0.0.1:3000/screener/buffett")
     get("http://127.0.0.1/")
     print(
         "LIVE_OK "
