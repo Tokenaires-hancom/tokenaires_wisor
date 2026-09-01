@@ -10,6 +10,8 @@ import { SOROS } from "./soros.ts";
 import type { Chapter, Curriculum } from "./types.ts";
 import { curriculumProblems } from "./validate.ts";
 
+const ACTUAL_CURRICULA = [BUFFETT, GRAHAM, LYNCH, MARKS, FISHER, GREENBLATT, SOROS];
+
 function chapter(overrides: Partial<Chapter> = {}): Chapter {
   return {
     title: "제목",
@@ -130,10 +132,21 @@ test("근거 자료 목록이 비면 잡는다", () => {
 });
 
 test("실제 일곱 커리큘럼은 문제를 내지 않는다", () => {
-  assert.deepEqual(
-    curriculumProblems([BUFFETT, GRAHAM, LYNCH, MARKS, FISHER, GREENBLATT, SOROS]),
-    [],
+  assert.deepEqual(curriculumProblems(ACTUAL_CURRICULA), []);
+});
+
+test("서른다섯 장 모두 채점형 확인 문항을 가진다", () => {
+  const chapters = ACTUAL_CURRICULA.flatMap((item) => item.chapters);
+  const missing = ACTUAL_CURRICULA.flatMap((item) =>
+    item.chapters.flatMap((itemChapter, index) =>
+      itemChapter.exercises.some((exercise) => exercise.kind === "graded")
+        ? []
+        : [`${item.masterId} ${index + 1}장`],
+    ),
   );
+
+  assert.equal(chapters.length, 35);
+  assert.deepEqual(missing, []);
 });
 
 test("문제를 전부 모아서 돌려준다 — 첫 개에서 멈추지 않는다", () => {
