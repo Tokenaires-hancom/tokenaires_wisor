@@ -7,6 +7,7 @@ import { CHAPTER_SLOTS } from "@/content/curriculum/types";
 import { MASTERS, MASTER_BY_ID } from "@/content/masters";
 import { money } from "@/lib/format";
 import { xpTotal, levelFor, streakDays, dailyGoalMet, masterBadges } from "@/lib/gamification";
+import { groupJournalByPrompt } from "@/lib/journalGroups";
 import "./game/game-panel.css";
 import WisorTown from "@/components/game/WisorTown";
 import {
@@ -413,7 +414,8 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
           내가 남긴 답변 ({journal.length})
         </h2>
         <p className="lede">
-          최근에 쓴 답부터 모았습니다. 같은 질문에 다시 답해도 이전 기록은 그대로 남습니다.
+          같은 질문에 다시 답하면 이전 답 위에 쌓입니다. 그때의 판단과 지금의 판단을
+          나란히 놓고, 무엇이 바뀌었는지 읽어보세요.
         </p>
         {journal.length === 0 ? (
           <div className="card answer-history-empty">
@@ -427,17 +429,18 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
           </div>
         ) : (
           <ol className="answer-history-list">
-            {journal.map((entry) => {
-              const context = journalChapterContext(entry.id);
+            {groupJournalByPrompt(journal).map((group) => {
+              const context = journalChapterContext(group.id);
+              const latest = group.answers[0];
 
               return (
-                <li key={entry.responseId} className="answer-history-entry">
-                  <time className="answer-history-date" dateTime={entry.at}>
-                    {formatJournalDate(entry.at)}
+                <li key={group.id} className="answer-history-entry">
+                  <time className="answer-history-date" dateTime={latest.at}>
+                    {formatJournalDate(latest.at)}
                   </time>
                   <article className="answer-history-record">
                     <div className="answer-history-record-heading">
-                      <h3>{entry.prompt}</h3>
+                      <h3>{group.prompt}</h3>
                       {context && (
                         <Link
                           href={context.href}
@@ -448,7 +451,21 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
                         </Link>
                       )}
                     </div>
-                    <p className="answer-history-answer">{entry.text}</p>
+                    {group.answers.length === 1 ? (
+                      <p className="answer-history-answer">{latest.text}</p>
+                    ) : (
+                      <ol className="answer-history-revisions">
+                        {group.answers.map((answer, index) => (
+                          <li key={answer.responseId}>
+                            <p className="answer-history-revision-label">
+                              <time dateTime={answer.at}>{formatJournalDate(answer.at)}</time>
+                              {index === 0 && <span> · 가장 최근</span>}
+                            </p>
+                            <p className="answer-history-answer">{answer.text}</p>
+                          </li>
+                        ))}
+                      </ol>
+                    )}
                   </article>
                 </li>
               );

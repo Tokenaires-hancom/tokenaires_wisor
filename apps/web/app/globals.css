@@ -431,6 +431,33 @@ button {
   white-space: pre-wrap;
 }
 
+/* 같은 문항에 두 번 이상 답한 경우에만 쓴다. 왼쪽 선이 한 문항의 답들을 하나로 묶고,
+   답 하나짜리 문항은 선 없이 그대로 두어 목록 전체가 들쭉날쭉해지지 않게 한다. */
+.answer-history-revisions {
+  margin: 0.65rem 0 0;
+  padding: 0 0 0 0.9rem;
+  border-left: 2px solid var(--gold-line);
+  list-style: none;
+}
+
+.answer-history-revisions > li + li {
+  margin-top: 1.1rem;
+  padding-top: 1.1rem;
+  border-top: 1px dashed var(--line);
+}
+
+.answer-history-revision-label {
+  margin: 0;
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  line-height: 1.6;
+}
+
+.answer-history-revisions .answer-history-answer {
+  margin-top: 0.3rem;
+}
+
 .account-empty {
   display: flex;
   align-items: center;
