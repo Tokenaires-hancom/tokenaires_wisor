@@ -1,0 +1,348 @@
+#!/usr/bin/env bash
+# 서버 /usr/local/libexec/wisor-batch 의 기록입니다.
+# 이 파일을 고쳐도 서버는 바뀌지 않습니다. 반대로 서버를 고치면 여기도 같이 고쳐야
+# 기록이 사실로 남습니다. bootstrap-autodeploy.sh 는 이 파일을 설치하지 않습니다.
+set -Eeuo pipefail
+
+umask 077
+export TZ=Asia/Seoul
+export PYTHONUNBUFFERED=1
+
+readonly CONFIG=/etc/wisor/batch.conf
+readonly SECRET_ENV=/etc/wisor/batch.env
+readonly BUILD_ENV=/etc/wisor/web-build.env
+readonly PERSONA_REQUIREMENTS_LOCK=/etc/wisor/persona-requirements.lock
+readonly SOURCE=/opt/wisor/batch-source
+readonly PYTHON=/opt/wisor/batch-venv/bin/python
+readonly STATE=/var/lib/wisor-batch
+readonly RELEASES_DIR="${STATE}/releases"
+readonly CHECKPOINT_DIR="${STATE}/checkpoints"
+readonly RUN_ROOT="${STATE}/runs"
+readonly RELEASE_ENV=/etc/wisor/release.env
+readonly COMPOSE=/opt/wisor/deploy/compose.yaml
+readonly DOCKERFILE_WEB=/opt/wisor/deploy/Dockerfile.web
+readonly DOCKERFILE_PERSONA=/opt/wisor/deploy/Dockerfile.persona
+readonly VALIDATOR=/usr/local/libexec/wisor-validate-scores.py
+readonly LIVE_CHECK=/usr/local/libexec/wisor-verify-live.py
+readonly BATCH_LOCK=/run/lock/wisor-batch.lock
+readonly DEPLOY_LOCK=/run/lock/wisor-deploy.lock
+
+log() {
+  printf '%s [wisor-batch] %s\n' "$(date --iso-8601=seconds)" "$*"
+}
+
+die() {
+  log "ERROR: $*"
+  exit 1
+}
+
+[[ ${EUID} -eq 0 ]] || die "run as root (systemctl start wisor-batch)"
+[[ -r "${CONFIG}" && -r "${SECRET_ENV}" && -r "${BUILD_ENV}" \
+  && -r "${PERSONA_REQUIREMENTS_LOCK}" ]] || die "configuration is missing"
+
+: "${WISOR_CODE_SHA:?WISOR_CODE_SHA is required}"
+: "${WISOR_FULL_HOUR_KST:?WISOR_FULL_HOUR_KST is required}"
+: "${TOSS_INVEST_CLIENT_ID:?TOSS_INVEST_CLIENT_ID is required}"
+: "${TOSS_INVEST_CLIENT_SECRET:?TOSS_INVEST_CLIENT_SECRET is required}"
+: "${WISOR_SEC_USER_AGENT:?WISOR_SEC_USER_AGENT is required}"
+
+mkdir -p "${RELEASES_DIR}" "${CHECKPOINT_DIR}" "${RUN_ROOT}"
+exec 9>"${BATCH_LOCK}"
+if ! flock -n 9; then
+  log "another batch is already running; this trigger is skipped"
+  exit 0
+fi
+
+current_source=$(readlink -f /opt/wisor/current)
+[[ -d "${current_source}" ]] || die "/opt/wisor/current is invalid"
+initial_current_source=${current_source}
+current_sha=$(git -C "${current_source}" rev-parse HEAD)
+[[ "${current_sha}" == "${WISOR_CODE_SHA}" ]] || die "deployed code changed; repin batch source before running"
+source_sha=$(git -C "${SOURCE}" rev-parse HEAD)
+[[ "${source_sha}" == "${WISOR_CODE_SHA}" ]] || die "batch source SHA differs from configuration"
+
+active_tag=$(sed -n -E 's/^WISOR_(SHA|IMAGE_TAG)=([^[:space:]]+)$/\2/p' "${RELEASE_ENV}" | head -1)
+[[ "${active_tag}" =~ ^[A-Za-z0-9_.-]+$ ]] || die "active image tag is invalid"
+stable_dir="${RELEASES_DIR}/${active_tag}"
+[[ -s "${stable_dir}/scores.json" && -s "${stable_dir}/fundamentals.json" ]] \
+  || die "stable data release is missing for tag=${active_tag}"
+initial_compose_sha=$(sha256sum "${COMPOSE}" | awk '{print $1}')
+initial_web_dockerfile_sha=$(sha256sum "${DOCKERFILE_WEB}" | awk '{print $1}')
+initial_persona_dockerfile_sha=$(sha256sum "${DOCKERFILE_PERSONA}" | awk '{print $1}')
+
+# Heal an interrupted previous reload before producing another candidate.
+if ! "${PYTHON}" "${LIVE_CHECK}" "${stable_dir}/scores.json" --tag "${active_tag}"; then
+  log "active containers differ from release.env; reconciling once"
+  systemctl reload wisor.service || die "could not reconcile the active application release"
+  "${PYTHON}" "${LIVE_CHECK}" "${stable_dir}/scores.json" --tag "${active_tag}" \
+    || die "active application release is inconsistent"
+fi
+
+mode=${1:-auto}
+case "${mode}" in
+  auto|prices|full) ;;
+  *) die "usage: wisor-batch [auto|prices|full]" ;;
+esac
+
+today=$(date +%F)
+if [[ "${mode}" == auto ]]; then
+  hour=$(date +%H)
+  last_full=$("${PYTHON}" - "${stable_dir}/fundamentals.json" <<'PY'
+import json
+import sys
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+built_at = json.load(open(sys.argv[1], encoding="utf-8"))["builtAt"]
+print(datetime.fromisoformat(built_at.replace("Z", "+00:00")).astimezone(
+    ZoneInfo("Asia/Seoul")
+).date().isoformat())
+PY
+)
+  if (( 10#${hour} >= 10#${WISOR_FULL_HOUR_KST} )) && [[ "${last_full}" != "${today}" ]]; then
+    mode=full
+  else
+    mode=prices
+  fi
+fi
+log "starting mode=${mode} code=${WISOR_CODE_SHA:0:12}"
+
+run_dir=$(mktemp -d "${RUN_ROOT}/run.XXXXXXXX")
+repo_dir="${run_dir}/repo"
+candidate_fundamentals="${run_dir}/fundamentals.json"
+candidate_scores="${repo_dir}/apps/web/lib/generated/scores.json"
+new_tag=""
+candidate_state_release=""
+candidate_state_created=0
+state_staging=""
+worktree_added=0
+release_switched=0
+deployment_committed=0
+rollback_failed=0
+old_release="${run_dir}/release.env.previous"
+
+cleanup() {
+  status=$?
+  trap - EXIT INT TERM
+  set +e
+  if (( release_switched == 1 && deployment_committed == 0 )) && [[ -s "${old_release}" ]]; then
+    log "restoring the previous application release"
+    restore_tmp=$(mktemp /etc/wisor/.release.env.rollback.XXXXXX)
+    cp "${old_release}" "${restore_tmp}"
+    chown root:root "${restore_tmp}"
+    chmod 0644 "${restore_tmp}"
+    mv -f "${restore_tmp}" "${RELEASE_ENV}"
+    if systemctl reload wisor.service \
+      && "${PYTHON}" "${LIVE_CHECK}" "${stable_dir}/scores.json" --tag "${active_tag}"; then
+      release_switched=0
+      log "previous application release is healthy"
+    else
+      rollback_failed=1
+      status=1
+      log "CRITICAL: rollback health verification failed; preserving ${run_dir} and tag=${new_tag}"
+      docker compose --env-file "${RELEASE_ENV}" -f "${COMPOSE}" ps || true
+    fi
+  fi
+  if (( rollback_failed == 0 && status != 0 && deployment_committed == 0 )) && [[ -n "${new_tag}" ]]; then
+    docker image rm "wisor-web:${new_tag}" "wisor-persona:${new_tag}" >/dev/null 2>&1 || true
+  fi
+  if (( rollback_failed == 0 && deployment_committed == 0 && candidate_state_created == 1 )); then
+    case "${candidate_state_release}" in
+      "${RELEASES_DIR}"/*) rm -rf --one-file-system "${candidate_state_release}" ;;
+      *) log "refusing to remove unexpected data release path: ${candidate_state_release}" ;;
+    esac
+  fi
+  if (( rollback_failed == 0 )) && [[ -n "${state_staging}" && -d "${state_staging}" ]]; then
+    case "${state_staging}" in
+      "${RELEASES_DIR}"/.*) rm -rf --one-file-system "${state_staging}" ;;
+      *) log "refusing to remove unexpected state staging path: ${state_staging}" ;;
+    esac
+  fi
+  if (( rollback_failed == 0 && worktree_added == 1 )); then
+    git -C "${SOURCE}" worktree remove --force "${repo_dir}" >/dev/null 2>&1 || true
+    git -C "${SOURCE}" worktree prune >/dev/null 2>&1 || true
+  fi
+  if (( rollback_failed == 0 )); then
+    case "${run_dir}" in
+      "${RUN_ROOT}"/run.*) rm -rf --one-file-system "${run_dir}" ;;
+      *) log "refusing to remove unexpected run path: ${run_dir}" ;;
+    esac
+  fi
+  docker buildx prune --force \
+    --max-used-space 2gb \
+    --reserved-space 512mb \
+    --min-free-space 10gb \
+    >/dev/null 2>&1 || log "warning: build cache cleanup failed"
+  exit "${status}"
+}
+trap 'exit 130' INT
+trap 'exit 143' TERM
+trap cleanup EXIT
+
+git -C "${SOURCE}" worktree add --detach "${repo_dir}" "${WISOR_CODE_SHA}"
+worktree_added=1
+cp --reflink=auto "${stable_dir}/fundamentals.json" "${candidate_fundamentals}"
+cp --reflink=auto "${stable_dir}/scores.json" "${candidate_scores}"
+cp "${PERSONA_REQUIREMENTS_LOCK}" "${repo_dir}/persona_explain/requirements.txt"
+
+checkpoint_date=$(TZ=America/New_York date --date='1 day ago' +%F)
+checkpoint_file="${CHECKPOINT_DIR}/sec-toss-${checkpoint_date}.jsonl"
+find "${CHECKPOINT_DIR}" -maxdepth 1 -type f -name 'sec-toss-*.jsonl' -mtime +7 -delete
+
+(
+  cd "${repo_dir}/data-pipeline"
+  "${PYTHON}" run_batch.py \
+    --provider sec-toss \
+    --mode "${mode}" \
+    --universe "${repo_dir}/data-pipeline/data/universe_us.json" \
+    --fundamentals-cache "${candidate_fundamentals}" \
+    --checkpoint "${checkpoint_file}" \
+    --out "${candidate_scores}"
+  if [[ "${mode}" == full ]]; then
+    # Full uses the last completed NY candle for its cache. Overlay the current Toss
+    # market snapshot so a financial refresh never makes the live price go backwards.
+    "${PYTHON}" run_batch.py \
+      --provider sec-toss \
+      --mode prices \
+      --universe "${repo_dir}/data-pipeline/data/universe_us.json" \
+      --fundamentals-cache "${candidate_fundamentals}" \
+      --checkpoint "${checkpoint_file}" \
+      --out "${candidate_scores}"
+  fi
+  "${PYTHON}" -m pytest -q
+)
+
+"${PYTHON}" "${VALIDATOR}" \
+  --mode "${mode}" \
+  --stable-scores "${stable_dir}/scores.json" \
+  --candidate-scores "${candidate_scores}" \
+  --stable-fundamentals "${stable_dir}/fundamentals.json" \
+  --candidate-fundamentals "${candidate_fundamentals}" \
+  --minimum-ratio 0.98
+
+mkdir -p "${repo_dir}/persona_explain/data"
+cp --reflink=auto "${candidate_scores}" "${repo_dir}/persona_explain/data/scores.json"
+data_sha=$(sha256sum "${candidate_scores}" | awk '{print $1}')
+stamp=$(date -u +%Y%m%dT%H%M%SZ)
+new_tag="${WISOR_CODE_SHA:0:12}-${stamp}-${data_sha:0:12}"
+
+available_kib=$(df --output=avail -k / | tail -n 1 | tr -d ' ')
+if (( available_kib < 10 * 1024 * 1024 )); then
+  log "disk free space is below 10 GiB; pruning build cache before build"
+  docker buildx prune --force \
+    --max-used-space 2gb \
+    --reserved-space 512mb \
+    --min-free-space 10gb
+  available_kib=$(df --output=avail -k / | tail -n 1 | tr -d ' ')
+  (( available_kib >= 10 * 1024 * 1024 )) || die "less than 10 GiB is free after cache cleanup"
+fi
+
+log "building persona image tag=${new_tag}"
+docker buildx build --load --progress=plain \
+  --resource memory=850m \
+  --resource memory-swap=2g \
+  --resource cpu-quota=70000 \
+  --label "org.opencontainers.image.revision=${WISOR_CODE_SHA}" \
+  --label "com.wisor.data-sha256=${data_sha}" \
+  --label "com.wisor.batch=true" \
+  --build-arg "WISOR_SHA=${WISOR_CODE_SHA}" \
+  -f "${DOCKERFILE_PERSONA}" \
+  -t "wisor-persona:${new_tag}" \
+  "${repo_dir}/persona_explain"
+
+: "${NEXT_PUBLIC_SUPABASE_URL:?NEXT_PUBLIC_SUPABASE_URL is required}"
+: "${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:?NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is required}"
+: "${PERSONA_API_ORIGIN:?PERSONA_API_ORIGIN is required}"
+
+log "building web image tag=${new_tag}"
+docker buildx build --load --progress=plain \
+  --resource memory=850m \
+  --resource memory-swap=2g \
+  --resource cpu-quota=70000 \
+  --label "org.opencontainers.image.revision=${WISOR_CODE_SHA}" \
+  --label "com.wisor.data-sha256=${data_sha}" \
+  --label "com.wisor.batch=true" \
+  --build-arg "WISOR_SHA=${WISOR_CODE_SHA}" \
+  --build-arg NEXT_PUBLIC_SUPABASE_URL \
+  --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY \
+  --build-arg PERSONA_API_ORIGIN \
+  -f "${DOCKERFILE_WEB}" \
+  -t "wisor-web:${new_tag}" \
+  "${repo_dir}/apps/web"
+
+for image in "wisor-web:${new_tag}" "wisor-persona:${new_tag}"; do
+  [[ $(docker image inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' "${image}") == "${WISOR_CODE_SHA}" ]] \
+    || die "${image} has the wrong code revision label"
+  [[ $(docker image inspect --format '{{ index .Config.Labels "com.wisor.data-sha256" }}' "${image}") == "${data_sha}" ]] \
+    || die "${image} has the wrong data hash label"
+done
+
+# Store both data files as one immutable release before changing the app pointer.
+state_staging=$(mktemp -d "${RELEASES_DIR}/.${new_tag}.XXXXXXXX")
+install -o root -g root -m 0600 "${candidate_scores}" "${state_staging}/scores.json"
+install -o root -g root -m 0600 "${candidate_fundamentals}" "${state_staging}/fundamentals.json"
+candidate_state_release="${RELEASES_DIR}/${new_tag}"
+[[ ! -e "${candidate_state_release}" ]] || die "candidate data release already exists"
+mv -T "${state_staging}" "${candidate_state_release}"
+candidate_state_created=1
+state_staging=""
+
+exec 8>"${DEPLOY_LOCK}"
+flock -w 300 8 || die "timed out waiting for the deployment lock"
+[[ $(readlink -f /opt/wisor/current) == "${initial_current_source}" ]] \
+  || die "current release path changed while the batch was building"
+current_sha=$(git -C "${initial_current_source}" rev-parse HEAD)
+[[ "${current_sha}" == "${WISOR_CODE_SHA}" ]] || die "code deployment changed while the batch was building"
+[[ $(sha256sum "${COMPOSE}" | awk '{print $1}') == "${initial_compose_sha}" ]] \
+  || die "compose configuration changed while the batch was building"
+[[ $(sha256sum "${DOCKERFILE_WEB}" | awk '{print $1}') == "${initial_web_dockerfile_sha}" ]] \
+  || die "web Dockerfile changed while the batch was building"
+[[ $(sha256sum "${DOCKERFILE_PERSONA}" | awk '{print $1}') == "${initial_persona_dockerfile_sha}" ]] \
+  || die "persona Dockerfile changed while the batch was building"
+[[ $(sed -n -E 's/^WISOR_(SHA|IMAGE_TAG)=([^[:space:]]+)$/\2/p' "${RELEASE_ENV}" | head -1) == "${active_tag}" ]] \
+  || die "active image tag changed while the batch was building"
+
+cp "${RELEASE_ENV}" "${old_release}"
+release_tmp=$(mktemp /etc/wisor/.release.env.batch.XXXXXX)
+printf 'WISOR_SHA=%s\n' "${new_tag}" >"${release_tmp}"
+chown root:root "${release_tmp}"
+chmod 0644 "${release_tmp}"
+mv -f "${release_tmp}" "${RELEASE_ENV}"
+release_switched=1
+
+if ! systemctl reload wisor.service; then
+  die "new containers did not become healthy"
+fi
+if ! "${PYTHON}" "${LIVE_CHECK}" "${candidate_scores}" --tag "${new_tag}" --data-sha "${data_sha}"; then
+  die "live application does not expose the candidate data"
+fi
+
+deployment_committed=1
+release_switched=0
+if [[ "${mode}" == full ]]; then
+  rm -f -- "${checkpoint_file}" || log "warning: could not remove the completed full checkpoint"
+fi
+log "deployment committed tag=${new_tag}"
+
+# Retain the three newest generated releases. The original code-deploy tag is not touched.
+mapfile -t generated_tags < <(
+  {
+    docker image ls wisor-web --format '{{.Tag}}'
+    docker image ls wisor-persona --format '{{.Tag}}'
+  } | awk -v prefix="${WISOR_CODE_SHA:0:12}-" 'index($0, prefix) == 1' | sort -u
+)
+if (( ${#generated_tags[@]} > 3 )); then
+  remove_count=$(( ${#generated_tags[@]} - 3 ))
+  for ((index=0; index<remove_count; index++)); do
+    old_tag=${generated_tags[index]}
+    docker image rm "wisor-web:${old_tag}" "wisor-persona:${old_tag}" >/dev/null 2>&1 \
+      || log "warning: could not remove old image tag=${old_tag}"
+    old_data_release="${RELEASES_DIR}/${old_tag}"
+    case "${old_data_release}" in
+      "${RELEASES_DIR}"/*) rm -rf --one-file-system "${old_data_release}" \
+        || log "warning: could not remove old data release=${old_data_release}" ;;
+      *) log "refusing to remove unexpected old data release: ${old_data_release}" ;;
+    esac
+  done
+fi
+log "completed mode=${mode}"
