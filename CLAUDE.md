@@ -180,6 +180,11 @@ push 전에 `/code-review`를 돌리면 지적이 덜 나옵니다. 필수는 �
 → `lib/scores.ts`를 import하지 않았는지 확인합니다
 → `npm run build` 후 `grep -rl "evEbitMedian5y" .next/static/`가 비어 있어야 합니다
 
+**서버 공인 IP를 바꾸면**
+→ 토스 API 허용 IP 목록에 새 주소를 넣습니다. 안 넣으면 배치가 인증 단계에서 403으로 죽습니다
+→ 사이트는 DNS만 고치면 정상으로 뜹니다. **화면이 멀쩡하다고 배치가 도는 게 아닙니다**
+→ 확인: 다음 배치 뒤 `https://wisor.site/api/persona/meta`의 `generatedAt`이 움직였는지 봅니다
+
 ---
 
 ## 4인 역할과 소유권
