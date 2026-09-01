@@ -49,10 +49,14 @@
   `data-pipeline/CLAUDE.md`)의 "수동 복구 수단" 설명 정정, 루트 `CLAUDE.md`의 "변경이 번지는
   지점"에 "서버 공인 IP를 바꾸면" 추가, 신선도 감시 워크플로 신설.
 - 남은 일: ① 토스 허용 목록에서 죽은 `168.138.45.130` 제거(콘솔 작업, 급하지 않음)
-  ② `wisor-batch.timer`·`.service`·wrapper를 저장소에 편입. **보존 커밋 `62f7559`의 파일을
-  그대로 쓰면 안 됩니다** — 서버 실물과 unit 이름(`wisor-batch@auto` 대 `wisor-batch`), 실행
-  시각(매시 `:10` 대 정각), 쓰기 경로(`/var/lib/wisor/runtime` 대 `/var/lib/wisor-batch/`),
-  실행 계정이 전부 다릅니다. `systemctl cat`으로 서버 실물을 받아야 합니다.
+  ② 추적 중인 배치 unit을 서버 실물에 맞춥니다. **파일이 없는 게 아니라 틀렸습니다** —
+  `deploy/oci/systemd/`의 `wisor-batch.timer`·`wisor-batch@.service`는 `076d103`이 들인
+  것인데 서버와 다릅니다. 활성화 대상이 `wisor-batch@auto.service` 대 `wisor-batch.service`,
+  실행이 매시 `:10` 대 정각, `ExecStart`가 저장소 경로 대 `/usr/local/libexec/wisor-batch`,
+  계정이 `ubuntu` 대 root, `ReadWritePaths`가 `/var/lib/wisor/runtime` 대
+  `/var/lib/wisor-batch`입니다. **지금 추적본을 서버에 설치하면 timer가 없는 unit을 가리켜
+  배치가 아예 멈춥니다.** 2026-08-26 사후 검토의 "deploy/oci에 없습니다"는 그 브랜치 기준이라
+  develop에는 해당하지 않습니다.
 
 ## 2026-08-28 · Codex · 객관식이 없던 열네 장에 확인 문항 추가
 
