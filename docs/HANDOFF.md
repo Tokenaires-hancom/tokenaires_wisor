@@ -48,15 +48,17 @@
 - 이 브랜치에서 함께 한 것: 세 곳(`docs/deploy.md`, `.github/workflows/scores.yml`,
   `data-pipeline/CLAUDE.md`)의 "수동 복구 수단" 설명 정정, 루트 `CLAUDE.md`의 "변경이 번지는
   지점"에 "서버 공인 IP를 바꾸면" 추가, 신선도 감시 워크플로 신설.
+- 배치 운영 파일도 서버 실물로 바꿨습니다. 추적본은 활성화 대상이
+  `wisor-batch@auto.service`인 옛 설계였고, `deploy/oci/README.md`는 그걸 설치하라는
+  안내서였습니다. 그대로 따르면 돌아가는 배치가 멈춥니다. 옛 설계 파일 넷을 지우고
+  `bin/wisor-batch`·`bin/validate-scores.py`·`systemd/wisor-batch.{service,timer}`를 실물로
+  넣었습니다.
 - 남은 일: ① 토스 허용 목록에서 죽은 `168.138.45.130` 제거(콘솔 작업, 급하지 않음)
-  ② 추적 중인 배치 unit을 서버 실물에 맞춥니다. **파일이 없는 게 아니라 틀렸습니다** —
-  `deploy/oci/systemd/`의 `wisor-batch.timer`·`wisor-batch@.service`는 `076d103`이 들인
-  것인데 서버와 다릅니다. 활성화 대상이 `wisor-batch@auto.service` 대 `wisor-batch.service`,
-  실행이 매시 `:10` 대 정각, `ExecStart`가 저장소 경로 대 `/usr/local/libexec/wisor-batch`,
-  계정이 `ubuntu` 대 root, `ReadWritePaths`가 `/var/lib/wisor/runtime` 대
-  `/var/lib/wisor-batch`입니다. **지금 추적본을 서버에 설치하면 timer가 없는 unit을 가리켜
-  배치가 아예 멈춥니다.** 2026-08-26 사후 검토의 "deploy/oci에 없습니다"는 그 브랜치 기준이라
-  develop에는 해당하지 않습니다.
+  ② **batch wrapper·validator·unit 셋에는 저장소 설치 경로가 없습니다.** `bootstrap-autodeploy.sh`가
+  설치하는 것은 `wisor-deploy`·`wisor-deploy-dispatch`·`verify-live.py`·`deploy-state.sh` 넷뿐이고,
+  나머지 다섯은 사람이 손으로 옮겨 적어야 합니다. 그래서 가만히 두면 또 낡고, 이번에 낡았던
+  것이 정확히 그 다섯입니다. `deploy/oci/README.md`의 대조표로 주기적으로 확인하든지 bootstrap에
+  설치 단계를 넣든지 정해야 합니다.
 
 ## 2026-08-28 · Codex · 객관식이 없던 열네 장에 확인 문항 추가
 
