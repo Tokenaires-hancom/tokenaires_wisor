@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-# 서버 /usr/local/libexec/wisor-validate-scores.py 의 기록입니다.
-# 이 파일을 고쳐도 서버는 바뀌지 않습니다. 반대로 서버를 고치면 여기도 같이 고쳐야
-# 기록이 사실로 남습니다. bootstrap-autodeploy.sh 는 이 파일을 설치하지 않습니다.
+# 서버의 /usr/local/libexec/wisor-validate-scores.py 는 이 파일에서 나옵니다.
+# 여기가 원본입니다. main 배포가 성공하면 wisor-deploy가 덮어쓰고, 새 서버는
+# bootstrap-autodeploy.sh가 설치합니다. 이 파일이 없거나 구문 검사를 통과하지
+# 못하면 배포가 설치 전에 멈춥니다.
 """Reject incomplete or stale batch output before it can reach the live app."""
 
 from __future__ import annotations

@@ -65,12 +65,30 @@ mapfile -t sudo_args <"${capture_args}"
 [[ ${sudo_args[1]} == /usr/local/sbin/wisor-deploy ]]
 [[ $(<"${capture_stdin}") == "${sha}" ]]
 
-python - "${repo_root}/deploy/oci/bin/verify-live.py" <<'PY'
+python - "${repo_root}/deploy/oci/bin/verify-live.py" "${repo_root}/deploy/oci/bin/validate-scores.py" <<'PY'
 import ast
 import pathlib
 import sys
 
-path = pathlib.Path(sys.argv[1])
-ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+for arg in sys.argv[1:]:
+    path = pathlib.Path(arg)
+    ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
 PY
+
+# 배치 wrapper와 validator도 배포·bootstrap이 설치한다. 설치 경로가 없으면 서버 파일이
+# 손으로만 갱신돼 조용히 낡는다 - 2026-08-26에 정확히 그렇게 낡아서 배치가 닷새 멈췄다.
+readonly batch_wrapper=${repo_root}/deploy/oci/bin/wisor-batch
+bash -n "${batch_wrapper}"
+grep -Fq '/usr/local/libexec/wisor-batch' "${bootstrap}"
+grep -Fq '/usr/local/libexec/wisor-validate-scores.py' "${bootstrap}"
+grep -Fq '"${batch_script}"' "${deployer}"
+grep -Fq '"${validate_script}"' "${deployer}"
+
+# 구문 검사가 설치보다 먼저 나와야 한다. 순서가 뒤집히면 깨진 wrapper가 서버에 깔리고
+# 다음 timer가 돌 때까지 아무도 모른다.
+validated_line=$(grep -n 'bash -n "${batch_script}"' "${deployer}" | cut -d: -f1)
+installed_line=$(grep -n '/usr/local/libexec/.wisor-batch.next' "${deployer}" | head -1 | cut -d: -f1)
+[[ -n ${validated_line} && -n ${installed_line} ]]
+(( validated_line < installed_line ))
+
 printf 'OCI_DEPLOY_CONTRACT_OK\n'

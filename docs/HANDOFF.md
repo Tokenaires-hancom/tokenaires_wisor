@@ -53,12 +53,18 @@
   안내서였습니다. 그대로 따르면 돌아가는 배치가 멈춥니다. 옛 설계 파일 넷을 지우고
   `bin/wisor-batch`·`bin/validate-scores.py`·`systemd/wisor-batch.{service,timer}`를 실물로
   넣었습니다.
-- 남은 일: ① 토스 허용 목록에서 죽은 `168.138.45.130` 제거(콘솔 작업, 급하지 않음)
-  ② **batch wrapper·validator·unit 셋에는 저장소 설치 경로가 없습니다.** `bootstrap-autodeploy.sh`가
-  설치하는 것은 `wisor-deploy`·`wisor-deploy-dispatch`·`verify-live.py`·`deploy-state.sh` 넷뿐이고,
-  나머지 다섯은 사람이 손으로 옮겨 적어야 합니다. 그래서 가만히 두면 또 낡고, 이번에 낡았던
-  것이 정확히 그 다섯입니다. `deploy/oci/README.md`의 대조표로 주기적으로 확인하든지 bootstrap에
-  설치 단계를 넣든지 정해야 합니다.
+- **설치 경로 공백은 절반만 닫았습니다.** batch wrapper와 validator는 `wisor-deploy`가 이미
+  libexec/sbin 파일 넷을 자동 갱신하고 있어서 그 목록에 얹었습니다. 새 서버는
+  `bootstrap-autodeploy.sh`가 설치합니다. 배포는 두 파일이 없거나 구문 검사를 통과하지 못하면
+  설치 전에 멈추고, 설치는 배포가 건강하다고 확인된 뒤에만 일어납니다. 배치 잠금을 쥔 채로
+  덮으므로 실행 중인 배치와 겹치지 않습니다.
+- **unit 셋은 일부러 손으로 남겨 뒀습니다.** 자동 설치하려면 `daemon-reload`가 필요하고 돌아가는
+  timer를 배포 도중에 바꾸게 됩니다. 그래서 `wisor.service`·`wisor-batch.service`·
+  `wisor-batch.timer`는 여전히 조용히 낡을 수 있습니다. 다만 낡은 결과가 "데이터가 안 늙는다"로
+  나타나므로 `data-freshness.yml`이 6시간 안에 잡습니다. 원인이 아니라 증상을 잡는 그물입니다.
+- 남은 일: unit 셋의 표류. 지금은 `deploy/oci/README.md`의 표와 `systemctl cat` 대조가 전부이고
+  자동 감지가 없습니다. 자동 설치가 정말 위험한지, 아니면 `daemon-reload`까지 포함해 배포에
+  넣을지는 정하지 않았습니다.
 
 ## 2026-08-28 · Codex · 객관식이 없던 열네 장에 확인 문항 추가
 
