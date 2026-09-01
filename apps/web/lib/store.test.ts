@@ -7,12 +7,14 @@ import {
   getNotes,
   getProgress,
   getWatchlist,
+  journalEntriesNewestFirst,
   markLessonDone,
   recordQuiz,
   saveJournalEntry,
   saveNote,
   toggleWatch,
   withoutMasterProgress,
+  type JournalEntry,
   type LocalLearningState,
   type Progress,
 } from "./store.ts";
@@ -63,6 +65,29 @@ test("해당 대가의 완료와 퀴즈만 초기화한다", () => {
     },
   });
   assert.deepEqual(progress, before);
+});
+
+test("기록형 답을 최신순으로 세우고 받은 목록은 건드리지 않는다", () => {
+  const entry = (responseId: string, at: string): JournalEntry => ({
+    responseId,
+    id: "master:buffett:1#1",
+    prompt: "무엇을 확인했나요?",
+    text: `${responseId}의 답`,
+    at,
+  });
+  // 같은 문항에 세 번 답한 상태. 저장 순서와 시간 순서를 일부러 어긋나게 둔다.
+  const entries = [
+    entry("second", "2026-08-20T00:00:00.000Z"),
+    entry("third", "2026-08-28T00:00:00.000Z"),
+    entry("first", "2026-08-12T00:00:00.000Z"),
+  ];
+  const before = structuredClone(entries);
+
+  assert.deepEqual(
+    journalEntriesNewestFirst(entries).map((item) => item.responseId),
+    ["third", "second", "first"],
+  );
+  assert.deepEqual(entries, before);
 });
 
 test("비회원 기록이 하나라도 있으면 계정 이전 대상으로 본다", () => {
