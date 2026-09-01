@@ -35,7 +35,9 @@
   통과할 방법이 아예 없습니다. 따라서 `docs/deploy.md`의 "예약 실행을 하지 않는 수동 복구
   수단입니다"는 틀린 문장이고, **secret을 새로 발급해도 이 워크플로는 살아나지 않습니다.**
 - **닷새를 몰랐던 게 진짜 문제입니다.** systemd는 매번 제대로 실패했는데(`Result=exit-code`,
-  `ExecMainStatus=1`) unit에 `OnFailure=`가 없어 아무에게도 알리지 않았습니다.
+  `ExecMainStatus=1`) 알리는 곳이 없었습니다. `.github/workflows/data-freshness.yml`을 새로
+  넣어 `generatedAt`이 6시간보다 낡으면 실패하게 했습니다. unit의 `OnFailure=` 대신 이쪽을
+  고른 이유는, timer 꺼짐·서버 다운·전환 실패까지 같은 신호 하나로 잡히기 때문입니다.
 - 진단 중 배제한 것 둘. **2026-08-26 13:58 KST 앱 배포는 무관합니다**(고장이 약 6시간 앞섬).
   `releases`의 `-deploy-` 항목이 데이터 해시 `3fbbad45d409`를 반복하는 것도 정상입니다 — 코드
   배포가 마지막 정상 데이터를 그대로 실어 나르는 `docs/oci-autodeploy.md`의 계약대로입니다.
@@ -43,10 +45,14 @@
 - `TOSS_INVEST_CLIENT_ID`·`TOSS_INVEST_CLIENT_SECRET`은 `data-pipeline/run_batch.py`와
   `.github/workflows/scores.yml`에만 나옵니다. 자격증명과 허용 IP가 어디서 관리되는지 적힌
   문서가 없어 서버 저널부터 손으로 파야 했습니다.
-- 남은 일: ① 토스 허용 목록에서 죽은 `168.138.45.130` 제거 ② `OnFailure=` 알림
-  ③ `docs/deploy.md`의 `scores.yml` 설명 정정 ④ `wisor-batch.timer`·`.service`·wrapper를
-  저장소에 편입(2026-08-26 사후 검토의 미결 과제, timer 원문은 확보) ⑤ "서버 공인 IP 변경 →
-  토스 허용 목록"을 루트 `CLAUDE.md`의 "변경이 번지는 지점"에 추가.
+- 이 브랜치에서 함께 한 것: 세 곳(`docs/deploy.md`, `.github/workflows/scores.yml`,
+  `data-pipeline/CLAUDE.md`)의 "수동 복구 수단" 설명 정정, 루트 `CLAUDE.md`의 "변경이 번지는
+  지점"에 "서버 공인 IP를 바꾸면" 추가, 신선도 감시 워크플로 신설.
+- 남은 일: ① 토스 허용 목록에서 죽은 `168.138.45.130` 제거(콘솔 작업, 급하지 않음)
+  ② `wisor-batch.timer`·`.service`·wrapper를 저장소에 편입. **보존 커밋 `62f7559`의 파일을
+  그대로 쓰면 안 됩니다** — 서버 실물과 unit 이름(`wisor-batch@auto` 대 `wisor-batch`), 실행
+  시각(매시 `:10` 대 정각), 쓰기 경로(`/var/lib/wisor/runtime` 대 `/var/lib/wisor-batch/`),
+  실행 계정이 전부 다릅니다. `systemctl cat`으로 서버 실물을 받아야 합니다.
 
 ## 2026-08-28 · Codex · 객관식이 없던 열네 장에 확인 문항 추가
 
