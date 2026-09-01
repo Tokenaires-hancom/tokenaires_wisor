@@ -156,7 +156,8 @@ def test_root_serves_playground(live):
         body = resp.read().decode("utf-8")
         assert resp.status == 200
         assert "text/html" in ctype
-        assert "대가의 기준으로 숫자 읽기" in body
+        assert "투자 대가에게 묻기" in body
+        assert "종목 없이 철학을 묻거나" in body
         assert "/sessions" in body
 
 
@@ -230,6 +231,39 @@ def test_session_lifecycle(live):
     assert status == 404
     assert gone["error"]["code"] == "session_not_found"
     assert "새로 만들어" in gone["error"]["message"]
+
+
+@needs_scores
+def test_free_chat_session_lifecycle(live):
+    status, created, _ = _call(live["base"], "POST", "/sessions",
+                               {"persona": "buffett"})
+    assert status == 201
+    assert created["company"] is None
+    assert created["asOf"] is None
+    assert created["judgement"] is None
+    assert created["opening"]
+    sid = created["sessionId"]
+
+    status, asked, _ = _call(live["base"], "POST", f"/sessions/{sid}/messages",
+                             {"question": "복리의 핵심은 무엇인가요?"})
+    assert status == 200
+    assert asked["persona"] == "buffett"
+    assert asked["reply"]
+
+    status, switched, _ = _call(live["base"], "POST", f"/sessions/{sid}/persona",
+                                {"persona": "fisher"})
+    assert status == 200
+    assert switched["persona"] == "fisher"
+    assert switched["company"] is None
+    assert switched["judgement"] is None
+
+
+@needs_scores
+def test_null_ticker_is_rejected_instead_of_silently_becoming_free_chat(live):
+    status, body, _ = _call(live["base"], "POST", "/sessions",
+                            {"ticker": None, "persona": "buffett"})
+    assert status == 400
+    assert body["error"]["code"] == "invalid_field"
 
 
 @needs_scores
@@ -357,6 +391,138 @@ def test_rate_limit_not_charged_for_noop_persona_switch():
         status, _, _ = _call(base, "POST", f"/sessions/{sid}/persona",
                              {"persona": "buffett"})
         assert status == 200, "실제 호출 없는 no-op 전환은 상한을 깎지 않아야 한다"
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+
+
+@needs_scores
+def test_failed_persona_switch_restores_the_previous_session_state():
+    from server import RateLimiter
+
+    httpd = make_server("127.0.0.1", 0, adapter=MockAdapter(),
+                        limiter=RateLimiter(max_calls=1))
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    host, port = httpd.server_address[:2]
+    base = f"http://{host}:{port}"
+    try:
+        ticker = httpd.persona_data.tickers()[0]
+        status, created, _ = _call(base, "POST", "/sessions",
+                                   {"ticker": ticker, "persona": "buffett"})
+        assert status == 201
+        sid = created["sessionId"]
+
+        # 새 첫 해설은 두 번째 LLM 호출이라 실패한다. 전환 전체가 롤백돼야 한다.
+        status, body, _ = _call(base, "POST", f"/sessions/{sid}/persona",
+                                {"persona": "graham"})
+        assert status == 429
+        assert body["error"]["code"] == "rate_limited"
+
+        # 기존 버핏 첫 해설은 캐시돼 있으므로 추가 호출 없이 그대로 받을 수 있다.
+        status, restored, _ = _call(base, "POST", f"/sessions/{sid}/persona",
+                                    {"persona": "buffett"})
+        assert status == 200
+        assert restored["persona"] == "buffett"
+        assert restored["opening"] == created["opening"]
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+
+
+@needs_scores
+def test_blocked_persona_switch_restores_the_previous_session_state():
+    class OneAnswerThenEmptyAdapter:
+        name = "one-answer-then-empty"
+        model = None
+
+        def __init__(self):
+            self.calls = 0
+
+        def chat(self, system, messages, temperature=0.0):
+            self.calls += 1
+            return "첫 해설" if self.calls == 1 else ""
+
+    httpd = make_server("127.0.0.1", 0, adapter=OneAnswerThenEmptyAdapter())
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    host, port = httpd.server_address[:2]
+    base = f"http://{host}:{port}"
+    try:
+        ticker = httpd.persona_data.tickers()[0]
+        status, created, _ = _call(base, "POST", "/sessions",
+                                   {"ticker": ticker, "persona": "buffett"})
+        assert status == 201
+        sid = created["sessionId"]
+
+        status, blocked, _ = _call(base, "POST", f"/sessions/{sid}/persona",
+                                   {"persona": "graham"})
+        assert status == 200
+        assert blocked["blocked"] is True
+        assert blocked["persona"] == "buffett"
+
+        status, restored, _ = _call(base, "POST", f"/sessions/{sid}/persona",
+                                    {"persona": "buffett"})
+        assert status == 200
+        assert restored["blocked"] is False
+        assert restored["opening"] == created["opening"]
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+
+
+@needs_scores
+def test_free_chat_create_and_switch_do_not_spend_llm_quota():
+    from server import RateLimiter
+
+    httpd = make_server("127.0.0.1", 0, adapter=MockAdapter(),
+                        limiter=RateLimiter(max_calls=1))
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    host, port = httpd.server_address[:2]
+    base = f"http://{host}:{port}"
+    try:
+        status, created, _ = _call(base, "POST", "/sessions",
+                                   {"persona": "buffett"})
+        assert status == 201
+        sid = created["sessionId"]
+
+        status, _, _ = _call(base, "POST", f"/sessions/{sid}/persona",
+                             {"persona": "graham"})
+        assert status == 200
+
+        status, _, _ = _call(base, "POST", f"/sessions/{sid}/messages",
+                             {"question": "안전마진이 무엇인가요?"})
+        assert status == 200
+
+        status, body, _ = _call(base, "POST", f"/sessions/{sid}/messages",
+                                {"question": "한 번 더 설명해 주세요."})
+        assert status == 429
+        assert body["error"]["code"] == "rate_limited"
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+
+
+@needs_scores
+def test_free_chat_session_creation_has_its_own_rate_limit():
+    from server import RateLimiter
+
+    httpd = make_server(
+        "127.0.0.1", 0, adapter=MockAdapter(),
+        free_session_limiter=RateLimiter(max_calls=1),
+    )
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    host, port = httpd.server_address[:2]
+    base = f"http://{host}:{port}"
+    try:
+        status, _, _ = _call(base, "POST", "/sessions", {"persona": "buffett"})
+        assert status == 201
+
+        status, body, _ = _call(base, "POST", "/sessions", {"persona": "graham"})
+        assert status == 429
+        assert body["error"]["code"] == "rate_limited"
     finally:
         httpd.shutdown()
         httpd.server_close()

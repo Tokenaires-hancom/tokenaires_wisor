@@ -5,7 +5,7 @@
 기본 주소: `http://127.0.0.1:8000` (브라우저로 열면 연습장 HTML, `/health` 는 JSON)  
 세션 수명: 마지막 요청부터 **30분**. 만료·재시작 후 404가 오면 세션을 다시 만든다.
 
-숫자는 프론트가 보내지 않는다. `{ticker, persona}`만 보낸다. 서버가 팀 `scores.json`에서 지표와 기준 판정을 꺼내 쓴다. 그래서 화면에 뜬 숫자와 챗봇이 말하는 숫자가 어긋나지 않는다.
+숫자는 프론트가 보내지 않는다. 종목 대화는 `{ticker, persona}`, 자유 대화는 `{persona}`만 보낸다. 종목이 있으면 서버가 팀 `scores.json`에서 지표와 기준 판정을 꺼내 쓴다. 그래서 화면에 뜬 숫자와 챗봇이 말하는 숫자가 어긋나지 않는다.
 
 ## 엔드포인트
 
@@ -15,7 +15,7 @@
 | GET | `/health` | 살아 있는지 |
 | GET | `/meta` | 데이터 기준일, 지원 페르소나, 세션 TTL |
 | GET | `/companies?q=&limit=` | 티커·종목명 검색 (플로팅에서 종목을 고를 때) |
-| POST | `/sessions` | 세션 생성 + 첫 해설 |
+| POST | `/sessions` | 세션 생성 + 첫 해설 또는 자유 대화 안내 |
 | POST | `/sessions/{id}/messages` | 후속 질문 |
 | POST | `/sessions/{id}/persona` | 관점 교체 (기록 초기화 + 새 첫 해설) |
 | DELETE | `/sessions/{id}` | 세션 삭제 |
@@ -51,8 +51,16 @@
 
 ### POST `/sessions`
 
+종목을 놓고 대화할 때:
+
 ```json
 { "ticker": "AAPL", "persona": "buffett" }
+```
+
+종목 없이 투자 철학을 자유롭게 물을 때:
+
+```json
+{ "persona": "buffett" }
 ```
 
 201:
@@ -82,10 +90,19 @@
 `checklist` 관점이면 같은 형태에서 `evaluation`이 `"checklist"`, `judgement`가 `null`이다.
 `company`와 `asOf`는 그대로 온다.
 
+자유 대화면 `company`·`asOf`·`judgement`가 모두 `null`이고, `opening`은 질문할 수 있는
+주제를 알리는 고정 안내문이다. 이 안내문은 모델을 호출하지 않는다. 첫 실제 질문은
+선택한 대가의 자유 대화 프롬프트로 답하며, 빈 응답을 한 번 재시도하면 최대 두 번 호출한다.
+
 없는 종목 → 404 `{ "error": { "code": "unknown_ticker" } }`  
 없는 관점 → 400 `{ "error": { "code": "unknown_persona" } }`
 
-`ticker`는 필수. 종목 페이지에서 열면 그 종목을 넣고, 다른 페이지의 플로팅이면 먼저 `/companies?q=`로 고른 뒤 넣는다.
+자유 세션 생성은 서버 프로세스 전체에서 분당 60개까지다. 초과하면 429
+`{ "error": { "code": "rate_limited" } }`를 돌려준다.
+
+`ticker`는 선택 사항이다. 종목 페이지에서 열거나 챗봇 검색에서 종목을 골랐다면 티커를
+넣고, 종목 없이 대화하려면 필드 자체를 생략한다. `"ticker": null`이나 빈 문자열은
+자유 대화로 조용히 바꾸지 않고 400 `invalid_field`로 거부한다.
 
 ### POST `/sessions/{id}/messages`
 
@@ -105,7 +122,9 @@
 { "persona": "graham" }
 ```
 
-200 형태는 세션 생성과 같다(`opening`이 새 관점의 첫 해설). 앞 대화는 버린다.
+200 형태는 세션 생성과 같다(`opening`이 새 관점의 첫 해설 또는 자유 대화 안내). 앞 대화는 버린다.
+새 관점의 첫 해설 생성이 예외로 실패하거나 빈 응답 재시도 뒤 `blocked: true`가 되면
+전환도 취소되어 기존 관점과 대화가 유지된다. `blocked` 응답의 `persona`도 기존 관점이다.
 
 점수 관점과 확인 관점을 오갈 수 있다. 갈아탈 때마다 `evaluation`과 `judgement`가
 함께 바뀌므로, 앞 관점의 점수를 화면에 남겨 두지 않는다.
@@ -157,11 +176,11 @@
 ```ts
 const API = "http://127.0.0.1:8000";
 
-async function startChat(ticker: string, persona: string) {
+async function startChat(ticker: string | null, persona: string) {
   const res = await fetch(`${API}/sessions`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ticker, persona }),
+    body: JSON.stringify(ticker === null ? { persona } : { ticker, persona }),
   });
   const data = await res.json();
   if (!res.ok) throw data.error;

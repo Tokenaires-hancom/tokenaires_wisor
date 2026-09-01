@@ -15,6 +15,9 @@ HTTP 프레임워크에 의존하지 않는다. cli.py와 server.py가 같은 �
     [user]      <회사> 블록                    ← 앵커
     [assistant] 확인 질문 목록
 
+종목을 고르지 않은 자유 대화는 대가 종류와 무관하게 <대화맥락>만 앵커로 둔다.
+세션 생성 때는 고정 안내문을 써서 모델을 부르지 않고, 첫 실제 질문부터 답을 만든다.
+
 지표를 넣는 길이 둘이다.
 
 - 손으로 넣기: PersonaChat("buffett", {"PER": 18, ...}, name="Adobe")
@@ -26,8 +29,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from explain import (OK, REGENERATE, MockAdapter, format_company_block,
-                     format_criteria_block, format_metrics_block, generate)
+                     format_criteria_block, format_free_chat_block,
+                     format_metrics_block, generate)
 from personas import PERSONAS, build_system_prompt, is_checklist
+
+
+FREE_CHAT_OPENING = (
+    "종목을 정하지 않아도 괜찮습니다. 제 투자 철학과 판단 기준에 관해 편하게 물어보세요."
+)
 
 
 @dataclass
@@ -45,16 +54,20 @@ class ChatReply:
 class PersonaChat:
     """한 페르소나와의 대화 세션 하나.
 
-    지표는 세션 내내 고정이고, 페르소나는 대화 중 바꿀 수 있다(히스토리는 초기화).
+    종목·지표가 있으면 세션 내내 고정된다. 둘 다 없으면 자유 대화가 되며,
+    페르소나는 대화 중 바꿀 수 있다(히스토리는 초기화).
     """
 
     def __init__(self, persona_key: str, metrics: dict | None = None,
                  name: str | None = None, adapter=None, max_followups: int = 8,
-                 company=None, judgement=None, criteria_spec=None):
+                 company=None, judgement=None, criteria_spec=None,
+                 free_chat: bool = False):
         if persona_key not in PERSONAS:
             raise ValueError(
                 f"unknown persona: {persona_key} (choose from {list(PERSONAS)})")
-        if metrics is None and company is None:
+        if free_chat and (metrics is not None or company is not None):
+            raise ValueError("자유 대화에는 metrics나 company를 함께 넣을 수 없습니다.")
+        if not free_chat and metrics is None and company is None:
             raise ValueError("metrics 또는 company 중 하나는 있어야 합니다.")
 
         self.persona_key = persona_key
@@ -63,11 +76,14 @@ class PersonaChat:
         self.company = company
         self.metrics = dict(metrics) if metrics is not None else None
         self.name = name if company is None else company.name
+        self._free_chat = free_chat
         # 채점하지 않는 대가는 판정을 쓰지 않는다. 넘어와도 들고 있지 않는다 —
         # 남겨 두면 페르소나를 되돌릴 때 남의 관점의 판정이 되살아난다.
         checklist = is_checklist(persona_key)
-        self._judgement = None if checklist else judgement
-        self._criteria_spec = () if checklist else tuple(criteria_spec or ())
+        self._judgement = None if checklist or self._free_chat else judgement
+        self._criteria_spec = (
+            () if checklist or self._free_chat else tuple(criteria_spec or ())
+        )
         self._opening: str | None = None
         self._followups: list[dict] = []
         self._rebuild_anchor()
@@ -89,6 +105,10 @@ class PersonaChat:
     @property
     def ticker(self) -> str | None:
         return self.company.ticker if self.company is not None else None
+
+    @property
+    def free_chat(self) -> bool:
+        return self._free_chat
 
     def messages(self) -> list[dict]:
         """지금까지의 대화. HTTP 계층이 그대로 직렬화해 쓸 수 있다."""
@@ -115,8 +135,14 @@ class PersonaChat:
     # ---- 대화 --------------------------------------------------------------
 
     def start(self) -> ChatReply:
-        """첫 해설을 만든다. 이미 시작했으면 기존 해설을 그대로 돌려준다."""
+        """첫 해설이나 자유 대화 안내를 만든다. 이미 시작했으면 그대로 돌려준다."""
         if self._opening is not None:
+            return ChatReply(self.persona_key, self._opening, OK, False)
+
+        # 자유 대화는 해설할 데이터가 없다. 고정 안내문으로 세션만 시작해 첫 질문까지
+        # 모델 호출을 미루면, 화면에서 버리는 인사말에 호출 예산을 쓰지 않는다.
+        if self._free_chat:
+            self._opening = FREE_CHAT_OPENING
             return ChatReply(self.persona_key, self._opening, OK, False)
 
         reply = self._generate(self._build_messages())
@@ -149,13 +175,18 @@ class PersonaChat:
         앞 대가의 기준·말투가 남은 채로 다른 대가를 설명하면 관점이 섞인다.
 
         기준 판정은 페르소나마다 다르므로 새 판정으로 갈아야 한다. company가 있으면
-        직접 찾아오고, 없으면 호출자가 judgement를 넘겨야 한다.
+        직접 찾아오고, 없으면 호출자가 judgement를 넘겨야 한다. 자유 대화에는 판정이
+        없으므로 페르소나만 바꾼다.
         """
         if persona_key not in PERSONAS:
             raise ValueError(
                 f"unknown persona: {persona_key} (choose from {list(PERSONAS)})")
 
-        if is_checklist(persona_key):
+        if self._free_chat:
+            judgement, criteria_spec = None, ()
+            self._judgement = None
+            self._criteria_spec = ()
+        elif is_checklist(persona_key):
             # 판정을 찾아오면 안 된다. scores.json에 이 관점의 스타일 자체가 없어
             # data.judgement()가 UnknownStyle로 터진다. 앞 대가의 판정을 그대로
             # 들고 가는 것도 안 된다 — 다른 관점의 채점 결과가 된다.
@@ -180,11 +211,52 @@ class PersonaChat:
         self._rebuild_anchor()
         self.reset()
 
+    def switch_persona_and_start(self, persona_key: str, judgement=None,
+                                 criteria_spec=None) -> ChatReply:
+        """페르소나 전환과 새 첫 답변 생성을 하나의 원자적 동작으로 수행한다.
+
+        모델 호출이 실패하면 호출자는 실패 응답만 보게 된다. 그때 서버 세션만 새
+        페르소나로 남으면 다음 요청의 답변 주체가 화면과 어긋나므로 이전 상태로 되돌린다.
+        """
+        if persona_key == self.persona_key:
+            return self.start()
+
+        previous = (
+            self.persona_key,
+            self._judgement,
+            self._criteria_spec,
+            self._opening,
+            self._followups,
+        )
+
+        def restore_previous() -> None:
+            (
+                self.persona_key,
+                self._judgement,
+                self._criteria_spec,
+                self._opening,
+                self._followups,
+            ) = previous
+            self._rebuild_anchor()
+
+        try:
+            self.switch_persona(persona_key, judgement, criteria_spec)
+            reply = self.start()
+        except Exception:
+            restore_previous()
+            raise
+        if reply.blocked:
+            restore_previous()
+            return ChatReply(
+                self.persona_key, reply.text, reply.verdict, reply.regenerated)
+        return reply
+
     def set_metrics(self, metrics: dict, name: str | None = None) -> None:
         """손으로 넣은 지표 교체. 앵커가 바뀌므로 히스토리도 버린다."""
         self.company = None
         self.metrics = dict(metrics)
         self.name = name
+        self._free_chat = False
         self._judgement = None
         self._criteria_spec = ()
         self._rebuild_anchor()
@@ -195,6 +267,7 @@ class PersonaChat:
         self.company = company
         self.metrics = None
         self.name = company.name
+        self._free_chat = False
         checklist = is_checklist(self.persona_key)
         self._judgement = None if checklist else judgement
         self._criteria_spec = () if checklist else tuple(criteria_spec or ())
@@ -210,10 +283,17 @@ class PersonaChat:
     def _rebuild_anchor(self) -> None:
         """앵커를 다시 만든다.
 
-        채점하는 대가는 <지표> 블록(+ 있으면 <기준판정>)을 받는다. 채점하지 않는
-        대가는 <회사> 블록만 받는다. 판정에 쓰지도 않을 지표를 함께 실으면 모델이
-        그 숫자로 판정하려 들기 때문이다.
+        자유 대화는 <대화맥락>만 받는다. 채점하는 대가는 <지표> 블록(+ 있으면
+        <기준판정>)을 받고, 채점하지 않는 대가는 <회사> 블록만 받는다. 판정에 쓰지도
+        않을 지표를 함께 실으면 모델이 그 숫자로 판정하려 들기 때문이다.
         """
+        if self._free_chat:
+            self._metrics_block = None
+            self._criteria_block = None
+            self._company_block = None
+            self._anchor = format_free_chat_block()
+            return
+
         if is_checklist(self.persona_key):
             self._metrics_block = None
             self._criteria_block = None
@@ -251,6 +331,7 @@ class PersonaChat:
             self.persona_key, chat_mode=True,
             criteria_spec=self._criteria_spec,
             with_criteria=self._criteria_block is not None,
+            free_chat=self._free_chat,
         )
         text, verdict, regenerated = generate(self.adapter, system, messages)
         return ChatReply(self.persona_key, text, verdict, regenerated)

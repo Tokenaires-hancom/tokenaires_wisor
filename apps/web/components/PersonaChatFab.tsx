@@ -6,7 +6,9 @@ import { track } from "@/lib/analytics";
 import {
   askQuestion,
   createSession,
+  deleteSession,
   getHealth,
+  isAmbiguousSessionFailure,
   isGone,
   searchCompanies,
   switchPersona,
@@ -30,7 +32,7 @@ const FALLBACK_PERSONAS: PersonaInfo[] = [
 ];
 
 const CHATTABLE = new Set(FALLBACK_PERSONAS.map((p) => p.id));
-const FAIL_COPY = "해설을 불러오지 못했습니다. 잠시 후 다시 시도하세요.";
+const FAIL_COPY = "답변을 불러오지 못했습니다. 잠시 후 다시 시도하세요.";
 
 function tickerFromPath(pathname: string): string | null {
   const match = pathname.match(/^\/stocks\/([^/?#]+)/i);
@@ -44,6 +46,12 @@ function tickerFromPath(pathname: string): string | null {
 
 function shortName(name: string): string {
   return name.split("·")[0]?.trim() || name;
+}
+
+function discardSession(sessionId: string) {
+  void deleteSession(sessionId).catch((err) => {
+    console.debug("[wisor] persona chat session cleanup failed", err);
+  });
 }
 
 export default function PersonaChatFab() {
@@ -65,11 +73,15 @@ export default function PersonaChatFab() {
   const [error, setError] = useState<string | null>(null);
   const logRef = useRef<HTMLDivElement>(null);
   const searchSeq = useRef(0);
+  const conversationSeq = useRef(0);
+  const panelSeq = useRef(0);
 
   useEffect(() => {
+    conversationSeq.current += 1;
     setTicker(pathTicker);
     setSessionId(null);
     setMessages([]);
+    setBusy(false);
     setError(null);
     if (urlStyle && CHATTABLE.has(urlStyle)) setPersona(urlStyle);
   }, [pathTicker, urlStyle]);
@@ -80,7 +92,7 @@ export default function PersonaChatFab() {
 
   // 챗봇은 별도 서비스라 유휴 상태에서 잠든다. 버튼을 누른 뒤에 깨우면 그 대기가
   // 사용자에게 그대로 보이므로, 화면을 읽는 동안 미리 한 번 깨워 둔다.
-  // 실패해도 아무것도 하지 않는다 — 열 때 ensureHealth가 다시 확인하고 그때 안내한다.
+  // 실패해도 아무것도 하지 않는다 — 열 때 fetchPersonas가 다시 확인하고 그때 안내한다.
   useEffect(() => {
     getHealth()
       .then((health) => {
@@ -90,21 +102,34 @@ export default function PersonaChatFab() {
       .catch((err) => console.debug("[wisor] persona chat prewarm failed", err));
   }, []);
 
-  async function ensureHealth(): Promise<string> {
+  async function fetchPersonas(): Promise<PersonaInfo[]> {
     const health = await getHealth();
     const list = (health.personas ?? []).filter((p) => CHATTABLE.has(p.id));
-    const next = list.length ? list : FALLBACK_PERSONAS;
-    setPersonas(next);
-    const resolved = next.some((p) => p.id === persona) ? persona : next[0].id;
-    if (resolved !== persona) setPersona(resolved);
-    return resolved;
+    return list.length ? list : FALLBACK_PERSONAS;
   }
 
-  async function start(nextTicker: string, nextPersona = persona) {
+  async function start(
+    nextTicker: string,
+    nextPersona = persona,
+    panelGeneration?: number,
+  ) {
+    const seq = ++conversationSeq.current;
+    const stale = () =>
+      seq !== conversationSeq.current ||
+      (panelGeneration !== undefined && panelGeneration !== panelSeq.current);
     setBusy(true);
     setError(null);
     try {
       const reply = await createSession(nextTicker, nextPersona);
+      if (stale()) {
+        discardSession(reply.sessionId);
+        return;
+      }
+      if (reply.blocked) {
+        discardSession(reply.sessionId);
+        setError(reply.text);
+        return;
+      }
       setTicker(nextTicker);
       setPersona(reply.persona);
       setSessionId(reply.sessionId);
@@ -112,27 +137,51 @@ export default function PersonaChatFab() {
       setHits([]);
       track("persona_chat_opened", { ticker: nextTicker, persona: reply.persona });
     } catch (err) {
+      if (stale()) return;
       console.debug("[wisor] persona chat start failed", err);
       setError(FAIL_COPY);
     } finally {
-      setBusy(false);
+      if (seq === conversationSeq.current) setBusy(false);
     }
+  }
+
+  function closePanel() {
+    // 패널을 여는 동안 기다리던 health 응답이 닫힌 뒤 종목 세션을 만들지 못하게 한다.
+    panelSeq.current += 1;
+    setOpen(false);
   }
 
   async function onToggle() {
     const next = !open;
+    const panelGeneration = ++panelSeq.current;
     setOpen(next);
     if (!next) return;
+    const seq = conversationSeq.current;
     setError(null);
-    let resolvedPersona: string;
+    let nextPersonas: PersonaInfo[];
     try {
-      resolvedPersona = await ensureHealth();
+      nextPersonas = await fetchPersonas();
     } catch (err) {
+      if (
+        seq !== conversationSeq.current ||
+        panelGeneration !== panelSeq.current
+      ) return;
       console.debug("[wisor] persona chat health failed", err);
       setError(FAIL_COPY);
       return;
     }
-    if (pathTicker && !sessionId) void start(pathTicker, resolvedPersona);
+    if (
+      seq !== conversationSeq.current ||
+      panelGeneration !== panelSeq.current
+    ) return;
+    setPersonas(nextPersonas);
+    const resolvedPersona = nextPersonas.some((p) => p.id === persona)
+      ? persona
+      : nextPersonas[0].id;
+    if (resolvedPersona !== persona) setPersona(resolvedPersona);
+    if (ticker && !sessionId) {
+      void start(ticker, resolvedPersona, panelGeneration);
+    }
   }
 
   async function onSearch(value: string) {
@@ -152,69 +201,173 @@ export default function PersonaChatFab() {
     }
   }
 
+  function onClearTicker() {
+    if (!ticker) return;
+    const activeSessionId = sessionId;
+
+    conversationSeq.current += 1;
+    searchSeq.current += 1;
+    setTicker(null);
+    setSessionId(null);
+    setMessages([]);
+    setQuery("");
+    setHits([]);
+    setQuestion("");
+    setBusy(false);
+    setError(null);
+
+    if (activeSessionId) discardSession(activeSessionId);
+  }
+
   async function onAsk(event: React.FormEvent) {
     event.preventDefault();
     const text = question.trim();
     if (!text || busy) return;
-    if (!ticker) {
-      setError("먼저 종목을 고르세요.");
-      return;
-    }
+    let rollbackMessages = messages;
+    let activeSessionId = sessionId;
     setQuestion("");
-    setMessages((prev) => [...prev, { role: "user", text }]);
+    setMessages([...rollbackMessages, { role: "user", text }]);
     setBusy(true);
     setError(null);
+    const seq = ++conversationSeq.current;
     try {
-      let id = sessionId;
-      if (!id) {
+      if (!activeSessionId) {
         const opened = await createSession(ticker, persona);
-        id = opened.sessionId;
-        setSessionId(id);
+        if (seq !== conversationSeq.current) {
+          discardSession(opened.sessionId);
+          return;
+        }
+        if (opened.blocked) {
+          discardSession(opened.sessionId);
+          setMessages(rollbackMessages);
+          setQuestion(text);
+          setError(opened.text);
+          return;
+        }
+        activeSessionId = opened.sessionId;
+        setSessionId(activeSessionId);
       }
       let reply;
       try {
-        reply = await askQuestion(id, text);
+        reply = await askQuestion(activeSessionId, text);
       } catch (err) {
         if (!isGone(err)) throw err;
+        if (seq !== conversationSeq.current) return;
+        activeSessionId = null;
+        rollbackMessages = [];
+        setSessionId(null);
         const opened = await createSession(ticker, persona);
-        setSessionId(opened.sessionId);
-        reply = await askQuestion(opened.sessionId, text);
+        if (seq !== conversationSeq.current) {
+          discardSession(opened.sessionId);
+          return;
+        }
+        if (opened.blocked) {
+          discardSession(opened.sessionId);
+          setMessages([]);
+          setQuestion(text);
+          setError(opened.text);
+          return;
+        }
+        activeSessionId = opened.sessionId;
+        rollbackMessages = [{ role: "tutor", text: opened.text }];
+        setSessionId(activeSessionId);
+        setMessages([...rollbackMessages, { role: "user", text }]);
+        reply = await askQuestion(activeSessionId, text);
+      }
+      if (seq !== conversationSeq.current) {
+        discardSession(reply.sessionId);
+        return;
+      }
+      if (reply.blocked) {
+        setMessages(rollbackMessages);
+        setQuestion(text);
+        setError(reply.text);
+        return;
       }
       setMessages((prev) => [...prev, { role: "tutor", text: reply.text }]);
       track("persona_chat_asked", { ticker, persona: reply.persona });
     } catch (err) {
+      if (seq !== conversationSeq.current) return;
       console.debug("[wisor] persona chat ask failed", err);
+      if (isAmbiguousSessionFailure(err)) {
+        // 서버가 답변을 기록한 뒤 응답만 유실됐을 수 있다. 화면에 없는 문맥을
+        // 이어가지 않도록 어느 쪽인지 모호한 세션과 표시 기록을 함께 버린다.
+        if (activeSessionId) discardSession(activeSessionId);
+        setSessionId(null);
+        setMessages([]);
+      } else {
+        // 429·검증 실패·model_error는 서버가 질문을 기록하지 않은 것이 확정적이다.
+        // 낙관적으로 그린 사용자 말풍선만 되돌리면 기존 문맥을 그대로 이어갈 수 있다.
+        setMessages(rollbackMessages);
+        setQuestion(text);
+      }
       setError(FAIL_COPY);
     } finally {
-      setBusy(false);
+      if (seq === conversationSeq.current) setBusy(false);
     }
   }
 
   async function onPersona(id: string) {
-    setPersona(id);
-    if (!ticker) return;
+    if (id === persona) return;
+    if (!sessionId) {
+      setError(null);
+      if (ticker) await start(ticker, id);
+      else {
+        conversationSeq.current += 1;
+        setPersona(id);
+        setMessages([]);
+      }
+      return;
+    }
+    const activeSessionId = sessionId;
+    const seq = ++conversationSeq.current;
+    let sessionGone = false;
     setBusy(true);
     setError(null);
     try {
-      if (!sessionId) {
-        await start(ticker, id);
-        return;
-      }
       let reply;
       try {
-        reply = await switchPersona(sessionId, id);
+        reply = await switchPersona(activeSessionId, id);
       } catch (err) {
         if (!isGone(err)) throw err;
+        if (seq !== conversationSeq.current) return;
+        sessionGone = true;
+        setSessionId(null);
         reply = await createSession(ticker, id);
+        if (seq !== conversationSeq.current) {
+          discardSession(reply.sessionId);
+          return;
+        }
         setSessionId(reply.sessionId);
+      }
+      if (seq !== conversationSeq.current) {
+        discardSession(reply.sessionId);
+        return;
+      }
+      if (reply.blocked) {
+        if (sessionGone) {
+          discardSession(reply.sessionId);
+          setSessionId(null);
+          setMessages([]);
+        }
+        setError(reply.text);
+        return;
       }
       setPersona(reply.persona);
       setMessages([{ role: "tutor", text: reply.text }]);
     } catch (err) {
+      if (seq !== conversationSeq.current) return;
       console.debug("[wisor] persona chat switch failed", err);
+      // 명시적인 model_error·429는 서버가 전환을 롤백했으므로 기존 문맥을 보존한다.
+      // 응답 유실처럼 반영 여부가 모호하거나 404가 확인된 세션만 화면에서도 버린다.
+      if (sessionGone || isAmbiguousSessionFailure(err)) {
+        if (!sessionGone) discardSession(activeSessionId);
+        setSessionId(null);
+        setMessages([]);
+      }
       setError(FAIL_COPY);
     } finally {
-      setBusy(false);
+      if (seq === conversationSeq.current) setBusy(false);
     }
   }
 
@@ -222,13 +375,11 @@ export default function PersonaChatFab() {
   // 사용자가 오지 않을 숫자 해설을 기다린다.
   const checklistPersona =
     personas.find((item) => item.id === persona)?.evaluation === "checklist";
-  const emptyCopy = checklistPersona
-    ? pathTicker
+  const emptyCopy = !ticker
+    ? "종목 없이도 투자 철학과 판단 기준을 자유롭게 물어볼 수 있습니다."
+    : checklistPersona
       ? "이 관점은 점수를 내지 않습니다. 무엇을 확인해야 하는지 알려줍니다."
-      : "종목을 고르면 이 관점이 무엇을 확인하는지 알려줍니다."
-    : pathTicker
-      ? "이 종목의 공개 숫자로 기준을 설명합니다."
-      : "종목을 고르면 그 회사의 숫자로 설명합니다.";
+      : "이 종목의 공개 숫자로 기준을 설명합니다.";
   const selectedPersona =
     personas.find((item) => item.id === persona) ?? FALLBACK_PERSONAS[0];
 
@@ -255,7 +406,7 @@ export default function PersonaChatFab() {
               <button
                 type="button"
                 className="persona-close"
-                onClick={() => setOpen(false)}
+                onClick={closePanel}
                 aria-label="대화창 닫기"
               >
                 닫기
@@ -288,18 +439,29 @@ export default function PersonaChatFab() {
               <strong>{shortName(selectedPersona.name)}</strong>
             </div>
             <span className="persona-context-kind">
-              {checklistPersona ? "확인 질문" : "숫자 해설"}
+              {!ticker ? "자유 대화" : checklistPersona ? "확인 질문" : "숫자 해설"}
             </span>
-            {ticker && <span className="persona-context-ticker mono">{ticker}</span>}
+            {ticker && (
+              <button
+                type="button"
+                className="persona-context-ticker mono"
+                aria-label={`${ticker} 종목 선택 해제`}
+                title="종목 선택 해제"
+                onClick={onClearTicker}
+              >
+                <span>{ticker}</span>
+                <span className="persona-context-ticker-close" aria-hidden="true">×</span>
+              </button>
+            )}
           </div>
 
-          {!pathTicker && (
+          {(!pathTicker || !ticker) && (
             <div className="persona-search">
-              <label htmlFor="persona-ticker">종목</label>
+              <label htmlFor="persona-ticker">종목 선택 (선택 사항)</label>
               <input
                 id="persona-ticker"
                 value={query}
-                placeholder="티커 또는 종목 이름"
+                placeholder="선택 사항 · 티커 또는 종목 이름"
                 autoComplete="off"
                 onChange={(event) => void onSearch(event.target.value)}
               />
@@ -348,8 +510,12 @@ export default function PersonaChatFab() {
                 value={question}
                 maxLength={500}
                 rows={2}
-                placeholder={ticker ? "이 회사에서 무엇을 확인할까요?" : "먼저 종목을 골라 주세요"}
-                disabled={busy || !ticker}
+                placeholder={
+                  ticker
+                    ? "이 회사에서 무엇을 확인할까요?"
+                    : "투자 철학이나 판단 기준을 물어보세요"
+                }
+                disabled={busy}
                 onKeyDown={onQuestionKeyDown}
                 onChange={(event) => setQuestion(event.target.value)}
               />
