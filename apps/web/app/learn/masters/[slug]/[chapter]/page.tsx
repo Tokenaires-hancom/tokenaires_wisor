@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ChapterExercises from "@/components/ChapterExercises";
+import LearnGameDock from "@/components/game/LearnGameDock";
 import {
   CHAPTER_SLOTS,
   CURRICULA,
@@ -96,6 +97,8 @@ export default async function ChapterPage({
         initialStep={initialStep}
         next={next}
       />
+
+      <LearnGameDock masterId={master.id} />
     </div>
   );
 }

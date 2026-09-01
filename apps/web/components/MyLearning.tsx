@@ -78,22 +78,6 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
     };
   }, []);
 
-  useEffect(() => {
-    if (!ready) return;
-    const sectionIds = ["my-learning", "watchlist", "account-settings"];
-    const updateActiveSection = () => {
-      let current = sectionIds[0];
-      for (const id of sectionIds) {
-        const section = document.getElementById(id);
-        if (section && section.getBoundingClientRect().top <= 130) current = id;
-      }
-      setActiveSection(current);
-    };
-    updateActiveSection();
-    window.addEventListener("scroll", updateActiveSection, { passive: true });
-    return () => window.removeEventListener("scroll", updateActiveSection);
-  }, [ready]);
-
   const totalChapters = MASTERS.length * CHAPTER_SLOTS.length;
   const chaptersDone = progress.lessonsDone.filter((id) => {
     const [kind, masterId, chapter] = id.split(":");
@@ -162,22 +146,25 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
 
   if (!ready) {
     return (
-      <div className="wrap" style={{ paddingBlock: "3.5rem" }}>
+      <div className="wrap wrap-wide" style={{ paddingBlock: "3.5rem" }}>
         <p className="lede">불러오는 중입니다…</p>
       </div>
     );
   }
 
   return (
-    <div className="wrap my-page-shell">
+    <div className="wrap wrap-wide my-page-shell">
       <aside className="my-page-sidebar">
         <p className="eyebrow">개인 기록</p>
         <h1>마이페이지</h1>
-        <nav className="my-page-menu" aria-label="마이페이지 메뉴">
-          <a
-            href="#my-learning"
+        <nav className="my-page-menu" aria-label="마이페이지 메뉴" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            id="mypage-tab-my-learning"
+            aria-selected={activeSection === "my-learning"}
+            aria-controls="mypage-panel-my-learning"
             data-active={activeSection === "my-learning"}
-            aria-current={activeSection === "my-learning" ? "location" : undefined}
             onClick={() => setActiveSection("my-learning")}
           >
             <span className="my-page-menu-index" aria-hidden="true">01</span>
@@ -185,11 +172,14 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
               <strong>내 학습</strong>
               <small>진도 · 퀴즈 · 노트 · 복습</small>
             </span>
-          </a>
-          <a
-            href="#watchlist"
+          </button>
+          <button
+            type="button"
+            role="tab"
+            id="mypage-tab-watchlist"
+            aria-selected={activeSection === "watchlist"}
+            aria-controls="mypage-panel-watchlist"
             data-active={activeSection === "watchlist"}
-            aria-current={activeSection === "watchlist" ? "location" : undefined}
             onClick={() => setActiveSection("watchlist")}
           >
             <span className="my-page-menu-index" aria-hidden="true">02</span>
@@ -197,11 +187,14 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
               <strong>관심 종목</strong>
               <small>저장한 기업 다시 보기</small>
             </span>
-          </a>
-          <a
-            href="#account-settings"
+          </button>
+          <button
+            type="button"
+            role="tab"
+            id="mypage-tab-account-settings"
+            aria-selected={activeSection === "account-settings"}
+            aria-controls="mypage-panel-account-settings"
             data-active={activeSection === "account-settings"}
-            aria-current={activeSection === "account-settings" ? "location" : undefined}
             onClick={() => setActiveSection("account-settings")}
           >
             <span className="my-page-menu-index" aria-hidden="true">03</span>
@@ -209,53 +202,58 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
               <strong>계정 설정</strong>
               <small>로그인 · 비밀번호 · 로그아웃</small>
             </span>
-          </a>
+          </button>
         </nav>
       </aside>
 
       <main className="my-page-content">
-        <span id="my-learning" className="my-page-anchor-marker" aria-hidden="true" />
+      {activeSection === "my-learning" && (
+      <div id="mypage-panel-my-learning" role="tabpanel" aria-labelledby="mypage-tab-my-learning">
         <p className="eyebrow">내 학습</p>
         <h2 className="thesis">
           지금까지 무엇을 확인했나요?
         </h2>
 
-      <div className="game-panel">
-        <div className="game-panel-top">
-          <span className="game-streak">🔥 {streak}일 <small>연속 학습</small></span>
-          <span className="game-level">Lv {lvl.level}</span>
-        </div>
-        <div className="game-xpbar" aria-label={`레벨 ${lvl.level}, 다음까지 ${lvl.xpToNext} XP`}>
-          <i style={{ width: `${xpBarPct}%` }} />
-        </div>
-        <div className="game-panel-foot">
-          <span>총 {xp} XP</span>
-          <span className={goalMet ? "game-goal-met" : undefined}>
-            오늘 목표 {goalMet ? "1 / 1 ✓" : "0 / 1"}
-          </span>
-        </div>
-        {badges.length > 0 && (
-          <div className="game-badges">
-            {badges.map((id) => (
-              <span key={id} className="game-badge" title={`${MASTER_BY_ID[id as keyof typeof MASTER_BY_ID]?.name} 완주`}>
-                🏅 {MASTER_BY_ID[id as keyof typeof MASTER_BY_ID]?.name.split(" · ")[0]}
+      <div className="my-page-hero">
+        <div className="my-page-hero-side">
+          <div className="game-panel">
+            <div className="game-panel-top">
+              <span className="game-streak">🔥 {streak}일 <small>연속 학습</small></span>
+              <span className="game-level">Lv {lvl.level}</span>
+            </div>
+            <div className="game-xpbar" aria-label={`레벨 ${lvl.level}, 다음까지 ${lvl.xpToNext} XP`}>
+              <i style={{ width: `${xpBarPct}%` }} />
+            </div>
+            <div className="game-panel-foot">
+              <span>총 {xp} XP</span>
+              <span className={goalMet ? "game-goal-met" : undefined}>
+                오늘 목표 {goalMet ? "1 / 1 ✓" : "0 / 1"}
               </span>
-            ))}
+            </div>
+            {badges.length > 0 && (
+              <div className="game-badges">
+                {badges.map((id) => (
+                  <span key={id} className="game-badge" title={`${MASTER_BY_ID[id as keyof typeof MASTER_BY_ID]?.name} 완주`}>
+                    🏅 {MASTER_BY_ID[id as keyof typeof MASTER_BY_ID]?.name.split(" · ")[0]}
+                  </span>
+                ))}
+              </div>
+            )}
+            <p className="game-xp-hint">
+              하나의 챕터에 들어있는 퀴즈 문항들을 모두 풀면 <strong>+20 XP</strong> · XP가 쌓이면 레벨이 올라가고 바 그래프에 표시됩니다.
+            </p>
           </div>
-        )}
-        <p className="game-xp-hint">
-          하나의 챕터에 들어있는 퀴즈 문항들을 모두 풀면 <strong>+20 XP</strong> · XP가 쌓이면 레벨이 올라가고 바 그래프에 표시됩니다.
-        </p>
-      </div>
 
-      <WisorTown progress={progress} />
+          <div className="card">
+            <p className="eyebrow">투자 대가 챕터</p>
+            <p className="score-value">
+              {chaptersDone}
+              <span className="score-of"> / {totalChapters}</span>
+            </p>
+          </div>
+        </div>
 
-      <div className="card" style={{ marginTop: "2rem" }}>
-        <p className="eyebrow">투자 대가 챕터</p>
-        <p className="score-value">
-          {chaptersDone}
-          <span className="score-of"> / {totalChapters}</span>
-        </p>
+        <WisorTown progress={progress} />
       </div>
 
       <hr className="rule" />
@@ -521,9 +519,11 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
           ? "학습 기록은 현재 로그인한 계정에 저장됩니다. 같은 계정으로 로그인하면 다른 기기에서도 이어서 볼 수 있습니다."
           : "학습 기록은 회원가입 전까지 이 브라우저에 임시 저장됩니다. 로그인하거나 가입하면 계정 기록과 합쳐져 이동합니다."}
       </p>
+      </div>
+      )}
 
-      <section id="watchlist" className="my-page-anchor-section" aria-labelledby="watchlist-title">
-        <hr className="rule" />
+      {activeSection === "watchlist" && (
+      <section id="mypage-panel-watchlist" role="tabpanel" aria-labelledby="mypage-tab-watchlist watchlist-title">
         <div className="watchlist-heading">
           <div>
             <p className="eyebrow">기업 다시 보기</p>
@@ -605,13 +605,15 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
           </ul>
         )}
       </section>
+      )}
 
-      <section id="account-settings" className="my-page-anchor-section" aria-labelledby="account-settings-title">
-        <hr className="rule" />
+      {activeSection === "account-settings" && (
+      <section id="mypage-panel-account-settings" role="tabpanel" aria-labelledby="mypage-tab-account-settings account-settings-title">
         <p className="eyebrow">내 계정</p>
         <h2 id="account-settings-title" className="section">계정 설정</h2>
         <AccountSettings />
       </section>
+      )}
       </main>
     </div>
   );
