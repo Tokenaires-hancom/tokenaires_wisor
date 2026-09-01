@@ -94,7 +94,7 @@ python run_batch.py --provider sec-toss --universe data/universe_us.json
 # 체결가만 갱신. 3초면 끝난다
 python run_batch.py --provider sec-toss --universe data/universe_us.json --mode prices
 
-# OCI 런타임 파일 게시와 검증은 deploy/oci/wisor-batch.sh가 맡는다
+# OCI 정기 배치와 검증은 deploy/oci/bin/wisor-batch가 맡는다
 
 pytest -q
 ```
@@ -119,5 +119,5 @@ pytest -q
 경로가 timer입니다.
 
 추적 fallback을 갱신하는 릴리스에서는 `scores.json`을 함께 커밋합니다. OCI 정기 배치는
-커밋하지 않고 `deploy/oci/wisor-batch.sh`가 런타임 파일을 게시합니다. 어느 경로든 상위 종목
+커밋하지 않고 `deploy/oci/bin/wisor-batch`가 이미지를 다시 만들어 게시합니다. 어느 경로든 상위 종목
 몇 개는 눈으로 봅니다. **숫자가 통과했다고 결과가 말이 되는 것은 아닙니다.**
