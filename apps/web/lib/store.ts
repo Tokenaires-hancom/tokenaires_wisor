@@ -1,7 +1,6 @@
 "use client";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { isDue } from "./journalDue.ts";
 
 /** 사용자 데이터 저장소.
  * 로그인 전에는 localStorage에 임시 저장한다. 로그인 세션을 발견하면 임시 기록을
@@ -36,11 +35,14 @@ export type Progress = {
 };
 
 export type JournalEntry = {
+  responseId: string;
   id: string;
   prompt: string;
   text: string;
   at: string;
 };
+
+type StoredJournalEntry = Omit<JournalEntry, "responseId"> & { responseId?: string };
 
 export type LearningStorageMode = "browser" | "account";
 
@@ -74,14 +76,19 @@ function emitStoreChange(): void {
   if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("wisor:store"));
 }
 
-function write(key: string, value: unknown): void {
-  if (typeof window === "undefined") return;
+function write(key: string, value: unknown): boolean {
+  if (typeof window === "undefined") return false;
   try {
     window.localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    return false;
+  }
+  try {
     emitStoreChange();
   } catch {
-    /* 저장 공간이 가득 찬 경우 현재 화면 동작은 유지한다. */
+    /* 저장은 끝났으므로 화면 갱신 이벤트 실패를 저장 실패로 바꾸지 않는다. */
   }
+  return true;
 }
 
 function readLocalState(): LocalLearningState {
@@ -89,7 +96,7 @@ function readLocalState(): LocalLearningState {
     watchlist: read<string[]>(KEYS.watchlist, []),
     notes: read<StudyNote[]>(KEYS.notes, []),
     progress: read<Progress>(KEYS.progress, emptyProgress()),
-    journal: read<JournalEntry[]>(KEYS.journal, []),
+    journal: readLocalJournal(),
   };
 }
 
@@ -113,15 +120,38 @@ type RemoteContext = { supabase: SupabaseClient; userId: string };
 let preparedUserId: string | null = null;
 let preparation: Promise<boolean> | null = null;
 
-async function migrateLocalState(supabase: SupabaseClient): Promise<boolean> {
+async function migrateLocalState(supabase: SupabaseClient, userId: string): Promise<boolean> {
   const local = readLocalState();
   if (!hasLearningState(local)) return true;
+
+  // 기록 이력을 새 복합키로 먼저 저장한다. 구 스키마에서는 이 요청 자체가 실패하므로
+  // 예전 RPC가 (user_id, entry_id) 기준으로 기존 답을 덮어쓸 기회를 주지 않는다.
+  if (local.journal.length > 0) {
+    const { error: journalError } = await supabase.from("journal_entries").upsert(
+      local.journal.map((entry) => ({
+        user_id: userId,
+        response_id: entry.responseId,
+        entry_id: entry.id,
+        prompt: entry.prompt,
+        answer: entry.text,
+        answered_at: entry.at,
+      })),
+      { onConflict: "user_id,response_id", ignoreDuplicates: true },
+    );
+    if (journalError) {
+      console.error(
+        "Wisor journal migration preflight failed",
+        journalError.code ?? journalError.message,
+      );
+      return false;
+    }
+  }
 
   const { error } = await supabase.rpc("import_learning_state", {
     p_watchlist: local.watchlist,
     p_notes: local.notes,
     p_progress: local.progress,
-    p_journal: local.journal,
+    p_journal: [],
   });
   if (error) {
     console.error("Wisor learning state migration failed", error.code ?? error.message);
@@ -141,7 +171,7 @@ async function remoteContext(): Promise<RemoteContext | null> {
   if (error || !data.user) return null;
   if (preparedUserId !== data.user.id || !preparation) {
     preparedUserId = data.user.id;
-    preparation = migrateLocalState(supabase);
+    preparation = migrateLocalState(supabase, data.user.id);
   }
   if (!(await preparation)) {
     invalidateRemotePreparation();
@@ -412,15 +442,34 @@ function recordLocalQuiz(id: string, correct: number, total: number, at: string)
 
 /* 기록형 답 */
 
+function normalizeJournalEntry(entry: StoredJournalEntry): JournalEntry {
+  const answeredAt = new Date(entry.at);
+  const legacyAnsweredAt = Number.isNaN(answeredAt.getTime()) ? entry.at : answeredAt.toISOString();
+  return {
+    ...entry,
+    responseId: entry.responseId ?? `legacy:${entry.id}:${legacyAnsweredAt}`,
+  };
+}
+
+export function journalEntriesNewestFirst(entries: JournalEntry[]): JournalEntry[] {
+  return [...entries].sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
+}
+
+function readLocalJournal(): JournalEntry[] {
+  const entries = read<StoredJournalEntry[]>(KEYS.journal, []).map(normalizeJournalEntry);
+  return journalEntriesNewestFirst(entries);
+}
+
 export async function getJournal(): Promise<JournalEntry[]> {
   const remote = await remoteContext();
-  if (!remote) return read<JournalEntry[]>(KEYS.journal, []);
+  if (!remote) return readLocalJournal();
   const { data, error } = await remote.supabase
     .from("journal_entries")
-    .select("entry_id,prompt,answer,answered_at")
+    .select("response_id,entry_id,prompt,answer,answered_at")
     .order("answered_at", { ascending: false });
-  if (error) return read<JournalEntry[]>(KEYS.journal, []);
+  if (error) return readLocalJournal();
   return (data ?? []).map((row) => ({
+    responseId: String(row.response_id),
     id: String(row.entry_id),
     prompt: String(row.prompt),
     text: String(row.answer),
@@ -428,21 +477,46 @@ export async function getJournal(): Promise<JournalEntry[]> {
   }));
 }
 
+/** 답 한 건을 가리키는 ID.
+ *
+ *  crypto.randomUUID는 https와 localhost에서만 있다. 폰으로 개발 서버를
+ *  http://192.168.x.x:3000처럼 열면 없어서 기록 저장이 통째로 실패한다.
+ *  getRandomValues는 Crypto에서 유일하게 비보안 컨텍스트에서도 쓸 수 있으므로
+ *  그때는 이쪽으로 만든다. UUID 모양을 흉내 내지는 않는다 — 이 값은 어디서도
+ *  UUID로 파싱되지 않고, 형식을 맞추려면 버전·변형 비트를 손대야 해서 오히려 깨지기 쉽다. */
+function newResponseId(): string {
+  if (typeof globalThis.crypto.randomUUID === "function") {
+    return globalThis.crypto.randomUUID();
+  }
+  const bytes = globalThis.crypto.getRandomValues(new Uint8Array(16));
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
 export async function saveJournalEntry(
   id: string,
   prompt: string,
   text: string,
 ): Promise<JournalEntry> {
-  const saved: JournalEntry = { id, prompt, text, at: new Date().toISOString() };
+  const saved: JournalEntry = {
+    responseId: newResponseId(),
+    id,
+    prompt,
+    text,
+    at: new Date().toISOString(),
+  };
   const remote = await remoteContext();
   if (!remote) {
     saveLocalJournal(saved);
     return saved;
   }
-  const { error } = await remote.supabase.from("journal_entries").upsert(
-    { user_id: remote.userId, entry_id: id, prompt, answer: text, answered_at: saved.at },
-    { onConflict: "user_id,entry_id" },
-  );
+  const { error } = await remote.supabase.from("journal_entries").insert({
+    user_id: remote.userId,
+    response_id: saved.responseId,
+    entry_id: id,
+    prompt,
+    answer: text,
+    answered_at: saved.at,
+  });
   if (error) {
     remoteWriteFailed("Wisor journal save failed", error);
     saveLocalJournal(saved);
@@ -451,11 +525,55 @@ export async function saveJournalEntry(
 }
 
 function saveLocalJournal(saved: JournalEntry): void {
-  const rest = read<JournalEntry[]>(KEYS.journal, []).filter((entry) => entry.id !== saved.id);
-  write(KEYS.journal, [saved, ...rest]);
+  if (!write(KEYS.journal, journalEntriesNewestFirst([saved, ...readLocalJournal()]))) {
+    throw new Error("기록을 브라우저에 저장하지 못했습니다.");
+  }
 }
 
-export async function dueJournalEntries(afterDays = 90): Promise<JournalEntry[]> {
-  const now = Date.now();
-  return (await getJournal()).filter((entry) => isDue(entry.at, now, afterDays));
+/** 답 한 건의 본문만 고친다. 답한 시각은 그대로 둔다 — 시각을 지금으로 옮기면
+ *  "언제 이렇게 생각했나"가 사라져서, 답을 쌓아 둔 이유가 없어진다. */
+export async function updateJournalEntry(responseId: string, text: string): Promise<void> {
+  const remote = await remoteContext();
+  if (!remote) {
+    updateLocalJournal(responseId, text);
+    return;
+  }
+  const { error } = await remote.supabase
+    .from("journal_entries")
+    .update({ answer: text })
+    .eq("user_id", remote.userId)
+    .eq("response_id", responseId);
+  if (error) remoteWriteFailed("Wisor journal update failed", error);
+  else emitStoreChange();
+}
+
+export async function deleteJournalEntry(responseId: string): Promise<void> {
+  const remote = await remoteContext();
+  if (!remote) {
+    deleteLocalJournal(responseId);
+    return;
+  }
+  const { error } = await remote.supabase
+    .from("journal_entries")
+    .delete()
+    .eq("user_id", remote.userId)
+    .eq("response_id", responseId);
+  if (error) remoteWriteFailed("Wisor journal delete failed", error);
+  else emitStoreChange();
+}
+
+function updateLocalJournal(responseId: string, text: string): void {
+  const next = readLocalJournal().map((entry) =>
+    entry.responseId === responseId ? { ...entry, text } : entry,
+  );
+  if (!write(KEYS.journal, next)) {
+    throw new Error("기록을 브라우저에 저장하지 못했습니다.");
+  }
+}
+
+function deleteLocalJournal(responseId: string): void {
+  const next = readLocalJournal().filter((entry) => entry.responseId !== responseId);
+  if (!write(KEYS.journal, next)) {
+    throw new Error("기록을 브라우저에서 지우지 못했습니다.");
+  }
 }

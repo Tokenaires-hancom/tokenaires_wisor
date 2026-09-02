@@ -68,15 +68,16 @@ create table if not exists public.study_notes (
 create index if not exists study_notes_user_updated_idx
   on public.study_notes (user_id, updated_at desc);
 
--- ------------------------------------------------------------- 기록형 답과 복습
+-- ------------------------------------------------------------- 기록형 답변 이력
 
 create table if not exists public.journal_entries (
-  user_id    uuid not null references auth.users on delete cascade,
-  entry_id   text not null,
-  prompt     text not null,
-  answer     text not null,
+  user_id     uuid not null references auth.users on delete cascade,
+  response_id text not null default uuid_generate_v4()::text, -- 응답 한 건의 안정적 ID
+  entry_id    text not null,                                  -- 재응답해도 유지되는 문항 ID
+  prompt      text not null,
+  answer      text not null,
   answered_at timestamptz not null default now(),
-  primary key (user_id, entry_id)
+  primary key (user_id, response_id)
 );
 
 create index if not exists journal_entries_user_answered_idx
@@ -127,7 +128,8 @@ create trigger study_notes_touch
 -- ------------------------------------------------------- 비회원 기록 계정 이전
 
 -- 한 트랜잭션 안에서 브라우저 임시 기록을 기존 계정 기록과 병합한다.
--- 집합 데이터는 합치고, 같은 퀴즈·노트·기록형 답은 더 최근 항목을 남긴다.
+-- 집합 데이터는 합치고, 같은 퀴즈·노트는 더 최근 항목을 남긴다.
+-- 기록형 답은 responseId별로 모두 보존한다.
 create or replace function public.import_learning_state(
   p_watchlist text[],
   p_notes jsonb,
@@ -207,20 +209,32 @@ begin
         updated_at = excluded.updated_at
     where excluded.updated_at >= public.study_notes.updated_at;
 
-  insert into public.journal_entries (user_id, entry_id, prompt, answer, answered_at)
+  -- 구버전 로컬 기록에는 responseId가 없으므로 브라우저와 같은 안정적 ID를 만든다.
+  insert into public.journal_entries (
+    user_id,
+    response_id,
+    entry_id,
+    prompt,
+    answer,
+    answered_at
+  )
   select
     auth.uid(),
+    coalesce(
+      nullif(entry ->> 'responseId', ''),
+      'legacy:' || (entry ->> 'id') || ':' ||
+      pg_catalog.to_char(
+        (entry ->> 'at')::timestamptz at time zone 'UTC',
+        'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'
+      )
+    ),
     entry ->> 'id',
     entry ->> 'prompt',
     entry ->> 'text',
     (entry ->> 'at')::timestamptz
-  from jsonb_array_elements(coalesce(p_journal, '[]'::jsonb)) as entry
+  from jsonb_array_elements(coalesce(p_journal, '[]'::jsonb)) as entries(entry)
   where coalesce(entry ->> 'id', '') <> ''
-  on conflict (user_id, entry_id) do update
-    set prompt = excluded.prompt,
-        answer = excluded.answer,
-        answered_at = excluded.answered_at
-    where excluded.answered_at >= public.journal_entries.answered_at;
+  on conflict (user_id, response_id) do nothing;
 end;
 $$;
 

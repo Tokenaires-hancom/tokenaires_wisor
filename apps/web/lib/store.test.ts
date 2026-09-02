@@ -1,20 +1,54 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
+  deleteJournalEntry,
   hasLearningState,
   getJournal,
   getNotes,
   getProgress,
   getWatchlist,
+  journalEntriesNewestFirst,
   markLessonDone,
   recordQuiz,
   saveJournalEntry,
   saveNote,
   toggleWatch,
+  updateJournalEntry,
   withoutMasterProgress,
+  type JournalEntry,
   type LocalLearningState,
   type Progress,
 } from "./store.ts";
+
+async function withBrowserStorage(
+  run: (values: Map<string, string>) => Promise<void>,
+  options: { failWrites?: boolean } = {},
+): Promise<void> {
+  const values = new Map<string, string>();
+  const originalWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: {
+      localStorage: {
+        getItem: (key: string) => values.get(key) ?? null,
+        setItem: (key: string, value: string) => {
+          if (options.failWrites) throw new Error("quota exceeded");
+          values.set(key, value);
+        },
+        removeItem: (key: string) => values.delete(key),
+      },
+      dispatchEvent: () => true,
+    },
+  });
+
+  try {
+    await run(values);
+  } finally {
+    if (originalWindow) Object.defineProperty(globalThis, "window", originalWindow);
+    else Reflect.deleteProperty(globalThis, "window");
+  }
+}
 
 test("해당 대가의 완료와 퀴즈만 초기화한다", () => {
   const progress: Progress = {
@@ -33,6 +67,29 @@ test("해당 대가의 완료와 퀴즈만 초기화한다", () => {
     },
   });
   assert.deepEqual(progress, before);
+});
+
+test("기록형 답을 최신순으로 세우고 받은 목록은 건드리지 않는다", () => {
+  const entry = (responseId: string, at: string): JournalEntry => ({
+    responseId,
+    id: "master:buffett:1#1",
+    prompt: "무엇을 확인했나요?",
+    text: `${responseId}의 답`,
+    at,
+  });
+  // 같은 문항에 세 번 답한 상태. 저장 순서와 시간 순서를 일부러 어긋나게 둔다.
+  const entries = [
+    entry("second", "2026-08-20T00:00:00.000Z"),
+    entry("third", "2026-08-28T00:00:00.000Z"),
+    entry("first", "2026-08-12T00:00:00.000Z"),
+  ];
+  const before = structuredClone(entries);
+
+  assert.deepEqual(
+    journalEntriesNewestFirst(entries).map((item) => item.responseId),
+    ["third", "second", "first"],
+  );
+  assert.deepEqual(entries, before);
 });
 
 test("비회원 기록이 하나라도 있으면 계정 이전 대상으로 본다", () => {
@@ -56,24 +113,25 @@ test("비회원 기록이 하나라도 있으면 계정 이전 대상으로 본�
     }),
     true,
   );
+  assert.equal(
+    hasLearningState({
+      ...empty,
+      journal: [
+        {
+          responseId: "response-1",
+          id: "master:buffett:1#1",
+          prompt: "무엇을 확인했나요?",
+          text: "현금흐름",
+          at: "2026-08-20T00:00:00.000Z",
+        },
+      ],
+    }),
+    true,
+  );
 });
 
 test("비회원의 모든 학습 기록은 브라우저 임시 저장소에 남는다", async () => {
-  const values = new Map<string, string>();
-  const originalWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
-  Object.defineProperty(globalThis, "window", {
-    configurable: true,
-    value: {
-      localStorage: {
-        getItem: (key: string) => values.get(key) ?? null,
-        setItem: (key: string, value: string) => values.set(key, value),
-        removeItem: (key: string) => values.delete(key),
-      },
-      dispatchEvent: () => true,
-    },
-  });
-
-  try {
+  await withBrowserStorage(async () => {
     await toggleWatch("AAPL");
     await markLessonDone("master:buffett:1");
     await recordQuiz("master:buffett:1", 2, 3);
@@ -93,8 +151,181 @@ test("비회원의 모든 학습 기록은 브라우저 임시 저장소에 남�
     assert.equal((await getProgress()).quizResults["master:buffett:1"].correct, 2);
     assert.equal((await getNotes())[0].ticker, "AAPL");
     assert.equal((await getJournal())[0].id, "master:buffett:1#1");
+  });
+});
+
+test("학습노트는 관심 종목 등록과 관계없이 남는다", async () => {
+  await withBrowserStorage(async () => {
+    await saveNote({
+      ticker: "AAPL",
+      name: "Apple",
+      whyInterested: "사업 구조 확인",
+      styleScores: [],
+      strengths: ["현금흐름"],
+      risks: ["집중도"],
+      openQuestions: "다음 분기 마진",
+      status: "digging",
+    });
+
+    assert.deepEqual(await getWatchlist(), []);
+    assert.equal((await getNotes())[0].ticker, "AAPL");
+
+    await toggleWatch("AAPL");
+    await toggleWatch("AAPL");
+
+    assert.deepEqual(await getWatchlist(), []);
+    assert.equal((await getNotes())[0].ticker, "AAPL");
+  });
+});
+
+test("같은 기록형 문항에 다시 답해도 이전 답을 남긴다", async () => {
+  await withBrowserStorage(async () => {
+    await saveJournalEntry("master:buffett:1#1", "무엇을 확인했나요?", "첫 답");
+    await saveJournalEntry("master:buffett:1#1", "무엇을 확인했나요?", "다시 쓴 답");
+
+    const entries = await getJournal();
+    assert.equal(entries.length, 2);
+    assert.deepEqual(entries.map((entry) => entry.text), ["다시 쓴 답", "첫 답"]);
+    assert.notEqual(entries[0].responseId, entries[1].responseId);
+  });
+});
+
+test("답 한 건만 고치고 답한 시각과 나머지 답은 건드리지 않는다", async () => {
+  await withBrowserStorage(async () => {
+    await saveJournalEntry("master:buffett:1#1", "무엇을 확인했나요?", "첫 답");
+    await saveJournalEntry("master:buffett:1#1", "무엇을 확인했나요?", "오타가 난 답");
+
+    const before = await getJournal();
+    await updateJournalEntry(before[0].responseId, "오타를 고친 답");
+
+    const after = await getJournal();
+    assert.deepEqual(after.map((entry) => entry.text), ["오타를 고친 답", "첫 답"]);
+    // 시각을 지금으로 옮기면 "언제 이렇게 생각했나"가 사라진다.
+    assert.equal(after[0].at, before[0].at);
+  });
+});
+
+test("답 한 건만 지우고 같은 문항의 다른 답은 남긴다", async () => {
+  await withBrowserStorage(async () => {
+    await saveJournalEntry("master:buffett:1#1", "무엇을 확인했나요?", "첫 답");
+    await saveJournalEntry("master:buffett:1#1", "무엇을 확인했나요?", "지울 답");
+
+    const before = await getJournal();
+    await deleteJournalEntry(before[0].responseId);
+
+    const after = await getJournal();
+    assert.deepEqual(after.map((entry) => entry.text), ["첫 답"]);
+  });
+});
+
+test("randomUUID가 없는 http 주소에서도 답을 저장한다", async () => {
+  // 폰으로 http://192.168.x.x:3000을 열면 crypto.randomUUID가 없다.
+  Object.defineProperty(globalThis.crypto, "randomUUID", {
+    value: undefined,
+    configurable: true,
+  });
+
+  try {
+    await withBrowserStorage(async () => {
+      await saveJournalEntry("master:buffett:1#1", "무엇을 확인했나요?", "첫 답");
+      await saveJournalEntry("master:buffett:1#1", "무엇을 확인했나요?", "다시 쓴 답");
+
+      const entries = await getJournal();
+      assert.equal(entries.length, 2);
+      assert.notEqual(entries[0].responseId, entries[1].responseId);
+      for (const entry of entries) assert.match(entry.responseId, /^[0-9a-f]{32}$/);
+    });
   } finally {
-    if (originalWindow) Object.defineProperty(globalThis, "window", originalWindow);
-    else Reflect.deleteProperty(globalThis, "window");
+    Reflect.deleteProperty(globalThis.crypto, "randomUUID");
+  }
+
+  assert.equal(typeof globalThis.crypto.randomUUID, "function", "원래 함수가 돌아와야 한다");
+});
+
+test("브라우저 저장에 실패하면 기록 완료로 처리하지 않는다", async () => {
+  await withBrowserStorage(
+    async () => {
+      await assert.rejects(
+        saveJournalEntry("master:buffett:1#1", "무엇을 확인했나요?", "현금흐름"),
+        /기록을 브라우저에 저장하지 못했습니다/,
+      );
+      assert.deepEqual(await getJournal(), []);
+    },
+    { failWrites: true },
+  );
+});
+
+test("브라우저의 예전 기록도 답한 시각의 최신순으로 읽는다", async () => {
+  await withBrowserStorage(async (values) => {
+    values.set(
+      "wisor.journal",
+      JSON.stringify([
+        {
+          id: "master:buffett:1#1",
+          prompt: "첫 질문",
+          text: "오래된 답",
+          at: "2026-01-01T00:00:00.000Z",
+        },
+        {
+          id: "master:graham:1#1",
+          prompt: "둘째 질문",
+          text: "최근 답",
+          at: "2026-02-01T09:00:00+09:00",
+        },
+      ]),
+    );
+
+    const entries = await getJournal();
+    assert.deepEqual(entries.map((entry) => entry.text), ["최근 답", "오래된 답"]);
+    assert.equal(
+      entries[0].responseId,
+      "legacy:master:graham:1#1:2026-02-01T00:00:00.000Z",
+    );
+  });
+});
+
+test("DB도 브라우저와 같은 구버전 기록 식별자 규칙을 사용한다", () => {
+  const schema = readFileSync(new URL("../../../supabase/schema.sql", import.meta.url), "utf8");
+  const migration = readFileSync(
+    new URL("../../../supabase/migrations/20260827_journal_entry_history.sql", import.meta.url),
+    "utf8",
+  );
+  const rpcLegacyId =
+    /'legacy:' \|\| \(entry ->> 'id'\) \|\| ':' \|\|\s*pg_catalog\.to_char\(\s*\(entry ->> 'at'\)::timestamptz at time zone 'UTC',\s*'YYYY-MM-DD"T"HH24:MI:SS\.MS"Z"'\s*\)/;
+
+  assert.match(schema, rpcLegacyId);
+  assert.match(migration, rpcLegacyId);
+  assert.match(
+    migration,
+    /set response_id =\s*'legacy:' \|\| entry_id \|\| ':' \|\|\s*pg_catalog\.to_char\(\s*answered_at at time zone 'UTC',\s*'YYYY-MM-DD"T"HH24:MI:SS\.MS"Z"'\s*\)/,
+  );
+});
+
+test("DB 기록 이력은 자기 답을 고치고 지우는 것까지 허용한다", () => {
+  const schema = readFileSync(new URL("../../../supabase/schema.sql", import.meta.url), "utf8");
+  const migration = readFileSync(
+    new URL("../../../supabase/migrations/20260827_journal_entry_history.sql", import.meta.url),
+    "utf8",
+  );
+
+  // 다른 표와 같은 for-all 정책 루프에 남는다. 답이 이력으로 쌓이는 것과
+  // 잘못 쓴 답을 못 지우는 것은 별개다.
+  assert.match(schema, /foreach t in array array\[[\s\S]*'journal_entries'[\s\S]*\]/);
+  assert.match(
+    schema,
+    /grant select, insert, update, delete on public\.journal_entries to authenticated/,
+  );
+
+  // 기본 키만 바꾸는 마이그레이션이다. journal_entries의 정책과 권한은
+  // 20260820이 만든 것을 그대로 쓴다. RPC 함수 권한은 여기 해당하지 않는다.
+  assert.doesNotMatch(migration, /policy [\w]*journal_entries/);
+  assert.doesNotMatch(migration, /(revoke|grant)[^;]*on public\.journal_entries/);
+
+  // SQL Editor에 그대로 붙여 넣는 경로에서도 돌아야 한다. uuid_generate_v4를 쓰는
+  // 파일은 그 확장을 스스로 만들어야 중간에 멈추지 않는다.
+  for (const sql of [schema, migration]) {
+    if (sql.includes("uuid_generate_v4")) {
+      assert.match(sql, /create extension if not exists "uuid-ossp"/);
+    }
   }
 });

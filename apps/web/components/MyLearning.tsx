@@ -7,17 +7,19 @@ import { CHAPTER_SLOTS } from "@/content/curriculum/types";
 import { MASTERS, MASTER_BY_ID } from "@/content/masters";
 import { money } from "@/lib/format";
 import { xpTotal, levelFor, streakDays, dailyGoalMet, masterBadges } from "@/lib/gamification";
+import { groupJournalByPrompt } from "@/lib/journalGroups";
 import "./game/game-panel.css";
 import WisorTown from "@/components/game/WisorTown";
 import {
   NOTE_STATUS_LABEL,
+  deleteJournalEntry,
   deleteNote,
-  dueJournalEntries,
+  getJournal,
   getNotes,
   getProgress,
   getStorageMode,
   getWatchlist,
-  saveJournalEntry,
+  updateJournalEntry,
   type JournalEntry,
   type LearningStorageMode,
   type Progress,
@@ -41,31 +43,75 @@ const PRICE_FORMATTER = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 2,
 });
 
+const JOURNAL_DATE_FORMATTER = new Intl.DateTimeFormat("ko-KR", {
+  dateStyle: "long",
+  timeStyle: "short",
+});
+
+function formatJournalDate(at: string): string {
+  const date = new Date(at);
+  return Number.isNaN(date.getTime()) ? at : JOURNAL_DATE_FORMATTER.format(date);
+}
+
+/** `master:{대가}:{장}`으로 시작하는 ID에서 대가와 챕터 칸을 찾는다.
+ *
+ *  퀴즈 결과 ID와 기록형 답변 ID가 같은 형식을 쓴다 — 답변 쪽은 뒤에 `#문항`이 더 붙는다.
+ *  푸는 자리를 두 벌로 두면 장 번호 규칙이 바뀔 때 한쪽만 고쳐져서, 퀴즈 목록과 답변
+ *  목록이 같은 장을 서로 다르게 가리킨다.
+ *
+ *  대가는 찾았는데 칸이 없을 수 있어서(정의된 칸 밖의 장 번호) 둘을 따로 돌려준다. */
+function masterChapterOf(id: string) {
+  const [kind, key, no] = id.split(/[:#]/);
+  const master = kind === "master" ? MASTER_BY_ID[key as keyof typeof MASTER_BY_ID] : undefined;
+  const chapterNo = Number(no);
+  const slot = CHAPTER_SLOTS.find((candidate) => candidate.no === chapterNo);
+
+  return {
+    key,
+    master,
+    slot,
+    chapterNo,
+    href: master && slot ? `/learn/masters/${key}/${slot.no}` : undefined,
+  };
+}
+
+function journalChapterContext(id: string): { href: string; label: string } | undefined {
+  const { master, slot, chapterNo, href } = masterChapterOf(id);
+  if (!master || !slot || !href) return undefined;
+
+  return { href, label: `${master.name.split(" · ")[0]} · ${chapterNo}장 ${slot.label}` };
+}
+
 export default function MyLearning({ companies }: { companies: Record<string, WatchCompanyInfo> }) {
   const [progress, setProgress] = useState<Progress>({ lessonsDone: [], quizResults: {} });
   const [watchlist, setWatchlist] = useState<string[]>([]);
   const [notes, setNotes] = useState<StudyNote[]>([]);
-  const [due, setDue] = useState<JournalEntry[]>([]);
-  const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [journal, setJournal] = useState<JournalEntry[]>([]);
   const [storageMode, setStorageMode] = useState<LearningStorageMode>("browser");
   const [ready, setReady] = useState(false);
   const [activeSection, setActiveSection] = useState("my-learning");
+  // 답을 고치거나 지우는 중인 한 건. 저장·삭제가 끝나면 store가 wisor:store를 쏘고
+  // 위 refresh가 목록을 다시 읽으므로 여기서 journal을 직접 손대지 않는다.
+  const [editingAnswerId, setEditingAnswerId] = useState<string | null>(null);
+  const [answerDraft, setAnswerDraft] = useState("");
+  const [deletingAnswerId, setDeletingAnswerId] = useState<string | null>(null);
+  const [answerError, setAnswerError] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
     async function refresh() {
-      const [p, w, n, j, mode] = await Promise.all([
+      const [p, w, n, journalEntries, mode] = await Promise.all([
         getProgress(),
         getWatchlist(),
         getNotes(),
-        dueJournalEntries(),
+        getJournal(),
         getStorageMode(),
       ]);
       if (!alive) return;
       setProgress(p);
       setWatchlist(w);
       setNotes(n);
-      setDue(j);
+      setJournal(journalEntries);
       setStorageMode(mode);
       setReady(true);
     }
@@ -108,10 +154,7 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
   );
   const quizItems = quizResults
     .map(([id, result]) => {
-      const [kind, key, no] = id.split(":");
-      const master = kind === "master" ? MASTER_BY_ID[key as keyof typeof MASTER_BY_ID] : undefined;
-      const chapterNo = Number(no);
-      const slot = Number.isInteger(chapterNo) ? CHAPTER_SLOTS[chapterNo - 1] : undefined;
+      const { key, master, slot, chapterNo, href } = masterChapterOf(id);
       const masterIndex = MASTERS.findIndex((item) => item.id === key);
       const chapterOrder = Number.isInteger(chapterNo) ? chapterNo : CHAPTER_SLOTS.length + 1;
 
@@ -121,7 +164,7 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
         masterId: master?.id,
         chapterNo: slot?.no ?? chapterOrder,
         chapterLabel: slot ? `${slot.no}장 · ${slot.label}` : id,
-        href: master && slot ? `/learn/masters/${key}/${slot.no}` : undefined,
+        href,
         order: masterIndex === -1 ? Number.MAX_SAFE_INTEGER : masterIndex * 100 + chapterOrder,
       };
     })
@@ -170,7 +213,7 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
             <span className="my-page-menu-index" aria-hidden="true">01</span>
             <span>
               <strong>내 학습</strong>
-              <small>진도 · 퀴즈 · 노트 · 복습</small>
+              <small>진도 · 퀴즈 · 기록형 답변</small>
             </span>
           </button>
           <button
@@ -185,7 +228,7 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
             <span className="my-page-menu-index" aria-hidden="true">02</span>
             <span>
               <strong>관심 종목</strong>
-              <small>저장한 기업 다시 보기</small>
+              <small>저장한 기업 · 학습노트</small>
             </span>
           </button>
           <button
@@ -383,136 +426,175 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
 
       <hr className="rule" />
 
-      <section aria-labelledby="review-schedule-title">
-        <p className="eyebrow">복습 일정</p>
-        <h2 id="review-schedule-title" className="section">90일 뒤 다시 보는 기록</h2>
-        {due.length === 0 ? (
-          <p className="lede">
-            지금 다시 볼 기록은 없습니다. 기록형 답은 작성한 지 90일이 지나면 이곳에 나타납니다.
-          </p>
-        ) : (
-          <>
-            <p className="lede">
-              그때의 답과 지금의 생각이 다르면, 무엇이 바뀌었는지가 배운 것입니다.
-            </p>
-            <div className="stack">
-              {due.map((entry) => (
-                <div key={entry.id} className="card">
-                  <h3 className="sub">{entry.prompt}</h3>
-                  <p style={{ fontSize: "0.9rem", color: "var(--ink-soft)" }}>
-                    {entry.at.slice(0, 10)}에 쓴 답 — {entry.text}
-                  </p>
-                  <label className="field">
-                    <span>지금의 답</span>
-                    <textarea
-                      rows={3}
-                      value={drafts[entry.id] ?? ""}
-                      onChange={(event) =>
-                        setDrafts((prev) => ({ ...prev, [entry.id]: event.target.value }))
-                      }
-                    />
-                  </label>
-                  <button
-                    type="button"
-                    className="btn"
-                    disabled={(drafts[entry.id] ?? "").trim() === ""}
-                    onClick={() => {
-                      void saveJournalEntry(entry.id, entry.prompt, drafts[entry.id]).then(async () =>
-                        setDue(await dueJournalEntries()),
-                      );
-                    }}
-                  >
-                    기록하기
-                  </button>
-                </div>
-              ))}
+      <section aria-labelledby="answer-history-title">
+        <p className="eyebrow">기록형 문항</p>
+        <h2 id="answer-history-title" className="section">
+          내가 남긴 답변 ({journal.length})
+        </h2>
+        <p className="lede">
+          같은 질문에 다시 답하면 이전 답 위에 쌓입니다. 그때의 판단과 지금의 판단을
+          나란히 놓고, 무엇이 바뀌었는지 읽어보세요.
+        </p>
+        {journal.length === 0 ? (
+          <div className="card answer-history-empty">
+            <div>
+              <strong>아직 남긴 답변이 없습니다</strong>
+              <p>배우기에서 한 챕터를 살펴보고 첫 기록형 답변을 남겨보세요.</p>
             </div>
-          </>
+            <Link href="/learn" className="btn">
+              배우기
+            </Link>
+          </div>
+        ) : (
+          <ol className="answer-history-list">
+            {groupJournalByPrompt(journal).map((group) => {
+              const context = journalChapterContext(group.id);
+              const latest = group.answers[0];
+
+              return (
+                <li key={group.id} className="answer-history-entry">
+                  <time className="answer-history-date" dateTime={latest.at}>
+                    {formatJournalDate(latest.at)}
+                  </time>
+                  <article className="answer-history-record">
+                    <div className="answer-history-record-heading">
+                      <h3>{group.prompt}</h3>
+                      {context && (
+                        <Link
+                          href={context.href}
+                          className="answer-history-context"
+                          aria-label={`${context.label} 다시 보기`}
+                        >
+                          {context.label} <span aria-hidden="true">→</span>
+                        </Link>
+                      )}
+                    </div>
+                    <ol
+                      className={
+                        group.answers.length > 1
+                          ? "answer-history-revisions"
+                          : "answer-history-single"
+                      }
+                    >
+                      {group.answers.map((answer, index) => (
+                        <li key={answer.responseId}>
+                          {group.answers.length > 1 && (
+                            <p className="answer-history-revision-label">
+                              <time dateTime={answer.at}>{formatJournalDate(answer.at)}</time>
+                              {index === 0 && <span> · 가장 최근</span>}
+                            </p>
+                          )}
+                          {editingAnswerId === answer.responseId ? (
+                            <div className="answer-history-edit">
+                              <label className="field">
+                                <span>답 고치기</span>
+                                <textarea
+                                  rows={4}
+                                  value={answerDraft}
+                                  onChange={(event) => setAnswerDraft(event.target.value)}
+                                />
+                              </label>
+                              <div className="answer-history-actions">
+                                <button
+                                  type="button"
+                                  className="btn"
+                                  disabled={answerDraft.trim() === ""}
+                                  onClick={() => {
+                                    setAnswerError(null);
+                                    void updateJournalEntry(answer.responseId, answerDraft.trim())
+                                      .then(() => setEditingAnswerId(null))
+                                      .catch(() => setAnswerError("답을 고치지 못했습니다."));
+                                  }}
+                                >
+                                  저장
+                                </button>
+                                <button
+                                  type="button"
+                                  className="answer-history-link-button"
+                                  onClick={() => {
+                                    setEditingAnswerId(null);
+                                    setAnswerError(null);
+                                  }}
+                                >
+                                  취소
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <p className="answer-history-answer">{answer.text}</p>
+                              {deletingAnswerId === answer.responseId ? (
+                                <p className="answer-history-actions">
+                                  <span className="answer-history-confirm">
+                                    이 답을 지울까요? 되돌릴 수 없습니다.
+                                  </span>
+                                  <button
+                                    type="button"
+                                    className="answer-history-link-button"
+                                    data-kind="danger"
+                                    onClick={() => {
+                                      setAnswerError(null);
+                                      void deleteJournalEntry(answer.responseId)
+                                        .then(() => setDeletingAnswerId(null))
+                                        .catch(() => setAnswerError("답을 지우지 못했습니다."));
+                                    }}
+                                  >
+                                    지웁니다
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="answer-history-link-button"
+                                    onClick={() => setDeletingAnswerId(null)}
+                                  >
+                                    그대로 둡니다
+                                  </button>
+                                </p>
+                              ) : (
+                                <p className="answer-history-actions">
+                                  <button
+                                    type="button"
+                                    className="answer-history-link-button"
+                                    onClick={() => {
+                                      setAnswerError(null);
+                                      setDeletingAnswerId(null);
+                                      setEditingAnswerId(answer.responseId);
+                                      setAnswerDraft(answer.text);
+                                    }}
+                                  >
+                                    고치기
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="answer-history-link-button"
+                                    onClick={() => {
+                                      setAnswerError(null);
+                                      setEditingAnswerId(null);
+                                      setDeletingAnswerId(answer.responseId);
+                                    }}
+                                  >
+                                    지우기
+                                  </button>
+                                </p>
+                              )}
+                            </>
+                          )}
+                          {answerError &&
+                            (editingAnswerId === answer.responseId ||
+                              deletingAnswerId === answer.responseId) && (
+                              <p className="journal-save-message" data-kind="error" role="alert">
+                                {answerError}
+                              </p>
+                            )}
+                        </li>
+                      ))}
+                    </ol>
+                  </article>
+                </li>
+              );
+            })}
+          </ol>
         )}
       </section>
-
-      <hr className="rule" />
-
-      <h2 className="section">종목 학습노트 ({notes.length})</h2>
-      <p className="lede">
-        기업 관점에서 확인한 것을 모아 둔 기록입니다. 시간이 지난 뒤 처음의 판단 근거를 다시
-        읽는 것이 이 노트의 목적입니다.
-      </p>
-      {notes.length === 0 ? (
-        <p className="lede">
-          아직 작성한 노트가 없습니다. 종목 상세의 <strong>나의 학습노트</strong> 탭에서 첫 노트를
-          남겨보세요.
-        </p>
-      ) : (
-        <div className="stack">
-          {notes.map((note) => (
-            <div key={note.ticker} className="card">
-              <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
-                <div>
-                  <Link href={`/stocks/${note.ticker}`}>
-                    <strong>{note.name}</strong>
-                    <span className="stock-ticker">{note.ticker}</span>
-                  </Link>
-                </div>
-                <span className="visibility">{NOTE_STATUS_LABEL[note.status]}</span>
-              </div>
-
-              {note.whyInterested && (
-                <p style={{ fontSize: "0.92rem", marginTop: "0.9rem", marginBottom: 0 }}>
-                  {note.whyInterested}
-                </p>
-              )}
-
-              <div style={{ marginTop: "1rem" }}>
-                <p className="eyebrow">기업 관점</p>
-                <ul className="reason-list">
-                  {note.strengths.slice(0, 2).map((s, i) => (
-                    <li key={i} data-kind="pass">
-                      {s}
-                    </li>
-                  ))}
-                  {note.risks.slice(0, 1).map((s, i) => (
-                    <li key={i} data-kind="fail">
-                      {s}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {note.openQuestions && (
-                <>
-                  <p className="eyebrow" style={{ marginTop: "1rem" }}>
-                    추가로 확인할 질문
-                  </p>
-                  <p style={{ fontSize: "0.9rem", color: "var(--ink-soft)", margin: 0 }}>
-                    {note.openQuestions}
-                  </p>
-                </>
-              )}
-
-              <div className="stamp">
-                <span>마지막 저장 {new Date(note.updatedAt).toLocaleString("ko-KR")}</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    void deleteNote(note.ticker).then(getNotes).then(setNotes);
-                  }}
-                  style={{
-                    background: "none",
-                    border: 0,
-                    padding: 0,
-                    color: "var(--ink-faint)",
-                    textDecoration: "underline",
-                    font: "inherit",
-                  }}
-                >
-                  노트 지우기
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
 
       <p className="disclaimer">
         {storageMode === "account"
@@ -529,7 +611,7 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
             <p className="eyebrow">기업 다시 보기</p>
             <h2 id="watchlist-title" className="section">관심 종목</h2>
           </div>
-          <span>{watchlist.length}개 기업</span>
+          <span>{watchlist.length}개 기업 · {notes.length}개 노트</span>
         </div>
         {watchlist.length === 0 ? (
           <div className="watchlist-empty">
@@ -604,6 +686,92 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
             })}
           </ul>
         )}
+
+        <section className="watchlist-notes" aria-labelledby="watchlist-notes-title">
+          <p className="eyebrow">기업 판단 기록</p>
+          <h3 id="watchlist-notes-title" className="watchlist-notes-title">
+            종목 학습노트 ({notes.length})
+          </h3>
+          <p className="lede">
+            기업 관점에서 확인한 것을 모아 둔 기록입니다. 시간이 지난 뒤 처음의 판단 근거를 다시
+            읽는 것이 이 노트의 목적입니다.
+          </p>
+          {notes.length === 0 ? (
+            <p className="lede">
+              아직 작성한 노트가 없습니다. 종목 상세의 <strong>나의 학습노트</strong> 탭에서 첫 노트를
+              남겨보세요.
+            </p>
+          ) : (
+            <div className="stack">
+              {notes.map((note) => (
+                <div key={note.ticker} className="card">
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
+                    <div>
+                      <Link href={`/stocks/${note.ticker}`}>
+                        <strong>{note.name}</strong>
+                        <span className="stock-ticker">{note.ticker}</span>
+                      </Link>
+                    </div>
+                    <span className="visibility">{NOTE_STATUS_LABEL[note.status]}</span>
+                  </div>
+
+                  {note.whyInterested && (
+                    <p style={{ fontSize: "0.92rem", marginTop: "0.9rem", marginBottom: 0 }}>
+                      {note.whyInterested}
+                    </p>
+                  )}
+
+                  <div style={{ marginTop: "1rem" }}>
+                    <p className="eyebrow">기업 관점</p>
+                    <ul className="reason-list">
+                      {note.strengths.slice(0, 2).map((s, i) => (
+                        <li key={i} data-kind="pass">
+                          {s}
+                        </li>
+                      ))}
+                      {note.risks.slice(0, 1).map((s, i) => (
+                        <li key={i} data-kind="fail">
+                          {s}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {note.openQuestions && (
+                    <>
+                      <p className="eyebrow" style={{ marginTop: "1rem" }}>
+                        추가로 확인할 질문
+                      </p>
+                      <p style={{ fontSize: "0.9rem", color: "var(--ink-soft)", margin: 0 }}>
+                        {note.openQuestions}
+                      </p>
+                    </>
+                  )}
+
+                  <div className="stamp">
+                    <span>마지막 저장 {new Date(note.updatedAt).toLocaleString("ko-KR")}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void deleteNote(note.ticker).then(getNotes).then(setNotes);
+                      }}
+                      style={{
+                        background: "none",
+                        border: 0,
+                        padding: 0,
+                        color: "var(--ink-faint)",
+                        textDecoration: "underline",
+                        font: "inherit",
+                      }}
+                    >
+                      노트 지우기
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
       </section>
       )}
 
