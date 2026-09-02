@@ -64,6 +64,7 @@ export default function StockLenses({
                   role="tab"
                   className="score-master-tab"
                   aria-selected={styleId === id}
+                  data-page-master={id === preferredStyleId ? "true" : undefined}
                   onClick={() => onChangeStyle(id)}
                 >
                   {master?.name ?? id}
