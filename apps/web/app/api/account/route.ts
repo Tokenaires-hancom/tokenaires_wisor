@@ -1,11 +1,13 @@
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { hasValidDeleteConfirmation, isSameOrigin } from "@/lib/accountDeletion";
+import { hasValidDeleteConfirmation, isSameOrigin, siteOrigin } from "@/lib/accountDeletion";
 import { createClient as createSessionClient } from "@/lib/supabase/server";
 
 export async function DELETE(request: NextRequest) {
-  if (!isSameOrigin(request.headers.get("origin"), request.nextUrl.origin)) {
+  // 기대 주소는 설정에서 읽는다. request.nextUrl.origin으로 되돌리면 배포에서 전부 403이 된다 —
+  // 그 값은 공개 주소가 아니라 서버가 바인딩한 주소(https://localhost:3000)다.
+  if (!isSameOrigin(request.headers.get("origin"), siteOrigin(process.env.SITE_ORIGIN))) {
     return NextResponse.json({ message: "허용되지 않은 계정 삭제 요청입니다." }, { status: 403 });
   }
 
