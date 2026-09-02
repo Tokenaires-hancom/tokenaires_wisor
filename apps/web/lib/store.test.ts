@@ -320,4 +320,12 @@ test("DB 기록 이력은 자기 답을 고치고 지우는 것까지 허용한�
   // 20260820이 만든 것을 그대로 쓴다. RPC 함수 권한은 여기 해당하지 않는다.
   assert.doesNotMatch(migration, /policy [\w]*journal_entries/);
   assert.doesNotMatch(migration, /(revoke|grant)[^;]*on public\.journal_entries/);
+
+  // SQL Editor에 그대로 붙여 넣는 경로에서도 돌아야 한다. uuid_generate_v4를 쓰는
+  // 파일은 그 확장을 스스로 만들어야 중간에 멈추지 않는다.
+  for (const sql of [schema, migration]) {
+    if (sql.includes("uuid_generate_v4")) {
+      assert.match(sql, /create extension if not exists "uuid-ossp"/);
+    }
+  }
 });

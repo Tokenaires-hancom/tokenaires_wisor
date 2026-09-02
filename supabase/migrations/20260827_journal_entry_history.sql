@@ -1,5 +1,11 @@
 -- 기록형 답을 문항별 최신값이 아니라 응답별 이력으로 보존한다.
 
+-- 아래 기본값이 uuid_generate_v4()를 쓴다. schema.sql은 첫 줄에서 이 확장을 만들지만
+-- 이 파일은 schema.sql을 거치지 않고 SQL Editor에 그대로 붙여 넣는 경로로도 실행된다.
+-- 확장이 없으면 컬럼 기본값을 거는 세 번째 문장에서 멈추고, 컬럼은 추가됐는데
+-- 기본 키는 안 바뀐 반쪽 상태로 남는다.
+create extension if not exists "uuid-ossp";
+
 alter table public.journal_entries
   add column if not exists response_id text;
 
