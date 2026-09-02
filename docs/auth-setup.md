@@ -43,16 +43,21 @@ Preview 배포를 쓴다면 신뢰하는 배포 도메인만 redirect allow list
 ## 5. 사용자 데이터 스키마 적용
 
 신규 프로젝트에는 `supabase/schema.sql`을 적용합니다. 기존 사용자 데이터 스키마가 있는
-프로젝트에는 증분 파일 `supabase/migrations/20260820_account_learning_storage.sql`을
-Supabase SQL Editor에서 실행하거나 CLI로 적용합니다.
+프로젝트에는 아래 증분 파일을 날짜순으로 Supabase SQL Editor에서 실행하거나 CLI로
+적용합니다.
+
+1. `supabase/migrations/20260820_account_learning_storage.sql`
+2. `supabase/migrations/20260827_journal_entry_history.sql`
 
 ```bash
 supabase db push
 ```
 
-이 마이그레이션은 기록형 답 테이블과 비회원 기록 병합 함수를 추가합니다. 앱은 로그인 전
-기록을 기존 `localStorage` 키에 임시 저장하고, 인증 직후 계정 데이터와 병합이 성공해야만
-로컬 원본을 지웁니다.
+첫 마이그레이션은 기록형 답 테이블과 비회원 기록 병합 함수를 추가합니다. 두 번째는 같은
+문항의 답을 덮어쓰지 않고 응답별 이력으로 보존하며, 앱 사용자의 권한을 조회·추가로
+제한합니다. **두 번째 마이그레이션을 새 Web 버전보다 먼저 운영 DB에 적용합니다.** 새 Web은
+새 복합키로 기록 이력을 먼저 멱등 삽입하고 나머지 계정 데이터를 병합하며, 두 단계가 모두
+성공해야만 로그인 전 `localStorage` 원본을 지웁니다.
 
 ## 6. 확인
 

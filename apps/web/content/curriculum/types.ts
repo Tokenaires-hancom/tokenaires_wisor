@@ -62,7 +62,7 @@ export type GuidedExercise = {
   checkpoints: string[];
 };
 
-/** 피드백이 없다. 저장했다가 90일 뒤 다시 묻는다. */
+/** 점수나 피드백 없이 사용자의 생각을 기록한다. */
 export type JournalExercise = {
   kind: "journal";
   prompt: string;
