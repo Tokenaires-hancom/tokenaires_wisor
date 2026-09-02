@@ -1273,7 +1273,7 @@ h3.sub {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    padding-block: 1.25rem 1rem;
+    padding-block: 0.75rem 0.75rem;
   }
 
   .screener-page > .screener-style-tabs {
@@ -1287,7 +1287,7 @@ h3.sub {
   .screener-page > .screener-split {
     flex: 1;
     min-height: 0;
-    margin-top: 0.75rem;
+    margin-top: 0.5rem;
     grid-template-rows: minmax(0, 1fr);
   }
 
@@ -1303,14 +1303,14 @@ h3.sub {
   }
 }
 
-/* 목록 머리 한 줄 — 왼쪽 [판정]·[정보 부족]·[판정 제외] 전환과 오른쪽 종목
- * 검색창을 나눠 쓴다. 눌러도/검색해도 페이지 이동 없이 왼쪽 목록만 바뀐다. */
+/* 목록 머리 두 줄 — 위는 [판정]·[정보 부족]·[판정 제외]·[관심종목] 전환,
+ * 아래는 종목 검색창. 묶음이 넷으로 늘면서 420px 목록 칸에서 검색창과 한
+ * 줄에 같이 못 둬 줄을 나눴다. 눌러도/검색해도 페이지 이동 없이 왼쪽
+ * 목록만 바뀐다. */
 .screener-list-head {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.5rem 0.75rem;
+  flex-direction: column;
+  gap: 0.5rem;
   /* border-bottom을 여기 두지 않는다 — 첫 종목 줄의 위 경계선은
      .stock-row:first-child가 자기 border-top으로 직접 그린다(아래 참고).
      경계선을 이 머리가 아니라 줄 자신이 갖고 있어야, 마우스를 올렸을 때
@@ -1327,9 +1327,8 @@ h3.sub {
 
 .screener-search {
   position: relative;
-  flex: 1 1 9rem;
-  min-width: 8rem;
-  max-width: 13rem;
+  width: 100%;
+  max-width: 16rem;
 }
 
 .screener-search-input {
@@ -1413,23 +1412,16 @@ h3.sub {
 /* 한 줄 44px. 로고 칸이 바닥을 정한다 — 28px 아래로 내리면 로고가 없을 때 넣는
  * 5글자 티커(CMCSA·GOOGL)가 7~8px이 되어 못 읽는다.
  *
- * 넓은 화면에서는 <button>이다 — 눌러도 페이지를 안 떠나고 오른쪽 칸만 바뀐다.
- * 좁은 화면에서는 <a>로 바뀐다(반응형 절 참고). border·background는 버튼
- * 기본값을 지운다. */
+ * 종목 선택(.stock-row-select)과 관심종목 하트(.watch-heart-btn)는 둘 다
+ * <button>이라 하나의 <button> 안에 넣을 수 없다 — HTML은 버튼 중첩을 허용하지
+ * 않고, 브라우저가 파싱 시점에 바깥 버튼을 조기에 닫아버려 클릭이 깨진다.
+ * 그래서 .stock-row는 이제 버튼이 아니라 둘을 나란히 담는 그릇이고, 줄
+ * 전체를 누르는 동작은 안쪽 .stock-row-select가 맡는다. */
 .stock-row {
-  display: grid;
-  grid-template-columns: 28px minmax(0, 1fr) auto auto;
-  gap: 0.7rem;
+  display: flex;
   align-items: center;
   width: 100%;
-  /* 좌우 여백. 왼쪽은 선택 시 붙는 3px 강조선(box-shadow)이 로고와 겹치지
-     않게, 오른쪽은 점수가 줄 끝에 딱 붙어 잘린 듯 보이지 않게 잡아준다. */
-  padding: 0.5rem 0.6rem;
-  border: 0;
   border-bottom: 1px solid var(--line);
-  background: none;
-  text-align: left;
-  color: inherit;
 }
 
 /* 목록의 첫 줄만 위 경계선도 갖는다. 나머지 줄은 바로 앞줄의 border-bottom이
@@ -1440,14 +1432,41 @@ h3.sub {
   border-top: 1px solid var(--line);
 }
 
+/* 하트를 누를 때도 줄 전체 회색이 함께 뜬다 — :hover는 자손 위에 있어도
+   켜지므로 별도 처리가 필요 없다. */
 .stock-row:hover {
   background: var(--surface-sunk);
 }
 
-/* 지금 고른 종목. 오른쪽 칸의 내용과 이 줄을 잇는 유일한 표시다. */
-.stock-row[aria-current="true"] {
+/* 지금 고른 종목. 오른쪽 칸의 내용과 이 줄을 잇는 유일한 표시다. 선택 여부의
+   접근성 표시(aria-current)는 실제로 누르는 .stock-row-select에 두고, 이
+   data-current는 줄 배경을 칠하는 용도로만 쓴다. */
+.stock-row[data-current="true"] {
   background: var(--wine-soft);
   box-shadow: inset 3px 0 0 var(--wine);
+}
+
+/* 넓은 화면에서는 <button>이다 — 눌러도 페이지를 안 떠나고 오른쪽 칸만 바뀐다.
+ * border·background는 버튼 기본값을 지운다. */
+.stock-row-select {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto auto;
+  gap: 0.7rem;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  /* 좌우 여백. 왼쪽은 선택 시 붙는 3px 강조선(box-shadow)이 로고와 겹치지
+     않게, 오른쪽은 하트 버튼과의 간격을 잡아준다. */
+  padding: 0.5rem 0.6rem;
+  border: 0;
+  background: none;
+  text-align: left;
+  color: inherit;
+}
+
+.stock-row > .watch-heart-btn {
+  flex: none;
+  margin-right: 0.6rem;
 }
 
 .stock-logo {
@@ -1554,7 +1573,7 @@ h3.sub {
 /* 종목 상세 맨 위. 대가 이름 탭(같은 종목을 다른 철학으로 바꿔 본다)과
  * "나의 학습노트" 버튼이 한 줄을 나눠 쓴다. 밑줄은 행 전체(.score-master-tabs-row)에
  * 두고, 각 버튼은 기본 stretch로 행 높이를 꽉 채워 자기 border-bottom을 그
- * 밑줄과 같은 자리에 겹쳐 그린다 — 선택된 탭만 wine으로 칠해져 밑줄 위로 드러난다. */
+ * 밑줄과 같은 자리에 겹쳐 그린다. */
 .score-master-tabs-row {
   display: flex;
   justify-content: space-between;
@@ -1570,6 +1589,8 @@ h3.sub {
 }
 
 .score-master-tab {
+  display: flex;
+  align-items: center;
   background: none;
   border: 0;
   border-bottom: 2px solid transparent;
@@ -1583,10 +1604,23 @@ h3.sub {
   color: var(--ink);
 }
 
+/* 페이지 주인(상단 탭에서 고른 대가)만 이름을 키운다. 다른 대가 탭을 봐도
+ * 크기는 그대로 유지되고, 지금 보고 있지 않을 때는 밑줄·색이 회색으로
+ * 바뀐다. 지금 보는 탭이면 아래 [aria-selected] 규칙이 이 색을 wine으로
+ * 덮어쓴다(같은 특이도에서는 나중 규칙이 이기므로 이 규칙을 먼저 둔다). */
+.score-master-tab[data-page-master="true"] {
+  font-weight: 800;
+  font-size: 1.15rem;
+  border-bottom-color: var(--line-strong);
+  color: var(--ink-soft);
+}
+
+/* 지금 보고 있는 대가. 페이지 주인이면 위 규칙이 이미 키운 크기를 그대로
+ * 두고 색·밑줄만 wine으로 켠다. 페이지 주인이 아닌 탭을 눌렀을 때는 크기는
+ * 안 커지고 색·밑줄만 wine으로 바뀐다 — 크기는 오직 페이지 주인만의 표시다. */
 .score-master-tab[aria-selected="true"] {
   color: var(--wine);
   border-bottom-color: var(--wine);
-  font-weight: 600;
 }
 
 /* 학습노트 버튼은 탭이 아니라 항상 눌러 여는 행동이라 .btn(골드 카드 버튼)을
@@ -1665,6 +1699,45 @@ h3.sub {
 .note-modal-body {
   padding: 1.25rem;
   overflow-y: auto;
+}
+
+/* 관심종목 담기. 예전엔 학습노트 모달 안 텍스트 버튼이었는데, 모달을 열어야만
+ * 담았는지 알 수 있어서 종목명 옆(항상 보이는 자리)의 하트로 옮겼다. 채움
+ * 여부만으로 상태를 구분하는 토글이라 --wine(포인트 색, 방향성 없음)을 쓴다 —
+ * 기준 충족 표시가 아니므로 --gold/--ochre 규칙과는 무관하다. */
+.watch-heart-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 999px;
+  color: var(--ink-faint);
+  cursor: pointer;
+}
+
+.watch-heart-btn:hover {
+  color: var(--wine);
+  background: var(--wine-soft);
+}
+
+.watch-heart-btn[data-watched="true"] {
+  color: var(--wine);
+}
+
+/* 목록 줄은 28px 로고 칸이 행 높이를 정한다(.stock-row 주석 참고) — 기본
+ * 크기(2.5rem)를 그대로 쓰면 줄마다 높이가 달라진다. */
+.watch-heart-btn[data-size="sm"] {
+  width: 28px;
+  height: 28px;
+}
+
+.watch-heart-btn[data-size="sm"] svg {
+  width: 1.15em;
+  height: 1.15em;
 }
 
 .stock-market-strip {
@@ -2127,7 +2200,7 @@ h3.sub {
 
 .screener-style-tabs {
   display: flex;
-  margin: 0 0 1.25rem;
+  margin: 0 0 0.75rem;
   overflow-x: auto;
   overflow-y: hidden;
   border-bottom: 1px solid var(--line-strong);
@@ -2836,7 +2909,7 @@ h3.sub {
 
 @media (max-width: 640px) {
   /* 375px에서도 한 줄을 지킨다. 막대를 줄여 이름 자리를 남긴다. */
-  .stock-row {
+  .stock-row-select {
     gap: 0.5rem;
   }
 

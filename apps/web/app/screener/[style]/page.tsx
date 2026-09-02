@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import DataStamp, { SampleDataFlag } from "@/components/DataStamp";
 import CriteriaLegend from "@/components/CriteriaLegend";
 import ScreenerSplit from "@/components/ScreenerSplit";
-import { MASTER_BY_ID } from "@/content/masters";
+import { MASTER_BY_ID, sortStyleIds } from "@/content/masters";
 import { loadScores, marketCapRanks, ranked, styleMeta } from "@/lib/scores";
 
 // 배치가 scores.json을 교체하면 다음 요청이 새 값을 읽어야 한다. 정적 생성이면
@@ -53,8 +53,9 @@ export default async function Screener({ params }: { params: Promise<{ style: st
   return (
     <div className="screener-page wrap wrap-wide">
       <nav className="screener-style-tabs" aria-label="투자 철학 선택">
-        {data.styles
-          .map((model) => {
+        {sortStyleIds(data.styles.map((m) => m.id))
+          .map((styleId) => {
+            const model = data.styles.find((m) => m.id === styleId)!;
             const modelMaster = MASTER_BY_ID[model.id as keyof typeof MASTER_BY_ID];
             const isActive = model.id === style;
 
