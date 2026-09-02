@@ -94,7 +94,7 @@ python run_batch.py --provider sec-toss --universe data/universe_us.json
 # 체결가만 갱신. 3초면 끝난다
 python run_batch.py --provider sec-toss --universe data/universe_us.json --mode prices
 
-# OCI 런타임 파일 게시와 검증은 deploy/oci/wisor-batch.sh가 맡는다
+# OCI 정기 배치와 검증은 deploy/oci/bin/wisor-batch가 맡는다
 
 pytest -q
 ```
@@ -111,10 +111,13 @@ pytest -q
 옛 값을 유지합니다(`CachedPriceProvider.stale`).
 
 운영 자동 갱신은 OCI의 `wisor-batch.timer`가 맡습니다. `.github/workflows/scores.yml`은
-예약 실행을 하지 않는 수동 복구 수단이며, 실행할 때 `--provider sec-toss`와 실유니버스를
-명시하고 `prices` 또는 `full`을 고릅니다. OCI timer와 동시에 실행하면 토스 자격증명이
-충돌할 수 있으므로 먼저 timer를 멈춥니다.
+저장소의 생성 파일을 사람이 다시 만드는 수단인데, **지금은 동작하지 않습니다** — 토스 API가
+송신 IP를 제한하고 허용 목록에 GitHub 러너 주소가 없어 토큰 발급이 403으로 막힙니다. 사정은
+`docs/deploy.md`에 있습니다.
+
+**배치가 막혔다고 timer를 멈추고 이 워크플로를 돌리지 마세요.** 지금 돌아가는 유일한 갱신
+경로가 timer입니다.
 
 추적 fallback을 갱신하는 릴리스에서는 `scores.json`을 함께 커밋합니다. OCI 정기 배치는
-커밋하지 않고 `deploy/oci/wisor-batch.sh`가 런타임 파일을 게시합니다. 어느 경로든 상위 종목
+커밋하지 않고 `deploy/oci/bin/wisor-batch`가 이미지를 다시 만들어 게시합니다. 어느 경로든 상위 종목
 몇 개는 눈으로 봅니다. **숫자가 통과했다고 결과가 말이 되는 것은 아닙니다.**

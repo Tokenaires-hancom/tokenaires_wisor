@@ -47,7 +47,6 @@ flowchart TB
 
     subgraph CHAT["persona_explain · Python HTTP 서버"]
         PS["server.py"]
-        SAFE["safety.py"]
         LLM["explain.py"]
     end
 
@@ -67,7 +66,7 @@ flowchart TB
     SRV -->|props| CLI
     CLI --> BROWSER
     BROWSER -->|/api/persona/*| PS
-    PS --> LLM --> SAFE
+    PS --> LLM
     BROWSER --> STORE
     STORE -->|"비회원 임시 저장"| LS
     STORE -->|"회원 RLS 저장"| SB
@@ -82,7 +81,7 @@ flowchart TB
 |---|---|---|---|---|
 | 웹 | Node.js 23+ / Next.js 15 App Router | `apps/web/` | 화면 전체. 페이지가 전부 정적 생성 | 1번 |
 | 점수 배치 | Python 3.11+ | `data-pipeline/` | 재무 원천 → 지표 → 스타일 점수 → `scores.json` | 3번 |
-| 해설 챗봇 API | Python 3.11+ (표준 라이브러리 `ThreadingHTTPServer`) | `persona_explain/` | 대가 페르소나로 지표 해설. 세션은 메모리 | — |
+| 해설 챗봇 API | Python 3.11+ (표준 라이브러리 `ThreadingHTTPServer`) | `persona_explain/` | 대가 페르소나로 지표 해설·투자 철학 대화. 세션은 메모리 | — |
 | 사용자 데이터 | 브라우저 + Supabase | `apps/web/lib/store.ts` | 비회원 임시 저장, 회원 계정 저장과 자동 이전 | 2번 |
 | 사용자 DB | PostgreSQL (Supabase) | `supabase/schema.sql`, `supabase/migrations/` | 진도·퀴즈·관심종목·학습노트·기록형 답, 사용자별 RLS | 2번 |
 | PR 자동검사 | GitHub Actions | `.github/workflows/check.yml`, `scripts/pr_checks/` | 배포 계약·데이터·웹 테스트·빌드·타입·번들 경계 검사 | 2번 |
@@ -222,31 +221,36 @@ sequenceDiagram
     participant S as server.py
     participant D as scores_source
     participant L as LLM 어댑터
-    participant F as safety.check
-
-    B->>N: POST /api/persona/sessions {ticker, persona}
+    B->>N: POST /api/persona/sessions {persona, ticker?}
     N->>S: POST /sessions
-    S->>D: company(ticker) · judgement(ticker, persona)
-    D-->>S: 지표 블록 + 기준판정 블록
-    S->>L: system(페르소나 프롬프트) + user(앵커 블록)
-    L-->>S: 해설 초안
-    S->>F: 금지표현 검사
-    alt 위반이면
-        F-->>S: REGENERATE
-        S->>L: 재생성
+    alt ticker 있음
+        S->>D: company(ticker) · judgement(ticker, persona)
+        D-->>S: 지표 블록 + 기준판정 블록
+        S->>L: system(페르소나 프롬프트) + user(앵커 블록)
+        L-->>S: 첫 해설
+    else ticker 없음
+        S-->>S: 자유 대화 앵커 + 고정 안내문
     end
-    S-->>N: {opening, verdict, regenerated, blocked, disclaimer}
+    S-->>N: {opening, company?, judgement?, verdict}
+    N-->>B: 같은 응답
+    B->>N: POST /messages {question}
+    N->>S: 같은 요청
+    S->>L: system + 앵커 + 질문
+    L-->>S: 답변
+    S-->>N: {reply, verdict}
     N-->>B: 같은 응답
 ```
 
 설계상 중요한 세 가지.
 
-1. **브라우저는 숫자를 보내지 않습니다.** `ticker`와 `persona`만 보냅니다.
-   지표는 서버가 자기 `scores.json`에서 꺼냅니다 — 웹과 챗봇이 같은 파일을 각자 읽습니다.
+1. **브라우저는 숫자를 보내지 않습니다.** 종목 대화는 `ticker`와 `persona`, 자유 대화는
+   `persona`만 보냅니다. 지표는 서버가 자기 `scores.json`에서 꺼냅니다 — 웹과 챗봇이
+   같은 파일을 각자 읽습니다.
    **다만 읽는 시점이 다릅니다.** 웹은 빌드 시점에 번들에 굽고, 챗봇은 런타임에
    `SCORES_JSON_PATH`(없으면 후보 경로 탐색)로 파일을 엽니다(`persona_explain/scores_source.py`).
    두 서비스를 따로 배포하므로 **같은 종목에 대해 서로 다른 기준일 값을 낼 수 있습니다.**
-2. **지표·기준판정 블록은 앵커입니다.** 대화가 길어져도 잘리지 않습니다(`persona_explain/chat.py`).
+2. **문맥 블록은 앵커입니다.** 종목 대화의 지표·기준판정과 자유 대화의 무종목 문맥은
+   대화가 길어져도 잘리지 않습니다(`persona_explain/chat.py`).
 3. **세션은 메모리입니다.** TTL 30분, 개수 상한 있음(`persona_explain/session_store.py`).
    서버가 재시작하면 사라집니다. 영속화 대상이 아니라고 판단한 것입니다.
 
@@ -267,9 +271,9 @@ flowchart LR
 
 `store.ts`의 함수는 전부 `Promise`를 돌려줍니다. 로그인 전에는 기존 localStorage 키에
 임시 저장하고, 인증 직후 `import_learning_state` RPC가 계정의 기존 기록과 병합합니다.
-완료 챕터·관심 종목은 합집합, 퀴즈·노트·기록형 답은 더 최근 항목을 남깁니다. RPC가
-성공한 뒤에만 로컬 원본을 지우며, 이후 읽기·쓰기는 사용자별 RLS가 적용된 Supabase
-테이블을 사용합니다.
+완료 챕터·관심 종목은 합집합, 퀴즈·노트는 더 최근 항목을 남기고 기록형 답은 답변별
+고유 ID로 시간순 이력을 모두 보존합니다. RPC가 성공한 뒤에만 로컬 원본을 지우며,
+이후 읽기·쓰기는 사용자별 RLS가 적용된 Supabase 테이블을 사용합니다.
 
 `supabase/schema.sql`에 저장하는 것과 저장하지 않는 것이 명시돼 있습니다 —
 보유 수량·평가금액·증권사 정보는 스키마에 자리 자체가 없습니다.

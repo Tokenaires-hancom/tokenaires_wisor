@@ -239,24 +239,28 @@ button {
   border-top: 1px solid var(--line-strong);
 }
 
-.my-page-menu a {
+.my-page-menu button {
   display: grid;
   grid-template-columns: 1.6rem minmax(0, 1fr);
   gap: 0.7rem;
+  width: 100%;
   padding: 1rem 0.8rem 1rem 0;
+  border: 0;
   border-bottom: 1px solid var(--line);
+  background: none;
   color: var(--ink-soft);
+  text-align: left;
 }
 
-.my-page-menu a[data-active="true"] {
+.my-page-menu button[data-active="true"] {
   border-left: 4px solid var(--gold);
   padding-left: 0.75rem;
   background: linear-gradient(90deg, var(--gold-soft), transparent 86%);
   color: var(--ink);
 }
 
-.my-page-menu a:hover,
-.my-page-menu a:focus-visible {
+.my-page-menu button:hover,
+.my-page-menu button:focus-visible {
   background-color: var(--surface-sunk);
   color: var(--ink);
 }
@@ -289,14 +293,219 @@ button {
   min-width: 0;
 }
 
-.my-page-anchor-marker,
-.my-page-anchor-section {
-  scroll-margin-top: 5.5rem;
+/* 연속 학습·챕터 카드가 왼쪽 1/3, 마을(town)이 오른쪽 2/3를 받는다.
+   align-items를 stretch(기본값)로 둬서 왼쪽 칸이 마을 카드와 같은 높이를
+   받게 하고, 그 안에서 챕터 카드가 flex: 1로 남는 높이를 채운다.
+   town/game-panel 자체 margin-top은 다른 화면(ChapterExercises)에서도 쓰므로
+   그대로 두고, 여기서만 grid gap으로 대체한다. */
+.my-page-hero {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) minmax(0, 2fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
 }
 
-.my-page-anchor-marker {
+.my-page-hero .town,
+.my-page-hero-side .game-panel {
+  margin-top: 0;
+}
+
+.my-page-hero-side {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.my-page-hero-side .card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.answer-history-empty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  border-style: dashed;
+  background: var(--surface-sunk);
+}
+
+.answer-history-empty strong {
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.answer-history-empty p {
+  margin: 0.25rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.answer-history-empty .btn {
+  flex: none;
+}
+
+.answer-history-list {
+  margin: 1.4rem 0 0;
+  padding: 0;
+  border-top: 1px solid var(--line-strong);
+  list-style: none;
+}
+
+.answer-history-entry {
+  display: grid;
+  grid-template-columns: minmax(7.5rem, 8.75rem) minmax(0, 1fr);
+}
+
+.answer-history-date {
+  position: relative;
   display: block;
-  height: 0;
+  padding: 1.25rem 1.5rem 1.25rem 0;
+  border-right: 1px solid var(--line-strong);
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  line-height: 1.6;
+  word-break: keep-all;
+}
+
+.answer-history-date::after {
+  position: absolute;
+  top: 1.55rem;
+  right: -0.3rem;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 0 3px var(--surface);
+  content: "";
+}
+
+.answer-history-record {
+  min-width: 0;
+  padding: 1.15rem 0 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.answer-history-record-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.answer-history-record-heading h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.98rem;
+  font-weight: 800;
+  line-height: 1.45;
+  word-break: keep-all;
+}
+
+.answer-history-context {
+  flex: none;
+  max-width: 13rem;
+  color: var(--wine);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.5;
+  text-align: right;
+}
+
+.answer-history-context:hover {
+  color: var(--wine-deep);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.answer-history-answer {
+  margin: 0.65rem 0 0;
+  overflow-wrap: anywhere;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  line-height: 1.75;
+  white-space: pre-wrap;
+}
+
+/* 같은 문항에 두 번 이상 답한 경우에만 쓴다. 왼쪽 선이 한 문항의 답들을 하나로 묶고,
+   답 하나짜리 문항은 선 없이 그대로 두어 목록 전체가 들쭉날쭉해지지 않게 한다. */
+.answer-history-revisions {
+  margin: 0.65rem 0 0;
+  padding: 0 0 0 0.9rem;
+  border-left: 2px solid var(--gold-line);
+  list-style: none;
+}
+
+.answer-history-revisions > li + li {
+  margin-top: 1.1rem;
+  padding-top: 1.1rem;
+  border-top: 1px dashed var(--line);
+}
+
+.answer-history-revision-label {
+  margin: 0;
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  line-height: 1.6;
+}
+
+.answer-history-revisions .answer-history-answer {
+  margin-top: 0.3rem;
+}
+
+/* 답이 하나뿐인 문항. 목록 태그를 쓰되 눈에는 예전처럼 답 하나만 보이게 한다. */
+.answer-history-single {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.answer-history-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.55rem 0 0;
+}
+
+.answer-history-link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-faint);
+  font: inherit;
+  font-size: 0.78rem;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.answer-history-link-button:hover {
+  color: var(--ink);
+}
+
+/* 되돌릴 수 없는 쪽만 포인트 색을 쓴다. 색만으로 구분하지 않도록 문구가 함께 붙는다. */
+.answer-history-link-button[data-kind="danger"] {
+  color: var(--wine);
+  font-weight: 800;
+}
+
+.answer-history-confirm {
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+}
+
+.answer-history-edit {
+  margin-top: 0.55rem;
+}
+
+.answer-history-edit .field {
+  margin: 0;
 }
 
 .account-empty {
@@ -476,6 +685,10 @@ button {
     padding-block: 2rem 4rem;
   }
 
+  .my-page-hero {
+    grid-template-columns: 1fr;
+  }
+
   .my-page-sidebar {
     position: static;
   }
@@ -484,7 +697,7 @@ button {
     margin-bottom: 1.1rem;
   }
 
-  .my-page-menu a {
+  .my-page-menu button {
     grid-template-columns: 1.5rem minmax(0, 1fr);
     max-width: 28rem;
   }
@@ -500,6 +713,42 @@ button {
 }
 
 @media (max-width: 520px) {
+  .answer-history-empty {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .answer-history-entry {
+    grid-template-columns: 1fr;
+    border-left: 1px solid var(--line-strong);
+  }
+
+  .answer-history-date {
+    padding: 1rem 0 0.25rem 1.2rem;
+    border-right: 0;
+  }
+
+  .answer-history-date::after {
+    top: 1.25rem;
+    right: auto;
+    left: -0.3rem;
+  }
+
+  .answer-history-record {
+    padding: 0.25rem 0 1.25rem 1.2rem;
+  }
+
+  .answer-history-record-heading {
+    display: block;
+  }
+
+  .answer-history-context {
+    display: inline-block;
+    max-width: none;
+    margin-top: 0.55rem;
+    text-align: left;
+  }
+
   .account-settings-facts {
     grid-template-columns: 1fr;
   }
@@ -1024,7 +1273,7 @@ h3.sub {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    padding-block: 1.25rem 1rem;
+    padding-block: 0.75rem 0.75rem;
   }
 
   .screener-page > .screener-style-tabs {
@@ -1038,7 +1287,7 @@ h3.sub {
   .screener-page > .screener-split {
     flex: 1;
     min-height: 0;
-    margin-top: 0.75rem;
+    margin-top: 0.5rem;
     grid-template-rows: minmax(0, 1fr);
   }
 
@@ -1054,14 +1303,14 @@ h3.sub {
   }
 }
 
-/* 목록 머리 한 줄 — 왼쪽 [판정]·[정보 부족]·[판정 제외] 전환과 오른쪽 종목
- * 검색창을 나눠 쓴다. 눌러도/검색해도 페이지 이동 없이 왼쪽 목록만 바뀐다. */
+/* 목록 머리 두 줄 — 위는 [판정]·[정보 부족]·[판정 제외]·[관심종목] 전환,
+ * 아래는 종목 검색창. 묶음이 넷으로 늘면서 420px 목록 칸에서 검색창과 한
+ * 줄에 같이 못 둬 줄을 나눴다. 눌러도/검색해도 페이지 이동 없이 왼쪽
+ * 목록만 바뀐다. */
 .screener-list-head {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.5rem 0.75rem;
+  flex-direction: column;
+  gap: 0.5rem;
   /* border-bottom을 여기 두지 않는다 — 첫 종목 줄의 위 경계선은
      .stock-row:first-child가 자기 border-top으로 직접 그린다(아래 참고).
      경계선을 이 머리가 아니라 줄 자신이 갖고 있어야, 마우스를 올렸을 때
@@ -1078,9 +1327,8 @@ h3.sub {
 
 .screener-search {
   position: relative;
-  flex: 1 1 9rem;
-  min-width: 8rem;
-  max-width: 13rem;
+  width: 100%;
+  max-width: 16rem;
 }
 
 .screener-search-input {
@@ -1164,23 +1412,16 @@ h3.sub {
 /* 한 줄 44px. 로고 칸이 바닥을 정한다 — 28px 아래로 내리면 로고가 없을 때 넣는
  * 5글자 티커(CMCSA·GOOGL)가 7~8px이 되어 못 읽는다.
  *
- * 넓은 화면에서는 <button>이다 — 눌러도 페이지를 안 떠나고 오른쪽 칸만 바뀐다.
- * 좁은 화면에서는 <a>로 바뀐다(반응형 절 참고). border·background는 버튼
- * 기본값을 지운다. */
+ * 종목 선택(.stock-row-select)과 관심종목 하트(.watch-heart-btn)는 둘 다
+ * <button>이라 하나의 <button> 안에 넣을 수 없다 — HTML은 버튼 중첩을 허용하지
+ * 않고, 브라우저가 파싱 시점에 바깥 버튼을 조기에 닫아버려 클릭이 깨진다.
+ * 그래서 .stock-row는 이제 버튼이 아니라 둘을 나란히 담는 그릇이고, 줄
+ * 전체를 누르는 동작은 안쪽 .stock-row-select가 맡는다. */
 .stock-row {
-  display: grid;
-  grid-template-columns: 28px minmax(0, 1fr) auto auto;
-  gap: 0.7rem;
+  display: flex;
   align-items: center;
   width: 100%;
-  /* 좌우 여백. 왼쪽은 선택 시 붙는 3px 강조선(box-shadow)이 로고와 겹치지
-     않게, 오른쪽은 점수가 줄 끝에 딱 붙어 잘린 듯 보이지 않게 잡아준다. */
-  padding: 0.5rem 0.6rem;
-  border: 0;
   border-bottom: 1px solid var(--line);
-  background: none;
-  text-align: left;
-  color: inherit;
 }
 
 /* 목록의 첫 줄만 위 경계선도 갖는다. 나머지 줄은 바로 앞줄의 border-bottom이
@@ -1191,14 +1432,41 @@ h3.sub {
   border-top: 1px solid var(--line);
 }
 
+/* 하트를 누를 때도 줄 전체 회색이 함께 뜬다 — :hover는 자손 위에 있어도
+   켜지므로 별도 처리가 필요 없다. */
 .stock-row:hover {
   background: var(--surface-sunk);
 }
 
-/* 지금 고른 종목. 오른쪽 칸의 내용과 이 줄을 잇는 유일한 표시다. */
-.stock-row[aria-current="true"] {
+/* 지금 고른 종목. 오른쪽 칸의 내용과 이 줄을 잇는 유일한 표시다. 선택 여부의
+   접근성 표시(aria-current)는 실제로 누르는 .stock-row-select에 두고, 이
+   data-current는 줄 배경을 칠하는 용도로만 쓴다. */
+.stock-row[data-current="true"] {
   background: var(--wine-soft);
   box-shadow: inset 3px 0 0 var(--wine);
+}
+
+/* 넓은 화면에서는 <button>이다 — 눌러도 페이지를 안 떠나고 오른쪽 칸만 바뀐다.
+ * border·background는 버튼 기본값을 지운다. */
+.stock-row-select {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto auto;
+  gap: 0.7rem;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  /* 좌우 여백. 왼쪽은 선택 시 붙는 3px 강조선(box-shadow)이 로고와 겹치지
+     않게, 오른쪽은 하트 버튼과의 간격을 잡아준다. */
+  padding: 0.5rem 0.6rem;
+  border: 0;
+  background: none;
+  text-align: left;
+  color: inherit;
+}
+
+.stock-row > .watch-heart-btn {
+  flex: none;
+  margin-right: 0.6rem;
 }
 
 .stock-logo {
@@ -1305,7 +1573,7 @@ h3.sub {
 /* 종목 상세 맨 위. 대가 이름 탭(같은 종목을 다른 철학으로 바꿔 본다)과
  * "나의 학습노트" 버튼이 한 줄을 나눠 쓴다. 밑줄은 행 전체(.score-master-tabs-row)에
  * 두고, 각 버튼은 기본 stretch로 행 높이를 꽉 채워 자기 border-bottom을 그
- * 밑줄과 같은 자리에 겹쳐 그린다 — 선택된 탭만 wine으로 칠해져 밑줄 위로 드러난다. */
+ * 밑줄과 같은 자리에 겹쳐 그린다. */
 .score-master-tabs-row {
   display: flex;
   justify-content: space-between;
@@ -1321,6 +1589,8 @@ h3.sub {
 }
 
 .score-master-tab {
+  display: flex;
+  align-items: center;
   background: none;
   border: 0;
   border-bottom: 2px solid transparent;
@@ -1334,10 +1604,23 @@ h3.sub {
   color: var(--ink);
 }
 
+/* 페이지 주인(상단 탭에서 고른 대가)만 이름을 키운다. 다른 대가 탭을 봐도
+ * 크기는 그대로 유지되고, 지금 보고 있지 않을 때는 밑줄·색이 회색으로
+ * 바뀐다. 지금 보는 탭이면 아래 [aria-selected] 규칙이 이 색을 wine으로
+ * 덮어쓴다(같은 특이도에서는 나중 규칙이 이기므로 이 규칙을 먼저 둔다). */
+.score-master-tab[data-page-master="true"] {
+  font-weight: 800;
+  font-size: 1.15rem;
+  border-bottom-color: var(--line-strong);
+  color: var(--ink-soft);
+}
+
+/* 지금 보고 있는 대가. 페이지 주인이면 위 규칙이 이미 키운 크기를 그대로
+ * 두고 색·밑줄만 wine으로 켠다. 페이지 주인이 아닌 탭을 눌렀을 때는 크기는
+ * 안 커지고 색·밑줄만 wine으로 바뀐다 — 크기는 오직 페이지 주인만의 표시다. */
 .score-master-tab[aria-selected="true"] {
   color: var(--wine);
   border-bottom-color: var(--wine);
-  font-weight: 600;
 }
 
 /* 학습노트 버튼은 탭이 아니라 항상 눌러 여는 행동이라 .btn(골드 카드 버튼)을
@@ -1416,6 +1699,45 @@ h3.sub {
 .note-modal-body {
   padding: 1.25rem;
   overflow-y: auto;
+}
+
+/* 관심종목 담기. 예전엔 학습노트 모달 안 텍스트 버튼이었는데, 모달을 열어야만
+ * 담았는지 알 수 있어서 종목명 옆(항상 보이는 자리)의 하트로 옮겼다. 채움
+ * 여부만으로 상태를 구분하는 토글이라 --wine(포인트 색, 방향성 없음)을 쓴다 —
+ * 기준 충족 표시가 아니므로 --gold/--ochre 규칙과는 무관하다. */
+.watch-heart-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 999px;
+  color: var(--ink-faint);
+  cursor: pointer;
+}
+
+.watch-heart-btn:hover {
+  color: var(--wine);
+  background: var(--wine-soft);
+}
+
+.watch-heart-btn[data-watched="true"] {
+  color: var(--wine);
+}
+
+/* 목록 줄은 28px 로고 칸이 행 높이를 정한다(.stock-row 주석 참고) — 기본
+ * 크기(2.5rem)를 그대로 쓰면 줄마다 높이가 달라진다. */
+.watch-heart-btn[data-size="sm"] {
+  width: 28px;
+  height: 28px;
+}
+
+.watch-heart-btn[data-size="sm"] svg {
+  width: 1.15em;
+  height: 1.15em;
 }
 
 .stock-market-strip {
@@ -1878,7 +2200,7 @@ h3.sub {
 
 .screener-style-tabs {
   display: flex;
-  margin: 0 0 1.25rem;
+  margin: 0 0 0.75rem;
   overflow-x: auto;
   overflow-y: hidden;
   border-bottom: 1px solid var(--line-strong);
@@ -2102,7 +2424,7 @@ h3.sub {
 
 .comparison-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 14rem;
+  grid-template-columns: minmax(0, 1fr) 21rem;
   gap: 1.5rem;
 }
 
@@ -2182,8 +2504,9 @@ h3.sub {
   margin-top: 0.35rem;
   color: color-mix(in oklab, var(--wine) 45%, var(--ink-faint));
   font-family: var(--sans);
-  font-size: 0.78rem;
-  font-weight: 400;
+  font-size: calc(0.78rem + 1px);
+  font-style: italic;
+  font-weight: 700;
   line-height: 1.45;
 }
 
@@ -2199,6 +2522,7 @@ h3.sub {
   height: inherit;
   color: var(--ink-soft);
   font-size: 0.8rem;
+  font-weight: 700;
   line-height: 1.45;
 }
 
@@ -2276,7 +2600,7 @@ h3.sub {
 .comparison-rail-count {
   margin: 0;
   color: var(--ink-soft);
-  font-size: 0.8rem;
+  font-size: calc(0.8rem + 2px);
   line-height: 1.5;
 }
 
@@ -2305,8 +2629,16 @@ h3.sub {
   display: none;
 }
 
+.comparison-guide .quiz-bubble {
+  font-size: calc(1rem - 2px);
+  font-weight: 700;
+}
+
 .comparison-rail-count .mono {
   font-family: var(--mono);
+  /* .mono의 기본 font-size(0.75rem)가 이 문단 글자보다 작아서 덮어써야 한다 */
+  font-size: 1em;
+  font-weight: 700;
   color: var(--ink);
 }
 
@@ -2332,13 +2664,18 @@ h3.sub {
    색만으로는 못 가른다 — 얼굴·이름·퍼센트를 반드시 함께 붙인다.
    글자는 본문 색을 쓴다. 막대 색을 글자에 옮기지 않는다 */
 .comparison-chart {
-  margin: 0;
+  /* .comparison-rail의 flex gap(0.9rem)에 얹어, "N칸을 골랐습니다"와 첫
+     인물 사이를 그 아래 인물 간 간격만큼 넉넉하게 띄운다 */
+  margin: 0.75rem 0 0;
   padding: 0;
   list-style: none;
 }
 
+/* 인물 일곱 명은 픽 개수와 무관하게 항상 다 나온다(0%도 그린다) — 목록 높이가
+   고정이라, 사이 간격을 넓히면 아래 여백(.comparison-reset의 margin-top:auto가
+   먹는 자리)이 다시 뺏겨 온다. 그래서 일곱 명 사이에 고르게 나눠 준다 */
 .comparison-chart li + li {
-  margin-top: 0.85rem;
+  margin-top: 1.6rem;
 }
 
 .comparison-chart-label {
@@ -2390,21 +2727,33 @@ h3.sub {
 }
 
 .comparison-reset {
-  /* 남는 자리를 전부 위로 밀어 바닥에 붙인다. 자리가 없으면 gap이 받는다 */
+  /* 남는 자리를 전부 위로 밀어 바닥에 붙인다. 자리가 없으면 gap이 받는다.
+     align-self로 폭을 내용만큼만 잡는다 — rail의 기본 stretch를 두면
+     버튼이 레일 너비 그대로 커진다 */
   margin-top: auto;
-  padding: 0;
-  border: 0;
-  border-bottom: 1px solid var(--line);
-  background: none;
-  color: var(--ink-soft);
+  align-self: center;
+  padding: 0.42rem 0.95rem;
+  border: 1px solid var(--wine);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--wine);
   font: inherit;
   font-size: 0.78rem;
+  font-weight: 700;
   cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
 }
 
 .comparison-reset:hover {
-  color: var(--wine);
-  border-bottom-color: var(--wine);
+  background: var(--wine);
+  color: var(--paper);
+}
+
+/* 살펴보기 버튼 바로 아래 놓이는 자리에서는 아래쪽 여백을 자기가 만들 이유가
+   없다 — margin-top:auto는 표 밑에 혼자 남는 기본 자리(.comparison-reset)를
+   위한 것이라 여기서는 끈다 */
+.comparison-reset-inline {
+  margin-top: 0.6rem;
 }
 
 /* ---------- 좁은 화면: 질문 단위로 다시 쌓는다 ---------- */
@@ -2560,7 +2909,7 @@ h3.sub {
 
 @media (max-width: 640px) {
   /* 375px에서도 한 줄을 지킨다. 막대를 줄여 이름 자리를 남긴다. */
-  .stock-row {
+  .stock-row-select {
     gap: 0.5rem;
   }
 
@@ -3573,8 +3922,9 @@ h3.sub {
 
 /* ---------- 대가 선택 그리드 ---------- */
 
+/* max-width는 wrap-wide(1700px)가 준다 — 헤더 로고와 같은 폭이라야
+   본문 왼쪽 끝이 로고 아래에서 시작한다(Nav.tsx의 isWide 주석 참고). */
 .learn-page {
-  max-width: 1080px;
   padding-block: 2.5rem 5rem;
 }
 
@@ -3627,9 +3977,23 @@ h3.sub {
   animation: wisor-ribbon-arrow-float 1.8s ease-in-out infinite;
 }
 
-/* 대가 카드 그리드와 비교표 사이. 스크롤을 내리면 표가 다음 화면으로 이어진다 */
+/* 대가 카드 그리드와 비교표 사이. 화면 높이가 넉넉한 데스크톱에서는 첫 화면에
+ * 카드 7장까지만 보이고, "당신은 어떤 기준을 따르고 있나요?" 제목은 스크롤을
+ * 내려야 보이게 간격을 크게 잡는다 — 제목이 화면 아래 끝에 반쯤 걸쳐 보이면
+ * 잘린 것처럼 보인다.
+ * .style-comparison 기본 규칙(위)은 1080px 상한 breakout이지만, /learn은
+ * wrap-wide(1700px)라 위 대가 카드 그리드와 좌우 여백을 맞추려면 그 상한을
+ * 걷어내야 한다. /learn/compare는 여전히 좁은 wrap을 쓰므로 거기서는
+ * 이 규칙이 안 걸려 원래 1080px 상한 그대로다. */
 .learn-page .style-comparison {
-  margin-top: 3.5rem;
+  margin-top: 5rem;
+  width: 100%;
+  margin-inline: 0;
+  /* "투자 철학 한눈에 비교하기"로 넘어온 첫 화면에서 위(마스트헤드 아래
+     여백)와 아래(표+레일 바닥부터 화면 끝까지 남는 여백)를 맞춘다.
+     이 둘의 합(scroll-margin-top과 무관하게 화면 높이·콘텐츠 높이로
+     정해지는 값)을 반으로 나눈 값이라 위아래가 똑같아진다. */
+  scroll-margin-top: 6.375rem;
 }
 
 /* 링크로 건너뛴 뒤 제목·설명·표가 한 화면에 들어와야 한다. 표는 일곱 행이라
@@ -3769,7 +4133,7 @@ h3.sub {
   display: grid;
   grid-template-columns: repeat(8, minmax(0, 1fr));
   column-gap: 20px;
-  row-gap: 160px;
+  row-gap: 200px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -4262,6 +4626,7 @@ h3.sub {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 1rem;
   margin-bottom: 1.15rem;
 }
@@ -4472,6 +4837,26 @@ a.watch-company-card:hover {
   font-size: 0.82rem;
 }
 
+.watchlist-notes {
+  margin-top: clamp(2rem, 5vw, 3rem);
+  padding-top: 1.5rem;
+  border-top: 1px dotted var(--line-strong);
+}
+
+.watchlist-notes > .eyebrow {
+  margin-bottom: 0.2rem;
+  color: var(--wine);
+}
+
+.watchlist-notes-title {
+  margin: 0 0 0.5rem;
+  color: var(--ink);
+  font-size: clamp(1.15rem, 2vw, 1.35rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.3;
+}
+
 @media (max-width: 820px) {
   .watch-company-grid {
     grid-template-columns: 1fr;
@@ -4614,8 +4999,16 @@ a.watch-company-card:hover {
   line-height: 1;
 }
 
+/* 대가별 카드 자체가 나열 단위다. 300px 하한 × my-page-content 최대폭
+   (wrap-wide 1700px 기준 약 1284px)이라 한 줄에 최대 4장까지 들어간다 —
+   summary가 이름/접기 1행, 챕터 수·정답 통계 2행으로 나뉘어 있어(위 규칙)
+   이 폭에서도 통계 문구가 잘리지 않는다. 하한을 올리면 4장이 안 들어갈 수
+   있으니 같이 확인할 것. align-items: start는 대가마다 챕터 수가 달라
+   카드 높이가 제각각이라, 짧은 카드가 옆 카드 높이만큼 늘어나지 않게 한다. */
 .quiz-master-groups {
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  align-items: start;
   gap: 1rem;
   margin-top: 1rem;
 }
@@ -4627,10 +5020,14 @@ a.watch-company-card:hover {
   background: var(--surface-sunk);
 }
 
+/* 이름 + 접기 버튼이 1행, 챕터 수 · 정답 통계가 2행 — 대가 카드가 한 줄에
+   여러 장 나란히 앉을 만큼 좁아져도(quiz-master-groups 참고) 통계 문구가
+   잘리지 않는다. */
 .quiz-master-group > summary {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto 2rem;
-  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1fr) 2rem;
+  column-gap: 1rem;
+  row-gap: 0.5rem;
   align-items: center;
   padding: 1rem 1.1rem;
   background: var(--surface);
@@ -4673,6 +5070,8 @@ a.watch-company-card:hover {
 }
 
 .quiz-master-summary {
+  grid-column: 1 / -1;
+  grid-row: 2;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -4693,6 +5092,8 @@ a.watch-company-card:hover {
 }
 
 .quiz-master-toggle {
+  grid-column: 2;
+  grid-row: 1;
   position: relative;
   width: 2rem;
   height: 2rem;
@@ -4722,9 +5123,11 @@ a.watch-company-card:hover {
   transform: translate(-50%, -50%) rotate(0deg);
 }
 
+/* 한 대가 카드 안에서는 챕터를 세로로 쌓는다 — 나란히 놓는 단위는
+   .quiz-master-groups(대가 카드) 쪽이다. */
 .quiz-result-list {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 0.85rem;
   margin: 0;
   padding: 1rem;
@@ -4818,6 +5221,7 @@ a.watch-company-card:hover {
 
 .quiz-result-footer {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.55rem 0.8rem;
   margin-top: 0.75rem;
@@ -4866,10 +5270,6 @@ a.watch-company-card:hover {
     padding-left: 0;
     border-left: 0;
   }
-
-  .quiz-result-list {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 520px) {
@@ -4887,24 +5287,15 @@ a.watch-company-card:hover {
   }
 
   .quiz-master-group > summary {
-    grid-template-columns: minmax(0, 1fr) 2rem;
-    gap: 0.65rem 1rem;
     padding: 0.9rem;
   }
 
   .quiz-master-summary {
-    grid-column: 1 / -1;
-    grid-row: 2;
     gap: 0.7rem;
   }
 
   .quiz-master-summary > span + span {
     padding-left: 0.7rem;
-  }
-
-  .quiz-master-toggle {
-    grid-column: 2;
-    grid-row: 1;
   }
 
   .quiz-result-list {
@@ -4921,10 +5312,6 @@ a.watch-company-card:hover {
 
   .quiz-result-heading {
     gap: 0.65rem;
-  }
-
-  .quiz-result-footer {
-    flex-wrap: wrap;
   }
 
   .quiz-result-link {
@@ -5073,11 +5460,11 @@ a.watch-company-card:hover {
 }
 
 .persona-master-option[aria-pressed="true"] {
-  border-color: var(--ink);
-  border-bottom-color: var(--gold-deep);
+  border-color: var(--gold-line);
   background: var(--gold-soft);
   color: var(--ink);
-  transform: translateY(-2px);
+  box-shadow: inset 0 -3px 0 var(--gold);
+  transform: translateY(-1px);
 }
 
 .persona-master-option[aria-pressed="true"]::after {
@@ -5091,8 +5478,8 @@ a.watch-company-card:hover {
   height: 1.15rem;
   border: 2px solid var(--surface);
   border-radius: 50%;
-  background: var(--ink);
-  color: var(--gold);
+  background: var(--gold-deep);
+  color: var(--surface);
   font-size: 0.68rem;
   font-weight: 900;
   line-height: 1;
@@ -5104,8 +5491,8 @@ a.watch-company-card:hover {
 }
 
 .persona-master-portrait {
-  width: 3.15rem;
-  height: 3.15rem;
+  width: 2.7rem;
+  height: 2.7rem;
   overflow: hidden;
   border: 2px solid var(--surface);
   border-radius: 50%;
@@ -5121,15 +5508,97 @@ a.watch-company-card:hover {
 }
 
 .persona-master-name {
-  font-size: 0.72rem;
+  width: 100%;
+  overflow: hidden;
+  font-size: 0.69rem;
   font-weight: 800;
   line-height: 1.25;
   letter-spacing: -0.03em;
-  word-break: keep-all;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.persona-context {
+  min-height: 3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.6rem 1.15rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-sunk);
+  flex: 0 0 auto;
+}
+
+.persona-context > div {
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  margin-right: auto;
+}
+
+.persona-context > div > span {
+  color: var(--ink-faint);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.persona-context strong {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.86rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.persona-context-kind,
+.persona-context-ticker {
+  flex: none;
+  padding: 0.18rem 0.5rem;
+  border: 1px solid var(--gold-line);
+  border-radius: 999px;
+  background: var(--gold-soft);
+  color: var(--ochre);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.persona-context-ticker {
+  min-height: 1.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  border-color: var(--line);
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-family: var(--mono);
+  cursor: pointer;
+}
+
+.persona-context-ticker:hover,
+.persona-context-ticker:focus-visible {
+  border-color: var(--wine);
+  background: var(--wine-soft);
+  color: var(--wine-deep);
+}
+
+.persona-context-ticker-close {
+  color: var(--ink-faint);
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.persona-context-ticker:hover .persona-context-ticker-close,
+.persona-context-ticker:focus-visible .persona-context-ticker-close {
+  color: var(--wine-deep);
 }
 
 .persona-search {
-  padding: 0.75rem 1rem 0;
+  position: relative;
+  padding: 0.75rem 1.15rem 0;
+  flex: 0 0 auto;
 }
 
 .persona-search label {
@@ -5140,14 +5609,19 @@ a.watch-company-card:hover {
 }
 
 .persona-search input,
-.persona-ask input {
+.persona-ask textarea {
   width: 100%;
-  padding: 0.55rem 0.7rem;
+  padding: 0.65rem 0.75rem;
   border: 1px solid var(--line-strong);
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--surface);
   color: var(--ink);
   font: inherit;
+}
+
+.persona-search input:focus,
+.persona-ask textarea:focus {
+  border-color: var(--gold-deep);
 }
 
 .persona-hits {
@@ -5177,10 +5651,11 @@ a.watch-company-card:hover {
   flex: 1 1 auto;
   min-height: 8rem;
   overflow: auto;
-  padding: 0.85rem 1rem;
+  padding: 1.1rem 1.15rem;
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 1rem;
+  scroll-behavior: smooth;
 }
 
 .persona-empty,
@@ -5193,55 +5668,164 @@ a.watch-company-card:hover {
 }
 
 .persona-error {
-  margin: 0 1rem 0.4rem;
+  margin: 0 0 0.6rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--ochre-line);
+  border-radius: 8px;
+  background: var(--ochre-soft);
   color: var(--ochre);
   text-align: left;
 }
 
+.persona-message {
+  max-width: 94%;
+  display: grid;
+  gap: 0.25rem;
+  align-self: flex-start;
+}
+
+.persona-message[data-role="user"] {
+  max-width: 82%;
+  align-self: flex-end;
+}
+
+.persona-message-author {
+  color: var(--ink-faint);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.persona-message[data-role="user"] .persona-message-author {
+  text-align: right;
+}
+
 .persona-bubble {
   margin: 0;
-  max-width: 92%;
-  padding: 0.65rem 0.75rem;
+  padding: 0.8rem 0.9rem;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 4px 12px 12px 12px;
   background: var(--surface-sunk);
-  font-size: 0.88rem;
-  line-height: 1.6;
+  color: var(--ink);
+  font-size: 0.94rem;
+  line-height: 1.72;
   white-space: pre-wrap;
   word-break: keep-all;
 }
 
-.persona-bubble[data-role="user"] {
-  align-self: flex-end;
-  background: var(--gold-line);
+.persona-message[data-role="user"] .persona-bubble {
+  border-radius: 12px 4px 12px 12px;
+  background: var(--gold-soft);
+  border-color: var(--gold-line);
+}
+
+.persona-thinking {
+  width: fit-content;
+  margin: -0.3rem 0 0;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  background: var(--gold-soft);
+  color: var(--ochre);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.persona-compose {
+  padding: 0.8rem 1.15rem 0.9rem;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: 0 -8px 24px color-mix(in srgb, var(--ink) 5%, transparent);
+  flex: 0 0 auto;
 }
 
 .persona-ask {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.45rem;
-  padding: 0 1rem 1rem;
+  align-items: end;
+}
+
+.persona-ask label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.persona-ask textarea {
+  min-height: 3.8rem;
+  max-height: 7.5rem;
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.persona-ask .btn {
+  min-height: 3.8rem;
+  padding-inline: 1rem;
+}
+
+.persona-compose-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.45rem;
+  color: var(--ink-faint);
+  font-size: 0.65rem;
+  line-height: 1.4;
 }
 
 @media (max-width: 640px) {
   .persona-dock {
-    right: 1rem;
-    bottom: 1rem;
+    right: 0.75rem;
+    bottom: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .persona-panel {
+    width: calc(100vw - 1.5rem);
+    height: calc(100dvh - 5.5rem);
+    max-height: calc(100vh - 5.5rem);
+  }
+
+  .persona-panel-head {
+    padding-inline: 0.9rem;
+  }
+
+  .persona-context,
+  .persona-search,
+  .persona-log,
+  .persona-compose {
+    padding-inline: 0.9rem;
+  }
+
+  .persona-compose-meta {
+    display: none;
   }
 }
 
-@media (max-width: 360px) {
-  .persona-master-option {
-    min-height: 5.75rem;
+@media (max-width: 420px) {
+  .persona-fab {
+    height: 3.25rem;
+    padding-inline: 0.85rem;
   }
 
-  .persona-master-portrait {
-    width: 2.75rem;
-    height: 2.75rem;
+  .persona-panel {
+    height: calc(100dvh - 4.75rem);
+    max-height: calc(100vh - 4.75rem);
+    border-radius: 14px;
   }
 
-  .persona-master-name {
-    font-size: 0.66rem;
+  .persona-context > div > span,
+  .persona-context-kind {
+    display: none;
+  }
+
+  .persona-message {
+    max-width: 100%;
+  }
+
+  .persona-message[data-role="user"] {
+    max-width: 88%;
   }
 }
 
@@ -5297,83 +5881,16 @@ a.watch-company-card:hover {
     var(--surface-sunk);
 }
 
-.auth-layout {
-  display: grid;
-  grid-template-columns: minmax(18rem, 0.82fr) minmax(22rem, 1fr);
-  gap: clamp(2rem, 6vw, 5rem);
-  align-items: center;
-}
-
-.auth-ledger {
-  position: relative;
-  padding: 2rem 2rem 1.75rem 3.25rem;
-  border: 1px solid var(--line);
-  border-left: 0;
-  border-radius: 0 var(--radius) var(--radius) 0;
+.auth-page-solo {
   background: var(--surface);
-  box-shadow: 0 5px 0 var(--line);
 }
 
-.auth-ledger::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 1rem;
-  width: 1px;
-  background: var(--gold-line);
-  box-shadow: 0.28rem 0 0 var(--gold-line);
+.auth-solo-layout {
+  max-width: 41rem;
 }
 
-.auth-ledger .eyebrow,
 .auth-panel .eyebrow {
   color: var(--gold-deep);
-}
-
-.auth-ledger h2 {
-  margin: 0;
-  color: var(--ink);
-  font-size: clamp(2rem, 4vw, 3.35rem);
-  font-weight: 800;
-  letter-spacing: -0.055em;
-  line-height: 1.08;
-}
-
-.auth-ledger > p:not(.eyebrow):not(.auth-ledger-note) {
-  max-width: 27rem;
-  margin: 1.35rem 0 1.75rem;
-  color: var(--ink-soft);
-  font-size: 0.92rem;
-  line-height: 1.75;
-}
-
-.auth-ledger dl {
-  margin: 0;
-  border-top: 1px solid var(--line);
-}
-
-.auth-ledger dl > div {
-  display: grid;
-  grid-template-columns: 5.8rem 1fr;
-  gap: 1rem;
-  padding: 0.72rem 0;
-  border-bottom: 1px solid var(--line);
-}
-
-.auth-ledger dt {
-  color: var(--ink);
-  font-size: 0.82rem;
-  font-weight: 800;
-}
-
-.auth-ledger dd {
-  margin: 0;
-  color: var(--ink-soft);
-  font-size: 0.8rem;
-}
-
-.auth-ledger .auth-ledger-note {
-  margin: 1rem 0 0;
-  color: var(--ink-faint);
-  font-size: 0.72rem;
 }
 
 .auth-panel {
@@ -5416,18 +5933,12 @@ a.watch-company-card:hover {
 }
 
 .auth-panel h1 {
-  margin: 0;
+  margin: 0 0 1.5rem;
   color: var(--ink);
   font-size: clamp(1.55rem, 3vw, 2.15rem);
   font-weight: 800;
   letter-spacing: -0.045em;
   line-height: 1.25;
-}
-
-.auth-intro {
-  margin: 0.55rem 0 1.5rem;
-  color: var(--ink-soft);
-  font-size: 0.88rem;
 }
 
 .auth-google {
@@ -5575,25 +6086,9 @@ a.watch-company-card:hover {
     background: var(--surface-sunk);
   }
 
-  .auth-layout {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-
-  .auth-ledger {
-    padding: 1.4rem 1.25rem 1.25rem 2.5rem;
-  }
-
-  .auth-ledger h2 {
-    font-size: 2rem;
-  }
-
-  .auth-ledger h2 br {
-    display: none;
-  }
-
-  .auth-ledger > p:not(.eyebrow):not(.auth-ledger-note) {
-    margin-block: 0.8rem 1rem;
+  .auth-page-solo {
+    align-items: center;
+    background: var(--surface);
   }
 }
 
@@ -5608,11 +6103,6 @@ a.watch-company-card:hover {
 
   .auth-page {
     padding-block: 1rem 2.5rem;
-  }
-
-  .auth-ledger dl,
-  .auth-ledger .auth-ledger-note {
-    display: none;
   }
 
   .auth-panel {

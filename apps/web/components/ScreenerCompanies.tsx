@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import CriteriaBar from "@/components/CriteriaBar";
+import WatchButton from "@/components/WatchButton";
 import { PAGE_SIZE, pageCount, pageSlice } from "@/lib/paginate";
 import type { Company } from "@/lib/scores.types";
 
@@ -66,39 +67,45 @@ export default function ScreenerCompanies({
         {visible.map((c) => {
           const s = c.scores[style];
           return (
-            <button
+            <div
               key={c.ticker}
-              type="button"
               className="stock-row"
-              aria-current={selectedTicker === c.ticker ? "true" : undefined}
-              onClick={() => onSelect(c.ticker)}
+              data-current={selectedTicker === c.ticker ? "true" : undefined}
             >
-              <StockLogo ticker={c.ticker} />
-              <span className="stock-name" title={c.name}>{c.name}</span>
-              {s ? (
-                <>
-                  <span className="stock-row-bar">
-                    <CriteriaBar criteria={s.criteria} size="sm" />
-                  </span>
-                  <span className="stock-score">
-                    {s.rank !== undefined ? `#${s.rank}` : s.score ?? s.dataConfidence}
-                  </span>
-                </>
-              ) : (
-                /* 정보 부족·판정 제외 종목 중에는 이 철학에서 scores[style] 자체가
-                   없는 경우가 있다(lib/ranking.ts). 판정한 기준이 없으니 막대를
-                   그릴 값이 없다 — 자리는 비워 둔다(그리드 칸 수를 맞춘다).
-                   사유 문장(unscorableReason)은 40자를 넘어 이 좁은 칸에 못 들어가서
-                   여기서는 안 쓴다. 전체 문장은 줄을 눌러 오른쪽 칸(BusinessLens)에서
-                   읽는다. */
-                <>
-                  <span className="stock-row-bar" />
-                  <span className="stock-score stock-score-reason">
-                    {c.unscorableReason ? "판정 제외" : "정보 부족"}
-                  </span>
-                </>
-              )}
-            </button>
+              <button
+                type="button"
+                className="stock-row-select"
+                aria-current={selectedTicker === c.ticker ? "true" : undefined}
+                onClick={() => onSelect(c.ticker)}
+              >
+                <StockLogo ticker={c.ticker} />
+                <span className="stock-name" title={c.name}>{c.name}</span>
+                {s ? (
+                  <>
+                    <span className="stock-row-bar">
+                      <CriteriaBar criteria={s.criteria} size="sm" />
+                    </span>
+                    <span className="stock-score">
+                      {s.rank !== undefined ? `#${s.rank}` : s.score ?? s.dataConfidence}
+                    </span>
+                  </>
+                ) : (
+                  /* 정보 부족·판정 제외 종목 중에는 이 철학에서 scores[style] 자체가
+                     없는 경우가 있다(lib/ranking.ts). 판정한 기준이 없으니 막대를
+                     그릴 값이 없다 — 자리는 비워 둔다(그리드 칸 수를 맞춘다).
+                     사유 문장(unscorableReason)은 40자를 넘어 이 좁은 칸에 못 들어가서
+                     여기서는 안 쓴다. 전체 문장은 줄을 눌러 오른쪽 칸(BusinessLens)에서
+                     읽는다. */
+                  <>
+                    <span className="stock-row-bar" />
+                    <span className="stock-score stock-score-reason">
+                      {c.unscorableReason ? "판정 제외" : "정보 부족"}
+                    </span>
+                  </>
+                )}
+              </button>
+              <WatchButton ticker={c.ticker} size="sm" />
+            </div>
           );
         })}
       </div>

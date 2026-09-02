@@ -1,17 +1,21 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import ScreenerCompanies from "@/components/ScreenerCompanies";
 import StockDetailBody from "@/components/StockDetailBody";
 import { filterCompaniesByQuery } from "@/lib/searchCompanies";
+import { getWatchlist } from "@/lib/store";
 import type { Company } from "@/lib/scores.types";
 
-type Group = "scored" | "unscored" | "unscorable";
+type Group = "scored" | "unscored" | "unscorable" | "watchlist";
+
+const GROUPS: Group[] = ["scored", "unscored", "unscorable", "watchlist"];
 
 const GROUP_LABEL: Record<Group, string> = {
   scored: "판정",
   unscored: "정보 부족",
   unscorable: "판정 제외",
+  watchlist: "관심종목",
 };
 
 /** 종목 찾기의 왼쪽 목록 · 오른쪽 상세를 하나의 상태로 묶는다. 페이지를 떠나지
@@ -60,6 +64,22 @@ export default function ScreenerSplit({
   const [group, setGroup] = useState<Group>("scored");
   const [query, setQuery] = useState("");
   const [selectedTicker, setSelectedTicker] = useState<string | null>(null);
+  /* 관심종목은 이 종목찾기 화면이 아니라 store.ts(→ Supabase 교체 지점)에
+     있는 사용자 데이터라 null(아직 못 읽음)로 시작해, 다 읽으면 그때 배열로
+     바뀐다. 로딩 중에는 개수 0으로 보여 다른 빈 묶음과 똑같이 비활성화된다 —
+     번쩍이는 게 없다는 뜻은 아니지만, 별도 "불러오는 중" 문구를 더하기엔
+     이 화면에 그 정도로 오래 걸리지 않는다. */
+  const [watchlist, setWatchlist] = useState<string[] | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    void getWatchlist().then((tickers) => {
+      if (alive) setWatchlist(tickers);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
   /* 판정 제외 종목을 고른 채로 [판정] 묶음으로 돌아가도(또는 그 반대) 오른쪽
      칸은 그대로 있어야 한다 — 묶음 전환은 왼쪽 목록만 바꾸는 필터이지 오른쪽의
      선택을 지우는 동작이 아니다. 그래서 세 배열을 다 뒤진다. */
@@ -69,25 +89,31 @@ export default function ScreenerSplit({
       unscorable.find((c) => c.ticker === selectedTicker)
     : undefined;
 
+  const watchlistSet = new Set(watchlist ?? []);
+  const watched = [...scored, ...unscored, ...unscorable].filter((c) => watchlistSet.has(c.ticker));
+
+  const GROUP_COMPANIES: Record<Group, Company[]> = {
+    scored,
+    unscored,
+    unscorable,
+    watchlist: watched,
+  };
+
   /* 검색어가 있으면 묶음 탭과 무관하게 세 묶음을 합쳐 찾는다 — "액센츄어"가
      [정보 부족] 묶음에 있어도 지금 [판정] 탭을 보고 있으면 찾을 수 있어야
      한다. 검색어를 지우면 원래 보고 있던 묶음으로 그대로 돌아간다. */
   const searching = query.trim().length > 0;
   const visible = searching
     ? filterCompaniesByQuery([...scored, ...unscored, ...unscorable], query)
-    : group === "scored"
-    ? scored
-    : group === "unscored"
-    ? unscored
-    : unscorable;
+    : GROUP_COMPANIES[group];
 
   return (
     <div className="screener-split">
       <div className="screener-split-list">
         <div className="screener-list-head">
           <div className="screener-group-toggle" role="tablist" aria-label="목록 묶음">
-            {(["scored", "unscored", "unscorable"] as const).map((g) => {
-              const count = g === "scored" ? scored.length : g === "unscored" ? unscored.length : unscorable.length;
+            {GROUPS.map((g) => {
+              const count = GROUP_COMPANIES[g].length;
               return (
                 <button
                   key={g}
@@ -103,6 +129,8 @@ export default function ScreenerSplit({
               );
             })}
           </div>
+          {/* 묶음 탭이 셋에서 넷(관심종목 추가)으로 늘면서 검색창과 한 줄에
+             같이 두기엔 420px 목록 칸이 좁다. 검색창을 아래 줄로 내렸다. */}
           <div className="screener-search">
             <input
               type="search"

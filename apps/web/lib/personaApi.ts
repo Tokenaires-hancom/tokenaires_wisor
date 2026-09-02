@@ -1,5 +1,5 @@
 /** persona_explain HTTP API. 브라우저는 /api/persona 만 본다.
- *  Next rewrite가 파이썬 서버로 넘긴다. 숫자는 보내지 않고 ticker·persona만 보낸다. */
+ *  Next rewrite가 파이썬 서버로 넘긴다. 숫자는 보내지 않고 선택한 ticker와 persona만 보낸다. */
 
 const BASE = "/api/persona";
 
@@ -89,7 +89,10 @@ export function searchCompanies(q: string, limit = 8) {
   );
 }
 
-export async function createSession(ticker: string, persona: string): Promise<ChatMessage> {
+export async function createSession(
+  ticker: string | null,
+  persona: string,
+): Promise<ChatMessage> {
   const data = await request<{
     sessionId: string;
     persona: string;
@@ -98,7 +101,11 @@ export async function createSession(ticker: string, persona: string): Promise<Ch
     verdict: string;
     regenerated: boolean;
     blocked: boolean;
-  }>("POST", "/sessions", { ticker, persona });
+  }>(
+    "POST",
+    "/sessions",
+    ticker === null ? { persona } : { ticker, persona },
+  );
   return {
     sessionId: data.sessionId,
     persona: data.persona,
@@ -152,6 +159,20 @@ export async function switchPersona(sessionId: string, persona: string): Promise
   };
 }
 
+export function deleteSession(sessionId: string): Promise<{ deleted: boolean }> {
+  return request("DELETE", `/sessions/${sessionId}`);
+}
+
 export function isGone(err: unknown): boolean {
   return err instanceof PersonaApiError && err.code === "session_not_found";
+}
+
+/**
+ * 요청이 서버에 반영됐는지 클라이언트가 확정할 수 없는 실패다.
+ * 이 경우 같은 세션을 계속 쓰면 화면에 없는 답변을 서버만 기억할 수 있다.
+ */
+export function isAmbiguousSessionFailure(err: unknown): boolean {
+  if (!(err instanceof PersonaApiError)) return true;
+  if (err.code === "model_error") return false;
+  return err.status === 0 || err.status >= 500;
 }

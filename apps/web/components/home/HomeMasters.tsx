@@ -218,7 +218,15 @@ export default function HomeMasters({ masters }: { masters: MasterCard[] }) {
         stops.push(at);
       }
       outerEl.querySelectorAll(".hv-masters-stop").forEach((s) => s.remove());
-      for (const at of stops) {
+      /* 맨 처음(0)과 맨 마지막(travel) 정지점은 심지 않는다. 이 둘은 대가 섹션과
+         원칙/여정 섹션의 경계에 거의 겹친다. html의 scroll-snap-type이 문서 전체에
+         걸려 있어서, 경계에 정지점을 남겨 두면 옆 섹션으로 넘어가려고 살짝만
+         스크롤해도 네이티브 스냅이 도로 여기로 끌어당긴다 — SectionSnap.tsx가 다음
+         섹션으로 당기려는 걸 이 정지점이 계속 이겨 버려서, 첫 카드에서 위로 못 나가고
+         마지막 카드에서 아래로 못 나가는 원인이었다. 큰 섹션 경계는 어차피
+         SectionSnap.tsx가 맡으므로 여기서는 카드 사이를 옮겨 다닐 때만 스냅이 걸리면
+         된다. */
+      for (const at of stops.slice(1, -1)) {
         const dot = document.createElement("div");
         dot.className = "hv-masters-stop";
         dot.style.top = `${at}px`;

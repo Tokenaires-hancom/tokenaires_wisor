@@ -1,11 +1,16 @@
+# 서버 /etc/systemd/system/wisor-batch.timer 의 기록입니다.
+# 이 파일을 고쳐도 서버는 바뀌지 않습니다. 반대로 서버를 고치면 여기도 같이 고쳐야
+# 기록이 사실로 남습니다. 서버 실물은 systemctl cat wisor-batch.timer 로 확인합니다.
+
 [Unit]
-Description=Refresh Wisor prices every three hours
+Description=Run Wisor price refresh every three hours and fundamentals daily
 
 [Timer]
-OnCalendar=*-*-* 01,04,07,10,13,16,19,22:10:00 Asia/Seoul
+OnCalendar=*-*-* 01,04,07,10,13,16,19,22:00:00 Asia/Seoul
 RandomizedDelaySec=5m
+AccuracySec=1m
 Persistent=true
-Unit=wisor-batch@auto.service
+Unit=wisor-batch.service
 
 [Install]
 WantedBy=timers.target

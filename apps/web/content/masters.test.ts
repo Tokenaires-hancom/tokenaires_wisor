@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { MASTERS, SCORABLE_MASTERS } from "./masters.ts";
+import { MASTERS, SCORABLE_MASTERS, sortStyleIds } from "./masters.ts";
 
 test("점수형 대가와 자가진단형 대가의 경계를 고정한다", () => {
   assert.deepEqual(
@@ -22,4 +22,25 @@ test("일곱 대가 모두 세 가지 업적과 근거를 가진다", () => {
       assert.ok(achievement.source.trim(), `${master.id} 업적 근거`);
     }
   }
+});
+
+test("sortStyleIds는 입력 순서와 무관하게 MASTERS 순서로 정렬한다", () => {
+  assert.deepEqual(
+    sortStyleIds(["greenblatt", "buffett", "lynch", "graham"]),
+    ["buffett", "graham", "lynch", "greenblatt"],
+  );
+});
+
+test("sortStyleIds는 preferredId를 맨 앞으로 옮긴다", () => {
+  assert.deepEqual(
+    sortStyleIds(["buffett", "graham", "lynch", "greenblatt"], "graham"),
+    ["graham", "buffett", "lynch", "greenblatt"],
+  );
+});
+
+test("sortStyleIds는 preferredId가 이 종목에 없으면 고정 순서를 그대로 쓴다", () => {
+  assert.deepEqual(
+    sortStyleIds(["buffett", "lynch"], "graham"),
+    ["buffett", "lynch"],
+  );
 });

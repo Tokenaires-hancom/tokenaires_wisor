@@ -45,6 +45,10 @@ install -o root -g root -m 0755 "${source_dir}/lib/deploy-state.sh" \
   /usr/local/libexec/wisor-deploy-state.sh
 install -o root -g root -m 0755 "${source_dir}/bin/verify-live.py" \
   /usr/local/libexec/wisor-verify-live.py
+install -o root -g root -m 0755 "${source_dir}/bin/wisor-batch" \
+  /usr/local/libexec/wisor-batch
+install -o root -g root -m 0755 "${source_dir}/bin/validate-scores.py" \
+  /usr/local/libexec/wisor-validate-scores.py
 install -o root -g root -m 0755 "${source_dir}/bin/wisor-deploy-dispatch" \
   /usr/local/sbin/wisor-deploy-dispatch
 # Install the entry point last so it never observes missing support files.

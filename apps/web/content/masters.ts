@@ -463,3 +463,18 @@ export const MASTER_BY_ID = Object.fromEntries(MASTERS.map((m) => [m.id, m])) as
   Master["id"],
   Master
 >;
+
+/** 대가 탭이 항상 같은 순서로 보이도록 고정한 기준. scores.json의 styles
+ *  배열 순서는 배치가 만든 순서라 재실행마다 흔들릴 수 있어 화면 순서로
+ *  쓰지 않는다.
+ *
+ *  종목 상세의 대가 탭은 상단 탭에서 고른 대가(preferredId)를 이 순서 맨
+ *  앞으로 옮긴다 — "종목찾기 상단탭에서 고른 대가를 종목 상세에서도
+ *  제일 먼저 보이게 한다"는 요청에 따른 것. preferredId를 안 주면(또는
+ *  이 종목에 없는 대가면) 이 고정 순서를 그대로 쓴다. */
+export function sortStyleIds(ids: string[], preferredId?: string): string[] {
+  const order = MASTERS.map((m) => m.id);
+  const sorted = [...ids].sort((a, b) => order.indexOf(a as Master["id"]) - order.indexOf(b as Master["id"]));
+  if (!preferredId || !sorted.includes(preferredId)) return sorted;
+  return [preferredId, ...sorted.filter((id) => id !== preferredId)];
+}

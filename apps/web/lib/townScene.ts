@@ -1,4 +1,5 @@
 import type { Master } from "../content/masters.ts";
+import type { MasterProgressRow } from "./gamification.ts";
 
 /** 마을 장식은 레벨에서만 온다. 가상 현금으로 사는 아이템이 아니다. */
 
@@ -31,7 +32,13 @@ export function townScenery(level: number): TownScenery {
   };
 }
 
-/** 코인 마스코트가 서는 건물 칸(0~6). 레벨이 오를수록 한 칸씩 옆으로. */
-export function townMascotPlot(level: number): number {
-  return Math.min(6, Math.max(0, Math.max(1, level) - 1));
+/** 코인 마스코트가 서는 건물 칸. 진행 중인 건물(0<완료<5) 위, 없으면 마지막으로
+ *  완성한 건물 위, 그마저 없으면 첫 칸. 레벨이 아니라 실제 진행 상태를 따라간다. */
+export function townMascotPlot(rows: MasterProgressRow[]): number {
+  const inProgress = rows.findIndex((r) => r.done > 0 && !r.complete);
+  if (inProgress >= 0) return inProgress;
+  for (let i = rows.length - 1; i >= 0; i -= 1) {
+    if (rows[i].complete) return i;
+  }
+  return 0;
 }
