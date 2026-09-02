@@ -1052,7 +1052,7 @@ h3.sub {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    padding-block: 1.25rem 1rem;
+    padding-block: 0.75rem 0.75rem;
   }
 
   .screener-page > .screener-style-tabs {
@@ -1066,7 +1066,7 @@ h3.sub {
   .screener-page > .screener-split {
     flex: 1;
     min-height: 0;
-    margin-top: 0.75rem;
+    margin-top: 0.5rem;
     grid-template-rows: minmax(0, 1fr);
   }
 
@@ -1082,14 +1082,14 @@ h3.sub {
   }
 }
 
-/* 목록 머리 한 줄 — 왼쪽 [판정]·[정보 부족]·[판정 제외] 전환과 오른쪽 종목
- * 검색창을 나눠 쓴다. 눌러도/검색해도 페이지 이동 없이 왼쪽 목록만 바뀐다. */
+/* 목록 머리 두 줄 — 위는 [판정]·[정보 부족]·[판정 제외]·[관심종목] 전환,
+ * 아래는 종목 검색창. 묶음이 넷으로 늘면서 420px 목록 칸에서 검색창과 한
+ * 줄에 같이 못 둬 줄을 나눴다. 눌러도/검색해도 페이지 이동 없이 왼쪽
+ * 목록만 바뀐다. */
 .screener-list-head {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.5rem 0.75rem;
+  flex-direction: column;
+  gap: 0.5rem;
   /* border-bottom을 여기 두지 않는다 — 첫 종목 줄의 위 경계선은
      .stock-row:first-child가 자기 border-top으로 직접 그린다(아래 참고).
      경계선을 이 머리가 아니라 줄 자신이 갖고 있어야, 마우스를 올렸을 때
@@ -1106,9 +1106,8 @@ h3.sub {
 
 .screener-search {
   position: relative;
-  flex: 1 1 9rem;
-  min-width: 8rem;
-  max-width: 13rem;
+  width: 100%;
+  max-width: 16rem;
 }
 
 .screener-search-input {
@@ -1975,7 +1974,7 @@ h3.sub {
 
 .screener-style-tabs {
   display: flex;
-  margin: 0 0 1.25rem;
+  margin: 0 0 0.75rem;
   overflow-x: auto;
   overflow-y: hidden;
   border-bottom: 1px solid var(--line-strong);
