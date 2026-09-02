@@ -218,6 +218,30 @@ test("답 한 건만 지우고 같은 문항의 다른 답은 남긴다", async 
   });
 });
 
+test("randomUUID가 없는 http 주소에서도 답을 저장한다", async () => {
+  // 폰으로 http://192.168.x.x:3000을 열면 crypto.randomUUID가 없다.
+  Object.defineProperty(globalThis.crypto, "randomUUID", {
+    value: undefined,
+    configurable: true,
+  });
+
+  try {
+    await withBrowserStorage(async () => {
+      await saveJournalEntry("master:buffett:1#1", "무엇을 확인했나요?", "첫 답");
+      await saveJournalEntry("master:buffett:1#1", "무엇을 확인했나요?", "다시 쓴 답");
+
+      const entries = await getJournal();
+      assert.equal(entries.length, 2);
+      assert.notEqual(entries[0].responseId, entries[1].responseId);
+      for (const entry of entries) assert.match(entry.responseId, /^[0-9a-f]{32}$/);
+    });
+  } finally {
+    Reflect.deleteProperty(globalThis.crypto, "randomUUID");
+  }
+
+  assert.equal(typeof globalThis.crypto.randomUUID, "function", "원래 함수가 돌아와야 한다");
+});
+
 test("브라우저 저장에 실패하면 기록 완료로 처리하지 않는다", async () => {
   await withBrowserStorage(
     async () => {

@@ -477,13 +477,28 @@ export async function getJournal(): Promise<JournalEntry[]> {
   }));
 }
 
+/** 답 한 건을 가리키는 ID.
+ *
+ *  crypto.randomUUID는 https와 localhost에서만 있다. 폰으로 개발 서버를
+ *  http://192.168.x.x:3000처럼 열면 없어서 기록 저장이 통째로 실패한다.
+ *  getRandomValues는 Crypto에서 유일하게 비보안 컨텍스트에서도 쓸 수 있으므로
+ *  그때는 이쪽으로 만든다. UUID 모양을 흉내 내지는 않는다 — 이 값은 어디서도
+ *  UUID로 파싱되지 않고, 형식을 맞추려면 버전·변형 비트를 손대야 해서 오히려 깨지기 쉽다. */
+function newResponseId(): string {
+  if (typeof globalThis.crypto.randomUUID === "function") {
+    return globalThis.crypto.randomUUID();
+  }
+  const bytes = globalThis.crypto.getRandomValues(new Uint8Array(16));
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
 export async function saveJournalEntry(
   id: string,
   prompt: string,
   text: string,
 ): Promise<JournalEntry> {
   const saved: JournalEntry = {
-    responseId: globalThis.crypto.randomUUID(),
+    responseId: newResponseId(),
     id,
     prompt,
     text,
