@@ -458,6 +458,56 @@ button {
   margin-top: 0.3rem;
 }
 
+/* 답이 하나뿐인 문항. 목록 태그를 쓰되 눈에는 예전처럼 답 하나만 보이게 한다. */
+.answer-history-single {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.answer-history-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.55rem 0 0;
+}
+
+.answer-history-link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-faint);
+  font: inherit;
+  font-size: 0.78rem;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.answer-history-link-button:hover {
+  color: var(--ink);
+}
+
+/* 되돌릴 수 없는 쪽만 포인트 색을 쓴다. 색만으로 구분하지 않도록 문구가 함께 붙는다. */
+.answer-history-link-button[data-kind="danger"] {
+  color: var(--wine);
+  font-weight: 800;
+}
+
+.answer-history-confirm {
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+}
+
+.answer-history-edit {
+  margin-top: 0.55rem;
+}
+
+.answer-history-edit .field {
+  margin: 0;
+}
+
 .account-empty {
   display: flex;
   align-items: center;

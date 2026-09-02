@@ -12,12 +12,14 @@ import "./game/game-panel.css";
 import WisorTown from "@/components/game/WisorTown";
 import {
   NOTE_STATUS_LABEL,
+  deleteJournalEntry,
   deleteNote,
   getJournal,
   getNotes,
   getProgress,
   getStorageMode,
   getWatchlist,
+  updateJournalEntry,
   type JournalEntry,
   type LearningStorageMode,
   type Progress,
@@ -75,6 +77,12 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
   const [storageMode, setStorageMode] = useState<LearningStorageMode>("browser");
   const [ready, setReady] = useState(false);
   const [activeSection, setActiveSection] = useState("my-learning");
+  // 답을 고치거나 지우는 중인 한 건. 저장·삭제가 끝나면 store가 wisor:store를 쏘고
+  // 위 refresh가 목록을 다시 읽으므로 여기서 journal을 직접 손대지 않는다.
+  const [editingAnswerId, setEditingAnswerId] = useState<string | null>(null);
+  const [answerDraft, setAnswerDraft] = useState("");
+  const [deletingAnswerId, setDeletingAnswerId] = useState<string | null>(null);
+  const [answerError, setAnswerError] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -451,21 +459,125 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
                         </Link>
                       )}
                     </div>
-                    {group.answers.length === 1 ? (
-                      <p className="answer-history-answer">{latest.text}</p>
-                    ) : (
-                      <ol className="answer-history-revisions">
-                        {group.answers.map((answer, index) => (
-                          <li key={answer.responseId}>
+                    <ol
+                      className={
+                        group.answers.length > 1
+                          ? "answer-history-revisions"
+                          : "answer-history-single"
+                      }
+                    >
+                      {group.answers.map((answer, index) => (
+                        <li key={answer.responseId}>
+                          {group.answers.length > 1 && (
                             <p className="answer-history-revision-label">
                               <time dateTime={answer.at}>{formatJournalDate(answer.at)}</time>
                               {index === 0 && <span> · 가장 최근</span>}
                             </p>
-                            <p className="answer-history-answer">{answer.text}</p>
-                          </li>
-                        ))}
-                      </ol>
-                    )}
+                          )}
+                          {editingAnswerId === answer.responseId ? (
+                            <div className="answer-history-edit">
+                              <label className="field">
+                                <span>답 고치기</span>
+                                <textarea
+                                  rows={4}
+                                  value={answerDraft}
+                                  onChange={(event) => setAnswerDraft(event.target.value)}
+                                />
+                              </label>
+                              <div className="answer-history-actions">
+                                <button
+                                  type="button"
+                                  className="btn"
+                                  disabled={answerDraft.trim() === ""}
+                                  onClick={() => {
+                                    setAnswerError(null);
+                                    void updateJournalEntry(answer.responseId, answerDraft.trim())
+                                      .then(() => setEditingAnswerId(null))
+                                      .catch(() => setAnswerError("답을 고치지 못했습니다."));
+                                  }}
+                                >
+                                  저장
+                                </button>
+                                <button
+                                  type="button"
+                                  className="answer-history-link-button"
+                                  onClick={() => {
+                                    setEditingAnswerId(null);
+                                    setAnswerError(null);
+                                  }}
+                                >
+                                  취소
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <p className="answer-history-answer">{answer.text}</p>
+                              {deletingAnswerId === answer.responseId ? (
+                                <p className="answer-history-actions">
+                                  <span className="answer-history-confirm">
+                                    이 답을 지울까요? 되돌릴 수 없습니다.
+                                  </span>
+                                  <button
+                                    type="button"
+                                    className="answer-history-link-button"
+                                    data-kind="danger"
+                                    onClick={() => {
+                                      setAnswerError(null);
+                                      void deleteJournalEntry(answer.responseId)
+                                        .then(() => setDeletingAnswerId(null))
+                                        .catch(() => setAnswerError("답을 지우지 못했습니다."));
+                                    }}
+                                  >
+                                    지웁니다
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="answer-history-link-button"
+                                    onClick={() => setDeletingAnswerId(null)}
+                                  >
+                                    그대로 둡니다
+                                  </button>
+                                </p>
+                              ) : (
+                                <p className="answer-history-actions">
+                                  <button
+                                    type="button"
+                                    className="answer-history-link-button"
+                                    onClick={() => {
+                                      setAnswerError(null);
+                                      setDeletingAnswerId(null);
+                                      setEditingAnswerId(answer.responseId);
+                                      setAnswerDraft(answer.text);
+                                    }}
+                                  >
+                                    고치기
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="answer-history-link-button"
+                                    onClick={() => {
+                                      setAnswerError(null);
+                                      setEditingAnswerId(null);
+                                      setDeletingAnswerId(answer.responseId);
+                                    }}
+                                  >
+                                    지우기
+                                  </button>
+                                </p>
+                              )}
+                            </>
+                          )}
+                          {answerError &&
+                            (editingAnswerId === answer.responseId ||
+                              deletingAnswerId === answer.responseId) && (
+                              <p className="journal-save-message" data-kind="error" role="alert">
+                                {answerError}
+                              </p>
+                            )}
+                        </li>
+                      ))}
+                    </ol>
                   </article>
                 </li>
               );

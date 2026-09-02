@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
+  deleteJournalEntry,
   hasLearningState,
   getJournal,
   getNotes,
@@ -13,6 +14,7 @@ import {
   saveJournalEntry,
   saveNote,
   toggleWatch,
+  updateJournalEntry,
   withoutMasterProgress,
   type JournalEntry,
   type LocalLearningState,
@@ -188,6 +190,34 @@ test("같은 기록형 문항에 다시 답해도 이전 답을 남긴다", asyn
   });
 });
 
+test("답 한 건만 고치고 답한 시각과 나머지 답은 건드리지 않는다", async () => {
+  await withBrowserStorage(async () => {
+    await saveJournalEntry("master:buffett:1#1", "무엇을 확인했나요?", "첫 답");
+    await saveJournalEntry("master:buffett:1#1", "무엇을 확인했나요?", "오타가 난 답");
+
+    const before = await getJournal();
+    await updateJournalEntry(before[0].responseId, "오타를 고친 답");
+
+    const after = await getJournal();
+    assert.deepEqual(after.map((entry) => entry.text), ["오타를 고친 답", "첫 답"]);
+    // 시각을 지금으로 옮기면 "언제 이렇게 생각했나"가 사라진다.
+    assert.equal(after[0].at, before[0].at);
+  });
+});
+
+test("답 한 건만 지우고 같은 문항의 다른 답은 남긴다", async () => {
+  await withBrowserStorage(async () => {
+    await saveJournalEntry("master:buffett:1#1", "무엇을 확인했나요?", "첫 답");
+    await saveJournalEntry("master:buffett:1#1", "무엇을 확인했나요?", "지울 답");
+
+    const before = await getJournal();
+    await deleteJournalEntry(before[0].responseId);
+
+    const after = await getJournal();
+    assert.deepEqual(after.map((entry) => entry.text), ["첫 답"]);
+  });
+});
+
 test("브라우저 저장에 실패하면 기록 완료로 처리하지 않는다", async () => {
   await withBrowserStorage(
     async () => {
@@ -247,21 +277,23 @@ test("DB도 브라우저와 같은 구버전 기록 식별자 규칙을 사용�
   );
 });
 
-test("DB 기록 이력은 앱 사용자에게 조회와 추가만 허용한다", () => {
+test("DB 기록 이력은 자기 답을 고치고 지우는 것까지 허용한다", () => {
   const schema = readFileSync(new URL("../../../supabase/schema.sql", import.meta.url), "utf8");
   const migration = readFileSync(
     new URL("../../../supabase/migrations/20260827_journal_entry_history.sql", import.meta.url),
     "utf8",
   );
 
-  assert.match(schema, /create policy journal_entries_owner_select[\s\S]*for select/);
-  assert.match(schema, /create policy journal_entries_owner_insert[\s\S]*for insert/);
-  assert.match(schema, /grant select, insert on public\.journal_entries to authenticated/);
-  assert.doesNotMatch(
+  // 다른 표와 같은 for-all 정책 루프에 남는다. 답이 이력으로 쌓이는 것과
+  // 잘못 쓴 답을 못 지우는 것은 별개다.
+  assert.match(schema, /foreach t in array array\[[\s\S]*'journal_entries'[\s\S]*\]/);
+  assert.match(
     schema,
     /grant select, insert, update, delete on public\.journal_entries to authenticated/,
   );
-  assert.match(migration, /drop policy if exists journal_entries_owner_only/);
-  assert.match(migration, /revoke all on public\.journal_entries from authenticated/);
-  assert.match(migration, /grant select, insert on public\.journal_entries to authenticated/);
+
+  // 기본 키만 바꾸는 마이그레이션이다. journal_entries의 정책과 권한은
+  // 20260820이 만든 것을 그대로 쓴다. RPC 함수 권한은 여기 해당하지 않는다.
+  assert.doesNotMatch(migration, /policy [\w]*journal_entries/);
+  assert.doesNotMatch(migration, /(revoke|grant)[^;]*on public\.journal_entries/);
 });

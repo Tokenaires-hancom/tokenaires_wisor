@@ -96,7 +96,7 @@ declare
   t text;
 begin
   foreach t in array array[
-    'lesson_progress', 'quiz_results', 'watchlist', 'study_notes'
+    'lesson_progress', 'quiz_results', 'watchlist', 'study_notes', 'journal_entries'
   ]
   loop
     execute format(
@@ -108,13 +108,6 @@ begin
   end loop;
 end
 $$;
-
--- 기록형 답변은 계정 삭제 외에는 추가와 조회만 허용한다.
-create policy journal_entries_owner_select on public.journal_entries
-  for select using (auth.uid() = user_id);
-
-create policy journal_entries_owner_insert on public.journal_entries
-  for insert with check (auth.uid() = user_id);
 
 -- ---------------------------------------------------------------- 갱신 시각
 
@@ -249,7 +242,7 @@ grant select, insert, update, delete on public.lesson_progress to authenticated;
 grant select, insert, update, delete on public.quiz_results to authenticated;
 grant select, insert, update, delete on public.watchlist to authenticated;
 grant select, insert, update, delete on public.study_notes to authenticated;
-grant select, insert on public.journal_entries to authenticated;
+grant select, insert, update, delete on public.journal_entries to authenticated;
 
 revoke all on function public.import_learning_state(text[], jsonb, jsonb, jsonb) from public;
 grant execute on function public.import_learning_state(text[], jsonb, jsonb, jsonb) to authenticated;

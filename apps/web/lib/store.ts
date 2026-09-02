@@ -514,3 +514,51 @@ function saveLocalJournal(saved: JournalEntry): void {
     throw new Error("기록을 브라우저에 저장하지 못했습니다.");
   }
 }
+
+/** 답 한 건의 본문만 고친다. 답한 시각은 그대로 둔다 — 시각을 지금으로 옮기면
+ *  "언제 이렇게 생각했나"가 사라져서, 답을 쌓아 둔 이유가 없어진다. */
+export async function updateJournalEntry(responseId: string, text: string): Promise<void> {
+  const remote = await remoteContext();
+  if (!remote) {
+    updateLocalJournal(responseId, text);
+    return;
+  }
+  const { error } = await remote.supabase
+    .from("journal_entries")
+    .update({ answer: text })
+    .eq("user_id", remote.userId)
+    .eq("response_id", responseId);
+  if (error) remoteWriteFailed("Wisor journal update failed", error);
+  else emitStoreChange();
+}
+
+export async function deleteJournalEntry(responseId: string): Promise<void> {
+  const remote = await remoteContext();
+  if (!remote) {
+    deleteLocalJournal(responseId);
+    return;
+  }
+  const { error } = await remote.supabase
+    .from("journal_entries")
+    .delete()
+    .eq("user_id", remote.userId)
+    .eq("response_id", responseId);
+  if (error) remoteWriteFailed("Wisor journal delete failed", error);
+  else emitStoreChange();
+}
+
+function updateLocalJournal(responseId: string, text: string): void {
+  const next = readLocalJournal().map((entry) =>
+    entry.responseId === responseId ? { ...entry, text } : entry,
+  );
+  if (!write(KEYS.journal, next)) {
+    throw new Error("기록을 브라우저에 저장하지 못했습니다.");
+  }
+}
+
+function deleteLocalJournal(responseId: string): void {
+  const next = readLocalJournal().filter((entry) => entry.responseId !== responseId);
+  if (!write(KEYS.journal, next)) {
+    throw new Error("기록을 브라우저에서 지우지 못했습니다.");
+  }
+}

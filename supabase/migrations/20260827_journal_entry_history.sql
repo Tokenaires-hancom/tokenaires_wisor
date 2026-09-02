@@ -22,19 +22,10 @@ alter table public.journal_entries
 alter table public.journal_entries
   add constraint journal_entries_pkey primary key (user_id, response_id);
 
--- 앱 사용자는 자기 기록을 추가하고 읽을 수만 있다. 계정 삭제는 FK cascade가 맡는다.
-drop policy if exists journal_entries_owner_only on public.journal_entries;
-drop policy if exists journal_entries_owner_select on public.journal_entries;
-drop policy if exists journal_entries_owner_insert on public.journal_entries;
-
-create policy journal_entries_owner_select on public.journal_entries
-  for select using (auth.uid() = user_id);
-
-create policy journal_entries_owner_insert on public.journal_entries
-  for insert with check (auth.uid() = user_id);
-
-revoke all on public.journal_entries from authenticated;
-grant select, insert on public.journal_entries to authenticated;
+-- 정책과 권한은 손대지 않는다. 20260820이 만든 journal_entries_owner_only가
+-- auth.uid() = user_id로 행을 가리므로 기본 키가 바뀌어도 그대로 맞고,
+-- 사용자는 자기 답을 고치고 지울 수 있어야 한다 — 이력으로 쌓이는 것과
+-- 잘못 쓴 답을 못 지우는 것은 별개다.
 
 create or replace function public.import_learning_state(
   p_watchlist text[],
