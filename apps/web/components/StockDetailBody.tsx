@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import StockLenses from "@/components/StockLenses";
+import WatchButton from "@/components/WatchButton";
 import { FinancialTerm } from "@/components/FinancialTerm";
 import { money } from "@/lib/format";
 import type { Company } from "@/lib/scores.types";
@@ -43,6 +44,9 @@ export default function StockDetailBody({
       <div style={{ marginTop: "1rem", marginBottom: "2rem" }}>
         <div style={{ display: "flex", alignItems: "baseline", gap: "0.6rem", flexWrap: "wrap" }}>
           <h1 style={{ fontSize: "2.2rem", fontWeight: 400, margin: 0 }}>{company.name}</h1>
+          <span style={{ alignSelf: "center" }}>
+            <WatchButton ticker={company.ticker} />
+          </span>
           <p className="mono" style={{ color: "var(--ink-faint)", margin: 0 }}>
             {company.ticker} · {company.sector}
           </p>
@@ -70,7 +74,12 @@ export default function StockDetailBody({
       {sampleFlag}
 
       <div style={{ marginTop: "1.5rem" }}>
-        <StockLenses company={company} initialStyle={styleId} onChangeStyle={setStyleId} />
+        <StockLenses
+          company={company}
+          initialStyle={styleId}
+          preferredStyleId={initialStyle}
+          onChangeStyle={setStyleId}
+        />
       </div>
     </>
   );

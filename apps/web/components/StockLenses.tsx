@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import CriteriaBar from "./CriteriaBar";
 import { FinancialText } from "./FinancialTerm";
-import WatchButton from "./WatchButton";
-import { MASTER_BY_ID } from "@/content/masters";
+import { MASTER_BY_ID, sortStyleIds } from "@/content/masters";
 import { displayModelVersion, formatMetric } from "@/lib/format";
 import { METRIC_LABELS, type Company } from "@/lib/scores.types";
 import { NOTE_STATUS_LABEL, getNote, saveNote, type NoteStatus } from "@/lib/store";
@@ -18,16 +17,21 @@ function scoreModelLabel(id: string) {
 export default function StockLenses({
   company,
   initialStyle,
+  preferredStyleId,
   onChangeStyle,
 }: {
   company: Company;
   initialStyle: string;
+  /** 종목찾기 상단 탭에서 고른 대가. 이 종목의 대가 탭 순서를 이 대가가 맨
+   *  앞에 오도록 고정한다. 상세 안에서 다른 대가 탭을 눌러 `initialStyle`이
+   *  바뀌어도 이 값은 그대로다 — 탭을 누를 때마다 순서가 흔들리면 안 된다. */
+  preferredStyleId: string;
   /** 상단 대가 탭을 눌렀을 때 부른다. 어느 철학을 보여줄지는 상태를 들고
    *  있는 `StockDetailBody`가 정하고, 여기는 prop으로만 받는다. */
   onChangeStyle: (styleId: string) => void;
 }) {
   const styleId = initialStyle;
-  const styleIds = Object.keys(company.scores);
+  const styleIds = sortStyleIds(Object.keys(company.scores), preferredStyleId);
   const score = company.scores[styleId];
   const displayedModelVersion = score ? displayModelVersion(score.modelVersion) : "";
   const [noteOpen, setNoteOpen] = useState(false);
@@ -344,7 +348,6 @@ function NoteLens({ company, styleId }: { company: Company; styleId: string }) {
         <button type="button" className="btn" onClick={() => void save()}>
           학습노트 저장
         </button>
-        <WatchButton ticker={company.ticker} />
         {savedAt && (
           <span className="mono" style={{ color: "var(--ink-faint)" }}>
             마지막 저장 {new Date(savedAt).toLocaleString("ko-KR")}
