@@ -1192,23 +1192,16 @@ h3.sub {
 /* 한 줄 44px. 로고 칸이 바닥을 정한다 — 28px 아래로 내리면 로고가 없을 때 넣는
  * 5글자 티커(CMCSA·GOOGL)가 7~8px이 되어 못 읽는다.
  *
- * 넓은 화면에서는 <button>이다 — 눌러도 페이지를 안 떠나고 오른쪽 칸만 바뀐다.
- * 좁은 화면에서는 <a>로 바뀐다(반응형 절 참고). border·background는 버튼
- * 기본값을 지운다. */
+ * 종목 선택(.stock-row-select)과 관심종목 하트(.watch-heart-btn)는 둘 다
+ * <button>이라 하나의 <button> 안에 넣을 수 없다 — HTML은 버튼 중첩을 허용하지
+ * 않고, 브라우저가 파싱 시점에 바깥 버튼을 조기에 닫아버려 클릭이 깨진다.
+ * 그래서 .stock-row는 이제 버튼이 아니라 둘을 나란히 담는 그릇이고, 줄
+ * 전체를 누르는 동작은 안쪽 .stock-row-select가 맡는다. */
 .stock-row {
-  display: grid;
-  grid-template-columns: 28px minmax(0, 1fr) auto auto;
-  gap: 0.7rem;
+  display: flex;
   align-items: center;
   width: 100%;
-  /* 좌우 여백. 왼쪽은 선택 시 붙는 3px 강조선(box-shadow)이 로고와 겹치지
-     않게, 오른쪽은 점수가 줄 끝에 딱 붙어 잘린 듯 보이지 않게 잡아준다. */
-  padding: 0.5rem 0.6rem;
-  border: 0;
   border-bottom: 1px solid var(--line);
-  background: none;
-  text-align: left;
-  color: inherit;
 }
 
 /* 목록의 첫 줄만 위 경계선도 갖는다. 나머지 줄은 바로 앞줄의 border-bottom이
@@ -1219,14 +1212,41 @@ h3.sub {
   border-top: 1px solid var(--line);
 }
 
+/* 하트를 누를 때도 줄 전체 회색이 함께 뜬다 — :hover는 자손 위에 있어도
+   켜지므로 별도 처리가 필요 없다. */
 .stock-row:hover {
   background: var(--surface-sunk);
 }
 
-/* 지금 고른 종목. 오른쪽 칸의 내용과 이 줄을 잇는 유일한 표시다. */
-.stock-row[aria-current="true"] {
+/* 지금 고른 종목. 오른쪽 칸의 내용과 이 줄을 잇는 유일한 표시다. 선택 여부의
+   접근성 표시(aria-current)는 실제로 누르는 .stock-row-select에 두고, 이
+   data-current는 줄 배경을 칠하는 용도로만 쓴다. */
+.stock-row[data-current="true"] {
   background: var(--wine-soft);
   box-shadow: inset 3px 0 0 var(--wine);
+}
+
+/* 넓은 화면에서는 <button>이다 — 눌러도 페이지를 안 떠나고 오른쪽 칸만 바뀐다.
+ * border·background는 버튼 기본값을 지운다. */
+.stock-row-select {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto auto;
+  gap: 0.7rem;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  /* 좌우 여백. 왼쪽은 선택 시 붙는 3px 강조선(box-shadow)이 로고와 겹치지
+     않게, 오른쪽은 하트 버튼과의 간격을 잡아준다. */
+  padding: 0.5rem 0.6rem;
+  border: 0;
+  background: none;
+  text-align: left;
+  color: inherit;
+}
+
+.stock-row > .watch-heart-btn {
+  flex: none;
+  margin-right: 0.6rem;
 }
 
 .stock-logo {
@@ -1444,6 +1464,45 @@ h3.sub {
 .note-modal-body {
   padding: 1.25rem;
   overflow-y: auto;
+}
+
+/* 관심종목 담기. 예전엔 학습노트 모달 안 텍스트 버튼이었는데, 모달을 열어야만
+ * 담았는지 알 수 있어서 종목명 옆(항상 보이는 자리)의 하트로 옮겼다. 채움
+ * 여부만으로 상태를 구분하는 토글이라 --wine(포인트 색, 방향성 없음)을 쓴다 —
+ * 기준 충족 표시가 아니므로 --gold/--ochre 규칙과는 무관하다. */
+.watch-heart-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 999px;
+  color: var(--ink-faint);
+  cursor: pointer;
+}
+
+.watch-heart-btn:hover {
+  color: var(--wine);
+  background: var(--wine-soft);
+}
+
+.watch-heart-btn[data-watched="true"] {
+  color: var(--wine);
+}
+
+/* 목록 줄은 28px 로고 칸이 행 높이를 정한다(.stock-row 주석 참고) — 기본
+ * 크기(2.5rem)를 그대로 쓰면 줄마다 높이가 달라진다. */
+.watch-heart-btn[data-size="sm"] {
+  width: 28px;
+  height: 28px;
+}
+
+.watch-heart-btn[data-size="sm"] svg {
+  width: 1.15em;
+  height: 1.15em;
 }
 
 .stock-market-strip {
@@ -2615,7 +2674,7 @@ h3.sub {
 
 @media (max-width: 640px) {
   /* 375px에서도 한 줄을 지킨다. 막대를 줄여 이름 자리를 남긴다. */
-  .stock-row {
+  .stock-row-select {
     gap: 0.5rem;
   }
 

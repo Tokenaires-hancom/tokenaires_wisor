@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import CriteriaBar from "./CriteriaBar";
 import { FinancialText } from "./FinancialTerm";
-import WatchButton from "./WatchButton";
 import { MASTER_BY_ID } from "@/content/masters";
 import { displayModelVersion, formatMetric } from "@/lib/format";
 import { METRIC_LABELS, type Company } from "@/lib/scores.types";
@@ -344,7 +343,6 @@ function NoteLens({ company, styleId }: { company: Company; styleId: string }) {
         <button type="button" className="btn" onClick={() => void save()}>
           학습노트 저장
         </button>
-        <WatchButton ticker={company.ticker} />
         {savedAt && (
           <span className="mono" style={{ color: "var(--ink-faint)" }}>
             마지막 저장 {new Date(savedAt).toLocaleString("ko-KR")}
