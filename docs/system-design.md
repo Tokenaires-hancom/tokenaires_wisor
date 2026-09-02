@@ -79,12 +79,12 @@ flowchart TB
 
 | 구성 요소 | 런타임 | 위치 | 하는 일 | 담당 |
 |---|---|---|---|---|
-| 웹 | Node.js 23+ / Next.js 15 App Router | `apps/web/` | 화면 전체. 페이지가 전부 정적 생성 | 1번 |
-| 점수 배치 | Python 3.11+ | `data-pipeline/` | 재무 원천 → 지표 → 스타일 점수 → `scores.json` | 3번 |
+| 웹 | Node.js 23+ / Next.js 15 App Router | `apps/web/` | 화면 전체. 페이지가 전부 정적 생성 | 프론트엔드 |
+| 점수 배치 | Python 3.11+ | `data-pipeline/` | 재무 원천 → 지표 → 스타일 점수 → `scores.json` | 재무데이터 |
 | 해설 챗봇 API | Python 3.11+ (표준 라이브러리 `ThreadingHTTPServer`) | `persona_explain/` | 대가 페르소나로 지표 해설·투자 철학 대화. 세션은 메모리 | — |
-| 사용자 데이터 | 브라우저 + Supabase | `apps/web/lib/store.ts` | 비회원 임시 저장, 회원 계정 저장과 자동 이전 | 2번 |
-| 사용자 DB | PostgreSQL (Supabase) | `supabase/schema.sql`, `supabase/migrations/` | 진도·퀴즈·관심종목·학습노트·기록형 답, 사용자별 RLS | 2번 |
-| PR 자동검사 | GitHub Actions | `.github/workflows/check.yml`, `scripts/pr_checks/` | 배포 계약·데이터·웹 테스트·빌드·타입·번들 경계 검사 | 2번 |
+| 사용자 데이터 | 브라우저 + Supabase | `apps/web/lib/store.ts` | 비회원 임시 저장, 회원 계정 저장과 자동 이전 | 백엔드 |
+| 사용자 DB | PostgreSQL (Supabase) | `supabase/schema.sql`, `supabase/migrations/` | 진도·퀴즈·관심종목·학습노트·기록형 답, 사용자별 RLS | 백엔드 |
+| PR 자동검사 | GitHub Actions | `.github/workflows/check.yml`, `scripts/pr_checks/` | 배포 계약·데이터·웹 테스트·빌드·타입·번들 경계 검사 | 백엔드 |
 
 의존성은 웹이 `next`·`react`·`react-dom` 셋뿐이고, 배치는 표준 라이브러리 + `pytest`뿐입니다.
 챗봇 서버는 HTTP 프레임워크를 쓰지 않지만 무의존은 아닙니다 —
@@ -439,7 +439,7 @@ Netlify 설정 파일은 없습니다. 저장소 밖 Netlify 연결 상태는 �
 - [ ] Supabase 연결 — `lib/store.ts` 함수 본문 교체
 - [ ] 점수 문구를 코드+값으로 분리 (5장 참고)
 - [ ] 프론트엔드 스모크 테스트 1개 (학습 → 퀴즈 → 스크리너 → 상세 → 노트 저장)
-- [ ] 기존 Render·Netlify 서비스를 계속 보존할지 외부 대시보드에서 결정 — 2번
+- [ ] 기존 Render·Netlify 서비스를 계속 보존할지 외부 대시보드에서 결정 — 백엔드 담당
 
 ---
 
