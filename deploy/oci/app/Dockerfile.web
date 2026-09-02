@@ -17,8 +17,12 @@ ENV NODE_ENV=production \
     NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY} \
     PERSONA_API_ORIGIN=${PERSONA_API_ORIGIN}
 
-RUN npm test \
-    && npm run build \
+# 테스트는 여기서 돌리지 않는다. deploy-oci.yml의 deploy 잡이 `needs: check`로
+# check.yml을 먼저 통과시키고, 그쪽은 저장소 전체를 체크아웃한 자리에서 npm test를
+# 돌린다. 이 이미지의 빌드 컨텍스트는 apps/web 하나여서, supabase/schema.sql처럼
+# 저장소 파일을 읽는 테스트가 여기서는 ENOENT로 죽는다.
+# 다시 넣으려면 빌드 컨텍스트를 저장소 루트로 올리는 것이 먼저다.
+RUN npm run build \
     && rm -rf .next/cache \
     && npm prune --omit=dev \
     && npm cache clean --force
