@@ -145,7 +145,7 @@ push 전에 `/code-review`를 돌리면 지적이 덜 나옵니다. 필수는 �
 - ❌ **없는 값을 0으로 채우기.** 판정할 데이터가 없으면 `fail`이 아니라 `unknown`입니다. `unknown`은 점수 계산의 분모에서도 빠집니다.
 - ❌ **주식 화면에 빨강·초록 사용.** 두 색은 가격 방향을 뜻하는데 이 제품은 방향을 말하지 않습니다. 충족은 `--gold`, 미충족은 `--ochre`이고, 색만으로 의미를 전달하지 않도록 채움·빗금·점선을 함께 씁니다. 포인트 색 `--wine`은 붉은 계열이라 버튼과 배우기 화면 UI에만 쓰고, 충족 표시에는 쓰지 않습니다.
 - ❌ **`scores.json` 직접 수정.** 배치를 다시 돌립니다.
-- ❌ **컴포넌트에서 `localStorage` 직접 호출.** 저장은 `apps/web/lib/store.ts`를 거칩니다. Supabase 교체 지점이기 때문입니다. 이 함수들은 전부 `Promise`를 돌려줍니다.
+- ❌ **컴포넌트에서 `localStorage` 직접 호출.** 저장은 `apps/web/lib/store.ts`를 거칩니다. Supabase 교체 지점이기 때문입니다. **저장소를 만지는 함수는 전부 `Promise`를 돌려줍니다** — 저장소를 만지지 않고 받은 값을 가공만 하는 순수 함수는 그렇지 않습니다(`hasLearningState`·`withoutMasterProgress`).
 - ❌ **클라이언트 컴포넌트에서 `lib/scores.ts` import.** scores.json 전체가 브라우저 번들에 실립니다. 타입과 라벨은 `lib/scores.types.ts`에서 가져오고, 데이터는 서버 컴포넌트에서 props로 내려보냅니다.
 - ❌ **의존성 추가.** 새 패키지가 정말 필요하면 먼저 물어보세요. 지금 웹이 쓰는 것은 `next`·`react`·`react-dom`과 Supabase 클라이언트 둘(`@supabase/ssr`·`@supabase/supabase-js`)입니다. Supabase는 2번 담당의 계정·학습기록 저장에 필요해서 들어왔습니다 — **규칙 위반이 아니니 지우지 마세요.** 이 목록을 더 늘리지 않는다는 뜻입니다.
 

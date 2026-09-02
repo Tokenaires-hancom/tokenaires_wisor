@@ -34,7 +34,9 @@ lib/analytics.ts            ← 측정 이벤트
 
 **컴포넌트에서 `localStorage`를 직접 부르지 않습니다.** 반드시 `lib/store.ts`를 거칩니다. 2번이 Supabase를 붙일 때 이 파일의 함수 본문만 교체하기로 돼 있습니다.
 
-**`store.ts`의 함수는 전부 `Promise`를 돌려줍니다.** localStorage는 동기지만 Supabase는 비동기라서 시그니처를 미리 맞춰 뒀습니다. 편의상 동기로 되돌리지 마세요.
+**`store.ts`에서 저장소를 만지는 함수는 전부 `Promise`를 돌려줍니다.** localStorage는 동기지만 Supabase는 비동기라서 시그니처를 미리 맞춰 뒀습니다. 편의상 동기로 되돌리지 마세요.
+
+저장소를 만지지 않고 받은 값을 가공만 하는 순수 함수는 여기 해당하지 않습니다 — `hasLearningState`·`withoutMasterProgress`는 동기입니다. 이 둘은 Supabase로 바뀌어도 기다릴 대상이 없습니다. 판정 기준은 "이 함수가 저장소를 읽거나 쓰는가"입니다.
 
 ## 디자인 토큰
 
