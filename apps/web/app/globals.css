@@ -1369,6 +1369,8 @@ h3.sub {
 }
 
 .score-master-tab {
+  display: flex;
+  align-items: center;
   background: none;
   border: 0;
   border-bottom: 2px solid transparent;
@@ -1382,10 +1384,18 @@ h3.sub {
   color: var(--ink);
 }
 
+/* 지금 보여주는 대가만 눈에 띄게 한다. 다른 탭을 누르면 그 탭이 커지고
+ * 물들면서 방금까지 커져 있던 탭은 다시 이 색으로(기본 .score-master-tab의
+ * ink-soft) 돌아간다 — 강조는 "지금 보는 대가"를 항상 따라간다.
+ *
+ * 이 행은 align-items: stretch라(위 주석 참고) 커진 탭 하나가 행 전체 높이를
+ * 정하게 되는데, .score-master-tab에 둔 자체 flex 중앙 정렬이 나머지 탭
+ * 글자도 커진 행 안에서 위로 쏠리지 않고 세로 중앙에 남게 한다. */
 .score-master-tab[aria-selected="true"] {
   color: var(--wine);
   border-bottom-color: var(--wine);
-  font-weight: 600;
+  font-weight: 800;
+  font-size: 1.15rem;
 }
 
 /* 학습노트 버튼은 탭이 아니라 항상 눌러 여는 행동이라 .btn(골드 카드 버튼)을

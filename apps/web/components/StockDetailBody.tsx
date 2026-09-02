@@ -74,7 +74,12 @@ export default function StockDetailBody({
       {sampleFlag}
 
       <div style={{ marginTop: "1.5rem" }}>
-        <StockLenses company={company} initialStyle={styleId} onChangeStyle={setStyleId} />
+        <StockLenses
+          company={company}
+          initialStyle={styleId}
+          preferredStyleId={initialStyle}
+          onChangeStyle={setStyleId}
+        />
       </div>
     </>
   );
