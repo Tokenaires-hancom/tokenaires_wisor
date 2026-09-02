@@ -86,11 +86,12 @@ export default function SectionSnap() {
       const rest = restY;
       const vh = window.innerHeight;
       const down = y > rest;
-      /* 떠나온 정지점(departure)과 그 다음으로 갈 정지점(arrival)을, 방금 있던
-         자리(rest) 기준으로 고른다 — y 기준으로 고르면 방향을 알 수 없다. */
-      const departure = down
-        ? [...list].reverse().find((s) => s <= rest) ?? list[0]
-        : list.find((s) => s >= rest) ?? list[list.length - 1];
+      /* 떠나온 정지점(departure)은 방향과 무관하다 — "지금 있던 자리가 어느 섹션
+         안이었나"일 뿐이다(rest 이하인 가장 큰 정지점). 그 다음으로 갈 정지점(arrival)만
+         방향에 따라 위아래 이웃 중 하나로 갈린다. departure를 방향별로 다르게 구하면
+         위로 스크롤할 때 departure가 아래쪽 섹션으로 잘못 잡혀 arrival이 지금 있던
+         섹션 자기 자신이 되고, 위로 올리다가 그 섹션으로 도로 끌려 내려왔다. */
+      const departure = [...list].reverse().find((s) => s <= rest) ?? list[0];
       const arrival = down
         ? list[list.indexOf(departure) + 1]
         : list[list.indexOf(departure) - 1];
