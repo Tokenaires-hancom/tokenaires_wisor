@@ -53,20 +53,33 @@ function formatJournalDate(at: string): string {
   return Number.isNaN(date.getTime()) ? at : JOURNAL_DATE_FORMATTER.format(date);
 }
 
-function journalChapterContext(id: string): { href: string; label: string } | undefined {
-  const match = /^master:([^:]+):(\d+)#/.exec(id);
-  if (!match) return undefined;
-
-  const [, masterId, chapter] = match;
-  const master = MASTER_BY_ID[masterId as keyof typeof MASTER_BY_ID];
-  const chapterNo = Number(chapter);
+/** `master:{대가}:{장}`으로 시작하는 ID에서 대가와 챕터 칸을 찾는다.
+ *
+ *  퀴즈 결과 ID와 기록형 답변 ID가 같은 형식을 쓴다 — 답변 쪽은 뒤에 `#문항`이 더 붙는다.
+ *  푸는 자리를 두 벌로 두면 장 번호 규칙이 바뀔 때 한쪽만 고쳐져서, 퀴즈 목록과 답변
+ *  목록이 같은 장을 서로 다르게 가리킨다.
+ *
+ *  대가는 찾았는데 칸이 없을 수 있어서(정의된 칸 밖의 장 번호) 둘을 따로 돌려준다. */
+function masterChapterOf(id: string) {
+  const [kind, key, no] = id.split(/[:#]/);
+  const master = kind === "master" ? MASTER_BY_ID[key as keyof typeof MASTER_BY_ID] : undefined;
+  const chapterNo = Number(no);
   const slot = CHAPTER_SLOTS.find((candidate) => candidate.no === chapterNo);
-  if (!master || !slot) return undefined;
 
   return {
-    href: `/learn/masters/${masterId}/${chapterNo}`,
-    label: `${master.name.split(" · ")[0]} · ${chapterNo}장 ${slot.label}`,
+    key,
+    master,
+    slot,
+    chapterNo,
+    href: master && slot ? `/learn/masters/${key}/${slot.no}` : undefined,
   };
+}
+
+function journalChapterContext(id: string): { href: string; label: string } | undefined {
+  const { master, slot, chapterNo, href } = masterChapterOf(id);
+  if (!master || !slot || !href) return undefined;
+
+  return { href, label: `${master.name.split(" · ")[0]} · ${chapterNo}장 ${slot.label}` };
 }
 
 export default function MyLearning({ companies }: { companies: Record<string, WatchCompanyInfo> }) {
@@ -141,10 +154,7 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
   );
   const quizItems = quizResults
     .map(([id, result]) => {
-      const [kind, key, no] = id.split(":");
-      const master = kind === "master" ? MASTER_BY_ID[key as keyof typeof MASTER_BY_ID] : undefined;
-      const chapterNo = Number(no);
-      const slot = Number.isInteger(chapterNo) ? CHAPTER_SLOTS[chapterNo - 1] : undefined;
+      const { key, master, slot, chapterNo, href } = masterChapterOf(id);
       const masterIndex = MASTERS.findIndex((item) => item.id === key);
       const chapterOrder = Number.isInteger(chapterNo) ? chapterNo : CHAPTER_SLOTS.length + 1;
 
@@ -154,7 +164,7 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
         masterId: master?.id,
         chapterNo: slot?.no ?? chapterOrder,
         chapterLabel: slot ? `${slot.no}장 · ${slot.label}` : id,
-        href: master && slot ? `/learn/masters/${key}/${slot.no}` : undefined,
+        href,
         order: masterIndex === -1 ? Number.MAX_SAFE_INTEGER : masterIndex * 100 + chapterOrder,
       };
     })
