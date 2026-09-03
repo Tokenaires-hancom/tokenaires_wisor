@@ -836,7 +836,6 @@ button {
 
 .foot p {
   margin: 0.2rem 0;
-  max-width: 60ch;
 }
 
 /* ---------- 활자 ---------- */
@@ -881,6 +880,30 @@ h2.section {
   font-size: 1.45rem;
   font-weight: 800;
   margin: 0 0 0.35rem;
+}
+
+/* 제목 옆 개수 표시. 골드 배경 위 흰 글씨는 대비가 낮아(2.05:1) 16px 이상·
+   font-weight 700 이상에서만 쓴다는 규칙이 있어 이 크기 밑으로 줄이지 않는다.
+   개수가 0이면 "비어있음"을 색으로도 구분하도록 흐린 톤으로 바꾼다. */
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  padding: 0 0.5rem;
+  border-radius: 999px;
+  background: var(--gold);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 1rem;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.count-badge[data-empty="true"] {
+  background: var(--line);
+  color: var(--ink-faint);
 }
 
 h3.sub {
@@ -2506,7 +2529,7 @@ h3.sub {
 
 .comparison-scroll {
   overflow-x: auto;
-  border: 1px solid var(--line);
+  border: 1px solid var(--gold);
   border-radius: var(--radius);
   background: var(--surface);
 }
@@ -2529,8 +2552,8 @@ h3.sub {
   vertical-align: middle;
 }
 
-.comparison-matrix tr:last-child th,
-.comparison-matrix tr:last-child td {
+.comparison-matrix tbody tr:last-child th,
+.comparison-matrix tbody tr:last-child td {
   border-bottom: 0;
 }
 
@@ -2540,7 +2563,8 @@ h3.sub {
 }
 
 .comparison-matrix thead th {
-  background: color-mix(in oklab, var(--gold) 16%, var(--paper));
+  background: color-mix(in oklab, var(--gold) 7%, var(--paper));
+  border-bottom: 2px solid var(--gold);
   color: var(--wine-deep);
   font-size: 0.9rem;
   font-weight: 700;
@@ -2553,6 +2577,7 @@ h3.sub {
 
 .comparison-matrix thead th:first-child {
   font-size: 1.08rem;
+  border-right: 2px solid var(--gold);
 }
 
 /* 얼굴을 이름 위에 쌓는다. 옆에 두면 "벤저민 그레이엄"이 두 줄로 접힌다 */
@@ -2581,13 +2606,14 @@ h3.sub {
   color: color-mix(in oklab, var(--wine) 45%, var(--ink-faint));
   font-family: var(--sans);
   font-size: calc(0.78rem + 1px);
-  font-style: italic;
-  font-weight: 700;
+  font-style: normal;
+  font-weight: 400;
   line-height: 1.45;
 }
 
 .comparison-matrix tbody th {
-  background: color-mix(in oklab, var(--gold) 16%, var(--paper));
+  background: color-mix(in oklab, var(--gold) 7%, var(--paper));
+  border-right: 2px solid var(--gold);
   color: var(--ink);
   font-size: 0.8rem;
 }
@@ -2861,7 +2887,7 @@ h3.sub {
   padding: 0.7rem 0.85rem;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: color-mix(in oklab, var(--gold) 16%, var(--paper));
+  background: color-mix(in oklab, var(--gold) 7%, var(--paper));
   color: var(--ink);
   font: inherit;
   text-align: left;
@@ -4012,7 +4038,7 @@ h3.sub {
 }
 
 .learn-page-header .thesis {
-  font-size: clamp(1.4rem, 3vw, 2.1rem);
+  font-size: 1.45rem;
   max-width: none;
 }
 
@@ -4051,6 +4077,16 @@ h3.sub {
   transform-box: fill-box;
   transform-origin: center;
   animation: wisor-ribbon-arrow-float 1.8s ease-in-out infinite;
+  transition: filter 0.2s ease, opacity 0.2s ease;
+}
+
+/* compare-jump는 화살표 꼭지 바로 아래 놓인 별도 링크라 화살표(SVG)를 직접
+   감싸지 않는다. 링크에 마우스를 올리면 :has()로 같은 grid 안의 화살표를
+   찾아 같이 밝힌다 — 화살표 근처에 손이 가면 전체가 하나의 버튼처럼 보이게. */
+.master-grid:has(.compare-jump:hover) .master-grid-ribbon-arrow,
+.master-grid:has(.compare-jump:focus-visible) .master-grid-ribbon-arrow {
+  opacity: 1;
+  filter: drop-shadow(0 0 3px var(--gold));
 }
 
 /* 대가 카드 그리드와 비교표 사이. 화면 높이가 넉넉한 데스크톱에서는 첫 화면에
@@ -4099,6 +4135,7 @@ h3.sub {
   --arrow-x: 5.8%; /* wide: M 58 926 */
   --arrow-y: 92.6%;
   --half: 4em; /* 문구 절반 폭. 화면 밖으로 나가지 않게 잡아 두는 값 */
+  --hit-top: 2.75rem; /* 화살표 꼭지까지 클릭 영역을 끌어올리는 높이. 실측: 꼭지~문구 사이 35.8px */
   position: absolute;
   top: var(--arrow-y);
   left: clamp(var(--half), var(--arrow-x), calc(100% - var(--half)));
@@ -4111,6 +4148,18 @@ h3.sub {
   line-height: 1.35;
   text-align: center;
   text-decoration: none;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+/* 화살표(SVG)는 pointer-events: none인 배경 리본 위에 그려져서 그 자체로는
+   클릭도 hover도 안 걸린다. compare-jump 문구 링크의 클릭 영역을 화살표
+   꼭지까지 위로 넓혀서, 화살표에 마우스를 올리거나 눌러도 같은 링크가
+   반응하게 한다. 화살표는 문구 바로 위 빈 자리에만 그려지므로(카드와
+   겹치지 않음) 영역을 넓혀도 다른 카드 클릭을 가리지 않는다. */
+.compare-jump::before {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--hit-top)) 0 0 0;
 }
 
 .compare-jump span {
@@ -4118,20 +4167,24 @@ h3.sub {
   white-space: nowrap;
 }
 
-.compare-jump:hover {
-  color: color-mix(in oklab, var(--gold-deep) 70%, black);
+.compare-jump:hover,
+.compare-jump:focus-visible {
+  color: var(--gold);
+  text-shadow: 0 0 3px var(--gold-line);
 }
 
 @media (max-width: 900px) {
   .compare-jump {
     --arrow-x: 75%; /* medium: M 750 990 */
     --arrow-y: 99%;
+    --hit-top: 3.5rem; /* 실측: 꼭지~문구 사이 50.3px */
   }
 }
 
 @media (max-width: 640px) {
   .compare-jump {
     --arrow-x: 88%; /* narrow: M 880 1016 */
+    --hit-top: 2rem; /* 실측: 꼭지~문구 사이 25.6px */
     --arrow-y: 100%;
   }
 }

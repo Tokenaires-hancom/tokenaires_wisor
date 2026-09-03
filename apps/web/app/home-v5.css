@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap");
 
 /* ==========================================================================
    홈 v5 — Detail & Motion
@@ -19,7 +19,7 @@
   --hv-ink-3: #625c56;
   --hv-muted: #77716a;
   --hv-panel-line: #e7e9ed;
-  --hv-display: "Jua", var(--sans);
+  --hv-display: var(--sans);
   --hv-body: "Noto Sans KR", var(--sans);
 
   background: #ffffff;
@@ -61,7 +61,7 @@
 
 .hv-home :where(h1, h2) {
   font-family: var(--hv-display);
-  font-weight: 400;
+  font-weight: 800;
   letter-spacing: normal;
 }
 
@@ -621,6 +621,7 @@
   left: 2.639cqw;
   top: 7.778cqw;
   font-family: var(--hv-display);
+  font-weight: 700;
   font-size: 2.361cqw;
   line-height: 3.056cqw;
   color: var(--hv-ink);
@@ -767,6 +768,7 @@
 .hv-journey-step-head {
   margin: 0;
   font-family: var(--hv-display);
+  font-weight: 700;
   font-size: 2.153cqw;
   line-height: 5.972cqw;
   color: var(--hv-ink);
@@ -774,7 +776,7 @@
 }
 
 .hv-journey-step-head strong {
-  font-weight: 400;
+  font-weight: 900;
   font-size: 5.694cqw;
   margin-right: 1.2cqw;
 }
@@ -874,7 +876,7 @@
 
 .hv-result-panel-mid strong {
   font-family: var(--hv-display);
-  font-weight: 400;
+  font-weight: 700;
   font-size: 2.083cqw;
 }
 
@@ -903,6 +905,7 @@
   top: 2.917cqw;
   margin: 0;
   font-family: var(--hv-display);
+  font-weight: 700;
   font-size: 1.944cqw;
   color: #403e3b;
 }
@@ -920,6 +923,7 @@
   top: 2.5cqw;
   margin: 0;
   font-family: var(--hv-display);
+  font-weight: 800;
   font-size: 3.056cqw;
   color: var(--hv-wine);
   transform-origin: right center;
