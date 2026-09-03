@@ -322,6 +322,12 @@ button {
   font-size: 0.95rem;
 }
 
+.my-page-menu button:not([data-active="true"]):hover strong,
+.my-page-menu button:not([data-active="true"]):focus-visible strong,
+.my-page-menu button[data-active="true"] strong {
+  color: var(--wine);
+}
+
 .my-page-menu small {
   margin-top: 0;
   color: var(--ink-faint);
