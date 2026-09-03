@@ -80,16 +80,16 @@ npm run build
 
 ```
 wisor/
-├─ apps/web/            Next.js 15 · 화면 전체 (1번 담당)
+├─ apps/web/            Next.js 15 · 화면 전체 (프론트엔드 담당)
 │   ├─ content/         투자 철학 7유형×5장 (정적 콘텐츠)
 │   ├─ lib/generated/   배치가 만든 scores.json
 │   └─ lib/store.ts     비회원 브라우저 임시 저장 · 회원 Supabase 저장
-├─ data-pipeline/       Python 배치 · 재무데이터 → 투자 철학 점수 (3번 담당)
+├─ data-pipeline/       Python 배치 · 재무데이터 → 투자 철학 점수 (재무데이터 담당)
 │   └─ data/            종목 유니버스와 재무 캐시
 ├─ docs/                설계, 구현 계획, 출처와 작업 인계
 ├─ deploy/oci/          OCI 이미지·Compose·제한 SSH 자동 배포 계약
-├─ supabase/            사용자 데이터 스키마와 증분 마이그레이션 (2번 담당)
-└─ render.yaml          Render 두 서비스 배포 설정 (2번 담당)
+├─ supabase/            사용자 데이터 스키마와 증분 마이그레이션 (백엔드 담당)
+└─ render.yaml          Render 두 서비스 배포 설정 (백엔드 담당)
 ```
 
 경계 규칙:
