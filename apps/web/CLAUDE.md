@@ -1,6 +1,6 @@
 # CLAUDE.md — apps/web
 
-> 담당: 1번(제품·UX·프론트엔드), 2번(`lib/store.ts` 및 Supabase 연동)
+> 담당: 제품·UX·프론트엔드 (`lib/store.ts` 및 Supabase 연동은 백엔드 담당)
 > 루트 `CLAUDE.md`의 규칙이 먼저 적용됩니다.
 
 ## 스택
@@ -32,7 +32,7 @@ lib/analytics.ts            ← 측정 이벤트
 
 ### 저장소
 
-**컴포넌트에서 `localStorage`를 직접 부르지 않습니다.** 반드시 `lib/store.ts`를 거칩니다. 2번이 Supabase를 붙일 때 이 파일의 함수 본문만 교체하기로 돼 있습니다.
+**컴포넌트에서 `localStorage`를 직접 부르지 않습니다.** 반드시 `lib/store.ts`를 거칩니다. 백엔드 담당이 Supabase를 붙일 때 이 파일의 함수 본문만 교체하기로 돼 있습니다.
 
 **`store.ts`에서 저장소를 만지는 함수는 전부 `Promise`를 돌려줍니다.** localStorage는 동기지만 Supabase는 비동기라서 시그니처를 미리 맞춰 뒀습니다. 편의상 동기로 되돌리지 마세요.
 
