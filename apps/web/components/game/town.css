@@ -131,33 +131,44 @@
   animation-delay: -3s, -0.5s;
 }
 
+/* 날개(둥근 모서리 삼각형) 두 장이 뾰족한 끝에서 겹친다 — 몸통은 따로 없고,
+ * 반투명한 두 날개가 겹치는 자리가 자연스럽게 짙어지면서 몸통 자리를
+ * 대신한다. transform-origin을 그 뾰족한 끝(안쪽)에 둬서 날개의 넓은
+ * 바깥쪽 끝이 퍼덕이게 한다 — 안쪽이 흔들리면 어깨가 아니라 날개 전체가
+ * 흔들리는 것처럼 보여서 어색하다. */
 .town-bird {
   position: absolute;
-  width: 12px;
-  height: 4px;
-  border-top: 2px solid color-mix(in srgb, var(--ink) 60%, transparent);
+  width: 3px;
+  height: 3px;
   pointer-events: none;
 }
 .town-bird::before,
 .town-bird::after {
   content: "";
   position: absolute;
-  top: -1px;
-  width: 7px;
-  height: 7px;
-  border-top: 2px solid color-mix(in srgb, var(--ink) 60%, transparent);
+  top: -2.5px;
+  width: 10px;
+  height: 6px;
+  background: #6badd9;
+  opacity: 0.85;
 }
+/* clip-path 좌표는 10x6 상자에 든 뾰족 삼각형(꼭짓점 0,0 / 0,6 / 10,3)의
+ * 세 모서리를 반지름 1.25px만큼 깎아 두 점 사이를 둥글린 값이다 — 이
+ * 저장소 다른 도형은 전부 polygon()이라 여기만 왜 path()인지 헷갈릴 수
+ * 있어 남긴다. 크기를 바꾸면 이 좌표를 전부 다시 계산해야 한다. */
 .town-bird::before {
-  left: 0;
+  left: -7.4px;
+  clip-path: path("M0,0.75 L0,5.25 Q0,6 1.12,5.66 L8.88,3.34 Q10,3 8.88,2.66 L1.12,0.34 Q0,0 0,0.75 Z");
   transform: rotate(-32deg);
-  transform-origin: left center;
-  animation: town-wing 0.22s ease-in-out infinite;
+  transform-origin: 100% 50%;
+  animation: town-wing 0.32s ease-in-out infinite;
 }
 .town-bird::after {
-  right: 0;
+  left: 0.4px;
+  clip-path: path("M10,0.75 L10,5.25 Q10,6 8.88,5.66 L1.12,3.34 Q0,3 1.12,2.66 L8.88,0.34 Q10,0 10,0.75 Z");
   transform: rotate(32deg);
-  transform-origin: right center;
-  animation: town-wing-r 0.22s ease-in-out infinite;
+  transform-origin: 0% 50%;
+  animation: town-wing-r 0.32s ease-in-out infinite;
 }
 .town-bird-a {
   top: 34px;
@@ -366,6 +377,16 @@
 .town-coin[data-celebrate="true"] {
   animation: town-coin-party 0.52s ease-in-out infinite;
 }
+/* idle·celebrate 웹툰 원본 캐릭터가 투명 캔버스 안에서 중앙이 아니라 오른쪽으로
+ * 치우쳐 그려져 있어(idle +4.2%, celebrate +7.9%), 지붕 중앙에 맞추려면 그만큼
+ * 왼쪽으로 당겨야 한다. img 대신 duo-mascot에 거는 이유는 celebrate가
+ * town-mascot-spin으로 img의 transform을 계속 덮어써서다. */
+.town-coin .duo-mascot[data-state="idle"] {
+  transform: translateX(-4.2%);
+}
+.town-coin .duo-mascot[data-state="celebrate"] {
+  transform: translateX(-7.9%);
+}
 .town-coin .duo-mascot {
   margin: 0;
 }
@@ -378,17 +399,35 @@
   animation: town-mascot-spin 0.52s ease-in-out infinite;
 }
 
+/* 깃발봉(.town-flag)은 지붕에 고정된 채 움직이지 않는다. 깃발천(::after)만
+ * 봉 끝에 매달려 town-flag-wave로 펄럭인다 — 봉까지 같이 흔들리면 꽂힌
+ * 물체가 아니라 통째로 떠다니는 것처럼 보이기 때문이다.
+ * 봉 밑동 13px는 지붕(.town-roof, z-index 3) 뒤로 들어가 가려진다 — 지붕이
+ * position을 안 갖고 있으면 z-index가 안 먹어서 항상 봉이 앞에 뜬다. */
 .town-flag {
   position: absolute;
-  top: -14px;
+  top: -15px;
   left: 50%;
-  width: 10px;
-  height: 18px;
+  width: 3px;
+  height: 28px;
   transform: translateX(-50%);
   z-index: 2;
-  background: var(--wine);
-  clip-path: polygon(0 0, 100% 30%, 0 55%, 0 100%, 20% 100%, 20% 0);
-  animation: town-wave 0.65s ease-in-out infinite;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--wine) 80%, #fff), var(--wine));
+}
+/* 천의 왼쪽 여백(-1.5px)은 봉 굵기(3px)에 맞춰 천이 화면상 같은 자리에
+ * 붙도록 보정한 값이다 — 봉 폭을 다시 바꾸면 이 숫자도 같이 바뀌어야 한다. */
+.town-flag::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: calc(100% - 1.5px);
+  width: 13px;
+  height: 14px;
+  background: linear-gradient(100deg, color-mix(in srgb, var(--wine) 75%, #fff), var(--wine) 55%);
+  clip-path: polygon(0 0, 100% 32%, 0 60%);
+  transform-origin: 0 40%;
+  z-index: -1;
+  animation: town-flag-wave 1.2s ease-in-out infinite;
 }
 
 .town-floor[data-new="true"] {
@@ -426,37 +465,46 @@
 }
 
 .town-roof {
+  position: relative;
+  z-index: 3;
   width: 125%;
   aspect-ratio: 60 / 22;
-  background: color-mix(in srgb, var(--accent) 55%, #000 18%);
+  background: color-mix(in srgb, var(--accent) 75%, #000 25%);
   clip-path: polygon(50% 0, 100% 100%, 0 100%);
   filter: drop-shadow(0 -1px 0 rgba(0, 0, 0, 0.06));
   animation: town-roof-wiggle 3s ease-in-out infinite;
 }
 
-.town-smoke {
+/* 완공 깃발 뒤에서 마이페이지 진입마다 한 번만 터지는 축하 불꽃. town-burst와
+ * 달리 infinite가 없다 — 컴포넌트가 새로 마운트될 때(=페이지 진입) 딱 한 번
+ * 재생되고 끝난 자리에서 멈춘다(forwards). color를 배경 대신 쓰는 이유는
+ * box-shadow 글로우가 currentColor로 같이 따라오게 하기 위해서다. */
+.town-firework {
   position: absolute;
-  top: -8px;
+  top: -14px;
   left: 50%;
-  width: 10px;
-  height: 10px;
-  margin-left: -5px;
+  width: 5px;
+  height: 5px;
+  margin-left: -2.5px;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--ink-soft) 30%, transparent);
+  color: var(--gold);
+  background: currentColor;
+  box-shadow: 0 0 6px currentColor, 0 0 2px currentColor;
   opacity: 0;
   pointer-events: none;
-  animation: town-smoke 1.8s ease-out infinite;
+  animation: town-firework 1.5s ease-out both;
 }
-.town-smoke[data-puff="a"] {
-  margin-left: -9px;
-  animation-delay: 0s;
-}
-.town-smoke[data-puff="b"] {
-  margin-left: 3px;
-  width: 8px;
-  height: 8px;
-  animation-delay: -0.9s;
-}
+.town-firework[data-i="0"] { --fw-x: -20px; --fw-y: -28px; animation-delay: 0s; }
+.town-firework[data-i="1"] { --fw-x: 18px; --fw-y: -32px; animation-delay: 0.1s; color: var(--ochre); }
+.town-firework[data-i="2"] { --fw-x: -28px; --fw-y: -12px; animation-delay: 0.2s; color: var(--wine); width: 4px; height: 4px; margin-left: -2px; }
+.town-firework[data-i="3"] { --fw-x: 26px; --fw-y: -10px; animation-delay: 0.3s; }
+.town-firework[data-i="4"] { --fw-x: -8px; --fw-y: -38px; animation-delay: 0.4s; color: var(--ochre); width: 3px; height: 3px; margin-left: -1.5px; }
+.town-firework[data-i="5"] { --fw-x: 10px; --fw-y: -36px; animation-delay: 0.5s; color: var(--wine); }
+.town-firework[data-i="6"] { --fw-x: -14px; --fw-y: -6px; animation-delay: 0.6s; width: 3px; height: 3px; margin-left: -1.5px; }
+.town-firework[data-i="7"] { --fw-x: 22px; --fw-y: -20px; animation-delay: 0.7s; color: var(--ochre); }
+.town-firework[data-i="8"] { --fw-x: -32px; --fw-y: -30px; animation-delay: 0.5s; color: var(--wine); width: 3px; height: 3px; margin-left: -1.5px; }
+.town-firework[data-i="9"] { --fw-x: 32px; --fw-y: -24px; animation-delay: 0.35s; width: 4px; height: 4px; margin-left: -2px; }
+.town-firework[data-i="10"] { --fw-x: 4px; --fw-y: -44px; animation-delay: 0.15s; color: var(--ochre); width: 3px; height: 3px; margin-left: -1.5px; }
 
 .town-lot {
   width: 100%;
@@ -611,9 +659,9 @@
   25% { transform: scale(1.08) rotate(-6deg); }
   75% { transform: scale(1.08) rotate(6deg); }
 }
-@keyframes town-wave {
-  0%, 100% { transform: translateX(-50%) rotate(-16deg); }
-  50% { transform: translateX(-50%) rotate(16deg); }
+@keyframes town-flag-wave {
+  0%, 100% { transform: rotate(-11deg); }
+  50% { transform: rotate(11deg); }
 }
 @keyframes town-rise {
   0% { transform: translateY(10px) scaleY(0.4); opacity: 0; }
@@ -634,10 +682,11 @@
   33% { transform: rotate(-1.5deg); }
   66% { transform: rotate(1.5deg); }
 }
-@keyframes town-smoke {
-  0% { opacity: 0; transform: translateY(0) scale(0.5); }
-  15% { opacity: 0.55; }
-  100% { opacity: 0; transform: translateY(-32px) scale(1.6); }
+@keyframes town-firework {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.4); }
+  15% { opacity: 1; }
+  70% { opacity: 0.9; }
+  100% { opacity: 0; transform: translate(var(--fw-x), var(--fw-y)) scale(1.3); }
 }
 @keyframes town-lot-pulse {
   0%, 100% { transform: scale(1); opacity: 0.85; }
@@ -666,9 +715,10 @@
   .town-bench,
   .town-confetti,
   .town-flag,
+  .town-flag::after,
   .town-floor,
   .town-roof,
-  .town-smoke,
+  .town-firework,
   .town-burst,
   .town-lot,
   .town-coin,
