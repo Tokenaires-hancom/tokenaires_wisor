@@ -85,7 +85,7 @@ export default function ScreenerCompanies({
           const s = c.scores[style];
           const expanded = expandedTicker === c.ticker;
           return (
-            <div key={c.ticker} className="stock-row-item">
+            <div key={c.ticker} className="stock-row-item" data-expanded={expanded ? "true" : undefined}>
               <div className="stock-row" data-current={selectedTicker === c.ticker ? "true" : undefined}>
                 <button
                   type="button"
@@ -98,6 +98,14 @@ export default function ScreenerCompanies({
                   }}
                 >
                   <StockLogo ticker={c.ticker} />
+                  {/* 넓은 화면에서는 오른쪽 칸이 따로 있어 뜻이 없으므로 CSS로
+                     숨긴다(globals.css) — 좁은 화면 전용 아코디언 상태 표시.
+                     이름 바로 앞에 둔다 — 줄 오른쪽 끝(하트 옆)에 있던 이전
+                     자리는 다른 표시들 사이에 묻혀 눈에 잘 안 띄었다. 화살표
+                     대신 접힘 −·펼침 + 로 방향성 없이 상태만 보여준다. */}
+                  <span className="stock-row-chevron" aria-hidden="true">
+                    {expanded ? "+" : "−"}
+                  </span>
                   <span className="stock-name" title={c.name}>{c.name}</span>
                   {s ? (
                     <>
@@ -122,11 +130,6 @@ export default function ScreenerCompanies({
                       </span>
                     </>
                   )}
-                  {/* 넓은 화면에서는 오른쪽 칸이 따로 있어 뜻이 없으므로 CSS로 숨긴다
-                     (globals.css) — 좁은 화면 전용 아코디언 상태 표시. */}
-                  <span className="stock-row-chevron" aria-hidden="true">
-                    {expanded ? "⌄" : "›"}
-                  </span>
                 </button>
                 <WatchButton ticker={c.ticker} size="sm" />
               </div>

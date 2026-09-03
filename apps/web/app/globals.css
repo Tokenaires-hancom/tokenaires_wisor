@@ -1404,18 +1404,23 @@ h3.sub {
     min-height: 0;
   }
 
-  /* 목록과 상세를 나누는 선이 1열(위/아래 가로선)에서 2열(좌/우 세로선)로
-     바뀐다. .screener-split의 gap(1.5rem)을 선 앞쪽 여백으로 먼저 주고,
-     선 뒤에도 같은 1.5rem을 padding-left로 둔다. 오른쪽도 같은 값을 줘서
-     카드가 칸 오른쪽 끝까지 억지로 안 늘어나게 한다. */
   /* 좁은 화면 전용 아코디언 흔적을 지운다 — 오른쪽 칸이 항상 있으니 목록
-     안에서 또 펼칠 필요가 없다. */
+     안에서 또 펼칠 필요가 없다. sticky로 고정했던 줄도 원래대로(고정
+     없음) 되돌린다. */
   .stock-row-chevron,
   .stock-row-detail {
     display: none;
   }
 
-  /* [data-selected="true"]는 속성 선택자라 위 좁은 화면 규칙(같은 속성
+  .stock-row-item[data-expanded="true"] .stock-row {
+    position: static;
+  }
+
+  /* 목록과 상세를 나누는 선이 1열(위/아래 가로선)에서 2열(좌/우 세로선)로
+     바뀐다. .screener-split의 gap(1.5rem)을 선 앞쪽 여백으로 먼저 주고,
+     선 뒤에도 같은 1.5rem을 padding-left로 둔다. 오른쪽도 같은 값을 줘서
+     카드가 칸 오른쪽 끝까지 억지로 안 늘어나게 한다.
+     [data-selected="true"]는 속성 선택자라 위 좁은 화면 규칙(같은 속성
      선택자)보다 명시도가 낮은 그냥 .screener-split-detail로는 못 이긴다
      — 여기서도 같은 속성 선택자로 다시 걸어야 641px부터 확실히 보인다. */
   .screener-split-detail,
@@ -1612,11 +1617,21 @@ h3.sub {
   box-shadow: inset 3px 0 0 var(--wine);
 }
 
+/* 좁은 화면 아코디언이 펼쳐지면 그 줄을 화면 위(.masthead 60px 아래)에
+   고정한다 — 상세가 길어서 내려 봐야 하는데, 줄 자체가 같이 밀려 올라가
+   버리면 접으려고 다시 누를 때마다 위로 스크롤해 돌아와야 한다. 641px
+   부터는(아래 미디어쿼리) 아코디언 자체가 없으니 원래대로 되돌린다. */
+.stock-row-item[data-expanded="true"] .stock-row {
+  position: sticky;
+  top: 60px;
+  z-index: 10;
+}
+
 /* 넓은 화면에서는 <button>이다 — 눌러도 페이지를 안 떠나고 오른쪽 칸만 바뀐다.
  * border·background는 버튼 기본값을 지운다. */
 .stock-row-select {
   display: grid;
-  grid-template-columns: 28px minmax(0, 1fr) auto auto auto;
+  grid-template-columns: 28px auto minmax(0, 1fr) auto auto;
   gap: 0.7rem;
   align-items: center;
   flex: 1;
@@ -1675,12 +1690,20 @@ h3.sub {
 }
 
 /* 좁은 화면(641px 미만) 전용 아코디언 상태 표시. 이 폭에서만 줄을 누르면
-   그 자리에서 상세가 펼쳐지므로(.stock-row-detail) 방향으로 열림·닫힘을
-   보여준다. 넓은 화면은 오른쪽 칸이 항상 따로 있어 뜻이 없어 숨긴다. */
+   그 자리에서 상세가 펼쳐지므로(.stock-row-detail) −(접힘)·+(펼침)로
+   열림·닫힘을 보여준다. 넓은 화면은 오른쪽 칸이 항상 따로 있어 뜻이 없어
+   숨긴다. */
 .stock-row-chevron {
   color: var(--ink-faint);
   font-size: 1rem;
+  font-weight: 700;
   line-height: 1;
+}
+
+/* 펼친 줄만 포인트색으로 — 접힌 −는 눈에 안 띄어야 목록이 조용하고,
+   펼쳐진 +는 지금 뭘 보고 있는지 바로 보여야 한다. */
+.stock-row-select[aria-expanded="true"] .stock-row-chevron {
+  color: var(--wine);
 }
 
 /* 아코디언 몸통. 넓은 화면(오른쪽 칸이 있는)에서는 숨긴다 — 안 숨기면
