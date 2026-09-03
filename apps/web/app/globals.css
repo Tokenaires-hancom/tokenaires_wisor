@@ -1336,19 +1336,11 @@ h3.sub {
   min-width: 0;
 }
 
-/* 1열로 쌓였을 때(640px 이하) 목록과 상세를 나누는 가로선. 641px부터는
-   아래 미디어쿼리가 세로선으로 바꾼다. */
+/* 640px 이하는 이 칸을 통째로 숨긴다 — 종목을 골랐을 때는 목록 안
+   아코디언(.stock-row-detail)이, 안 골랐을 때는 대가 탭 밑
+   .philosophy-panel이 좁은 화면 몫을 대신 맡는다. 641px부터는 아래
+   미디어쿼리가 다시 보이게 하고 세로선(desktop용)을 그린다. */
 .screener-split-detail {
-  border-top: 1px solid var(--line);
-  padding-top: 1.5rem;
-  margin-top: 0.5rem;
-}
-
-/* 종목을 골랐으면(data-selected) 좁은 화면에서는 이 칸을 숨긴다 — 같은
-   상세를 목록 안 아코디언(.stock-row-detail)이 이미 보여준다. 아직 아무
-   것도 안 골랐을 때는 이 칸의 emptyState가 좁은 화면에서도 유일한 안내라
-   숨기지 않는다. 641px부터는 아래 미디어쿼리가 무조건 다시 보이게 한다. */
-.screener-split-detail[data-selected="true"] {
   display: none;
 }
 
@@ -1360,6 +1352,55 @@ h3.sub {
   flex-direction: column;
   justify-content: center;
   min-height: 100%;
+}
+
+/* 좁은 화면 전용 "투자 철학" 접기 버튼 + 몸통을 담는 자리. 대가 탭
+   바로 아래, 묶음 탭 위에 둔다. 넓은 화면은 통째로 숨긴다 — 오른쪽 칸
+   (.screener-split-detail)이 같은 내용을 항상 보여준다. */
+.philosophy-panel {
+  margin-bottom: 0.75rem;
+}
+
+/* 아래 캡슐형(묶음 탭·검색창·배지, border-radius:999px)과 헷갈리지
+   않도록 각진 카드 테두리(var(--radius), .card와 같은 값)로 다르게
+   만든다 — 눌러도 되는 자리라는 느낌은 테두리·hover 배경으로 준다. */
+.philosophy-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.3rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ink);
+  transition: background 0.15s ease;
+}
+
+.philosophy-toggle:hover {
+  background: var(--surface-sunk);
+}
+
+.philosophy-toggle-icon {
+  color: var(--ink-faint);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* 펼친 상태만 포인트색으로 — 종목 줄 아코디언(+/−)과 같은 규칙. */
+.philosophy-toggle[aria-expanded="true"] .philosophy-toggle-icon {
+  color: var(--wine);
+}
+
+.philosophy-body {
+  display: none;
+  margin-top: 1rem;
+}
+
+.philosophy-body[data-open="true"] {
+  display: block;
 }
 
 /* 640px 이하 기본값. 고정 셸을 아직 안 쓰는 폭이라 보통 페이지처럼 아래
@@ -1406,9 +1447,11 @@ h3.sub {
 
   /* 좁은 화면 전용 아코디언 흔적을 지운다 — 오른쪽 칸이 항상 있으니 목록
      안에서 또 펼칠 필요가 없다. sticky로 고정했던 줄도 원래대로(고정
-     없음) 되돌린다. */
+     없음) 되돌린다. "투자 철학" 자리(대가 탭 밑)도 통째로 지운다 — 같은
+     내용이 오른쪽 칸에 늘 펼쳐 보인다. */
   .stock-row-chevron,
-  .stock-row-detail {
+  .stock-row-detail,
+  .philosophy-panel {
     display: none;
   }
 
@@ -1416,15 +1459,11 @@ h3.sub {
     position: static;
   }
 
-  /* 목록과 상세를 나누는 선이 1열(위/아래 가로선)에서 2열(좌/우 세로선)로
-     바뀐다. .screener-split의 gap(1.5rem)을 선 앞쪽 여백으로 먼저 주고,
-     선 뒤에도 같은 1.5rem을 padding-left로 둔다. 오른쪽도 같은 값을 줘서
-     카드가 칸 오른쪽 끝까지 억지로 안 늘어나게 한다.
-     [data-selected="true"]는 속성 선택자라 위 좁은 화면 규칙(같은 속성
-     선택자)보다 명시도가 낮은 그냥 .screener-split-detail로는 못 이긴다
-     — 여기서도 같은 속성 선택자로 다시 걸어야 641px부터 확실히 보인다. */
-  .screener-split-detail,
-  .screener-split-detail[data-selected="true"] {
+  /* 목록과 상세를 나누는 세로선. .screener-split의 gap(1.5rem)을 선
+     앞쪽 여백으로 먼저 주고, 선 뒤에도 같은 1.5rem을 padding-left로
+     둔다. 오른쪽도 같은 값을 줘서 카드가 칸 오른쪽 끝까지 억지로 안
+     늘어나게 한다. */
+  .screener-split-detail {
     display: block;
     align-self: stretch;
     height: 100%;
@@ -1434,10 +1473,7 @@ h3.sub {
        auto로 승격돼 버려서, 안쪽 어딘가 폭이 살짝만 넘쳐도 여기서 조용히
        가로 스크롤이 생긴다. 명시로 막는다. */
     overflow-x: hidden;
-    border-top: 0;
     border-left: 1px solid var(--line);
-    padding-top: 0;
-    margin-top: 0;
     padding-left: 7.5rem;
     padding-right: 7.5rem;
   }
@@ -1628,7 +1664,13 @@ h3.sub {
 }
 
 /* 넓은 화면에서는 <button>이다 — 눌러도 페이지를 안 떠나고 오른쪽 칸만 바뀐다.
- * border·background는 버튼 기본값을 지운다. */
+ * border·background는 버튼 기본값을 지운다.
+ *
+ * 다섯 칸(로고·화살표·이름·기준막대·점수) 각자 grid-column을 명시로 갖는다
+ * (아래 각 클래스 옆). .stock-row-chevron이 641px부터 display:none으로
+ * 사라지는데, 자동 배치(grid-auto-placement)에 맡기면 사라진 칸이 빈
+ * 자리로 안 남고 뒤 칸들이 전부 한 칸씩 당겨져 이름·기준막대·점수가
+ * 밀리고 겹친다(태블릿 폭에서 실제로 겹쳐 보였다). */
 .stock-row-select {
   display: grid;
   grid-template-columns: 28px auto minmax(0, 1fr) auto auto;
@@ -1651,6 +1693,9 @@ h3.sub {
 }
 
 .stock-logo {
+  /* .stock-row-select의 grid-column 자리를 못박는다 — 이유는
+     .stock-row-select 옆 주석 참고. */
+  grid-column: 1;
   display: grid;
   place-items: center;
   width: 28px;
@@ -1679,6 +1724,7 @@ h3.sub {
 /* 이름이 가장 긴 종목은 20자(익스피다이터스 인터내셔널 오브 워싱턴)다.
  * 전체 이름은 종목을 눌러 상세에서 읽는다. */
 .stock-name {
+  grid-column: 3;
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1686,6 +1732,7 @@ h3.sub {
 }
 
 .stock-row-bar {
+  grid-column: 4;
   width: 120px;
 }
 
@@ -1694,6 +1741,7 @@ h3.sub {
    열림·닫힘을 보여준다. 넓은 화면은 오른쪽 칸이 항상 따로 있어 뜻이 없어
    숨긴다. */
 .stock-row-chevron {
+  grid-column: 2;
   color: var(--ink-faint);
   font-size: 1rem;
   font-weight: 700;
@@ -1760,6 +1808,7 @@ h3.sub {
 }
 
 .stock-score {
+  grid-column: 5;
   min-width: 3rem;
   font-family: var(--mono);
   font-size: 1rem;
@@ -2462,6 +2511,45 @@ h3.sub {
   font-size: 1.1rem;
   font-weight: 650;
   white-space: nowrap;
+}
+
+/* 640px 이하: 대가 탭이 220px 최소폭을 지키면 4개 중 1개 반밖에 안 보이고
+   나머지는 옆으로 가로 스크롤해야 찾을 수 있다 — 얼굴·이름만 세로로
+   쌓아 4개를 한 화면 폭에 다 보이게 압축한다. 배지(.style-name)는 이
+   폭에서 넷을 다 넣을 자리가 없어 뺀다 — 어떤 대가인지는 이름으로
+   충분히 구분된다. */
+@media (max-width: 640px) {
+  .screener-style-tab {
+    flex: 1 1 0;
+    flex-direction: column;
+    min-width: 0;
+    gap: 0.3rem;
+    padding: 0.6rem 0.3rem;
+  }
+
+  .screener-style-tab .investor-avatar {
+    width: 28px;
+    height: 28px;
+  }
+
+  .screener-tab-text {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  .screener-tab-name {
+    font-size: 0.72rem;
+    font-weight: 700;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.15;
+  }
+
+  .screener-style-tab .style-name {
+    display: none;
+  }
 }
 
 .lens-note {

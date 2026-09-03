@@ -5,6 +5,7 @@ import ScreenerCompanies from "@/components/ScreenerCompanies";
 import StockDetailBody from "@/components/StockDetailBody";
 import { filterCompaniesByQuery } from "@/lib/searchCompanies";
 import { getWatchlist } from "@/lib/store";
+import { MASTER_BY_ID } from "@/content/masters";
 import type { Company } from "@/lib/scores.types";
 
 type Group = "scored" | "unscored" | "unscorable" | "watchlist";
@@ -70,6 +71,11 @@ export default function ScreenerSplit({
      번쩍이는 게 없다는 뜻은 아니지만, 별도 "불러오는 중" 문구를 더하기엔
      이 화면에 그 정도로 오래 걸리지 않는다. */
   const [watchlist, setWatchlist] = useState<string[] | null>(null);
+  /* 좁은 화면 전용. 종목을 아직 안 고르면 emptyState(투자 철학·채점 기준
+     설명)가 목록 아래에 그대로 다 나와 첫 화면이 길어진다 — 버튼으로
+     접어 기본값을 닫힘으로 둔다. 넓은 화면은 이 state와 무관하게 항상
+     펼쳐 보인다(globals.css). */
+  const [philosophyOpen, setPhilosophyOpen] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -128,6 +134,28 @@ export default function ScreenerSplit({
   return (
     <div className="screener-split">
       <div className="screener-split-list">
+        {/* 좁은 화면 전용 "투자 철학" 접기 버튼. 대가 탭 바로 아래, 묶음
+           탭 위에 둔다 — 여기가 실제로 눈에 띄는 자리다(목록 맨 아래는
+           스크롤해야 보인다). 넓은 화면은 CSS로 통째로 숨긴다 — 오른쪽
+           칸(.screener-split-detail)이 같은 내용을 항상 펼쳐 보여준다.
+           종목을 골랐든 안 골랐든 이 자리는 그대로다 — 종목 상세는 아래
+           목록 안 아코디언이 따로 보여준다. */}
+        <div className="philosophy-panel">
+          <button
+            type="button"
+            className="philosophy-toggle"
+            aria-expanded={philosophyOpen}
+            onClick={() => setPhilosophyOpen((o) => !o)}
+          >
+            <span className="philosophy-toggle-icon" aria-hidden="true">
+              {philosophyOpen ? "+" : "−"}
+            </span>
+            {MASTER_BY_ID[style as keyof typeof MASTER_BY_ID]?.name ?? ""} 투자 철학
+          </button>
+          <div className="philosophy-body" data-open={philosophyOpen ? "true" : undefined}>
+            {emptyState}
+          </div>
+        </div>
         <div className="screener-list-head">
           <div className="screener-group-toggle" role="tablist" aria-label="목록 묶음">
             {GROUPS.map((g) => {
@@ -193,12 +221,11 @@ export default function ScreenerSplit({
           />
         )}
       </div>
-      {/* 넓은 화면(641px 이상)의 오른쪽 칸. 좁은 화면에서는 종목을 고르면
-         ScreenerCompanies 안 아코디언이 같은 내용을 보여주므로 이 칸은
-         숨긴다(globals.css) — 둘 다 보이면 같은 상세가 두 번 뜬다. 아직
-         아무것도 안 골랐을 때(emptyState)는 좁은 화면에서도 이 칸이
-         유일한 안내라 숨기지 않는다. */}
-      <div className="screener-split-detail" data-selected={selected ? "true" : undefined}>
+      {/* 넓은 화면(641px 이상) 전용 오른쪽 칸. 좁은 화면에서는 통째로
+         숨긴다(globals.css) — 종목을 골랐을 때는 목록 안 아코디언이,
+         안 골랐을 때는 위 .philosophy-panel이 좁은 화면 몫을 대신
+         맡는다. */}
+      <div className="screener-split-detail">
         {detailContent ?? <div className="screener-empty-state">{emptyState}</div>}
       </div>
     </div>
