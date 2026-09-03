@@ -107,6 +107,24 @@ export default function ScreenerSplit({
     ? filterCompaniesByQuery([...scored, ...unscored, ...unscorable], query)
     : GROUP_COMPANIES[group];
 
+  /* 오른쪽 칸(넓은 화면)과 아코디언(좁은 화면, ScreenerCompanies 안)이
+     같은 내용을 보여준다 — JSX를 한 번만 적어서 두 자리에 넣는다. 실제
+     마운트는 두 번 일어난다(좁은 화면에서 아코디언이 접혀 있어도 이
+     엘리먼트는 DOM에 남아 있다가 CSS로 숨겨진다). NoteLens의 학습노트
+     읽기 정도라 두 번 일어나도 눈에 띄는 비용은 아니다. */
+  const detailContent = selected ? (
+    <StockDetailBody
+      company={selected}
+      marketCapRank={marketCapRanks[selected.ticker]}
+      marketCapUniverseSize={marketCapUniverseSize}
+      initialStyle={style}
+      stamps={stamps[selected.ticker]}
+      /* 배지는 이미 왼쪽 목록 머리에 있다. 여기서 또 그리면 종목을 고른
+         순간 같은 배지가 한 화면에 두 번 뜬다. */
+      sampleFlag={null}
+    />
+  ) : null;
+
   return (
     <div className="screener-split">
       <div className="screener-split-list">
@@ -171,24 +189,17 @@ export default function ScreenerSplit({
             style={style}
             selectedTicker={selectedTicker}
             onSelect={setSelectedTicker}
+            detailContent={detailContent}
           />
         )}
       </div>
-      <div className="screener-split-detail">
-        {selected ? (
-          <StockDetailBody
-            company={selected}
-            marketCapRank={marketCapRanks[selected.ticker]}
-            marketCapUniverseSize={marketCapUniverseSize}
-            initialStyle={style}
-            stamps={stamps[selected.ticker]}
-            /* 배지는 이미 왼쪽 목록 머리에 있다. 여기서 또 그리면 종목을 고른
-               순간 같은 배지가 한 화면에 두 번 뜬다. */
-            sampleFlag={null}
-          />
-        ) : (
-          <div className="screener-empty-state">{emptyState}</div>
-        )}
+      {/* 넓은 화면(641px 이상)의 오른쪽 칸. 좁은 화면에서는 종목을 고르면
+         ScreenerCompanies 안 아코디언이 같은 내용을 보여주므로 이 칸은
+         숨긴다(globals.css) — 둘 다 보이면 같은 상세가 두 번 뜬다. 아직
+         아무것도 안 골랐을 때(emptyState)는 좁은 화면에서도 이 칸이
+         유일한 안내라 숨기지 않는다. */}
+      <div className="screener-split-detail" data-selected={selected ? "true" : undefined}>
+        {detailContent ?? <div className="screener-empty-state">{emptyState}</div>}
       </div>
     </div>
   );
