@@ -63,7 +63,7 @@ export default function ScreenerCompanies({
 
   return (
     <>
-      <div>
+      <div className="stock-row-list">
         {visible.map((c) => {
           const s = c.scores[style];
           return (

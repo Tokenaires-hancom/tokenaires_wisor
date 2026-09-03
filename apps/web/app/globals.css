@@ -1318,10 +1318,14 @@ h3.sub {
  * ⑤-3a — 641px 이상에서는 화면 전체가 스크롤하지 않는 고정 셸이다. 마스트헤드
  * (60px) 아래 남는 높이를 .screener-page가 통째로 차지하고, 그 안에서 목록·
  * 상세 두 칸이 각자 따로 스크롤한다 — 페이지 자체는 절대 안 늘어난다.
- * 640px 이하는 아직 이 셸을 안 쓴다(보통 페이지 스크롤). 반응형은 다음 단계. */
+ * 640px 이하는 목록 칸을 420px로 고정한 2열 그리드를 그대로 쓰면 화면
+ * 폭보다 목록이 넓어져 상세 칸이 0px로 찌그러진다 — 그 안 문구가 한 글자씩
+ * 줄바꿈되며 페이지 세로 길이가 수천 px로 늘어나 스크롤해도 끝이 안 보이는
+ * 사고로 이어진다. 그래서 640px 이하는 기본값으로 1열로 쌓고, 641px부터만
+ * 2열로 나눈다(아래 미디어쿼리). */
 .screener-split {
   display: grid;
-  grid-template-columns: 420px minmax(0, 1fr);
+  grid-template-columns: 1fr;
   gap: 1.5rem;
   align-items: start;
   margin-top: 1rem;
@@ -1332,15 +1336,12 @@ h3.sub {
   min-width: 0;
 }
 
-/* 목록과 상세를 나누는 세로선. 종목 점수가 선에 바로 붙어 보이지 않도록
-   .screener-split의 gap(1.5rem)을 선 앞쪽 여백으로 먼저 주고, 선 뒤에도
-   같은 1.5rem을 padding-left로 둔다. 오른쪽도 같은 값을 줘서 카드가 칸
-   오른쪽 끝까지 억지로 안 늘어나게 한다 — 양쪽에 숨 쉴 자리를 두면 카드 안
-   그리드도 더 촘촘하게 접힌다. */
+/* 1열로 쌓였을 때(640px 이하) 목록과 상세를 나누는 가로선. 641px부터는
+   아래 미디어쿼리가 세로선으로 바꾼다. */
 .screener-split-detail {
-  border-left: 1px solid var(--line);
-  padding-left: 7.5rem;
-  padding-right: 7.5rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1.5rem;
+  margin-top: 0.5rem;
 }
 
 /* 종목을 아직 안 고른 기본 화면. 내용이 칸 위쪽에 붙어 아래만 크게 비지
@@ -1367,24 +1368,38 @@ h3.sub {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    padding-block: 0.75rem 0.75rem;
+    padding-block: 0.4rem 0.4rem;
   }
 
   .screener-page > .screener-style-tabs {
     flex: none;
   }
 
-  /* 목록(왼쪽)은 그대로 align-items: start로 자기 높이만큼만 차지한다 —
-     스크롤을 안 주므로 페이지네이션까지 이 칸 안에 다 들어가야 한다.
-     상세(오른쪽)만 align-self: stretch로 칸을 가득 채우고 그 안에서
-     스크롤한다. 페이지에서 스크롤이 나는 곳은 여기 하나뿐이다. */
+  /* 목록(왼쪽)·상세(오른쪽) 둘 다 align-self: stretch로 칸을 가득 채운다.
+     상세는 그 안에서 스크롤하고(overflow-y: auto), 목록은 스크롤을 안 주는
+     대신 14줄이 남는 세로 공간을 flex-grow로 나눠 먹는다(.stock-row-list
+     참고) — 그래서 창이 커도 줄 밑에 빈 공간이 안 남고, 창이 작아도(태블릿)
+     줄이 압축될 뿐 페이지네이션까지 이 칸 안에 다 들어간다. */
   .screener-page > .screener-split {
     flex: 1;
     min-height: 0;
-    margin-top: 0.5rem;
+    margin-top: 0.15rem;
+    grid-template-columns: 420px minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr);
   }
 
+  .screener-split-list {
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    height: 100%;
+    min-height: 0;
+  }
+
+  /* 목록과 상세를 나누는 선이 1열(위/아래 가로선)에서 2열(좌/우 세로선)로
+     바뀐다. .screener-split의 gap(1.5rem)을 선 앞쪽 여백으로 먼저 주고,
+     선 뒤에도 같은 1.5rem을 padding-left로 둔다. 오른쪽도 같은 값을 줘서
+     카드가 칸 오른쪽 끝까지 억지로 안 늘어나게 한다. */
   .screener-split-detail {
     align-self: stretch;
     height: 100%;
@@ -1394,6 +1409,34 @@ h3.sub {
        auto로 승격돼 버려서, 안쪽 어딘가 폭이 살짝만 넘쳐도 여기서 조용히
        가로 스크롤이 생긴다. 명시로 막는다. */
     overflow-x: hidden;
+    border-top: 0;
+    border-left: 1px solid var(--line);
+    padding-top: 0;
+    margin-top: 0;
+    padding-left: 7.5rem;
+    padding-right: 7.5rem;
+  }
+
+  .screener-list-head {
+    flex: none;
+  }
+
+  /* 종목 줄을 담는 칸. lib/paginate.ts의 PAGE_SIZE(14)와 같은 수로 grid
+     행을 미리 14칸 만들어 둔다 — 실제 줄이 몇 개든(관심종목 2개, 판정
+     14개) 한 칸의 높이는 항상 "이 칸 전체 높이 / 14"로 똑같이 계산된다.
+     묶음마다 줄 개수가 달라 flex-grow(개수로 나누기)를 쓰면 줄이 적은
+     묶음(관심종목)의 줄이 훨씬 커져 판정 탭과 크기가 달라진다 — grid는
+     안 쓰는 칸을 그냥 빈 채로 아래에 남겨서 이 문제가 없다. 최소 높이는
+     min-content로 둬 로고 28px 밑으로는 안 줄어든다. */
+  .stock-row-list {
+    display: grid;
+    grid-template-rows: repeat(14, minmax(min-content, 1fr));
+    flex: 1;
+    min-height: 0;
+  }
+
+  .stock-pager {
+    flex: none;
   }
 }
 
@@ -1404,13 +1447,13 @@ h3.sub {
 .screener-list-head {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
   /* border-bottom을 여기 두지 않는다 — 첫 종목 줄의 위 경계선은
      .stock-row:first-child가 자기 border-top으로 직접 그린다(아래 참고).
      경계선을 이 머리가 아니라 줄 자신이 갖고 있어야, 마우스를 올렸을 때
      회색으로 차는 영역(hover 배경)과 경계선 위치가 항상 정확히 겹친다. */
-  margin: 10px 0 0.5rem;
-  padding-bottom: 0.6rem;
+  margin: 8px 0 0.25rem;
+  padding-bottom: 0.25rem;
 }
 
 .screener-group-toggle {
@@ -1422,7 +1465,6 @@ h3.sub {
 .screener-search {
   position: relative;
   width: 100%;
-  max-width: 16rem;
 }
 
 .screener-search-input {
@@ -1474,6 +1516,7 @@ h3.sub {
 }
 
 .screener-group-btn {
+  flex: 1 1 auto;
   padding: 0.3rem 0.65rem;
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -1503,8 +1546,10 @@ h3.sub {
 
 /* ---------- 종목 줄 ---------- */
 
-/* 한 줄 44px. 로고 칸이 바닥을 정한다 — 28px 아래로 내리면 로고가 없을 때 넣는
- * 5글자 티커(CMCSA·GOOGL)가 7~8px이 되어 못 읽는다.
+/* 한 줄 약 36px(세로 패딩 0.18rem). 로고 칸(28px)이 바닥을 정한다 — 28px
+ * 아래로 내리면 로고가 없을 때 넣는 5글자 티커(CMCSA·GOOGL)가 7~8px이 되어
+ * 못 읽는다. 14줄+머리+페이지네이션이 태블릿(1024×768) 세로에서도 스크롤
+ * 없이 다 들어가도록 패딩을 줄인 값이라, 로고 아래로는 더 못 줄인다.
  *
  * 종목 선택(.stock-row-select)과 관심종목 하트(.watch-heart-btn)는 둘 다
  * <button>이라 하나의 <button> 안에 넣을 수 없다 — HTML은 버튼 중첩을 허용하지
@@ -1551,7 +1596,7 @@ h3.sub {
   min-width: 0;
   /* 좌우 여백. 왼쪽은 선택 시 붙는 3px 강조선(box-shadow)이 로고와 겹치지
      않게, 오른쪽은 하트 버튼과의 간격을 잡아준다. */
-  padding: 0.5rem 0.6rem;
+  padding: 0.18rem 0.6rem;
   border: 0;
   background: none;
   text-align: left;
@@ -1607,7 +1652,7 @@ h3.sub {
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  margin-top: 1.25rem;
+  margin-top: 0.2rem;
 }
 
 .pager-arrow {
