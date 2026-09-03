@@ -25,7 +25,11 @@
   position: relative;
   margin: 0 -1.3rem -1.5rem;
   border-radius: 14px 14px 17px 17px;
-  padding: 7rem 0.6rem 0;
+  /* 아래쪽 여백이 없으면 .town-row의 각진 바닥선이 이 라운드 모서리(17px)와
+     정확히 만나서, 모서리를 둥글게 잘라낼 때 뒤에 있는 카드 배경(흰색)이
+     양쪽 아래 모서리에서 삼각형으로 비쳐 보인다. 라운드 반경보다 넉넉히
+     여백을 둬서 잘려나가는 부분이 항상 땅(tan) 색 안에서만 일어나게 한다. */
+  padding: 7rem 0.6rem 1.25rem;
   background: linear-gradient(180deg, #bce4f6 0%, #ddf1e9 45%, #f3ede0 82%, #dcc79a calc(100% - 32px), #dcc79a 100%);
   overflow: hidden;
 }
