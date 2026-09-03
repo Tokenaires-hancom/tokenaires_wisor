@@ -131,37 +131,41 @@
   animation-delay: -3s, -0.5s;
 }
 
-/* 몸통은 원, 날개는 둥근 모서리 삼각형 — 날개 뾰족한 끝이 몸통 중앙 쪽에서
- * 겹친다(나비넥타이 모양). transform-origin을 그 뾰족한 끝(몸통쪽)에 둬서
- * 날개의 넓은 바깥쪽 끝이 퍼덕이게 한다 — 몸통쪽이 흔들리면 어깨가 아니라
- * 날개 전체가 흔들리는 것처럼 보여서 어색하다. */
+/* 날개(둥근 모서리 삼각형) 두 장이 뾰족한 끝에서 겹친다 — 몸통은 따로 없고,
+ * 반투명한 두 날개가 겹치는 자리가 자연스럽게 짙어지면서 몸통 자리를
+ * 대신한다. transform-origin을 그 뾰족한 끝(안쪽)에 둬서 날개의 넓은
+ * 바깥쪽 끝이 퍼덕이게 한다 — 안쪽이 흔들리면 어깨가 아니라 날개 전체가
+ * 흔들리는 것처럼 보여서 어색하다. */
 .town-bird {
   position: absolute;
   width: 3px;
   height: 3px;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--ink) 60%, transparent);
   pointer-events: none;
 }
 .town-bird::before,
 .town-bird::after {
   content: "";
   position: absolute;
-  top: -4.5px;
+  top: -2.5px;
   width: 10px;
-  height: 10px;
-  background: color-mix(in srgb, var(--ink) 60%, transparent);
+  height: 6px;
+  background: #6badd9;
+  opacity: 0.85;
 }
+/* clip-path 좌표는 10x6 상자에 든 뾰족 삼각형(꼭짓점 0,0 / 0,6 / 10,3)의
+ * 세 모서리를 반지름 1.25px만큼 깎아 두 점 사이를 둥글린 값이다 — 이
+ * 저장소 다른 도형은 전부 polygon()이라 여기만 왜 path()인지 헷갈릴 수
+ * 있어 남긴다. 크기를 바꾸면 이 좌표를 전부 다시 계산해야 한다. */
 .town-bird::before {
-  left: -8.2px;
-  clip-path: path("M0,1.25 L0,8.75 Q0,10 1.12,9.44 L8.88,5.56 Q10,5 8.88,4.44 L1.12,0.56 Q0,0 0,1.25 Z");
+  left: -7.4px;
+  clip-path: path("M0,0.75 L0,5.25 Q0,6 1.12,5.66 L8.88,3.34 Q10,3 8.88,2.66 L1.12,0.34 Q0,0 0,0.75 Z");
   transform: rotate(-32deg);
   transform-origin: 100% 50%;
   animation: town-wing 0.32s ease-in-out infinite;
 }
 .town-bird::after {
-  left: 1.2px;
-  clip-path: path("M10,1.25 L10,8.75 Q10,10 8.88,9.44 L1.12,5.56 Q0,5 1.12,4.44 L8.88,0.56 Q10,0 10,1.25 Z");
+  left: 0.4px;
+  clip-path: path("M10,0.75 L10,5.25 Q10,6 8.88,5.66 L1.12,3.34 Q0,3 1.12,2.66 L8.88,0.34 Q10,0 10,0.75 Z");
   transform: rotate(32deg);
   transform-origin: 0% 50%;
   animation: town-wing-r 0.32s ease-in-out infinite;
