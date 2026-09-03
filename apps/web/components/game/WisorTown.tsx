@@ -32,7 +32,7 @@ export default function WisorTown({
   return (
     <section className="town" aria-label="내 투자 마을">
       <div className="town-head">
-        <p className="eyebrow">내 투자 마을</p>
+        <p className="eyebrow eyebrow-strong">내 투자 마을</p>
         <p className="town-sub">
           배울수록 마을이 자랍니다 · <strong>Lv {lvl}</strong> · 완공 {builtCount} / {rows.length}
         </p>

@@ -231,46 +231,86 @@ button {
 .my-page-sidebar h1 {
   margin: 0.25rem 0 1.8rem;
   color: var(--ink);
-  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  font-size: 1.45rem;
   line-height: 1.08;
 }
 
-.my-page-menu {
+.my-page-menu button:first-child {
   border-top: 1px solid var(--line-strong);
 }
 
 .my-page-menu button {
-  display: grid;
-  grid-template-columns: 1.6rem minmax(0, 1fr);
+  display: flex;
+  align-items: center;
   gap: 0.7rem;
   width: 100%;
   padding: 1rem 0.8rem 1rem 0;
   border: 0;
+  border-left: 4px solid transparent;
   border-bottom: 1px solid var(--line);
+  border-radius: 10px 0 0 10px;
   background: none;
   color: var(--ink-soft);
   text-align: left;
+  transition: background-color 0.2s ease, color 0.2s ease,
+    border-left-color 0.2s ease, padding-left 0.2s ease;
+}
+
+.my-page-menu-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.my-page-menu-chevron {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  color: var(--gold);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.my-page-menu button:hover .my-page-menu-chevron,
+.my-page-menu button:focus-visible .my-page-menu-chevron {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* 활성 탭 바로 위 항목의 구분선을 지운다 — 그 선이 없으면 활성 탭이
+   첫 번째 항목일 때(위 경계선이 이미 투명 처리됨)와 다르게, 두 번째·
+   세 번째 항목이 활성 탭일 때만 골드 박스 위에 회색 줄이 남는다. */
+.my-page-menu button:has(+ button[data-active="true"]) {
+  border-bottom-color: transparent;
 }
 
 .my-page-menu button[data-active="true"] {
-  border-left: 4px solid var(--gold);
+  border-left-color: var(--gold);
+  border-top-color: transparent;
+  border-bottom-color: transparent;
   padding-left: 0.75rem;
-  background: linear-gradient(90deg, var(--gold-soft), transparent 86%);
+  background: linear-gradient(
+    90deg,
+    var(--gold-soft),
+    color-mix(in oklab, var(--gold-soft) 35%, white) 100%
+  );
   color: var(--ink);
+}
+
+/* 아래 hover 규칙(298줄)이 활성 탭에도 회색 background-color를 얹는데,
+   그라데이션이 옅어지는 꼬리 부분(288줄) 위로 그 회색이 비쳐 탁하게
+   보인다. 활성 탭에서만 투명으로 되돌려 골드 그라데이션이 그대로
+   유지되게 한다 — 지우면 활성 탭에 마우스를 올릴 때마다 이 얼룩이
+   재발한다. */
+.my-page-menu button[data-active="true"]:hover,
+.my-page-menu button[data-active="true"]:focus-visible {
+  background-color: transparent;
 }
 
 .my-page-menu button:hover,
 .my-page-menu button:focus-visible {
   background-color: var(--surface-sunk);
   color: var(--ink);
-}
-
-.my-page-menu-index {
-  padding-top: 0.16rem;
-  color: var(--ink-faint);
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
 }
 
 .my-page-menu strong,
@@ -282,15 +322,37 @@ button {
   font-size: 0.95rem;
 }
 
+.my-page-menu button:not([data-active="true"]):hover strong,
+.my-page-menu button:not([data-active="true"]):focus-visible strong,
+.my-page-menu button[data-active="true"] strong {
+  color: var(--wine);
+}
+
 .my-page-menu small {
-  margin-top: 0.28rem;
+  margin-top: 0;
   color: var(--ink-faint);
   font-size: 0.7rem;
   line-height: 1.45;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.25s ease, opacity 0.2s ease, margin-top 0.25s ease;
+}
+
+.my-page-menu button:hover small,
+.my-page-menu button:focus-visible small,
+.my-page-menu button[data-active="true"] small {
+  margin-top: 0.28rem;
+  max-height: 2.5rem;
+  opacity: 1;
 }
 
 .my-page-content {
   min-width: 0;
+}
+
+.my-page-content .thesis {
+  font-size: 1.45rem;
 }
 
 /* 연속 학습·챕터 카드가 왼쪽 1/3, 마을(town)이 오른쪽 2/3를 받는다.
@@ -515,6 +577,7 @@ button {
   gap: 1.5rem;
   padding: 1.25rem;
   border: 1px dashed var(--line-strong);
+  border-radius: var(--radius);
   background: var(--surface-sunk);
 }
 
@@ -698,7 +761,6 @@ button {
   }
 
   .my-page-menu button {
-    grid-template-columns: 1.5rem minmax(0, 1fr);
     max-width: 28rem;
   }
 
@@ -786,6 +848,15 @@ button {
   text-transform: uppercase;
   color: var(--ink-faint);
   margin: 0 0 0.75rem;
+}
+
+.eyebrow-strong {
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--ink);
 }
 
 .thesis {
@@ -1787,6 +1858,11 @@ h3.sub {
   font-size: 0.72rem;
   color: var(--ink-soft);
   font-family: var(--mono);
+}
+
+.score-value-lg {
+  font-size: 2.2rem;
+  font-weight: 800;
 }
 
 .reason-list {
@@ -4631,11 +4707,6 @@ h3.sub {
   margin-bottom: 1.15rem;
 }
 
-.watchlist-heading .eyebrow {
-  margin: 0 0 0.2rem;
-  color: var(--wine);
-}
-
 .watchlist-heading h2.section {
   margin: 0;
 }
@@ -4843,9 +4914,8 @@ a.watch-company-card:hover {
   border-top: 1px dotted var(--line-strong);
 }
 
-.watchlist-notes > .eyebrow {
-  margin-bottom: 0.2rem;
-  color: var(--wine);
+.watchlist-notes-lede {
+  max-width: none;
 }
 
 .watchlist-notes-title {
