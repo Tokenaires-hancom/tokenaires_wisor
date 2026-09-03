@@ -1,0 +1,500 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+umask 077
+export TZ=Asia/Seoul
+
+readonly REPO_URL=https://github.com/Tokenaires-hancom/tokenaires_wisor.git
+readonly WISOR_ROOT=/opt/wisor
+readonly RELEASES_DIR=${WISOR_ROOT}/releases
+readonly CURRENT_LINK=${WISOR_ROOT}/current
+readonly DEPLOY_SOURCE=${WISOR_ROOT}/deploy-source
+readonly BATCH_SOURCE=${WISOR_ROOT}/batch-source
+readonly DEPLOY_DIR=${WISOR_ROOT}/deploy
+readonly DEPLOY_STATE_DIR=${WISOR_ROOT}/deploy-state
+readonly RELEASE_ENV=/etc/wisor/release.env
+readonly BATCH_CONF=/etc/wisor/batch.conf
+readonly WEB_BUILD_ENV=/etc/wisor/web-build.env
+readonly PERSONA_REQUIREMENTS_LOCK=/etc/wisor/persona-requirements.lock
+readonly DATA_RELEASES_DIR=/var/lib/wisor-batch/releases
+readonly RUNS_DIR=/var/lib/wisor-deploy/runs
+readonly BATCH_LOCK=/run/lock/wisor-batch.lock
+readonly DEPLOY_LOCK=/run/lock/wisor-deploy.lock
+readonly COMPOSE_SERVICE=wisor.service
+readonly LIVE_CHECK=/usr/local/libexec/wisor-verify-live.py
+readonly STATE_LIB=/usr/local/libexec/wisor-deploy-state.sh
+readonly PYTHON=/opt/wisor/batch-venv/bin/python
+
+log() {
+  printf '%s [wisor-deploy] %s\n' "$(date --iso-8601=seconds)" "$*"
+}
+
+die() {
+  log "ERROR: $*" >&2
+  exit 1
+}
+
+verify_live() (
+  # cleanup은 의도적으로 `set +e`에서 실행되므로 이 검증 자체는 별도 strict subshell이다.
+  set -Eeuo pipefail
+  local tag=$1
+  local code_sha=$2
+  local data_sha=$3
+  local scores=$4
+  local live_check=${5:-${LIVE_CHECK}}
+  "${PYTHON}" "${live_check}" "${scores}" \
+    --tag "${tag}" --code-sha "${code_sha}" --data-sha "${data_sha}"
+  curl --fail --silent --show-error --max-time 15 http://127.0.0.1:3000/ >/dev/null
+  curl --fail --silent --show-error --max-time 15 http://127.0.0.1:8000/health >/dev/null
+  curl --fail --silent --show-error --max-time 20 https://wisor.site/ >/dev/null
+  curl --fail --silent --show-error --max-time 20 https://wisor.site/api/persona/health >/dev/null
+)
+
+[[ ${EUID} -eq 0 ]] || die "root로 실행해야 합니다"
+IFS= read -r target_sha || die "표준 입력에 배포 SHA가 없습니다"
+if IFS= read -r extra_input; then
+  die "배포 SHA 뒤에 추가 입력이 있습니다"
+fi
+[[ ${target_sha} =~ ^[0-9a-f]{40}$ ]] || die "배포 SHA는 소문자 40자리여야 합니다"
+
+for command_name in awk bash curl docker flock git grep sha256sum; do
+  command -v "${command_name}" >/dev/null || die "${command_name} 명령이 없습니다"
+done
+for required_file in \
+  "${RELEASE_ENV}" \
+  "${BATCH_CONF}" \
+  "${WEB_BUILD_ENV}" \
+  "${PERSONA_REQUIREMENTS_LOCK}" \
+  "${LIVE_CHECK}" \
+  "${STATE_LIB}" \
+  /usr/local/sbin/wisor-deploy \
+  /usr/local/sbin/wisor-deploy-dispatch; do
+  [[ -r ${required_file} ]] || die "필수 파일을 읽을 수 없습니다: ${required_file}"
+done
+[[ -x ${PYTHON} ]] || die "배포 검증 Python을 실행할 수 없습니다: ${PYTHON}"
+bash -n "${STATE_LIB}" || die "배포 상태 라이브러리 문법이 올바르지 않습니다"
+# shellcheck disable=SC1090
+. "${STATE_LIB}"
+
+install -d -o root -g root -m 0755 \
+  "${RELEASES_DIR}" "${DEPLOY_STATE_DIR}" "${RUNS_DIR}"
+
+# 배치는 batch lock을 먼저, deploy lock을 나중에 잡는다. 같은 순서를 유지해야 교착되지 않는다.
+exec 9>"${BATCH_LOCK}"
+flock -w 11700 9 || die "배치 잠금을 3시간 15분 안에 얻지 못했습니다"
+exec 8>"${DEPLOY_LOCK}"
+flock -w 300 8 || die "배포 잠금을 5분 안에 얻지 못했습니다"
+
+current_release=$(readlink -f "${CURRENT_LINK}")
+[[ ${current_release} == "${RELEASES_DIR}"/* && -d ${current_release}/.git ]] \
+  || die "현재 release 링크가 올바르지 않습니다"
+current_code_sha=$(git -C "${current_release}" rev-parse HEAD)
+batch_code_sha=$(sed -n -E 's/^WISOR_CODE_SHA=([0-9a-f]{40})$/\1/p' "${BATCH_CONF}")
+batch_source_sha=$(git -C "${BATCH_SOURCE}" rev-parse HEAD)
+[[ ${current_code_sha} == "${batch_code_sha}" && ${current_code_sha} == "${batch_source_sha}" ]] \
+  || die "current, batch-source, batch.conf의 코드 SHA가 서로 다릅니다"
+
+active_tag=$(sed -n -E 's/^WISOR_SHA=([A-Za-z0-9_.-]+)$/\1/p' "${RELEASE_ENV}")
+[[ -n ${active_tag} ]] || die "release.env의 WISOR_SHA가 올바르지 않습니다"
+stable_data_dir=${DATA_RELEASES_DIR}/${active_tag}
+stable_scores=${stable_data_dir}/scores.json
+stable_fundamentals=${stable_data_dir}/fundamentals.json
+[[ -s ${stable_scores} && -s ${stable_fundamentals} ]] \
+  || die "현재 이미지 태그의 데이터 release가 없습니다: ${active_tag}"
+stable_data_sha=$(sha256sum "${stable_scores}" | awk '{print $1}')
+
+if [[ ! -d ${DEPLOY_SOURCE}/.git ]]; then
+  deploy_source_staging=$(mktemp -d "${WISOR_ROOT}/.deploy-source.XXXXXXXX")
+  if ! git clone --no-hardlinks --no-checkout "${current_release}" "${deploy_source_staging}" \
+    || ! git -C "${deploy_source_staging}" remote set-url origin "${REPO_URL}" \
+    || ! mv -T -- "${deploy_source_staging}" "${DEPLOY_SOURCE}"; then
+    case "${deploy_source_staging}" in
+      "${WISOR_ROOT}"/.deploy-source.*)
+        rm -rf --one-file-system -- "${deploy_source_staging}"
+        ;;
+    esac
+    die "배포용 Git 저장소를 준비하지 못했습니다"
+  fi
+fi
+git -C "${DEPLOY_SOURCE}" remote set-url origin "${REPO_URL}"
+git -C "${DEPLOY_SOURCE}" fetch --no-tags --prune origin \
+  +refs/heads/main:refs/remotes/origin/main
+git -C "${DEPLOY_SOURCE}" cat-file -e "${target_sha}^{commit}"
+remote_main_sha=$(git -C "${DEPLOY_SOURCE}" rev-parse refs/remotes/origin/main)
+git -C "${DEPLOY_SOURCE}" merge-base --is-ancestor "${target_sha}" "${remote_main_sha}" \
+  || die "요청한 SHA가 현재 origin/main에 속하지 않습니다"
+if [[ ${target_sha} != "${remote_main_sha}" ]]; then
+  mapfile -t later_paths < <(
+    git -C "${DEPLOY_SOURCE}" diff --name-only "${target_sha}..${remote_main_sha}"
+  )
+  for later_path in "${later_paths[@]}"; do
+    wisor_is_data_only_path "${later_path}" \
+      || die "요청 SHA 뒤에 애플리케이션 변경이 있습니다: ${later_path}"
+  done
+fi
+git -C "${DEPLOY_SOURCE}" merge-base --is-ancestor "${current_code_sha}" "${target_sha}" \
+  || die "자동 배포는 현재 운영 SHA보다 이전 커밋으로 되돌리지 않습니다"
+
+if [[ ${target_sha} == "${current_code_sha}" ]]; then
+  log "이미 배포된 코드 SHA입니다: ${target_sha}"
+  verify_live "${active_tag}" "${current_code_sha}" "${stable_data_sha}" "${stable_scores}"
+  exit 0
+fi
+
+release=${RELEASES_DIR}/${target_sha}
+if [[ -e ${release} ]]; then
+  [[ -d ${release}/.git && $(git -C "${release}" rev-parse HEAD) == "${target_sha}" ]] \
+    || die "기존 release 경로가 요청 SHA와 다릅니다: ${release}"
+  [[ -z $(git -C "${release}" status --short) ]] \
+    || die "기존 release 작업 트리가 깨끗하지 않습니다: ${release}"
+else
+  release_staging=$(mktemp -d "${RELEASES_DIR}/.${target_sha}.XXXXXXXX")
+  # A local clone omits the source repository's remote-tracking refs. Fetch
+  # origin/main explicitly before checking out a commit that only it reaches.
+  if ! git clone --no-hardlinks --no-checkout "${DEPLOY_SOURCE}" "${release_staging}" \
+    || ! git -C "${release_staging}" fetch --no-tags "${DEPLOY_SOURCE}" \
+      +refs/remotes/origin/main:refs/remotes/origin/main \
+    || ! git -C "${release_staging}" checkout --detach "${target_sha}" \
+    || ! git -C "${release_staging}" remote set-url origin "${REPO_URL}" \
+    || ! mv -T -- "${release_staging}" "${release}"; then
+    case "${release_staging}" in
+      "${RELEASES_DIR}"/.${target_sha}.*)
+        rm -rf --one-file-system -- "${release_staging}"
+        ;;
+    esac
+    die "요청 SHA의 immutable release를 준비하지 못했습니다"
+  fi
+fi
+
+readonly app_definition_dir=${release}/deploy/oci/app
+readonly deploy_script=${release}/deploy/oci/bin/wisor-deploy
+readonly dispatch_script=${release}/deploy/oci/bin/wisor-deploy-dispatch
+readonly live_check_script=${release}/deploy/oci/bin/verify-live.py
+readonly state_lib_script=${release}/deploy/oci/lib/deploy-state.sh
+readonly batch_script=${release}/deploy/oci/bin/wisor-batch
+readonly validate_script=${release}/deploy/oci/bin/validate-scores.py
+for required_file in \
+  "${app_definition_dir}/compose.yaml" \
+  "${app_definition_dir}/Dockerfile.web" \
+  "${app_definition_dir}/Dockerfile.persona" \
+  "${deploy_script}" \
+  "${dispatch_script}" \
+  "${live_check_script}" \
+  "${state_lib_script}" \
+  "${batch_script}" \
+  "${validate_script}"; do
+  [[ -s ${required_file} ]] || die "배포 커밋에 필수 파일이 없습니다: ${required_file}"
+done
+bash -n "${deploy_script}"
+bash -n "${dispatch_script}"
+bash -n "${state_lib_script}"
+bash -n "${batch_script}"
+"${PYTHON}" -c \
+  'import ast, pathlib, sys; [ast.parse(pathlib.Path(a).read_text(encoding="utf-8"), filename=a) for a in sys.argv[1:]]' \
+  "${live_check_script}" "${validate_script}"
+
+run_dir=$(mktemp -d "${RUNS_DIR}/run.XXXXXXXX")
+web_context=${run_dir}/web
+persona_context=${run_dir}/persona
+mkdir -p "${web_context}" "${persona_context}/data"
+cp -a -- "${release}/apps/web/." "${web_context}/"
+cp -a -- "${release}/persona_explain/." "${persona_context}/"
+install -o root -g root -m 0644 "${stable_scores}" \
+  "${web_context}/lib/generated/scores.json"
+install -o root -g root -m 0644 "${stable_scores}" \
+  "${persona_context}/data/scores.json"
+install -o root -g root -m 0644 "${PERSONA_REQUIREMENTS_LOCK}" \
+  "${persona_context}/requirements.txt"
+
+stamp=$(date -u +%Y%m%dT%H%M%SZ)
+new_tag=${target_sha:0:12}-deploy-${stamp}-${stable_data_sha:0:12}
+new_data_dir=${DATA_RELEASES_DIR}/${new_tag}
+candidate_deploy=$(mktemp -d "${WISOR_ROOT}/.deploy.${target_sha}.XXXXXXXX")
+candidate_batch_source=$(mktemp -d "${WISOR_ROOT}/.batch-source.${target_sha}.XXXXXXXX")
+
+remove_run_dir() {
+  local path=$1
+  case "${path}" in
+    "${RUNS_DIR}"/run.*) rm -rf --one-file-system -- "${path}" ;;
+    *) log "예상하지 않은 실행 디렉터리는 지우지 않습니다: ${path}"; return 1 ;;
+  esac
+}
+
+remove_candidate_dir() {
+  local path=$1
+  case "${path}" in
+    "${WISOR_ROOT}"/.deploy.*|"${WISOR_ROOT}"/.batch-source.*)
+      rm -rf --one-file-system -- "${path}"
+      ;;
+    *) log "예상하지 않은 후보 디렉터리는 지우지 않습니다: ${path}"; return 1 ;;
+  esac
+}
+
+remove_candidate_data() {
+  local path=$1
+  case "${path}" in
+    "${DATA_RELEASES_DIR}"/${target_sha:0:12}-deploy-*)
+      rm -rf --one-file-system -- "${path}"
+      ;;
+    *) log "예상하지 않은 데이터 release는 지우지 않습니다: ${path}"; return 1 ;;
+  esac
+}
+
+remove_candidate_data_staging() {
+  local path=$1
+  case "${path}" in
+    "${DATA_RELEASES_DIR}"/.${new_tag}.*)
+      rm -rf --one-file-system -- "${path}"
+      ;;
+    *) log "예상하지 않은 데이터 staging은 지우지 않습니다: ${path}"; return 1 ;;
+  esac
+}
+
+data_staging=
+
+early_cleanup() {
+  local status=$?
+  trap - EXIT HUP INT TERM
+  set +e
+  if (( status != 0 )); then
+    [[ -d ${new_data_dir} ]] && remove_candidate_data "${new_data_dir}"
+    docker image rm "wisor-web:${new_tag}" "wisor-persona:${new_tag}" >/dev/null 2>&1 || true
+  fi
+  [[ -n ${data_staging} && -d ${data_staging} ]] \
+    && remove_candidate_data_staging "${data_staging}"
+  [[ -d ${run_dir} ]] && remove_run_dir "${run_dir}"
+  [[ -d ${candidate_deploy} ]] && remove_candidate_dir "${candidate_deploy}"
+  [[ -d ${candidate_batch_source} ]] && remove_candidate_dir "${candidate_batch_source}"
+  exit "${status}"
+}
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
+trap early_cleanup EXIT
+
+cp -a -- "${app_definition_dir}/." "${candidate_deploy}/"
+git clone --no-hardlinks --no-checkout "${release}" "${candidate_batch_source}"
+git -C "${candidate_batch_source}" checkout --detach "${target_sha}"
+git -C "${candidate_batch_source}" remote remove origin
+
+WISOR_SHA=${new_tag} docker compose -f "${candidate_deploy}/compose.yaml" config --quiet
+
+# 새 코드가 현재 운영 batch wrapper/venv 계약으로 무상태 sample run을 끝내는지 확인한다.
+compat_dir=${run_dir}/batch-compat
+mkdir -p "${compat_dir}"
+(
+  export PYTHONDONTWRITEBYTECODE=1
+  export PYTEST_ADDOPTS='-p no:cacheprovider'
+  cd "${candidate_batch_source}/data-pipeline"
+
+  "${PYTHON}" -m pytest -q
+  help=$("${PYTHON}" run_batch.py --help)
+  for option in \
+    --provider --mode --universe --fundamentals-cache --checkpoint --out; do
+    grep -Fq -- "${option}" <<<"${help}" \
+      || die "현재 batch wrapper가 쓰는 option이 없습니다: ${option}"
+  done
+
+  "${PYTHON}" run_batch.py \
+    --provider sample \
+    --mode full \
+    --universe data/universe_sample.json \
+    --fundamentals-cache "${compat_dir}/fundamentals.json" \
+    --checkpoint "${compat_dir}/checkpoint.jsonl" \
+    --out "${compat_dir}/scores.json"
+  "${PYTHON}" - "${compat_dir}/scores.json" <<'PY'
+import json
+import pathlib
+import sys
+
+payload = json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))
+assert payload["dataSource"] == "sample"
+assert isinstance(payload["companies"], list) and payload["companies"]
+assert {style["id"] for style in payload["styles"]} == {
+    "buffett",
+    "graham",
+    "lynch",
+    "greenblatt",
+}
+PY
+)
+
+available_kib=$(df --output=avail -k / | tail -n 1 | tr -d ' ')
+if (( available_kib < 10 * 1024 * 1024 )); then
+  log "디스크 여유가 10 GiB 미만이라 build cache를 먼저 정리합니다"
+  docker buildx prune --force \
+    --max-used-space 2gb \
+    --reserved-space 512mb \
+    --min-free-space 10gb
+  available_kib=$(df --output=avail -k / | tail -n 1 | tr -d ' ')
+  (( available_kib >= 10 * 1024 * 1024 )) \
+    || die "build cache 정리 뒤에도 디스크 여유가 10 GiB 미만입니다"
+fi
+
+set -a
+# shellcheck disable=SC1090
+. "${WEB_BUILD_ENV}"
+set +a
+: "${NEXT_PUBLIC_SUPABASE_URL:?NEXT_PUBLIC_SUPABASE_URL is required}"
+: "${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:?NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is required}"
+: "${PERSONA_API_ORIGIN:?PERSONA_API_ORIGIN is required}"
+
+log "persona image를 만듭니다: wisor-persona:${new_tag}"
+docker buildx build --load --progress=plain \
+  --resource memory=850m \
+  --resource memory-swap=2g \
+  --resource cpu-quota=70000 \
+  --label "org.opencontainers.image.revision=${target_sha}" \
+  --label "com.wisor.data-sha256=${stable_data_sha}" \
+  --build-arg "WISOR_SHA=${target_sha}" \
+  -f "${candidate_deploy}/Dockerfile.persona" \
+  -t "wisor-persona:${new_tag}" \
+  "${persona_context}"
+
+log "web image를 만듭니다: wisor-web:${new_tag}"
+docker buildx build --load --progress=plain \
+  --resource memory=850m \
+  --resource memory-swap=2g \
+  --resource cpu-quota=70000 \
+  --label "org.opencontainers.image.revision=${target_sha}" \
+  --label "com.wisor.data-sha256=${stable_data_sha}" \
+  --build-arg "WISOR_SHA=${target_sha}" \
+  --build-arg NEXT_PUBLIC_SUPABASE_URL \
+  --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY \
+  --build-arg PERSONA_API_ORIGIN \
+  -f "${candidate_deploy}/Dockerfile.web" \
+  -t "wisor-web:${new_tag}" \
+  "${web_context}"
+
+"${PYTHON}" "${live_check_script}" "${stable_scores}" \
+  --tag "${new_tag}" --code-sha "${target_sha}" \
+  --data-sha "${stable_data_sha}" --images-only
+
+data_staging=$(mktemp -d "${DATA_RELEASES_DIR}/.${new_tag}.XXXXXXXX")
+install -o root -g root -m 0600 "${stable_scores}" "${data_staging}/scores.json"
+install -o root -g root -m 0600 "${stable_fundamentals}" "${data_staging}/fundamentals.json"
+[[ ! -e ${new_data_dir} ]] || die "새 데이터 release 태그가 이미 있습니다: ${new_tag}"
+mv -T -- "${data_staging}" "${new_data_dir}"
+
+state_dir=$(mktemp -d "${DEPLOY_STATE_DIR}/${stamp}-${target_sha:0:12}.XXXXXXXX")
+cp --preserve=mode,ownership,timestamps "${RELEASE_ENV}" "${state_dir}/release.env.previous"
+cp --preserve=mode,ownership,timestamps "${BATCH_CONF}" "${state_dir}/batch.conf.previous"
+cp --preserve=mode,ownership,timestamps /usr/local/sbin/wisor-deploy \
+  "${state_dir}/wisor-deploy.previous"
+cp --preserve=mode,ownership,timestamps /usr/local/sbin/wisor-deploy-dispatch \
+  "${state_dir}/wisor-deploy-dispatch.previous"
+cp --preserve=mode,ownership,timestamps "${LIVE_CHECK}" \
+  "${state_dir}/wisor-verify-live.py.previous"
+cp --preserve=mode,ownership,timestamps "${STATE_LIB}" \
+  "${state_dir}/deploy-state.sh.previous"
+printf '%s\n' "${current_release}" >"${state_dir}/current.previous"
+
+deployment_committed=0
+transaction_started=0
+rollback_failed=0
+
+cleanup() {
+  local status=$?
+  trap - EXIT HUP INT TERM
+  set +e
+
+  if (( deployment_committed == 0 && transaction_started == 1 )); then
+    log "배포가 끝나지 않아 이전 release로 되돌립니다"
+    if ! wisor_restore_release_state \
+      "${state_dir}" "${WISOR_ROOT}" "${CURRENT_LINK}" \
+      "${RELEASE_ENV}" "${BATCH_CONF}" "${DEPLOY_DIR}" "${BATCH_SOURCE}" \
+      /usr/local/sbin/wisor-deploy /usr/local/sbin/wisor-deploy-dispatch \
+      "${LIVE_CHECK}" "${STATE_LIB}"; then
+      rollback_failed=1
+    fi
+    if ! systemctl reload "${COMPOSE_SERVICE}"; then
+      rollback_failed=1
+    fi
+    if (( rollback_failed == 0 )); then
+      verify_live "${active_tag}" "${current_code_sha}" "${stable_data_sha}" "${stable_scores}"
+      verify_status=$?
+      (( verify_status == 0 )) || rollback_failed=1
+    fi
+    if (( rollback_failed == 1 )); then
+      log "CRITICAL: 자동 롤백 검증도 실패했습니다. ${state_dir}을 보존합니다"
+      status=1
+    fi
+  fi
+
+  if (( deployment_committed == 0 && rollback_failed == 0 )); then
+    remove_candidate_data "${new_data_dir}"
+    docker image rm "wisor-web:${new_tag}" "wisor-persona:${new_tag}" >/dev/null 2>&1 || true
+  fi
+
+  if (( rollback_failed == 0 )); then
+    remove_run_dir "${run_dir}"
+    [[ -d ${candidate_deploy} ]] && remove_candidate_dir "${candidate_deploy}"
+    [[ -d ${candidate_batch_source} ]] && remove_candidate_dir "${candidate_batch_source}"
+  fi
+  docker buildx prune --force \
+    --max-used-space 2gb \
+    --reserved-space 512mb \
+    --min-free-space 10gb \
+    >/dev/null 2>&1 || log "경고: build cache 정리에 실패했습니다"
+  exit "${status}"
+}
+trap - EXIT HUP INT TERM
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
+trap cleanup EXIT
+
+transaction_started=1
+mv -T -- "${DEPLOY_DIR}" "${state_dir}/deploy.previous"
+mv -T -- "${candidate_deploy}" "${DEPLOY_DIR}"
+
+mv -T -- "${BATCH_SOURCE}" "${state_dir}/batch-source.previous"
+mv -T -- "${candidate_batch_source}" "${BATCH_SOURCE}"
+
+wisor_point_current_at "${WISOR_ROOT}" "${CURRENT_LINK}" "${release}" \
+  || die "current release 링크를 전환하지 못했습니다"
+wisor_replace_key "${BATCH_CONF}" WISOR_CODE_SHA "${target_sha}" \
+  || die "batch.conf의 WISOR_CODE_SHA를 전환하지 못했습니다"
+wisor_replace_key "${RELEASE_ENV}" WISOR_SHA "${new_tag}" \
+  || die "release.env의 WISOR_SHA를 전환하지 못했습니다"
+
+log "새 release를 시작합니다: code=${target_sha:0:12} image=${new_tag}"
+systemctl reload "${COMPOSE_SERVICE}"
+verify_live "${new_tag}" "${target_sha}" "${stable_data_sha}" \
+  "${new_data_dir}/scores.json" "${live_check_script}"
+
+install -o root -g root -m 0755 "${state_lib_script}" \
+  /usr/local/libexec/.wisor-deploy-state.sh.next
+mv -f -- /usr/local/libexec/.wisor-deploy-state.sh.next \
+  /usr/local/libexec/wisor-deploy-state.sh
+install -o root -g root -m 0755 "${live_check_script}" \
+  /usr/local/libexec/.wisor-verify-live.py.next
+mv -f -- /usr/local/libexec/.wisor-verify-live.py.next \
+  /usr/local/libexec/wisor-verify-live.py
+install -o root -g root -m 0755 "${batch_script}" \
+  /usr/local/libexec/.wisor-batch.next
+mv -f -- /usr/local/libexec/.wisor-batch.next \
+  /usr/local/libexec/wisor-batch
+install -o root -g root -m 0755 "${validate_script}" \
+  /usr/local/libexec/.wisor-validate-scores.py.next
+mv -f -- /usr/local/libexec/.wisor-validate-scores.py.next \
+  /usr/local/libexec/wisor-validate-scores.py
+install -o root -g root -m 0755 "${dispatch_script}" \
+  /usr/local/sbin/.wisor-deploy-dispatch.next
+mv -f -- /usr/local/sbin/.wisor-deploy-dispatch.next \
+  /usr/local/sbin/wisor-deploy-dispatch
+install -o root -g root -m 0755 "${deploy_script}" /usr/local/sbin/.wisor-deploy.next
+mv -f -- /usr/local/sbin/.wisor-deploy.next /usr/local/sbin/wisor-deploy
+
+cat >"${state_dir}/success" <<EOF
+deployed_at=$(date --iso-8601=seconds)
+code_sha=${target_sha}
+image_tag=${new_tag}
+data_sha256=${stable_data_sha}
+previous_code_sha=${current_code_sha}
+previous_image_tag=${active_tag}
+EOF
+chmod 0600 "${state_dir}/success"
+
+deployment_committed=1
+log "배포 완료: code=${target_sha} image=${new_tag}"

@@ -10,11 +10,19 @@ export default function CriteriaBar({
   size = "md",
   showLegend = false,
   showBreakdown = false,
+  showWeight = true,
+  illustrative = false,
 }: {
   criteria: CriterionResult[];
   size?: "sm" | "md";
   showLegend?: boolean;
   showBreakdown?: boolean;
+  /** showBreakdown 박스 안 "가중치 N점 · 비중 X%" 줄. 종목을 골라 실제 결과를
+   *  볼 때는 막대 하나로 비중이 이미 보이므로 꺼서 중복을 줄인다. */
+  showWeight?: boolean;
+  /** 종목을 아직 고르지 않아 판정 결과가 없을 때 쓴다. pass/fail/unknown을
+   *  주장하지 않고 라벨·가중치·비중만 보여준다. */
+  illustrative?: boolean;
 }) {
   const passed = criteria.filter((c) => c.status === "pass").length;
   const judged = criteria.filter((c) => c.status !== "unknown").length;
@@ -32,7 +40,11 @@ export default function CriteriaBar({
         className="criteria-bar"
         data-size={size}
         role="list"
-        aria-label={`판정한 ${judged}개 기준 중 ${passed}개 충족, 전체 기준 ${criteria.length}개`}
+        aria-label={
+          illustrative
+            ? `기준 ${criteria.length}개의 비중을 나타낸 막대`
+            : `판정한 ${judged}개 기준 중 ${passed}개 충족, 전체 기준 ${criteria.length}개`
+        }
       >
         {criteria.map((c) => {
           const percent = weightLabel(c.weight);
@@ -42,7 +54,7 @@ export default function CriteriaBar({
             <span
               key={c.code}
               className="tick"
-              data-status={c.status}
+              data-status={illustrative ? undefined : c.status}
               data-tooltip={tooltip}
               role="listitem"
               tabIndex={0}
@@ -55,32 +67,40 @@ export default function CriteriaBar({
       {showBreakdown && (
         <ol className="criteria-bar-breakdown" aria-label="기준별 가중치와 비중">
           {criteria.map((c) => (
-            <li key={c.code} data-status={c.status}>
+            <li key={c.code} data-status={illustrative ? undefined : c.status}>
               <i className="criteria-bar-marker" aria-hidden="true" />
-              <strong><FinancialText text={c.label} /></strong>
-              <span className="criteria-bar-weight">
-                가중치 {c.weight}점 · 비중 {weightLabel(c.weight)}
-              </span>
-              <p><FinancialText text={c.detail} /></p>
+              <div className="criteria-bar-breakdown-body">
+                <strong><FinancialText text={c.label} /></strong>
+                {showWeight && (
+                  <span className="criteria-bar-weight">
+                    가중치 {c.weight}점 · 비중 {weightLabel(c.weight)}
+                  </span>
+                )}
+                <p><FinancialText text={c.detail} /></p>
+              </div>
             </li>
           ))}
         </ol>
       )}
       {showLegend && (
         <div className="criteria-legend">
-          <span>
-            <i className="swatch" style={{ background: "var(--gold)" }} /> 충족
-          </span>
-          <span>
-            <i
-              className="swatch"
-              style={{ background: "var(--ochre-soft)", border: "1px solid var(--ochre-line)" }}
-            />{" "}
-            미충족
-          </span>
-          <span>
-            <i className="swatch" style={{ border: "1px dashed var(--line-strong)" }} /> 판정 불가
-          </span>
+          {!illustrative && (
+            <>
+              <span>
+                <i className="swatch" style={{ background: "var(--gold)" }} /> 충족
+              </span>
+              <span>
+                <i
+                  className="swatch"
+                  style={{ background: "var(--ochre-soft)", border: "1px solid var(--ochre-line)" }}
+                />{" "}
+                미충족
+              </span>
+              <span>
+                <i className="swatch" style={{ border: "1px dashed var(--line-strong)" }} /> 판정 불가
+              </span>
+            </>
+          )}
           <span>칸의 너비는 기준의 비중입니다.</span>
         </div>
       )}

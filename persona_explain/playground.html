@@ -147,14 +147,14 @@
     <header>
       <div>
         <p class="eyebrow">FORM TUTOR-1 · 교육용 해설</p>
-        <h1>대가의 기준으로 숫자 읽기</h1>
-        <p class="sub">종목을 고르고 관점을 고르면, 그 대가의 채점표를 해설합니다. 매수·매도 조언은 하지 않습니다.</p>
+        <h1>투자 대가에게 묻기</h1>
+        <p class="sub">종목 없이 철학을 묻거나, 종목을 골라 그 대가의 기준으로 숫자를 읽습니다.</p>
       </div>
       <div class="badge" id="mode">연결 확인 중</div>
     </header>
     <section class="toolbar">
       <div>
-        <label for="q">종목 검색 (티커 또는 이름)</label>
+        <label for="q">종목 검색 (선택 사항 · 티커 또는 이름)</label>
         <input id="q" placeholder="예: AAPL, 애플" autocomplete="off">
       </div>
       <div>
@@ -164,7 +164,7 @@
       <div class="hits" id="hits"></div>
     </section>
     <section class="log" id="log">
-      <p class="empty">종목을 검색해 고르면 첫 해설이 여기에 뜹니다.</p>
+      <p class="empty">종목 없이도 선택한 대가의 투자 철학을 물을 수 있습니다.</p>
     </section>
     <form class="ask" id="ask">
       <input id="question" placeholder="후속 질문" disabled>
@@ -223,10 +223,11 @@
           for (const el of box.querySelectorAll("button")) {
             el.setAttribute("aria-pressed", el === b ? "true" : "false");
           }
-          if (state.ticker) start();
+          start();
         });
         box.appendChild(b);
       }
+      await start();
     }
 
     async function search() {
@@ -250,14 +251,13 @@
     }
 
     async function start() {
-      if (!state.ticker) return;
       setAsking(false);
       logEl.innerHTML = "";
-      add("user", state.ticker + " · " + state.persona);
+      add("user", (state.ticker || "자유 대화") + " · " + state.persona);
       try {
-        const data = await api("POST", "/sessions", {
-          ticker: state.ticker, persona: state.persona,
-        });
+        const body = { persona: state.persona };
+        if (state.ticker) body.ticker = state.ticker;
+        const data = await api("POST", "/sessions", body);
         state.sessionId = data.sessionId;
         add("bot", data.opening);
         setAsking(true);

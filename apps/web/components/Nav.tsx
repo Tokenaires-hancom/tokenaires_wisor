@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import AuthNav from "./AuthNav";
@@ -12,12 +13,31 @@ const ITEMS = [
 
 export default function Nav() {
   const pathname = usePathname() ?? "/";
+  /* 종목 찾기·배우기·마이페이지 화면은 본문도 wrap-wide(1700px)를 써서
+     로고 왼쪽 끝과 본문 왼쪽 끝을 맞춘다. 기본 화면(홈)도 가장자리까지
+     그림이 꽉 차는 레이아웃이라 같은 이유로 맞춘다.
+     로그인은 본문이 좁은 wrap을 그대로 쓰지만, 헤더까지 페이지마다 너비가
+     바뀌면 오갈 때마다 로고·메뉴 위치가 흔들린다 — 헤더만은 주요 화면
+     전부에서 같은 너비로 고정한다. */
+  const isWide =
+    pathname === "/" ||
+    pathname.startsWith("/screener") ||
+    pathname.startsWith("/learn") ||
+    pathname.startsWith("/me") ||
+    pathname.startsWith("/login");
 
   return (
     <header className="masthead">
-      <div className="wrap masthead-inner">
+      <div className={`wrap masthead-inner${isWide ? " wrap-wide" : ""}`}>
         <Link href="/" className="wordmark">
-          Wisor<span>학습</span>
+          <Image
+            src="/brand/wisor-logo.png"
+            alt="Wisor"
+            width={1915}
+            height={821}
+            priority
+            className="wordmark-logo"
+          />
         </Link>
         <nav className="nav" aria-label="주요 메뉴">
           {ITEMS.map((item) => {

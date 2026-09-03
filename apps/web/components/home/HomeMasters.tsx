@@ -61,6 +61,10 @@ export default function HomeMasters({ masters }: { masters: MasterCard[] }) {
     const GLIDE = 0.19;
     /** 이만큼 끌면 넘기려는 뜻으로 보고, 그 위의 링크는 열지 않는다(px). */
     const SLOP = 6;
+    /** 손으로 끌 때 카드가 손 속도의 몇 배로 움직이는가. 1이면 1:1이라 손이 조금만
+     *  움직여도 카드가 훅 넘어가 버렸다 — 스크롤(휠·트랙패드)은 그대로 두고 드래그만
+     *  절반 속도로 눌러 준다. */
+    const DRAG_RATIO = 0.5;
     /** 위에 고정된 머리띠 높이(px). 붙잡는 자리를 그 아래로 내린다. */
     const HEADER = 61;
     /** 이보다 가까우면 붙은 것으로 보고 프레임을 멈춘다(px). */
@@ -119,10 +123,18 @@ export default function HomeMasters({ masters }: { masters: MasterCard[] }) {
      *  붙잡힌 동안 트랙은 스크롤 컨테이너가 아니라 transform으로 움직이는 판이라,
      *  트랙을 직접 스크롤시킬 수 없다. 그래서 끈 거리를 페이지 스크롤로 바꾼다 —
      *  카드를 왼쪽으로 끌면 그만큼 아래로 스크롤되고, 손을 떼면 스냅이 가까운
-     *  카드에 세운다. 끄는 값에 SLOW를 곱해야 손과 카드가 1:1로 붙는다.
+     *  카드에 세운다. 끄는 값에 SLOW를 곱하면 손과 카드가 1:1로 붙는데, 거기에
+     *  DRAG_RATIO를 한 번 더 곱해 카드가 손 속도의 절반으로만 따라오게 한다.
      *
      *  scroll-behavior: smooth가 걸려 있어 그냥 스크롤하면 한 박자 늦게 따라온다.
-     *  끄는 동안에는 instant로 즉시 옮긴다. */
+     *  끄는 동안에는 instant로 즉시 옮긴다.
+     *
+     *  home-v5.css가 이 화면 폭에서 html에 scroll-snap-type: y를 건다
+     *  (카드마다 심어 둔 .hv-masters-stop가 그 정지점이다). proximity라 세게
+     *  잡아채지는 않지만, 그래도 켜진 채로 두면 위 스크롤이 한 픽셀씩 나눠 갈 때마다
+     *  브라우저가 스냅 지점 근처로 살짝씩 끌어당겨서 카드가 손보다 들쭉날쭉 움직인다.
+     *  그래서 끄는 동안에는 스냅을 꺼 뒀다가 손을 떼면 되돌린다 — 손 뗀 자리에서
+     *  가까운 카드에 스냅이 걸리는 동작은 그대로 남는다. */
     const grab = (e: PointerEvent) => {
       if (e.button !== 0) return;
       /* 붙잡지 않을 때는 트랙이 스스로 가로 스크롤 컨테이너다. 손가락은 브라우저가
@@ -134,6 +146,7 @@ export default function HomeMasters({ masters }: { masters: MasterCard[] }) {
       dragged = 0;
       trackEl.setPointerCapture(e.pointerId);
       trackEl.classList.add("is-dragging");
+      if (pinned) document.documentElement.style.scrollSnapType = "none";
     };
 
     const haul = (e: PointerEvent) => {
@@ -145,7 +158,7 @@ export default function HomeMasters({ masters }: { masters: MasterCard[] }) {
          끈 거리를 페이지 스크롤로 바꾼다. 붙잡지 않을 때는 트랙이 진짜 스크롤
          컨테이너라 그대로 밀면 된다 — 넓은 화면과 같은 손맛이 좁은 화면에도 남는다. */
       if (pinned) {
-        window.scrollBy({ top: -dx * SLOW, behavior: "instant" });
+        window.scrollBy({ top: -dx * SLOW * DRAG_RATIO, behavior: "instant" });
       } else {
         trackEl.scrollLeft -= dx;
       }
@@ -156,6 +169,7 @@ export default function HomeMasters({ masters }: { masters: MasterCard[] }) {
       dragging = false;
       if (trackEl.hasPointerCapture(e.pointerId)) trackEl.releasePointerCapture(e.pointerId);
       trackEl.classList.remove("is-dragging");
+      document.documentElement.style.scrollSnapType = "";
       /* 손을 뗀 자리에서 스냅이 걸리도록 한 번 흔들어 준다. */
       window.scrollBy({ top: 0, left: 0 });
     };
@@ -204,7 +218,15 @@ export default function HomeMasters({ masters }: { masters: MasterCard[] }) {
         stops.push(at);
       }
       outerEl.querySelectorAll(".hv-masters-stop").forEach((s) => s.remove());
-      for (const at of stops) {
+      /* 맨 처음(0)과 맨 마지막(travel) 정지점은 심지 않는다. 이 둘은 대가 섹션과
+         원칙/여정 섹션의 경계에 거의 겹친다. html의 scroll-snap-type이 문서 전체에
+         걸려 있어서, 경계에 정지점을 남겨 두면 옆 섹션으로 넘어가려고 살짝만
+         스크롤해도 네이티브 스냅이 도로 여기로 끌어당긴다 — SectionSnap.tsx가 다음
+         섹션으로 당기려는 걸 이 정지점이 계속 이겨 버려서, 첫 카드에서 위로 못 나가고
+         마지막 카드에서 아래로 못 나가는 원인이었다. 큰 섹션 경계는 어차피
+         SectionSnap.tsx가 맡으므로 여기서는 카드 사이를 옮겨 다닐 때만 스냅이 걸리면
+         된다. */
+      for (const at of stops.slice(1, -1)) {
         const dot = document.createElement("div");
         dot.className = "hv-masters-stop";
         dot.style.top = `${at}px`;
@@ -301,6 +323,8 @@ export default function HomeMasters({ masters }: { masters: MasterCard[] }) {
       watching?.disconnect();
       if (frame) window.cancelAnimationFrame(frame);
       release();
+      /* 끄는 도중에 컴포넌트가 사라지면 drop이 못 불려 스냅이 꺼진 채로 남는다. */
+      document.documentElement.style.scrollSnapType = "";
     };
   }, []);
 

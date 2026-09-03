@@ -1,7 +1,7 @@
 """페르소나 지표 해설 오케스트레이터.
 
 흐름: 지표(dict) -> <지표> 블록 조립 -> 페르소나 프롬프트 + LLM 호출
-      -> 안전 필터 -> (block이면 1회 재생성) -> 해설 텍스트.
+      -> (빈 응답이면 1회 재생성) -> 해설 텍스트.
 
 LLM 어댑터는 교체 가능. 기본은 키 없이 도는 mock.
 실제 모델은 OpenAIAdapter (OPENAI_API_KEY 환경변수 또는 같은 폴더의 .env 필요).
@@ -16,7 +16,6 @@ from dataclasses import dataclass
 
 from personas import (PERSONAS, SCORE_PERSONAS, build_system_prompt,
                       is_checklist)
-import safety
 
 # 지표 필드 → 사람이 읽을 라벨 (해설 프롬프트 가독성용)
 #
@@ -27,6 +26,7 @@ METRIC_LABELS = {
     "PER": "PER(주가수익비율)",
     "PEG": "PEG(성장 대비 가격)",
     "ROIC_5y_avg": "5년 평균 ROIC",
+    "magic_formula_roc": "마법공식 자본수익률",
     "FCF_margin": "FCF 마진",
     "FCF_yield": "FCF 수익률",
     "netDebt_to_EBITDA": "순부채/EBITDA",
@@ -50,21 +50,18 @@ STATUS_LABELS = {
     "unknown": "판정불가",
 }
 
-BLOCKED_MESSAGE = "안전 기준 위반으로 해설을 제공할 수 없습니다."
+BLOCKED_MESSAGE = "해설을 만들지 못했습니다. 잠시 후 다시 시도해 주세요."
+
+# 응답 판정. verdict는 server.py를 거쳐 화면까지 그대로 나가는 값이라 문자열을 바꾸지 않는다.
+OK = "ok"
+REGENERATE = "regenerate"
 
 # 재생성은 temperature를 올려야 의미가 있다. 0을 유지하면 같은 답이 다시 나와
-# 재시도가 반드시 같은 이유로 또 걸린다.
+# 재시도가 반드시 같은 이유로 또 빈 응답이 된다.
 #
 # temperature를 아예 받지 않는 모델이면 어댑터가 이 값을 버린다. 그때는 모델
-# 기본값의 흔들림과 _RETRY_HINT가 대신 차이를 만든다.
+# 기본값의 흔들림이 대신 차이를 만든다.
 RETRY_TEMPERATURE = 0.3
-
-_RETRY_HINT = """
-
-[재생성 지시]
-직전 답변이 금지 표현(매수·매도·목표가·저평가·고평가·가격 전망)을 포함해 차단되었다.
-같은 내용을 그 표현들 없이 다시 작성하라. 지표 값과 기준은 그대로 둔다.
-"""
 
 
 def render_metrics_block(pairs, name: str | None = None,
@@ -116,6 +113,16 @@ def format_company_block(name: str | None = None, ticker: str | None = None,
         lines.append(f"업종: {sector}")
     lines.extend(_NO_SCORE_NOTE)
     return "<회사>\n" + "\n".join(lines) + "\n</회사>"
+
+
+def format_free_chat_block() -> str:
+    """종목 없이 투자 철학을 묻는 세션의 고정 앵커."""
+    return (
+        "<대화맥락>\n"
+        "종목이 지정되지 않았다. 특정 회사나 재무 수치를 가정하지 않는다.\n"
+        "선택한 투자 대가의 철학, 판단 기준, 공부 방법을 중심으로 대화한다.\n"
+        "</대화맥락>"
+    )
 
 
 def format_criteria_block(judgement) -> str:
@@ -191,7 +198,7 @@ class MockAdapter:
         else:
             head = "주어진 블록 범위 안에서만 설명합니다."
             body = f"- 질문 \"{last_user.strip()}\" — (mock 후속 답변)"
-        return f"{head}\n{body}\n\n이 설명은 교육용이며 투자 조언이 아닙니다."
+        return f"{head}\n{body}"
 
     def complete(self, system: str, user: str) -> str:
         return self.chat(system, [{"role": "user", "content": user}])
@@ -327,51 +334,43 @@ def tidy(text: str) -> str:
     return text.strip()
 
 
-# ---- 안전 생성 --------------------------------------------------------------
+# ---- 응답 생성 --------------------------------------------------------------
 
-def check_output(text: str):
-    """safety.check + 빈 응답 처리.
+def check_output(text: str) -> str:
+    """빈 응답 판정.
 
     콘텐츠 필터나 호출 이상으로 빈 문자열이 오면 그대로 보여줄 수 없으므로
     재생성 대상으로 본다.
     """
-    if not text or not text.strip():
-        return safety.REGENERATE, None, []
-    return safety.check(text)
+    return REGENERATE if not text or not text.strip() else OK
 
 
 def generate(adapter, system: str, messages: list[dict]):
-    """안전 필터를 통과한 응답을 만든다.
-
-    block 위반이면 온도를 올리고 회피 지시를 붙여 1회 재생성한다.
-    그래도 걸리면 차단 문구를 돌려준다.
+    """응답을 만든다. 빈 응답이면 온도를 올려 1회 재생성하고, 그래도 비면 안내 문구를 돌려준다.
 
     반환: (text, verdict, regenerated)
     """
     text = tidy(adapter.chat(system, messages, temperature=0.0))
-    verdict, cleaned, _ = check_output(text)
-    if verdict != safety.REGENERATE:
-        return (cleaned if cleaned is not None else text), verdict, False
+    if check_output(text) == OK:
+        return text, OK, False
 
-    text = tidy(adapter.chat(system + _RETRY_HINT, messages,
-                             temperature=RETRY_TEMPERATURE))
-    verdict, cleaned, _ = check_output(text)
-    if verdict == safety.REGENERATE:
-        return BLOCKED_MESSAGE, verdict, True
-    return (cleaned if cleaned is not None else text), verdict, True
+    text = tidy(adapter.chat(system, messages, temperature=RETRY_TEMPERATURE))
+    if check_output(text) == REGENERATE:
+        return BLOCKED_MESSAGE, REGENERATE, True
+    return text, OK, True
 
 
 @dataclass
 class ExplainResult:
     persona: str
     text: str
-    verdict: str           # safety.OK / CLEANED / REGENERATE
+    verdict: str           # OK / REGENERATE
     regenerated: bool
 
 
 def explain(persona_key: str, metrics: dict, name: str | None = None,
             adapter=None) -> ExplainResult:
-    """한 페르소나로 지표를 해설한다. block 위반 시 1회 재생성 후 실패면 차단."""
+    """한 페르소나로 지표를 해설한다. 빈 응답이면 1회 재생성 후 실패면 안내 문구."""
     if is_checklist(persona_key):
         raise ValueError(
             f"{persona_key}는 지표로 채점하지 않는 대가라 지표 해설을 만들 수 없습니다. "

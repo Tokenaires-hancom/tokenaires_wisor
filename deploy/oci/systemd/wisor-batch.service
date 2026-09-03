@@ -1,0 +1,39 @@
+# 서버 /etc/systemd/system/wisor-batch.service 의 기록입니다.
+# 이 파일을 고쳐도 서버는 바뀌지 않습니다. 반대로 서버를 고치면 여기도 같이 고쳐야
+# 기록이 사실로 남습니다. 서버 실물은 systemctl cat wisor-batch.service 로 확인합니다.
+
+[Unit]
+Description=Wisor market price and fundamentals batch
+Requires=docker.service
+Wants=network-online.target
+After=docker.service network-online.target wisor.service
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/wisor/batch.conf
+EnvironmentFile=/etc/wisor/batch.env
+EnvironmentFile=/etc/wisor/web-build.env
+Environment=DOCKER_CONFIG=/var/lib/wisor-batch/docker-config
+ExecStart=/usr/local/libexec/wisor-batch auto
+TimeoutStartSec=3h
+TimeoutStopSec=5min
+Nice=15
+IOSchedulingClass=idle
+CPUWeight=10
+IOWeight=10
+MemoryHigh=700M
+MemoryMax=900M
+MemorySwapMax=2G
+TasksMax=128
+UMask=0077
+PrivateTmp=true
+PrivateDevices=true
+ProtectHome=true
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/etc/wisor /var/lib/wisor-batch /opt/wisor/batch-source /run/lock /run/docker.sock
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+StandardOutput=journal
+StandardError=journal

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { isCorrect } from "@/content/curriculum/grading";
 import Mascot from "@/components/game/Mascot";
+import WaveMascot from "@/components/game/WaveMascot";
 import LessonPath from "@/components/game/LessonPath";
 import WisorTown from "@/components/game/WisorTown";
 import "@/components/game/lesson.css";
@@ -86,6 +87,10 @@ export default function ChapterExercises({
   const [done, setDone] = useState<boolean[]>(exercises.map(() => false));
   const [picks, setPicks] = useState<number[][]>(exercises.map(() => []));
   const [texts, setTexts] = useState<string[]>(exercises.map(() => ""));
+  const [journalSaving, setJournalSaving] = useState<boolean[]>(exercises.map(() => false));
+  const [journalErrors, setJournalErrors] = useState<(string | null)[]>(
+    exercises.map(() => null),
+  );
   const [combo, setCombo] = useState(0); // 세션 내 연속 정답 (오답이면 0으로)
   const [townProgress, setTownProgress] = useState<Progress | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -95,6 +100,7 @@ export default function ChapterExercises({
   const exerciseIndex = step.kind === "exercise" ? step.index : undefined;
   const currentExercise = exerciseIndex !== undefined ? exercises[exerciseIndex] : undefined;
   const currentSubmitted = exerciseIndex !== undefined && done[exerciseIndex];
+  const currentJournalSaving = exerciseIndex !== undefined && journalSaving[exerciseIndex];
   const currentHasInput =
     currentExercise?.kind === "graded"
       ? picks[exerciseIndex!].length > 0
@@ -144,18 +150,35 @@ export default function ChapterExercises({
   }
 
   async function finish(index: number) {
+    const exercise = exercises[index];
+    if (exercise.kind === "journal") {
+      if (journalSaving[index]) return;
+      setJournalSaving((prev) => prev.map((saving, i) => (i === index ? true : saving)));
+      setJournalErrors((prev) => prev.map((error, i) => (i === index ? null : error)));
+      try {
+        await saveJournalEntry(`${chapterId}#${index}`, exercise.prompt, texts[index]);
+      } catch {
+        setJournalErrors((prev) =>
+          prev.map((error, i) =>
+            i === index
+              ? "기록을 저장하지 못했습니다. 브라우저 저장 공간을 확인하고 다시 시도해 주세요."
+              : error,
+          ),
+        );
+        return;
+      } finally {
+        setJournalSaving((prev) => prev.map((saving, i) => (i === index ? false : saving)));
+      }
+    }
+
     const updated = done.map((complete, i) => (i === index ? true : complete));
     setDone(updated);
 
-    const exercise = exercises[index];
     if (exercise.kind === "graded") {
       const correct = isCorrect(exercise.answers, picks[index]);
       setCombo((c) => (correct ? c + 1 : 0));
       if (correct) playCorrect();
       else playWrong();
-    }
-    if (exercise.kind === "journal") {
-      await saveJournalEntry(`${chapterId}#${index}`, exercise.prompt, texts[index]);
     }
 
     if (!updated.every(Boolean)) return;
@@ -226,12 +249,16 @@ export default function ChapterExercises({
           aria-label={`${stepLabel(step)} 단계, ${at + 1}/${steps.length}`}
         >
         {step.kind === "read" && (
-          <div className="prose">
-            <Mascot state="teach" />
-            {body.map((paragraph, index) => (
-              <p key={index}>{paragraph}</p>
-            ))}
-            {sources && sources.length > 0 && <Sources sources={sources} />}
+          <div className="prose-rail">
+            <div className="prose-rail-mascot">
+              <WaveMascot />
+            </div>
+            <div className="prose">
+              {body.map((paragraph, index) => (
+                <p key={index}>{paragraph}</p>
+              ))}
+              {sources && sources.length > 0 && <Sources sources={sources} />}
+            </div>
           </div>
         )}
 
@@ -267,9 +294,14 @@ export default function ChapterExercises({
                 exercise={exercises[step.index] as Extract<Exercise, { kind: "journal" }>}
                 text={texts[step.index]}
                 saved={done[step.index]}
-                onChange={(value) =>
-                  setTexts((prev) => prev.map((text, i) => (i === step.index ? value : text)))
-                }
+                saving={journalSaving[step.index]}
+                error={journalErrors[step.index]}
+                onChange={(value) => {
+                  setTexts((prev) => prev.map((text, i) => (i === step.index ? value : text)));
+                  setJournalErrors((prev) =>
+                    prev.map((error, i) => (i === step.index ? null : error)),
+                  );
+                }}
               />
             )}
           </div>
@@ -314,10 +346,10 @@ export default function ChapterExercises({
           <button
             type="button"
             className="btn"
-            disabled={!currentHasInput}
+            disabled={!currentHasInput || currentJournalSaving}
             onClick={() => void finish(exerciseIndex!)}
           >
-            {SUBMIT_LABEL[currentExercise.kind]}
+            {currentJournalSaving ? "저장 중" : SUBMIT_LABEL[currentExercise.kind]}
           </button>
         ) : (
           <button
@@ -347,14 +379,11 @@ function Graded({
   feedbackState?: "correct" | "wrong";
   onPick: (choice: number) => void;
 }) {
-  const multiple = exercise.answers.length > 1;
-
   return (
     <>
-      <p className="eyebrow">확인 문항{multiple ? " · 복수 정답" : ""}</p>
       <div className="quiz-presenter">
-        <Mascot key={feedbackState ?? "idle"} state={feedbackState ?? "idle"} />
         <h3 className="quiz-bubble sub">{exercise.prompt}</h3>
+        <Mascot key={feedbackState ?? "idle"} state={feedbackState ?? "idle"} />
       </div>
       <div role="group" aria-label={exercise.prompt}>
         {exercise.choices.map((choice, choiceIndex) => {
@@ -404,9 +433,10 @@ function Guided({
 }) {
   return (
     <>
-      <p className="eyebrow">써보기 · 점수 없음</p>
-      <Mascot state="teach" />
-      <h3 className="sub">{exercise.prompt}</h3>
+      <div className="quiz-presenter">
+        <h3 className="quiz-bubble sub">{exercise.prompt}</h3>
+        <Mascot state="teach" />
+      </div>
       <label className="field">
         <span>내 답</span>
         <textarea
@@ -446,7 +476,9 @@ function Sources({ sources }: { sources: SourceNote[] }) {
   return (
     <details className="source-note">
       <summary>
-        <span>출처 {sources.length}개</span>
+        <span>
+          <span className="source-note-label">출처</span> {sources.length}개
+        </span>
         <span className="source-note-tally">
           {tally.map((entry) => `${entry.kind} ${entry.count}`).join(" · ")}
         </span>
@@ -472,33 +504,42 @@ function Journal({
   exercise,
   text,
   saved,
+  saving,
+  error,
   onChange,
 }: {
   exercise: Extract<Exercise, { kind: "journal" }>;
   text: string;
   saved: boolean;
+  saving: boolean;
+  error: string | null;
   onChange: (value: string) => void;
 }) {
   return (
     <>
-      <p className="eyebrow">기록 · 90일 뒤 다시 묻습니다</p>
-      <Mascot state="teach" />
-      <h3 className="sub">{exercise.prompt}</h3>
+      <p className="eyebrow">기록 · 내 학습에 저장됩니다</p>
+      <div className="quiz-presenter">
+        <h3 className="quiz-bubble sub">{exercise.prompt}</h3>
+        <Mascot state="teach" />
+      </div>
       <label className="field">
         <span>내 기록</span>
         <textarea
           rows={4}
           value={text}
           onChange={(event) => onChange(event.target.value)}
-          disabled={saved}
+          disabled={saved || saving}
+          aria-invalid={error ? true : undefined}
         />
       </label>
+      {error && (
+        <p className="journal-save-message" data-kind="error" role="alert">
+          {error}
+        </p>
+      )}
       {saved && (
-        <p
-          role="status"
-          style={{ fontSize: "0.88rem", color: "var(--ink-soft)", marginBottom: 0 }}
-        >
-          기록했습니다. 90일 뒤 내 학습에서 다시 묻습니다.
+        <p className="journal-save-message" role="status">
+          내 학습에 기록했습니다.
         </p>
       )}
     </>

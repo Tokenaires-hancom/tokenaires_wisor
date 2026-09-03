@@ -1,6 +1,6 @@
 # CLAUDE.md — apps/web
 
-> 담당: 1번(제품·UX·프론트엔드), 2번(`lib/store.ts` 및 Supabase 연동)
+> 담당: 제품·UX·프론트엔드 (`lib/store.ts` 및 Supabase 연동은 백엔드 담당)
 > 루트 `CLAUDE.md`의 규칙이 먼저 적용됩니다.
 
 ## 스택
@@ -12,8 +12,8 @@ Tailwind, CSS-in-JS, UI 라이브러리를 쓰지 않습니다. 스타일은 `ap
 ## 데이터
 
 ```
-lib/generated/scores.json   ← data-pipeline/run_batch.py가 만든다. 손으로 고치지 않는다
-lib/scores.ts               ← 서버 전용. 데이터 조회 함수
+lib/generated/scores.json   ← 로컬·빌드 fallback. data-pipeline이 만들며 손으로 고치지 않는다
+lib/scores.ts               ← 서버 전용. SCORES_JSON_PATH 우선 런타임 로더
 lib/scores.types.ts         ← 클라이언트 안전. 타입과 라벨만
 content/masters.ts          ← 대가 3명 학습 콘텐츠 + 퀴즈
 lib/store.ts                ← 사용자 데이터 저장. Supabase 교체 지점
@@ -22,7 +22,7 @@ lib/analytics.ts            ← 측정 이벤트
 
 ### 서버 전용 경계
 
-**클라이언트 컴포넌트는 `lib/scores.ts`를 import하지 않습니다.** 이 파일은 모듈 최상단에서 scores.json을 통째로 가져오므로, 클라이언트에서 참조하면 재무데이터 전부가 브라우저 번들에 실립니다. 500종목이면 5MB에 가깝습니다.
+**클라이언트 컴포넌트는 `lib/scores.ts`를 import하지 않습니다.** 이 파일은 Node 파일시스템으로 scores.json 전체를 읽으므로 클라이언트에서 실행할 수 없고, 경계를 흐리면 재무데이터가 브라우저 번들로 들어갈 수 있습니다. 500종목이면 5MB에 가깝습니다.
 
 - 타입과 라벨 → `lib/scores.types.ts`에서 가져옵니다
 - 데이터 → 서버 컴포넌트가 필요한 만큼만 props로 내려보냅니다 (`app/me/page.tsx`가 예시입니다)
@@ -32,9 +32,11 @@ lib/analytics.ts            ← 측정 이벤트
 
 ### 저장소
 
-**컴포넌트에서 `localStorage`를 직접 부르지 않습니다.** 반드시 `lib/store.ts`를 거칩니다. 2번이 Supabase를 붙일 때 이 파일의 함수 본문만 교체하기로 돼 있습니다.
+**컴포넌트에서 `localStorage`를 직접 부르지 않습니다.** 반드시 `lib/store.ts`를 거칩니다. 백엔드 담당이 Supabase를 붙일 때 이 파일의 함수 본문만 교체하기로 돼 있습니다.
 
-**`store.ts`의 함수는 전부 `Promise`를 돌려줍니다.** localStorage는 동기지만 Supabase는 비동기라서 시그니처를 미리 맞춰 뒀습니다. 편의상 동기로 되돌리지 마세요.
+**`store.ts`에서 저장소를 만지는 함수는 전부 `Promise`를 돌려줍니다.** localStorage는 동기지만 Supabase는 비동기라서 시그니처를 미리 맞춰 뒀습니다. 편의상 동기로 되돌리지 마세요.
+
+저장소를 만지지 않고 받은 값을 가공만 하는 순수 함수는 여기 해당하지 않습니다 — `hasLearningState`·`withoutMasterProgress`는 동기입니다. 이 둘은 Supabase로 바뀌어도 기다릴 대상이 없습니다. 판정 기준은 "이 함수가 저장소를 읽거나 쓰는가"입니다.
 
 ## 디자인 토큰
 
@@ -75,7 +77,7 @@ lib/analytics.ts            ← 측정 이벤트
 
 ## 새 페이지를 만들 때
 
-1. `generateStaticParams`로 정적 생성 가능한지 먼저 봅니다. 지금 30개 페이지가 전부 정적입니다
+1. 배치 데이터와 무관한 페이지는 `generateStaticParams`로 정적 생성 가능한지 먼저 봅니다. `scores.json`을 읽는 페이지는 런타임 교체를 반영하도록 동적 렌더링합니다
 2. Next 15에서 `params`와 `searchParams`는 Promise입니다. `await` 합니다
 3. 상태가 필요할 때만 `"use client"`를 붙입니다
 4. 점수를 보여주는 화면에는 `<DataStamp>`를 반드시 넣습니다

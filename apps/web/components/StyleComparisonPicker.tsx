@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import MasterCharacter from "@/components/MasterCharacter";
 import { percentShares } from "@/lib/percent";
+import "@/components/game/lesson.css";
 
 /** 표가 그리는 데 필요한 문장만 받는다. 커리큘럼 본문이나 대가 객체를 통째로
  *  넘기면 그것이 전부 브라우저 번들에 실린다. */
@@ -172,29 +172,38 @@ export default function StyleComparisonPicker({
       <aside className="comparison-rail">
         <p className="comparison-rail-title">내 기준</p>
 
-        {/* 그래프를 열기 전까지 남는 자리를 버핏이 채운다. 열면 그래프가 그 자리를
-            쓰므로 캐릭터는 물러난다.
+        {/* 그래프를 열기 전까지 남는 자리를 마스코트가 채운다. 열면 그래프가 그
+            자리를 쓰므로 캐릭터는 물러난다.
             읽어 줄 자리는 말풍선 하나다. 레일 전체에 걸면 칸을 누를 때마다 막대
-            일곱 개가 통째로 다시 읽힌다 */}
-        {!opened && (
+            일곱 개가 통째로 다시 읽힌다.
+            캐릭터-말풍선 순서와 꼬리 방향은 ChapterExercises의 퀴즈 제시 화면
+            (game/lesson.css의 quiz-presenter·quiz-bubble)과 같다 — 새 말풍선을
+            또 만들지 않고 그걸 그대로 쓴다. */}
+        {!opened && total === 0 && (
           <div className="comparison-guide">
-            <p className="comparison-bubble" aria-live="polite">
-              {total === 0 ? (
-                "표에서 공감되는 칸을 고르세요."
-              ) : (
-                <>
-                  <span className="mono">{total}칸</span>을 골랐습니다.
-                </>
-              )}
+            <picture className="character">
+              <img src="/mascot/teach.webp" alt="" height={150} style={{ height: 150 }} />
+            </picture>
+            <p className="quiz-bubble" aria-live="polite">
+              어떤 기준을 따르시나요? 모두 골라보세요.
             </p>
-            <MasterCharacter masterId="buffett" mood="guide" height={150} />
           </div>
         )}
 
-        {total > 0 && !opened && (
-          <button type="button" className="comparison-open" onClick={() => setOpened(true)}>
-            클릭하여 내 기준 살펴보기
-          </button>
+        {/* 고른 뒤에는 "N칸을 골랐습니다" 문구 대신 그 자리에 바로 살펴보기 버튼을 둔다 —
+            문구가 하던 일(몇 칸 골랐는지 알림)을 버튼이 이어받는다 */}
+        {!opened && total > 0 && (
+          <div className="comparison-guide">
+            <picture className="character">
+              <img src="/mascot/teach.webp" alt="" height={150} style={{ height: 150 }} />
+            </picture>
+            <button type="button" className="comparison-open" onClick={() => setOpened(true)}>
+              클릭하여 내 기준 살펴보기
+            </button>
+            <button type="button" className="comparison-reset comparison-reset-inline" onClick={reset}>
+              기준 초기화
+            </button>
+          </div>
         )}
 
         {opened && (
@@ -236,9 +245,9 @@ export default function StyleComparisonPicker({
           </ul>
         )}
 
-        {total > 0 && (
+        {opened && total > 0 && (
           <button type="button" className="comparison-reset" onClick={reset}>
-            고른 칸 지우기
+            기준 초기화
           </button>
         )}
       </aside>

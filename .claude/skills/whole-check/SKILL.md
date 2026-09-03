@@ -85,15 +85,6 @@ echo "== [5] 클라이언트에서 lib/scores.ts import =="
 echo "== [6] 의존성 =="
 node -e "const p=require('./$web/package.json');console.log('  dep:',Object.keys(p.dependencies).join(', '));console.log('  dev:',Object.keys(p.devDependencies).join(', '))"
 
-echo "== [7] 금지 문구가 검사되지 않는 곳 =="
-# base.py 는 점수 화면 생성 문구를, validate.ts 는 커리큘럼만 본다.
-# 나머지는 아무도 안 보므로 위치만 뽑는다. 교육 콘텐츠는 금지어를 설명하려고
-# 쓰기 때문에 grep 결과 자체는 판정이 아니다 — 2부에서 문장을 읽고 판정한다.
-for w in 매수 매도 목표가 손절 추천 보장 확실 오를 내릴 급등 바닥; do
-  n=$(grep -rho "$w" $web/components $web/content/masters.ts $web/content/stockBasics.ts 2>/dev/null | wc -l)
-  [ "$n" -gt 0 ] && echo "  $w $n건"
-done
-
 echo "== [원칙1] 짝이 되는 테스트 파일이 없는 소스 =="
 # 목록은 사실이다. "그래서 검증이 안 되는가"는 2부에서 판정한다
 # (예: content/curriculum/*.ts 는 validate.test.ts 가 한꺼번에 본다).

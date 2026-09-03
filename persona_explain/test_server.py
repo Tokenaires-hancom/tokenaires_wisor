@@ -7,8 +7,10 @@ scores.json이 없으면 서버 테스트는 건너뛴다(세션 보관소 테�
 """
 from __future__ import annotations
 
+import copy
 import json
 import threading
+from pathlib import Path
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
@@ -154,7 +156,8 @@ def test_root_serves_playground(live):
         body = resp.read().decode("utf-8")
         assert resp.status == 200
         assert "text/html" in ctype
-        assert "대가의 기준으로 숫자 읽기" in body
+        assert "투자 대가에게 묻기" in body
+        assert "종목 없이 철학을 묻거나" in body
         assert "/sessions" in body
 
 
@@ -169,11 +172,10 @@ def test_health(live):
 
 
 @needs_scores
-def test_meta_has_ttl_and_disclaimer(live):
+def test_meta_has_ttl(live):
     status, body, _ = _call(live["base"], "GET", "/meta")
     assert status == 200
     assert body["sessionTtlSeconds"] == 30 * 60
-    assert "교육용" in body["disclaimer"]
     assert body["asOf"]
 
 
@@ -204,7 +206,6 @@ def test_session_lifecycle(live):
     assert created["opening"]
     assert created["verdict"] == "ok"
     assert created["blocked"] is False
-    assert "교육용" in created["disclaimer"]
     assert created["judgement"]["style"] == "buffett"
 
     status, asked, _ = _call(live["base"], "POST", f"/sessions/{sid}/messages",
@@ -230,6 +231,39 @@ def test_session_lifecycle(live):
     assert status == 404
     assert gone["error"]["code"] == "session_not_found"
     assert "새로 만들어" in gone["error"]["message"]
+
+
+@needs_scores
+def test_free_chat_session_lifecycle(live):
+    status, created, _ = _call(live["base"], "POST", "/sessions",
+                               {"persona": "buffett"})
+    assert status == 201
+    assert created["company"] is None
+    assert created["asOf"] is None
+    assert created["judgement"] is None
+    assert created["opening"]
+    sid = created["sessionId"]
+
+    status, asked, _ = _call(live["base"], "POST", f"/sessions/{sid}/messages",
+                             {"question": "복리의 핵심은 무엇인가요?"})
+    assert status == 200
+    assert asked["persona"] == "buffett"
+    assert asked["reply"]
+
+    status, switched, _ = _call(live["base"], "POST", f"/sessions/{sid}/persona",
+                                {"persona": "fisher"})
+    assert status == 200
+    assert switched["persona"] == "fisher"
+    assert switched["company"] is None
+    assert switched["judgement"] is None
+
+
+@needs_scores
+def test_null_ticker_is_rejected_instead_of_silently_becoming_free_chat(live):
+    status, body, _ = _call(live["base"], "POST", "/sessions",
+                            {"ticker": None, "persona": "buffett"})
+    assert status == 400
+    assert body["error"]["code"] == "invalid_field"
 
 
 @needs_scores
@@ -363,6 +397,138 @@ def test_rate_limit_not_charged_for_noop_persona_switch():
 
 
 @needs_scores
+def test_failed_persona_switch_restores_the_previous_session_state():
+    from server import RateLimiter
+
+    httpd = make_server("127.0.0.1", 0, adapter=MockAdapter(),
+                        limiter=RateLimiter(max_calls=1))
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    host, port = httpd.server_address[:2]
+    base = f"http://{host}:{port}"
+    try:
+        ticker = httpd.persona_data.tickers()[0]
+        status, created, _ = _call(base, "POST", "/sessions",
+                                   {"ticker": ticker, "persona": "buffett"})
+        assert status == 201
+        sid = created["sessionId"]
+
+        # 새 첫 해설은 두 번째 LLM 호출이라 실패한다. 전환 전체가 롤백돼야 한다.
+        status, body, _ = _call(base, "POST", f"/sessions/{sid}/persona",
+                                {"persona": "graham"})
+        assert status == 429
+        assert body["error"]["code"] == "rate_limited"
+
+        # 기존 버핏 첫 해설은 캐시돼 있으므로 추가 호출 없이 그대로 받을 수 있다.
+        status, restored, _ = _call(base, "POST", f"/sessions/{sid}/persona",
+                                    {"persona": "buffett"})
+        assert status == 200
+        assert restored["persona"] == "buffett"
+        assert restored["opening"] == created["opening"]
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+
+
+@needs_scores
+def test_blocked_persona_switch_restores_the_previous_session_state():
+    class OneAnswerThenEmptyAdapter:
+        name = "one-answer-then-empty"
+        model = None
+
+        def __init__(self):
+            self.calls = 0
+
+        def chat(self, system, messages, temperature=0.0):
+            self.calls += 1
+            return "첫 해설" if self.calls == 1 else ""
+
+    httpd = make_server("127.0.0.1", 0, adapter=OneAnswerThenEmptyAdapter())
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    host, port = httpd.server_address[:2]
+    base = f"http://{host}:{port}"
+    try:
+        ticker = httpd.persona_data.tickers()[0]
+        status, created, _ = _call(base, "POST", "/sessions",
+                                   {"ticker": ticker, "persona": "buffett"})
+        assert status == 201
+        sid = created["sessionId"]
+
+        status, blocked, _ = _call(base, "POST", f"/sessions/{sid}/persona",
+                                   {"persona": "graham"})
+        assert status == 200
+        assert blocked["blocked"] is True
+        assert blocked["persona"] == "buffett"
+
+        status, restored, _ = _call(base, "POST", f"/sessions/{sid}/persona",
+                                    {"persona": "buffett"})
+        assert status == 200
+        assert restored["blocked"] is False
+        assert restored["opening"] == created["opening"]
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+
+
+@needs_scores
+def test_free_chat_create_and_switch_do_not_spend_llm_quota():
+    from server import RateLimiter
+
+    httpd = make_server("127.0.0.1", 0, adapter=MockAdapter(),
+                        limiter=RateLimiter(max_calls=1))
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    host, port = httpd.server_address[:2]
+    base = f"http://{host}:{port}"
+    try:
+        status, created, _ = _call(base, "POST", "/sessions",
+                                   {"persona": "buffett"})
+        assert status == 201
+        sid = created["sessionId"]
+
+        status, _, _ = _call(base, "POST", f"/sessions/{sid}/persona",
+                             {"persona": "graham"})
+        assert status == 200
+
+        status, _, _ = _call(base, "POST", f"/sessions/{sid}/messages",
+                             {"question": "안전마진이 무엇인가요?"})
+        assert status == 200
+
+        status, body, _ = _call(base, "POST", f"/sessions/{sid}/messages",
+                                {"question": "한 번 더 설명해 주세요."})
+        assert status == 429
+        assert body["error"]["code"] == "rate_limited"
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+
+
+@needs_scores
+def test_free_chat_session_creation_has_its_own_rate_limit():
+    from server import RateLimiter
+
+    httpd = make_server(
+        "127.0.0.1", 0, adapter=MockAdapter(),
+        free_session_limiter=RateLimiter(max_calls=1),
+    )
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    host, port = httpd.server_address[:2]
+    base = f"http://{host}:{port}"
+    try:
+        status, _, _ = _call(base, "POST", "/sessions", {"persona": "buffett"})
+        assert status == 201
+
+        status, body, _ = _call(base, "POST", "/sessions", {"persona": "graham"})
+        assert status == 429
+        assert body["error"]["code"] == "rate_limited"
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+
+
+@needs_scores
 def test_cors_preflight_and_get(live):
     status, _, headers = _call(
         live["base"], "OPTIONS", "/health",
@@ -440,3 +606,64 @@ def test_checklist_session_has_no_judgement(live):
     assert status == 200
     assert back["evaluation"] == "checklist"
     assert back["judgement"] is None
+
+
+@needs_scores
+def test_runtime_reload_updates_new_requests_but_keeps_open_session_snapshot(tmp_path):
+    payload = json.loads(Path(_SCORES.path).read_text(encoding="utf-8"))
+    ticker = payload["companies"][0]["ticker"]
+
+    def set_version(data, generated_at, model_version):
+        data["generatedAt"] = generated_at
+        for style in data["styles"]:
+            if style["id"] in {"buffett", "graham"}:
+                style["modelVersion"] = model_version
+        company = next(row for row in data["companies"] if row["ticker"] == ticker)
+        for style_id in ("buffett", "graham"):
+            company["scores"][style_id]["modelVersion"] = model_version
+
+    old_payload = copy.deepcopy(payload)
+    set_version(old_payload, "2026-08-26T00:00:00+00:00", "runtime-old")
+    path = tmp_path / "scores.json"
+    path.write_text(json.dumps(old_payload, ensure_ascii=False), encoding="utf-8")
+    initial = scores_source.get_data(str(path), reload=True)
+
+    httpd = make_server("127.0.0.1", 0, adapter=MockAdapter(), data=initial)
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    host, port = httpd.server_address[:2]
+    base = f"http://{host}:{port}"
+    try:
+        status, old_session, _ = _call(
+            base, "POST", "/sessions", {"ticker": ticker, "persona": "buffett"}
+        )
+        assert status == 201
+        assert old_session["judgement"]["modelVersion"] == "runtime-old"
+
+        new_payload = copy.deepcopy(payload)
+        set_version(new_payload, "2026-08-26T01:00:00+00:00", "runtime-new")
+        replacement = tmp_path / ".scores.json.new"
+        replacement.write_text(json.dumps(new_payload, ensure_ascii=False), encoding="utf-8")
+        replacement.replace(path)
+
+        status, meta, _ = _call(base, "GET", "/meta")
+        assert status == 200
+        assert meta["generatedAt"] == "2026-08-26T01:00:00+00:00"
+
+        status, new_session, _ = _call(
+            base, "POST", "/sessions", {"ticker": ticker, "persona": "buffett"}
+        )
+        assert status == 201
+        assert new_session["judgement"]["modelVersion"] == "runtime-new"
+
+        status, switched, _ = _call(
+            base,
+            "POST",
+            f"/sessions/{old_session['sessionId']}/persona",
+            {"persona": "graham"},
+        )
+        assert status == 200
+        assert switched["judgement"]["modelVersion"] == "runtime-old"
+    finally:
+        httpd.shutdown()
+        httpd.server_close()

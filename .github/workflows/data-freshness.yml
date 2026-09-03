@@ -1,0 +1,44 @@
+# 운영 데이터가 늙는지 본다.
+#
+# 배치가 멈춰도 사이트는 낡은 값으로 계속 200을 준다. 그래서 화면 상태가 아니라
+# generatedAt을 본다. 배치 실패·timer 꺼짐·서버 다운·컨테이너 전환 실패가 전부
+# "generatedAt이 안 움직인다"는 같은 증상으로 나타나므로 하나로 잡힌다.
+#
+# 검사 주기(3시간)는 한계(6시간)보다 짧아야 한다. 같으면 발견이 최대 두 배 늦어진다.
+
+name: 운영 데이터 신선도
+
+on:
+  schedule:
+    - cron: "30 */3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  freshness:
+    runs-on: ubuntu-latest
+    steps:
+      - name: generatedAt이 한계보다 낡으면 실패시킨다
+        env:
+          META_URL: https://wisor.site/api/persona/meta
+          MAX_AGE_HOURS: 6
+        run: |
+          set -euo pipefail
+          meta=$(curl --fail --silent --show-error --max-time 30 "$META_URL")
+
+          generated=$(printf '%s' "$meta" | jq -r '.generatedAt')
+          price_as_of=$(printf '%s' "$meta" | jq -r '.asOf.price')
+          companies=$(printf '%s' "$meta" | jq -r '.companies')
+          age_hours=$(( ( $(date -u +%s) - $(date -u -d "$generated" +%s) ) / 3600 ))
+
+          echo "generatedAt = $generated"
+          echo "asOf.price  = $price_as_of"
+          echo "companies   = $companies"
+          echo "age         = ${age_hours}시간 (한계 ${MAX_AGE_HOURS}시간)"
+
+          if [ "$age_hours" -gt "$MAX_AGE_HOURS" ]; then
+            echo "::error::운영 데이터가 ${age_hours}시간째 갱신되지 않았습니다. 서버에서 journalctl -u wisor-batch.service 를 확인하세요."
+            exit 1
+          fi

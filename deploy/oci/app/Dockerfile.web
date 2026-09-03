@@ -1,0 +1,55 @@
+# syntax=docker/dockerfile:1
+FROM node:24-bookworm-slim AS build
+
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
+COPY . .
+
+ARG WISOR_SHA
+ARG NEXT_PUBLIC_SUPABASE_URL
+ARG NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+ARG PERSONA_API_ORIGIN
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    NODE_OPTIONS=--max-old-space-size=640 \
+    NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL} \
+    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY} \
+    PERSONA_API_ORIGIN=${PERSONA_API_ORIGIN}
+
+# 테스트는 여기서 돌리지 않는다. deploy-oci.yml의 deploy 잡이 `needs: check`로
+# check.yml을 먼저 통과시키고, 그쪽은 저장소 전체를 체크아웃한 자리에서 npm test를
+# 돌린다. 이 이미지의 빌드 컨텍스트는 apps/web 하나여서, supabase/schema.sql처럼
+# 저장소 파일을 읽는 테스트가 여기서는 ENOENT로 죽는다.
+# 다시 넣으려면 빌드 컨텍스트를 저장소 루트로 올리는 것이 먼저다.
+RUN npm run build \
+    && rm -rf .next/cache \
+    && npm prune --omit=dev \
+    && npm cache clean --force
+
+FROM node:24-bookworm-slim AS runtime
+ARG WISOR_SHA
+LABEL org.opencontainers.image.revision=${WISOR_SHA}
+
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    NODE_OPTIONS=--max-old-space-size=256 \
+    PORT=3000 \
+    HOSTNAME=0.0.0.0
+
+WORKDIR /app
+COPY --from=build --chown=node:node /app/package.json /app/package-lock.json ./
+COPY --from=build --chown=node:node /app/node_modules ./node_modules
+COPY --from=build --chown=node:node /app/.next ./.next
+COPY --from=build --chown=node:node /app/public ./public
+COPY --from=build --chown=node:node /app/next.config.mjs ./next.config.mjs
+# lib/scores.ts가 이 파일을 런타임에 디스크에서 읽는다. 빌드 때 번들로 들어가던
+# 시절의 COPY 목록을 그대로 두면 이미지에 파일이 없어서 모든 페이지가 500이 되고,
+# healthcheck가 미는 GET / 도 같이 죽어 컨테이너가 healthy가 되지 못한다.
+COPY --from=build --chown=node:node /app/lib/generated/scores.json ./lib/generated/scores.json
+
+USER node
+EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+CMD ["npm", "run", "start"]

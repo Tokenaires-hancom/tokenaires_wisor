@@ -8,6 +8,7 @@
 scores.json으로 나가는 것.
 """
 
+import json
 import sys
 from pathlib import Path
 
@@ -51,3 +52,67 @@ def test_sample_data_runs_when_out_points_elsewhere(monkeypatch, tmp_path):
     out = tmp_path / "sample-scores.json"
     run(monkeypatch, "--provider", "sample", "--universe", SAMPLE_UNIVERSE, "--out", str(out))
     assert out.exists()
+
+
+def test_atomic_writer_replaces_complete_json(tmp_path):
+    out = tmp_path / "scores.json"
+    out.write_text('{"version": "old"}', encoding="utf-8")
+
+    run_batch.write_json_atomic(out, {"version": "new", "companies": []})
+
+    assert json.loads(out.read_text(encoding="utf-8")) == {
+        "version": "new",
+        "companies": [],
+    }
+    assert list(tmp_path.glob(".scores.json.*.tmp")) == []
+
+
+def test_atomic_writer_keeps_old_file_when_publish_fails(monkeypatch, tmp_path):
+    out = tmp_path / "scores.json"
+    old = '{"version": "old"}'
+    out.write_text(old, encoding="utf-8")
+
+    def fail_replace(_source, _target):
+        raise OSError("publish failed")
+
+    monkeypatch.setattr(run_batch.os, "replace", fail_replace)
+    with pytest.raises(OSError, match="publish failed"):
+        run_batch.write_json_atomic(out, {"version": "new"})
+
+    assert out.read_text(encoding="utf-8") == old
+    assert list(tmp_path.glob(".scores.json.*.tmp")) == []
+
+
+@pytest.mark.parametrize(("keep_checkpoint", "checkpoint_remains"), [(False, False), (True, True)])
+def test_full_checkpoint_can_wait_for_outer_publish_verification(
+    monkeypatch, tmp_path, keep_checkpoint, checkpoint_remains
+):
+    class FakeSecTossProvider:
+        source_name = "sec-toss"
+
+        def __init__(self, **_kwargs):
+            pass
+
+    checkpoint = tmp_path / "sec-toss.jsonl"
+    checkpoint.write_text('{"ticker":"TEST"}\n', encoding="utf-8")
+    out = tmp_path / "scores.json"
+    monkeypatch.setattr(run_batch, "SecTossProvider", FakeSecTossProvider)
+    monkeypatch.setattr(
+        run_batch,
+        "build",
+        lambda *_args: {"generatedAt": "test", "styles": [], "companies": []},
+    )
+    monkeypatch.setattr(run_batch, "validate_scores_payload", lambda *_args, **_kwargs: None)
+
+    argv = [
+        "--provider", "sec-toss",
+        "--mode", "full",
+        "--universe", SAMPLE_UNIVERSE,
+        "--out", str(out),
+        "--checkpoint", str(checkpoint),
+    ]
+    if keep_checkpoint:
+        argv.append("--keep-checkpoint")
+    run(monkeypatch, *argv)
+
+    assert checkpoint.exists() is checkpoint_remains

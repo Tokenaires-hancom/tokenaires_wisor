@@ -1,0 +1,61 @@
+name: wisor
+
+services:
+  persona:
+    image: wisor-persona:${WISOR_SHA:?WISOR_SHA is required}
+    env_file:
+      - /etc/wisor/persona.env
+    environment:
+      HOST: 0.0.0.0
+      PORT: "8000"
+      SCORES_JSON_PATH: /app/data/scores.json
+    ports:
+      - "127.0.0.1:8000:8000"
+    restart: unless-stopped
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,noexec,nosuid,nodev
+    mem_limit: 256m
+    mem_reservation: 96m
+    memswap_limit: 384m
+    pids_limit: 96
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  web:
+    image: wisor-web:${WISOR_SHA:?WISOR_SHA is required}
+    env_file:
+      - /etc/wisor/web.env
+    environment:
+      NODE_ENV: production
+      NODE_OPTIONS: --max-old-space-size=256
+      NEXT_TELEMETRY_DISABLED: "1"
+      PERSONA_API_ORIGIN: http://persona:8000
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      persona:
+        condition: service_healthy
+    restart: unless-stopped
+    init: true
+    mem_limit: 448m
+    mem_reservation: 256m
+    memswap_limit: 768m
+    pids_limit: 128
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

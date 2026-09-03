@@ -11,6 +11,10 @@
  */
 
 :root {
+  /* details/summary 펼침 애니메이션이 block-size: auto까지 트랜지션하려면 필요하다.
+     지원 안 하는 브라우저에서는 조용히 무시되고 그냥 즉시 열린다. */
+  interpolate-size: allow-keywords;
+
   --paper: #ffffff;
   --surface: #ffffff;
   --surface-sunk: #f7f7f7;
@@ -133,6 +137,12 @@ button {
   max-width: 720px;
 }
 
+/* 종목 찾기 전용. 목록 420px는 그대로 두고 오른쪽 칸에 여백을 넘긴다 —
+   1080px 화면에서는 오른쪽 칸이 약 580px이라 2열이 들어갈 자리가 없었다. */
+.wrap-wide {
+  max-width: 1700px;
+}
+
 .masthead {
   border-bottom: 1px solid var(--line);
   background: var(--surface);
@@ -149,19 +159,13 @@ button {
 }
 
 .wordmark {
-  font-size: 1.6rem;
-  letter-spacing: 0.02em;
-  color: var(--wine-deep);
-  transform: translateY(2px);
+  display: flex;
+  align-items: center;
 }
 
-.wordmark span {
-  color: var(--ink-faint);
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.12em;
-  margin-left: 0.5rem;
-  text-transform: uppercase;
+.wordmark-logo {
+  height: 34px;
+  width: auto;
 }
 
 .nav {
@@ -201,11 +205,6 @@ button {
 
   .wordmark {
     flex: none;
-    font-size: 1.45rem;
-  }
-
-  .wordmark span {
-    display: none;
   }
 
   .nav {
@@ -232,42 +231,86 @@ button {
 .my-page-sidebar h1 {
   margin: 0.25rem 0 1.8rem;
   color: var(--ink);
-  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  font-size: 1.45rem;
   line-height: 1.08;
 }
 
-.my-page-menu {
+.my-page-menu button:first-child {
   border-top: 1px solid var(--line-strong);
 }
 
-.my-page-menu a {
-  display: grid;
-  grid-template-columns: 1.6rem minmax(0, 1fr);
+.my-page-menu button {
+  display: flex;
+  align-items: center;
   gap: 0.7rem;
+  width: 100%;
   padding: 1rem 0.8rem 1rem 0;
+  border: 0;
+  border-left: 4px solid transparent;
   border-bottom: 1px solid var(--line);
+  border-radius: 10px 0 0 10px;
+  background: none;
   color: var(--ink-soft);
+  text-align: left;
+  transition: background-color 0.2s ease, color 0.2s ease,
+    border-left-color 0.2s ease, padding-left 0.2s ease;
 }
 
-.my-page-menu a[data-active="true"] {
-  border-left: 4px solid var(--gold);
+.my-page-menu-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.my-page-menu-chevron {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  color: var(--gold);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.my-page-menu button:hover .my-page-menu-chevron,
+.my-page-menu button:focus-visible .my-page-menu-chevron {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* 활성 탭 바로 위 항목의 구분선을 지운다 — 그 선이 없으면 활성 탭이
+   첫 번째 항목일 때(위 경계선이 이미 투명 처리됨)와 다르게, 두 번째·
+   세 번째 항목이 활성 탭일 때만 골드 박스 위에 회색 줄이 남는다. */
+.my-page-menu button:has(+ button[data-active="true"]) {
+  border-bottom-color: transparent;
+}
+
+.my-page-menu button[data-active="true"] {
+  border-left-color: var(--gold);
+  border-top-color: transparent;
+  border-bottom-color: transparent;
   padding-left: 0.75rem;
-  background: linear-gradient(90deg, var(--gold-soft), transparent 86%);
+  background: linear-gradient(
+    90deg,
+    var(--gold-soft),
+    color-mix(in oklab, var(--gold-soft) 35%, white) 100%
+  );
   color: var(--ink);
 }
 
-.my-page-menu a:hover,
-.my-page-menu a:focus-visible {
+/* 아래 hover 규칙(298줄)이 활성 탭에도 회색 background-color를 얹는데,
+   그라데이션이 옅어지는 꼬리 부분(288줄) 위로 그 회색이 비쳐 탁하게
+   보인다. 활성 탭에서만 투명으로 되돌려 골드 그라데이션이 그대로
+   유지되게 한다 — 지우면 활성 탭에 마우스를 올릴 때마다 이 얼룩이
+   재발한다. */
+.my-page-menu button[data-active="true"]:hover,
+.my-page-menu button[data-active="true"]:focus-visible {
+  background-color: transparent;
+}
+
+.my-page-menu button:hover,
+.my-page-menu button:focus-visible {
   background-color: var(--surface-sunk);
   color: var(--ink);
-}
-
-.my-page-menu-index {
-  padding-top: 0.16rem;
-  color: var(--ink-faint);
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
 }
 
 .my-page-menu strong,
@@ -279,25 +322,252 @@ button {
   font-size: 0.95rem;
 }
 
+.my-page-menu button:not([data-active="true"]):hover strong,
+.my-page-menu button:not([data-active="true"]):focus-visible strong,
+.my-page-menu button[data-active="true"] strong {
+  color: var(--wine);
+}
+
 .my-page-menu small {
-  margin-top: 0.28rem;
+  margin-top: 0;
   color: var(--ink-faint);
   font-size: 0.7rem;
   line-height: 1.45;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.25s ease, opacity 0.2s ease, margin-top 0.25s ease;
+}
+
+.my-page-menu button:hover small,
+.my-page-menu button:focus-visible small,
+.my-page-menu button[data-active="true"] small {
+  margin-top: 0.28rem;
+  max-height: 2.5rem;
+  opacity: 1;
 }
 
 .my-page-content {
   min-width: 0;
 }
 
-.my-page-anchor-marker,
-.my-page-anchor-section {
-  scroll-margin-top: 5.5rem;
+.my-page-content .thesis {
+  font-size: 1.45rem;
 }
 
-.my-page-anchor-marker {
+/* 연속 학습·챕터 카드가 왼쪽 1/3, 마을(town)이 오른쪽 2/3를 받는다.
+   align-items를 stretch(기본값)로 둬서 왼쪽 칸이 마을 카드와 같은 높이를
+   받게 하고, 그 안에서 챕터 카드가 flex: 1로 남는 높이를 채운다.
+   town/game-panel 자체 margin-top은 다른 화면(ChapterExercises)에서도 쓰므로
+   그대로 두고, 여기서만 grid gap으로 대체한다. */
+.my-page-hero {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) minmax(0, 2fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.my-page-hero .town,
+.my-page-hero-side .game-panel {
+  margin-top: 0;
+}
+
+.my-page-hero-side {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.my-page-hero-side .card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.answer-history-empty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  border-style: dashed;
+  background: var(--surface-sunk);
+}
+
+.answer-history-empty strong {
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.answer-history-empty p {
+  margin: 0.25rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.answer-history-empty .btn {
+  flex: none;
+}
+
+.answer-history-list {
+  margin: 1.4rem 0 0;
+  padding: 0;
+  border-top: 1px solid var(--line-strong);
+  list-style: none;
+}
+
+.answer-history-entry {
+  display: grid;
+  grid-template-columns: minmax(7.5rem, 8.75rem) minmax(0, 1fr);
+}
+
+.answer-history-date {
+  position: relative;
   display: block;
-  height: 0;
+  padding: 1.25rem 1.5rem 1.25rem 0;
+  border-right: 1px solid var(--line-strong);
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  line-height: 1.6;
+  word-break: keep-all;
+}
+
+.answer-history-date::after {
+  position: absolute;
+  top: 1.55rem;
+  right: -0.3rem;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 0 3px var(--surface);
+  content: "";
+}
+
+.answer-history-record {
+  min-width: 0;
+  padding: 1.15rem 0 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.answer-history-record-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.answer-history-record-heading h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.98rem;
+  font-weight: 800;
+  line-height: 1.45;
+  word-break: keep-all;
+}
+
+.answer-history-context {
+  flex: none;
+  max-width: 13rem;
+  color: var(--wine);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.5;
+  text-align: right;
+}
+
+.answer-history-context:hover {
+  color: var(--wine-deep);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.answer-history-answer {
+  margin: 0.65rem 0 0;
+  overflow-wrap: anywhere;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  line-height: 1.75;
+  white-space: pre-wrap;
+}
+
+/* 같은 문항에 두 번 이상 답한 경우에만 쓴다. 왼쪽 선이 한 문항의 답들을 하나로 묶고,
+   답 하나짜리 문항은 선 없이 그대로 두어 목록 전체가 들쭉날쭉해지지 않게 한다. */
+.answer-history-revisions {
+  margin: 0.65rem 0 0;
+  padding: 0 0 0 0.9rem;
+  border-left: 2px solid var(--gold-line);
+  list-style: none;
+}
+
+.answer-history-revisions > li + li {
+  margin-top: 1.1rem;
+  padding-top: 1.1rem;
+  border-top: 1px dashed var(--line);
+}
+
+.answer-history-revision-label {
+  margin: 0;
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  line-height: 1.6;
+}
+
+.answer-history-revisions .answer-history-answer {
+  margin-top: 0.3rem;
+}
+
+/* 답이 하나뿐인 문항. 목록 태그를 쓰되 눈에는 예전처럼 답 하나만 보이게 한다. */
+.answer-history-single {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.answer-history-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.55rem 0 0;
+}
+
+.answer-history-link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-faint);
+  font: inherit;
+  font-size: 0.78rem;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.answer-history-link-button:hover {
+  color: var(--ink);
+}
+
+/* 되돌릴 수 없는 쪽만 포인트 색을 쓴다. 색만으로 구분하지 않도록 문구가 함께 붙는다. */
+.answer-history-link-button[data-kind="danger"] {
+  color: var(--wine);
+  font-weight: 800;
+}
+
+.answer-history-confirm {
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+}
+
+.answer-history-edit {
+  margin-top: 0.55rem;
+}
+
+.answer-history-edit .field {
+  margin: 0;
 }
 
 .account-empty {
@@ -307,6 +577,7 @@ button {
   gap: 1.5rem;
   padding: 1.25rem;
   border: 1px dashed var(--line-strong);
+  border-radius: var(--radius);
   background: var(--surface-sunk);
 }
 
@@ -477,6 +748,10 @@ button {
     padding-block: 2rem 4rem;
   }
 
+  .my-page-hero {
+    grid-template-columns: 1fr;
+  }
+
   .my-page-sidebar {
     position: static;
   }
@@ -485,8 +760,7 @@ button {
     margin-bottom: 1.1rem;
   }
 
-  .my-page-menu a {
-    grid-template-columns: 1.5rem minmax(0, 1fr);
+  .my-page-menu button {
     max-width: 28rem;
   }
 
@@ -501,6 +775,42 @@ button {
 }
 
 @media (max-width: 520px) {
+  .answer-history-empty {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .answer-history-entry {
+    grid-template-columns: 1fr;
+    border-left: 1px solid var(--line-strong);
+  }
+
+  .answer-history-date {
+    padding: 1rem 0 0.25rem 1.2rem;
+    border-right: 0;
+  }
+
+  .answer-history-date::after {
+    top: 1.25rem;
+    right: auto;
+    left: -0.3rem;
+  }
+
+  .answer-history-record {
+    padding: 0.25rem 0 1.25rem 1.2rem;
+  }
+
+  .answer-history-record-heading {
+    display: block;
+  }
+
+  .answer-history-context {
+    display: inline-block;
+    max-width: none;
+    margin-top: 0.55rem;
+    text-align: left;
+  }
+
   .account-settings-facts {
     grid-template-columns: 1fr;
   }
@@ -538,6 +848,15 @@ button {
   text-transform: uppercase;
   color: var(--ink-faint);
   margin: 0 0 0.75rem;
+}
+
+.eyebrow-strong {
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--ink);
 }
 
 .thesis {
@@ -804,6 +1123,14 @@ h3.sub {
   border: 1px dashed var(--line-strong);
 }
 
+/* 종목을 고르기 전(illustrative)이라 판정 결과가 아예 없는 tick.
+   pass/fail/unknown 어느 것도 주장하지 않되, 회색은 칙칙해서 모든 칸에
+   똑같이 옅은 골드 톤을 준다 — 칸마다 같은 색이라 특정 기준이 충족됐다는
+   신호는 아니다. */
+.tick:not([data-status]) {
+  background: var(--gold-line);
+}
+
 .criteria-legend {
   display: flex;
   flex-wrap: wrap;
@@ -828,12 +1155,20 @@ h3.sub {
   list-style: none;
 }
 
+/* marker(막대)와 본문을 그리드 행이 아니라 flex로 묶는다 — 설명(p)이 길어
+   두 줄로 접혀도 flex 교차축 stretch가 marker를 그 높이만큼 자동으로
+   늘려주므로, 설명이 막대 아래로 빠져나가는 일이 없다. */
 .criteria-bar-breakdown li {
-  display: grid;
-  grid-template-columns: 11px minmax(0, 1fr);
-  gap: 0.1rem 0.5rem;
-  align-items: center;
+  display: flex;
+  gap: 0.5rem;
   min-width: 0;
+}
+
+.criteria-bar-breakdown-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .criteria-bar-breakdown strong {
@@ -846,7 +1181,6 @@ h3.sub {
 }
 
 .criteria-bar-breakdown .criteria-bar-weight {
-  grid-column: 2;
   color: var(--ink-faint);
   font-family: var(--mono);
   font-size: 0.68rem;
@@ -855,7 +1189,6 @@ h3.sub {
 }
 
 .criteria-bar-breakdown p {
-  grid-column: 2;
   margin: 0.15rem 0 0;
   color: var(--ink-soft);
   font-size: 0.72rem;
@@ -863,7 +1196,7 @@ h3.sub {
 }
 
 .criteria-bar-marker {
-  grid-row: 1 / span 3;
+  flex: none;
   align-self: stretch;
   width: 11px;
   min-height: 42px;
@@ -892,6 +1225,10 @@ h3.sub {
   background: var(--surface);
 }
 
+.criteria-bar-breakdown li:not([data-status]) .criteria-bar-marker {
+  background: var(--gold-line);
+}
+
 .swatch {
   width: 11px;
   height: 11px;
@@ -916,12 +1253,6 @@ h3.sub {
 .card-link:hover {
   border-color: var(--wine-line);
   transform: translateY(-2px);
-}
-
-.grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
 .stack > * + * {
@@ -960,26 +1291,330 @@ h3.sub {
   border-radius: var(--radius);
 }
 
+/* ---------- 종목 찾기: 좌우 분할 ----------
+ * ⑤-3a — 641px 이상에서는 화면 전체가 스크롤하지 않는 고정 셸이다. 마스트헤드
+ * (60px) 아래 남는 높이를 .screener-page가 통째로 차지하고, 그 안에서 목록·
+ * 상세 두 칸이 각자 따로 스크롤한다 — 페이지 자체는 절대 안 늘어난다.
+ * 640px 이하는 아직 이 셸을 안 쓴다(보통 페이지 스크롤). 반응형은 다음 단계. */
+.screener-split {
+  display: grid;
+  grid-template-columns: 420px minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+  margin-top: 1rem;
+}
+
+.screener-split-list,
+.screener-split-detail {
+  min-width: 0;
+}
+
+/* 목록과 상세를 나누는 세로선. 종목 점수가 선에 바로 붙어 보이지 않도록
+   .screener-split의 gap(1.5rem)을 선 앞쪽 여백으로 먼저 주고, 선 뒤에도
+   같은 1.5rem을 padding-left로 둔다. 오른쪽도 같은 값을 줘서 카드가 칸
+   오른쪽 끝까지 억지로 안 늘어나게 한다 — 양쪽에 숨 쉴 자리를 두면 카드 안
+   그리드도 더 촘촘하게 접힌다. */
+.screener-split-detail {
+  border-left: 1px solid var(--line);
+  padding-left: 7.5rem;
+  padding-right: 7.5rem;
+}
+
+/* 종목을 아직 안 고른 기본 화면. 내용이 칸 위쪽에 붙어 아래만 크게 비지
+   않도록 세로 가운데로 둔다 — 내용이 칸보다 길어지면(작은 화면 등) 그냥
+   위에서부터 자연스럽게 흐른다. */
+.screener-empty-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100%;
+}
+
+/* 640px 이하 기본값. 고정 셸을 아직 안 쓰는 폭이라 보통 페이지처럼 아래
+   여백을 넉넉히 둔다(예전 page.tsx의 인라인 스타일과 같은 값). */
+.screener-page {
+  padding-block: 1.5rem 5rem;
+}
+
+@media (min-width: 641px) {
+  /* app/screener/[style]/page.tsx의 최상위 wrap div가 이 클래스를 받는다.
+     그 직계 자식(철학 탭 · 좌우 분할 · 하단 링크 · 고지)이 이 칸을 나눠 쓴다. */
+  .screener-page {
+    height: calc(100vh - 60px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-block: 0.75rem 0.75rem;
+  }
+
+  .screener-page > .screener-style-tabs {
+    flex: none;
+  }
+
+  /* 목록(왼쪽)은 그대로 align-items: start로 자기 높이만큼만 차지한다 —
+     스크롤을 안 주므로 페이지네이션까지 이 칸 안에 다 들어가야 한다.
+     상세(오른쪽)만 align-self: stretch로 칸을 가득 채우고 그 안에서
+     스크롤한다. 페이지에서 스크롤이 나는 곳은 여기 하나뿐이다. */
+  .screener-page > .screener-split {
+    flex: 1;
+    min-height: 0;
+    margin-top: 0.5rem;
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .screener-split-detail {
+    align-self: stretch;
+    height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    /* overflow-y만 auto로 두면 overflow-x는 명세상 visible이 아니라
+       auto로 승격돼 버려서, 안쪽 어딘가 폭이 살짝만 넘쳐도 여기서 조용히
+       가로 스크롤이 생긴다. 명시로 막는다. */
+    overflow-x: hidden;
+  }
+}
+
+/* 목록 머리 두 줄 — 위는 [판정]·[정보 부족]·[판정 제외]·[관심종목] 전환,
+ * 아래는 종목 검색창. 묶음이 넷으로 늘면서 420px 목록 칸에서 검색창과 한
+ * 줄에 같이 못 둬 줄을 나눴다. 눌러도/검색해도 페이지 이동 없이 왼쪽
+ * 목록만 바뀐다. */
+.screener-list-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  /* border-bottom을 여기 두지 않는다 — 첫 종목 줄의 위 경계선은
+     .stock-row:first-child가 자기 border-top으로 직접 그린다(아래 참고).
+     경계선을 이 머리가 아니라 줄 자신이 갖고 있어야, 마우스를 올렸을 때
+     회색으로 차는 영역(hover 배경)과 경계선 위치가 항상 정확히 겹친다. */
+  margin: 10px 0 0.5rem;
+  padding-bottom: 0.6rem;
+}
+
+.screener-group-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.screener-search {
+  position: relative;
+  width: 100%;
+  max-width: 16rem;
+}
+
+.screener-search-input {
+  width: 100%;
+  font: inherit;
+  font-size: 0.78rem;
+  padding: 0.4rem 1.6rem 0.4rem 0.7rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+/* 브라우저 기본 검색창 지우기 아이콘은 스타일을 못 맞춰서 끄고, 같은 자리에
+   직접 그린 지우기 버튼(.screener-search-clear)을 쓴다. */
+.screener-search-input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.screener-search-clear {
+  position: absolute;
+  top: 50%;
+  right: 0.35rem;
+  transform: translateY(-50%);
+  width: 1.2rem;
+  height: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--ink-faint);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.screener-search-clear:hover {
+  color: var(--ink);
+  background: var(--surface-sunk);
+}
+
+.screener-search-empty {
+  padding: 1.5rem 0.5rem;
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+}
+
+.screener-group-btn {
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.screener-group-btn:hover:not(:disabled) {
+  background: var(--surface-sunk);
+  color: var(--ink);
+}
+
+/* 지금 고른 묶음. 종목 줄의 aria-current와 같은 --wine 밑줄 대신 채운 배경을
+ * 쓴다 — 여기는 켜고 끄는 필터라 "지금 보는 종목" 표시와 헷갈리면 안 된다. */
+.screener-group-btn[aria-selected="true"] {
+  border-color: var(--line-strong);
+  background: var(--surface-sunk);
+  color: var(--ink);
+}
+
+.screener-group-btn:disabled {
+  color: var(--ink-faint);
+  cursor: not-allowed;
+}
+
 /* ---------- 종목 줄 ---------- */
 
+/* 한 줄 44px. 로고 칸이 바닥을 정한다 — 28px 아래로 내리면 로고가 없을 때 넣는
+ * 5글자 티커(CMCSA·GOOGL)가 7~8px이 되어 못 읽는다.
+ *
+ * 종목 선택(.stock-row-select)과 관심종목 하트(.watch-heart-btn)는 둘 다
+ * <button>이라 하나의 <button> 안에 넣을 수 없다 — HTML은 버튼 중첩을 허용하지
+ * 않고, 브라우저가 파싱 시점에 바깥 버튼을 조기에 닫아버려 클릭이 깨진다.
+ * 그래서 .stock-row는 이제 버튼이 아니라 둘을 나란히 담는 그릇이고, 줄
+ * 전체를 누르는 동작은 안쪽 .stock-row-select가 맡는다. */
 .stock-row {
-  display: grid;
-  grid-template-columns: 2.2rem 1fr auto;
-  gap: 1rem;
-  align-items: start;
-  padding: 1.1rem 0;
+  display: flex;
+  align-items: center;
+  width: 100%;
   border-bottom: 1px solid var(--line);
 }
 
-.stock-rank {
-  font-family: var(--mono);
-  font-size: 0.8rem;
-  color: var(--ink-faint);
-  padding-top: 0.2rem;
+/* 목록의 첫 줄만 위 경계선도 갖는다. 나머지 줄은 바로 앞줄의 border-bottom이
+   같은 역할을 하므로 필요 없다. 이 선이 있어야 마우스를 올렸을 때 채워지는
+   회색 영역의 위쪽 끝이 어디인지 보인다 — 없으면 첫 줄만 위가 뚫린 채
+   회색이 퍼지는 것처럼 보인다. */
+.stock-row:first-child {
+  border-top: 1px solid var(--line);
 }
 
+/* 하트를 누를 때도 줄 전체 회색이 함께 뜬다 — :hover는 자손 위에 있어도
+   켜지므로 별도 처리가 필요 없다. */
+.stock-row:hover {
+  background: var(--surface-sunk);
+}
+
+/* 지금 고른 종목. 오른쪽 칸의 내용과 이 줄을 잇는 유일한 표시다. 선택 여부의
+   접근성 표시(aria-current)는 실제로 누르는 .stock-row-select에 두고, 이
+   data-current는 줄 배경을 칠하는 용도로만 쓴다. */
+.stock-row[data-current="true"] {
+  background: var(--wine-soft);
+  box-shadow: inset 3px 0 0 var(--wine);
+}
+
+/* 넓은 화면에서는 <button>이다 — 눌러도 페이지를 안 떠나고 오른쪽 칸만 바뀐다.
+ * border·background는 버튼 기본값을 지운다. */
+.stock-row-select {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto auto;
+  gap: 0.7rem;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  /* 좌우 여백. 왼쪽은 선택 시 붙는 3px 강조선(box-shadow)이 로고와 겹치지
+     않게, 오른쪽은 하트 버튼과의 간격을 잡아준다. */
+  padding: 0.5rem 0.6rem;
+  border: 0;
+  background: none;
+  text-align: left;
+  color: inherit;
+}
+
+.stock-row > .watch-heart-btn {
+  flex: none;
+  margin-right: 0.6rem;
+}
+
+.stock-logo {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--paper);
+  /* 가장 긴 티커는 5글자(CMCSA·GOOGL)다. 0.5rem에서는 27px이라 안쪽 26px을 1px
+     넘겼다. 글자 수에 따라 크기를 바꾸지 않는다 — 줄마다 달라지면 목록이
+     들쭉날쭉해진다. --mono는 이 저장소에서 고정폭이 아니므로 글자 수로 계산하지
+     말고 재서 맞춘다(globals.css의 --mono 정의 참고). */
+  font-family: var(--mono);
+  font-size: 0.47rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink-faint);
+}
+
+.stock-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* 이름이 가장 긴 종목은 20자(익스피다이터스 인터내셔널 오브 워싱턴)다.
+ * 전체 이름은 종목을 눌러 상세에서 읽는다. */
 .stock-name {
   font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stock-row-bar {
+  width: 120px;
+}
+
+.stock-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.pager-arrow {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.pager-arrow:hover:not(:disabled) {
+  border-color: var(--ink);
+}
+
+/* 첫 페이지의 ◀ 와 마지막의 ▶ 는 잠근다. 순환하지 않는다 —
+   1페이지에서 뒤로 갔더니 26페이지가 나오면 어디에 있는지 알 수 없다. */
+.pager-arrow:disabled {
+  color: var(--ink-faint);
+  cursor: default;
+  opacity: 0.4;
+}
+
+.pager-count {
+  min-width: 4rem;
+  color: var(--ink-soft);
+  font-size: 0.86rem;
+  text-align: center;
 }
 
 .stock-ticker {
@@ -990,8 +1625,190 @@ h3.sub {
 }
 
 .stock-score {
+  min-width: 3rem;
+  font-family: var(--mono);
+  font-size: 1rem;
+  color: var(--wine-deep);
   text-align: right;
-  min-width: 6.5rem;
+}
+
+/* 정보 부족·판정 제외 줄의 점수 자리. 숫자가 아니라 사유 짧은 말이라 점수처럼
+ * 굵고 크게 두면 판정 결과로 오해한다. */
+.stock-score-reason {
+  font-family: var(--sans);
+  font-size: 0.76rem;
+  font-weight: 400;
+  color: var(--ink-faint);
+}
+
+/* 종목 상세 맨 위. 대가 이름 탭(같은 종목을 다른 철학으로 바꿔 본다)과
+ * "나의 학습노트" 버튼이 한 줄을 나눠 쓴다. 밑줄은 행 전체(.score-master-tabs-row)에
+ * 두고, 각 버튼은 기본 stretch로 행 높이를 꽉 채워 자기 border-bottom을 그
+ * 밑줄과 같은 자리에 겹쳐 그린다. */
+.score-master-tabs-row {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 2rem;
+}
+
+.score-master-tabs {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.score-master-tab {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 0.85rem 1.25rem;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.score-master-tab:hover {
+  color: var(--ink);
+}
+
+/* 페이지 주인(상단 탭에서 고른 대가)만 이름을 키운다. 다른 대가 탭을 봐도
+ * 크기는 그대로 유지되고, 지금 보고 있지 않을 때는 밑줄·색이 회색으로
+ * 바뀐다. 지금 보는 탭이면 아래 [aria-selected] 규칙이 이 색을 wine으로
+ * 덮어쓴다(같은 특이도에서는 나중 규칙이 이기므로 이 규칙을 먼저 둔다). */
+.score-master-tab[data-page-master="true"] {
+  font-weight: 800;
+  font-size: 1.15rem;
+  border-bottom-color: var(--line-strong);
+  color: var(--ink-soft);
+}
+
+/* 지금 보고 있는 대가. 페이지 주인이면 위 규칙이 이미 키운 크기를 그대로
+ * 두고 색·밑줄만 wine으로 켠다. 페이지 주인이 아닌 탭을 눌렀을 때는 크기는
+ * 안 커지고 색·밑줄만 wine으로 바뀐다 — 크기는 오직 페이지 주인만의 표시다. */
+.score-master-tab[aria-selected="true"] {
+  color: var(--wine);
+  border-bottom-color: var(--wine);
+}
+
+/* 학습노트 버튼은 탭이 아니라 항상 눌러 여는 행동이라 .btn(골드 카드 버튼)을
+ * 그대로 쓴다 — 얇은 밑줄 탭보다 확실히 눈에 띄어야 한다. 행이 기본 stretch라
+ * 다른 형제(탭)처럼 늘어나면 버튼이 위아래로 눌린 모양이 되므로 자기 높이만큼만
+ * 차지하게 align-self로 되돌린다. */
+.score-master-tabs-row > .note-open-btn {
+  align-self: center;
+  flex: none;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.7rem;
+}
+
+.score-master-tabs-row > .note-open-btn:hover {
+  box-shadow: 0 3px 0 var(--gold-deep);
+}
+
+.score-master-tabs-row > .note-open-btn:active {
+  transform: translateY(1.5px);
+  box-shadow: 0 1.5px 0 var(--gold-deep);
+}
+
+.note-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(20, 16, 14, 0.4);
+}
+
+.note-modal {
+  width: min(42rem, 100%);
+  max-height: calc(100vh - 3rem);
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 18px 48px color-mix(in srgb, var(--ink) 20%, transparent);
+  overflow: hidden;
+}
+
+.note-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+  flex: 0 0 auto;
+}
+
+.note-modal-head h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.note-modal-close {
+  background: none;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.note-modal-close:hover {
+  color: var(--ink);
+}
+
+.note-modal-body {
+  padding: 1.25rem;
+  overflow-y: auto;
+}
+
+/* 관심종목 담기. 예전엔 학습노트 모달 안 텍스트 버튼이었는데, 모달을 열어야만
+ * 담았는지 알 수 있어서 종목명 옆(항상 보이는 자리)의 하트로 옮겼다. 채움
+ * 여부만으로 상태를 구분하는 토글이라 --wine(포인트 색, 방향성 없음)을 쓴다 —
+ * 기준 충족 표시가 아니므로 --gold/--ochre 규칙과는 무관하다. */
+.watch-heart-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 999px;
+  color: var(--ink-faint);
+  cursor: pointer;
+}
+
+.watch-heart-btn:hover {
+  color: var(--wine);
+  background: var(--wine-soft);
+}
+
+.watch-heart-btn[data-watched="true"] {
+  color: var(--wine);
+}
+
+/* 목록 줄은 28px 로고 칸이 행 높이를 정한다(.stock-row 주석 참고) — 기본
+ * 크기(2.5rem)를 그대로 쓰면 줄마다 높이가 달라진다. */
+.watch-heart-btn[data-size="sm"] {
+  width: 28px;
+  height: 28px;
+}
+
+.watch-heart-btn[data-size="sm"] svg {
+  width: 1.15em;
+  height: 1.15em;
 }
 
 .stock-market-strip {
@@ -1043,6 +1860,11 @@ h3.sub {
   font-family: var(--mono);
 }
 
+.score-value-lg {
+  font-size: 2.2rem;
+  font-weight: 800;
+}
+
 .reason-list {
   margin: 0.65rem 0 0;
   padding: 0;
@@ -1050,11 +1872,26 @@ h3.sub {
   font-size: 0.88rem;
 }
 
+.business-lens-lists {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 1.75rem;
+  margin-top: 4px;
+}
+
+@media (max-width: 640px) {
+  .business-lens-lists {
+    grid-template-columns: 1fr;
+    gap: 1.5rem 0;
+  }
+}
+
 .reason-list li {
   display: flex;
   gap: 0.55rem;
   color: var(--ink-soft);
   padding: 0.12rem 0;
+  word-break: keep-all;
 }
 
 .reason-list li::before {
@@ -1090,6 +1927,40 @@ h3.sub {
   line-height: 1.55;
 }
 
+.score-card-split {
+  display: grid;
+  /* 왼쪽엔 "버핏 1.0"과 큰 점수 숫자뿐이라 160~220px는 과하게 넓었다. 그
+     남는 폭을 오른쪽 기준 박스 그리드로 돌려주면 2열로 다시 접힐 여지가
+     생긴다. */
+  grid-template-columns: minmax(96px, 140px) minmax(0, 1fr);
+  gap: 1.75rem;
+  /* 왼쪽 요약은 오른쪽 기준 칸보다 훨씬 짧다. start로 위에 붙이면 그 아래로
+     빈 칸이 크게 남으므로 세로 가운데로 둬 여백을 위아래로 나눈다. */
+  align-items: center;
+}
+
+.score-card-summary {
+  min-width: 0;
+}
+
+.score-card-criteria {
+  min-width: 0;
+  padding-left: 1.75rem;
+  border-left: 1px solid var(--line);
+}
+
+@media (max-width: 640px) {
+  .score-card-split {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .score-card-criteria {
+    padding-left: 0;
+    border-left: 0;
+  }
+}
+
 .score-model-note {
   margin: 0.85rem 0 0;
   padding: 0.85rem 0.9rem;
@@ -1115,105 +1986,51 @@ h3.sub {
 
 .criterion-audit {
   margin-top: 2rem;
-  overflow-x: auto;
-}
-
-.criterion-audit summary {
-  cursor: pointer;
-  color: var(--wine);
-  font-size: 0.9rem;
-  font-weight: 700;
-}
-
-.criterion-audit table {
-  width: 100%;
-  min-width: 760px;
-  margin-top: 1rem;
-  border-collapse: collapse;
-  font-size: 0.86rem;
-}
-
-.criterion-audit th,
-.criterion-audit td {
-  padding: 0.65rem 0.6rem;
-  border-bottom: 1px solid var(--line);
-  vertical-align: top;
-  text-align: left;
-}
-
-.criterion-audit thead th {
-  color: var(--ink-faint);
-  font-size: 0.72rem;
-  font-weight: 800;
-}
-
-.criterion-audit tbody th {
-  width: 10rem;
-  color: var(--ink);
-  font-weight: 800;
-}
-
-.criterion-audit tbody th > .criterion-weight {
-  display: block;
-  margin-top: 0.2rem;
-  color: var(--ink-faint);
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  font-weight: 500;
-}
-
-.criterion-audit td:nth-child(2) {
-  width: 15rem;
-  color: var(--ink-soft);
-}
-
-.criterion-audit td:last-child {
-  width: 6.5rem;
-  font-weight: 800;
-  text-align: right;
-  white-space: nowrap;
-}
-
-.criterion-audit tr[data-status="pass"] td:last-child {
-  color: var(--ink);
-}
-
-.criterion-audit tr[data-status="fail"] td:last-child {
-  color: var(--ochre-line);
-}
-
-.criterion-audit tr[data-status="unknown"] td:last-child {
-  color: var(--ink-faint);
 }
 
 .criterion-audit h3 {
-  margin: 1.4rem 0 0;
+  margin: 0;
   color: var(--ink-soft);
   font-size: 0.82rem;
   font-weight: 800;
 }
 
-/* ---------- 두 렌즈 ---------- */
+/* 라벨-값 한 쌍이 좁은 표 한 줄을 다 차지해 값이 오른쪽 멀리 붕 떠 보이던
+   것을, 2열로 나눠 빈 오른쪽을 채운다. */
+.metric-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 2rem;
+  margin: 1rem 0 0;
+}
 
-.lens-tabs {
+.metric-facts > div {
   display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 0;
   border-bottom: 1px solid var(--line);
-  margin-bottom: 2rem;
+  min-width: 0;
 }
 
-.lens-tab {
-  background: none;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  padding: 0.85rem 1.25rem;
-  color: var(--ink-soft);
-  font-size: 0.95rem;
+.metric-facts dt {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.86rem;
+  font-weight: 800;
 }
 
-.lens-tab[aria-selected="true"] {
-  color: var(--wine);
-  border-bottom-color: var(--wine);
-  font-weight: 600;
+.metric-facts dd {
+  margin: 0;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .metric-facts {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ---------- 종목 찾기: 투자 스타일 전환 ---------- */
@@ -1252,6 +2069,128 @@ h3.sub {
   margin: 0;
   color: var(--ink-soft);
   font-size: 0.92rem;
+}
+
+/* 종목을 아직 안 고른 오른쪽 칸, "채점 방식" 카드 맨 위. 대가 이름과 한 줄
+   소개만 짧게 — 나머지 설명은 /learn/masters에 있다. */
+.criteria-legend-intro {
+  margin: 0 0 1.5rem;
+}
+
+.criteria-legend-intro h2 {
+  margin: 0 0 0.4rem;
+  color: var(--ink);
+  font-size: clamp(1.15rem, 2vw, 1.45rem);
+  line-height: 1.3;
+}
+
+.criteria-legend-intro p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+}
+
+.criteria-legend-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.criteria-legend-links .btn {
+  font-size: 0.86rem;
+}
+
+.universe-explainer-card,
+.scoring-explainer-card,
+.unscored-masters-card {
+  margin-top: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.universe-explainer-card p {
+  margin: 0 0 0.75rem;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.universe-explainer-card .reason-list {
+  margin: 0 0 0.85rem;
+}
+
+.universe-explainer-card p.universe-explainer-total {
+  margin-bottom: 0;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--line);
+  color: var(--ink);
+}
+
+/* 이 카드 안 .scoring-steps는 /learn/scoring과 같은 클래스를 쓰되, 카드
+   자체 padding이 위 여백을 이미 주고, 테두리가 아래위를 갈라주므로
+   목록 자체의 위 마진과 마지막 줄 겹줄 테두리는 뺀다. */
+.scoring-explainer-card .scoring-steps {
+  margin-top: 0;
+}
+
+.scoring-explainer-card .scoring-steps li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.scoring-explainer-more {
+  display: inline-block;
+  margin-top: 0.5rem;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+}
+
+.unscored-masters-card {
+  border-left: 4px solid var(--gold);
+}
+
+.unscored-masters-card > .eyebrow {
+  margin-bottom: 0.9rem;
+  color: var(--gold-deep);
+}
+
+.unscored-masters-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 0 0 1rem;
+}
+
+.unscored-masters-grid strong {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: var(--ink);
+  font-size: 0.92rem;
+}
+
+.unscored-masters-grid p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.unscored-masters-note {
+  margin: 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  color: var(--ink-soft);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+  .unscored-masters-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .magic-formula-flow {
@@ -1335,148 +2274,9 @@ h3.sub {
   }
 }
 
-.screener-model-intro {
-  margin-bottom: 1rem;
-}
-
-.screener-model-boundary {
-  margin-bottom: 2rem;
-  border: 1px dashed var(--line-strong);
-  border-left: 4px solid var(--gold);
-  border-radius: var(--radius);
-  background: var(--surface-sunk);
-}
-
-.screener-model-boundary summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1.05rem 1.25rem;
-  cursor: pointer;
-  list-style: none;
-}
-
-.screener-model-boundary summary::-webkit-details-marker {
-  display: none;
-}
-
-.screener-model-boundary summary:focus-visible {
-  outline: 2px solid var(--gold-deep);
-  outline-offset: 3px;
-}
-
-.screener-model-boundary summary .eyebrow {
-  margin: 0;
-  color: var(--gold-deep);
-}
-
-.screener-model-boundary-hint {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  color: var(--ink-soft);
-  font-size: 0.76rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.screener-model-boundary-hint::after {
-  content: "";
-  width: 0.45rem;
-  height: 0.45rem;
-  border-right: 2px solid currentColor;
-  border-bottom: 2px solid currentColor;
-  transform: translateY(-0.12rem) rotate(45deg);
-  transition: transform 0.15s ease;
-}
-
-.screener-model-boundary[open] .screener-model-boundary-hint::after {
-  transform: translateY(0.12rem) rotate(225deg);
-}
-
-.screener-model-boundary-content {
-  padding: 0 1.25rem 1.15rem;
-}
-
-.screener-model-boundary dl {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin: 0;
-}
-
-.screener-model-boundary dl > div {
-  min-width: 0;
-  padding: 0 1rem;
-  border-left: 1px solid var(--line);
-}
-
-.screener-model-boundary dl > div:first-child {
-  padding-left: 0;
-  border-left: 0;
-}
-
-.screener-model-boundary dl > div:last-child {
-  padding-right: 0;
-}
-
-.screener-model-boundary dt {
-  color: var(--ink);
-  font-size: 0.88rem;
-  font-weight: 800;
-}
-
-.screener-model-boundary dd {
-  margin: 0.2rem 0 0;
-  color: var(--ink-soft);
-  font-size: 0.78rem;
-  line-height: 1.5;
-}
-
-.screener-model-boundary-content > p:last-child {
-  margin: 1rem 0 0;
-  padding-top: 0.85rem;
-  border-top: 1px dotted var(--line-strong);
-  color: var(--ink-soft);
-  font-size: 0.84rem;
-}
-
-@media (max-width: 640px) {
-  .screener-model-boundary {
-    border-left-width: 3px;
-  }
-
-  .screener-model-boundary summary {
-    padding: 1rem;
-  }
-
-  .screener-model-boundary-content {
-    padding: 0 1rem 1rem;
-  }
-
-  .screener-model-boundary dl {
-    grid-template-columns: 1fr;
-  }
-
-  .screener-model-boundary dl > div {
-    padding: 0.65rem 0;
-    border-top: 1px solid var(--line);
-    border-left: 0;
-  }
-
-  .screener-model-boundary dl > div:first-child {
-    padding-top: 0;
-    border-top: 0;
-  }
-
-  .screener-model-boundary dl > div:last-child {
-    padding-bottom: 0;
-  }
-}
-
 .screener-style-tabs {
   display: flex;
-  margin: 0 0 2.5rem;
+  margin: 0 0 0.75rem;
   overflow-x: auto;
   overflow-y: hidden;
   border-bottom: 1px solid var(--line-strong);
@@ -1488,11 +2288,13 @@ h3.sub {
   display: none;
 }
 
+/* 얼굴이 들어오면서 150px으로는 이름이 잘린다. "벤저민 그레이엄"이 안 접히려면
+ * 얼굴 36 + 사이 10 + 좌우 여백 32 위에 글자 자리가 더 있어야 한다. */
 .screener-style-tab {
   display: flex;
-  flex: 1 0 150px;
-  flex-direction: column;
-  gap: 0.15rem;
+  flex: 1 0 220px;
+  align-items: center;
+  gap: 0.6rem;
   margin-bottom: -1px;
   padding: 0.9rem 1rem 0.8rem;
   border-bottom: 3px solid transparent;
@@ -1511,80 +2313,20 @@ h3.sub {
   color: var(--wine-deep);
 }
 
+/* 이름과 배지를 가로로 나란히 둔다. 배지는 /learn의 대가 카드에서 쓰는
+ * 것과 같은 것이다. */
+.screener-tab-text {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
 .screener-tab-name {
-  font-size: 0.9rem;
+  font-size: 1.1rem;
   font-weight: 650;
   white-space: nowrap;
-}
-
-.screener-tab-meta {
-  color: var(--ink-faint);
-  font-family: var(--mono);
-  font-size: 0.64rem;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
-}
-
-.screener-style-tab[aria-current="page"] .screener-tab-meta {
-  color: var(--wine);
-}
-
-.screener-current-label {
-  color: var(--wine);
-}
-
-.criteria-weight-list {
-  display: grid;
-  gap: 0.55rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: 0.88rem;
-}
-
-.criteria-weight-list li {
-  display: grid;
-  gap: 0.25rem;
-  padding: 0.6rem 0;
-  border-bottom: 1px solid var(--line);
-}
-
-.criteria-weight-list li:last-child {
-  border-bottom: 0;
-}
-
-.criteria-weight-list div {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.criteria-weight-list strong {
-  color: var(--ink);
-}
-
-.criteria-weight-list .criteria-weight-meta {
-  flex: none;
-  color: var(--wine);
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  white-space: nowrap;
-}
-
-.criteria-weight-list p {
-  margin: 0;
-  color: var(--ink-soft);
-  font-size: 0.78rem;
-  line-height: 1.45;
-}
-
-@media (max-width: 640px) {
-  .criteria-weight-list div {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 0.2rem;
-  }
 }
 
 .lens-note {
@@ -1611,10 +2353,13 @@ h3.sub {
   font-weight: 700;
   letter-spacing: -0.01em;
   box-shadow: 0 4px 0 var(--gold-deep);
+  transition: background 0.08s ease, transform 0.08s ease, box-shadow 0.08s ease;
 }
 
+/* gold-deep(어두운 갈색조)을 채움색으로 쓰면 탁해 보여서, 채움은 더 밝은
+   쪽으로 섞고 아래 그림자만 gold-deep을 유지해 눌림 단차를 살린다 */
 .btn:hover {
-  background: var(--gold-deep);
+  background: color-mix(in srgb, var(--gold) 88%, white);
   box-shadow: 0 4px 0 var(--gold-deep);
 }
 
@@ -1656,235 +2401,6 @@ h3.sub {
   box-shadow: 0 4px 0 var(--line-strong);
 }
 
-/* ---------- 홈 헤로 ---------- */
-
-.hero {
-  min-height: calc(100vh - 60px - 4rem);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1.5rem;
-  text-align: center;
-}
-
-.hero .eyebrow {
-  text-align: center;
-}
-
-.hero .thesis {
-  margin: 0;
-  max-width: 18ch;
-  text-align: center;
-}
-
-.hero-cluster {
-  position: relative;
-  width: min(100%, 340px);
-  height: 220px;
-}
-
-.hero-cluster img {
-  position: absolute;
-  border-radius: 50%;
-  box-shadow: 0 8px 20px rgba(27, 23, 32, 0.14);
-}
-
-.hero-ctas {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  width: min(100%, 320px);
-}
-
-.hero-ctas .btn {
-  justify-content: center;
-  padding-block: 0.85rem;
-  font-size: 0.95rem;
-}
-
-.home-intro {
-  padding-block: clamp(0.5rem, 2vw, 1.5rem);
-}
-
-.home-intro-lede {
-  max-width: 680px;
-  margin: 1rem 0 0;
-  color: var(--ink-soft);
-  font-size: clamp(1rem, 2vw, 1.12rem);
-  line-height: 1.85;
-}
-
-.home-principle-visual {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.78fr);
-  gap: clamp(2.5rem, 7vw, 5.5rem);
-  margin-top: clamp(2rem, 5vw, 3.5rem);
-  padding: clamp(1.5rem, 4vw, 2.5rem);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface-sunk);
-}
-
-.home-principle-visual::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 54%;
-  width: clamp(2.5rem, 6vw, 4.5rem);
-  border-top: 2px dotted var(--gold-line);
-  transform: translate(-50%, -50%);
-}
-
-.home-information-stream {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  align-content: center;
-  justify-content: center;
-  min-height: 180px;
-}
-
-.home-information-stream span {
-  padding: 0.65rem 0.9rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--surface);
-  color: var(--ink-soft);
-  font-size: 0.86rem;
-  font-weight: 700;
-  box-shadow: 0 3px 0 var(--line);
-}
-
-.home-information-stream span:nth-child(1) {
-  transform: rotate(-4deg) translateY(-10px);
-}
-
-.home-information-stream span:nth-child(3) {
-  transform: rotate(4deg) translateY(10px);
-}
-
-.home-principle-card {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  gap: 0.55rem;
-  padding: 1.4rem;
-  border: 2px solid var(--gold);
-  border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: 0 6px 0 var(--gold-line);
-}
-
-.home-principle-card p {
-  margin: 0 0 0.3rem;
-  color: var(--gold-deep);
-  font-size: 0.78rem;
-  font-weight: 800;
-}
-
-.home-principle-card strong {
-  padding: 0.5rem 0.65rem;
-  border-radius: 6px;
-  background: var(--gold-soft);
-  color: var(--ink);
-  font-size: 0.9rem;
-  line-height: 1.4;
-}
-
-.home-intro-effect {
-  display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr);
-  gap: clamp(2rem, 6vw, 5rem);
-  margin-top: clamp(2.5rem, 5vw, 4rem);
-  align-items: center;
-}
-
-.home-intro-effect h3 {
-  max-width: 15ch;
-  margin: 0;
-  color: var(--ink);
-  font-size: clamp(1.35rem, 3vw, 2rem);
-  font-weight: 800;
-  line-height: 1.35;
-  letter-spacing: -0.025em;
-}
-
-.home-intro-effect ol {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.5rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  counter-reset: intro-step;
-}
-
-.home-intro-effect li {
-  position: relative;
-  padding: 2.75rem 0.75rem 0.75rem;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--surface);
-  color: var(--ink);
-  font-size: 0.88rem;
-  font-weight: 750;
-  line-height: 1.45;
-  counter-increment: intro-step;
-}
-
-.home-intro-effect li::before {
-  content: counter(intro-step);
-  position: absolute;
-  top: 0.75rem;
-  left: 0.75rem;
-  color: var(--gold-deep);
-  font-family: var(--mono);
-  font-size: 0.78rem;
-  font-weight: 800;
-}
-
-@media (max-width: 700px) {
-  .home-principle-visual,
-  .home-intro-effect {
-    grid-template-columns: 1fr;
-  }
-
-  .home-principle-visual {
-    gap: 2rem;
-    padding: 1.25rem;
-  }
-
-  .home-principle-visual::after {
-    display: none;
-  }
-
-  .home-information-stream {
-    min-height: 110px;
-  }
-
-  .home-intro-effect {
-    gap: 2rem;
-  }
-
-  .home-intro-effect h3 {
-    max-width: 20ch;
-  }
-
-  .home-intro-effect ol {
-    grid-template-columns: 1fr;
-  }
-
-  .home-intro-effect li {
-    padding: 0.8rem 0.8rem 0.8rem 2.5rem;
-  }
-
-  .home-intro-effect li::before {
-    top: 0.8rem;
-  }
-}
-
 .field {
   display: block;
   margin-bottom: 1.25rem;
@@ -1923,10 +2439,12 @@ h3.sub {
   width: 100%;
   color: var(--ink);
   font-size: 0.92rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .choice:hover {
   border-color: var(--wine-line);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--wine) 35%, transparent);
 }
 
 .choice[data-state="correct"] {
@@ -1961,17 +2479,6 @@ h3.sub {
   margin-bottom: 0;
 }
 
-.qualitative-check {
-  padding: 1.5rem;
-  border: 1px dashed var(--wine-line);
-  border-radius: var(--radius);
-  background: var(--wine-soft);
-}
-
-.qualitative-check .reason-list {
-  margin-bottom: 1.25rem;
-}
-
 /* ---------- 일곱 스타일 비교 ---------- */
 
 /* 표의 행과 그래프의 막대가 같은 색을 쓴다. 매핑을 한 군데만 둔다 */
@@ -1993,7 +2500,7 @@ h3.sub {
 
 .comparison-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 14rem;
+  grid-template-columns: minmax(0, 1fr) 21rem;
   gap: 1.5rem;
 }
 
@@ -2010,6 +2517,7 @@ h3.sub {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
+  word-break: keep-all;
 }
 
 .comparison-matrix th,
@@ -2032,15 +2540,19 @@ h3.sub {
 }
 
 .comparison-matrix thead th {
-  background: var(--surface-sunk);
+  background: color-mix(in oklab, var(--gold) 16%, var(--paper));
   color: var(--wine-deep);
   font-size: 0.9rem;
-  font-weight: 400;
+  font-weight: 700;
 }
 
 .comparison-matrix thead th:first-child,
 .comparison-matrix tbody th {
   width: 9.5rem;
+}
+
+.comparison-matrix thead th:first-child {
+  font-size: 1.08rem;
 }
 
 /* 얼굴을 이름 위에 쌓는다. 옆에 두면 "벤저민 그레이엄"이 두 줄로 접힌다 */
@@ -2066,15 +2578,16 @@ h3.sub {
 .comparison-matrix small {
   display: block;
   margin-top: 0.35rem;
-  color: var(--ink-faint);
+  color: color-mix(in oklab, var(--wine) 45%, var(--ink-faint));
   font-family: var(--sans);
-  font-size: 0.72rem;
-  font-weight: 400;
+  font-size: calc(0.78rem + 1px);
+  font-style: italic;
+  font-weight: 700;
   line-height: 1.45;
 }
 
 .comparison-matrix tbody th {
-  background: var(--surface-sunk);
+  background: color-mix(in oklab, var(--gold) 16%, var(--paper));
   color: var(--ink);
   font-size: 0.8rem;
 }
@@ -2085,6 +2598,7 @@ h3.sub {
   height: inherit;
   color: var(--ink-soft);
   font-size: 0.8rem;
+  font-weight: 700;
   line-height: 1.45;
 }
 
@@ -2135,15 +2649,18 @@ h3.sub {
   outline-color: var(--paper);
 }
 
-/* 표 옆 레일. 폭을 늘 잡아 두므로 그래프가 열려도 표가 다시 흐르지 않는다 */
+/* 표 옆 레일. 폭을 늘 잡아 두므로 그래프가 열려도 표가 다시 흐르지 않는다.
+   테두리를 골드로 줘서 흰 표(.comparison-matrix) 옆에서도 마스코트 자리가
+   따로 있다는 게 한눈에 보이게 한다 */
 .comparison-rail {
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
   padding: 1rem;
-  border: 1px solid var(--line);
+  border: 1px solid var(--gold);
   border-radius: var(--radius);
   background: var(--surface);
+  word-break: keep-all;
 }
 
 .comparison-rail-title {
@@ -2159,12 +2676,13 @@ h3.sub {
 .comparison-rail-count {
   margin: 0;
   color: var(--ink-soft);
-  font-size: 0.8rem;
+  font-size: calc(0.8rem + 2px);
   line-height: 1.5;
 }
 
-/* 그래프를 열기 전까지 이 자리를 버핏이 채운다. 남는 높이를 다 먹되 안쪽은
-   가운데로 모은다 — 위로 붙이면 아래가, 아래로 붙이면 제목과의 사이가 통째로 빈다 */
+/* 그래프를 열기 전까지 이 자리를 마스코트가 채운다. 남는 높이를 다 먹되 안쪽은
+   가운데로 모은다 — 위로 붙이면 아래가, 아래로 붙이면 제목과의 사이가 통째로 빈다.
+   말풍선(quiz-bubble)은 game/lesson.css 것을 그대로 쓴다 */
 .comparison-guide {
   display: flex;
   flex: 1;
@@ -2174,49 +2692,29 @@ h3.sub {
   min-height: 0;
 }
 
-.comparison-bubble {
-  position: relative;
-  margin: 0 0 0.8rem;
-  padding: 0.7rem 0.85rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface-sunk);
-  color: var(--ink-soft);
-  font-size: 0.8rem;
-  line-height: 1.5;
-  text-align: center;
-}
-
-/* 꼬리는 두 겹이다. 바깥이 테두리 색, 1px 위에 얹힌 안쪽이 배경 색 */
-.comparison-bubble::before,
-.comparison-bubble::after {
-  position: absolute;
-  left: 50%;
-  width: 0;
-  height: 0;
-  margin-left: -7px;
-  border-right: 7px solid transparent;
-  border-left: 7px solid transparent;
-  content: "";
-}
-
-.comparison-bubble::before {
-  top: 100%;
-  border-top: 8px solid var(--line);
-}
-
-.comparison-bubble::after {
-  top: calc(100% - 1px);
-  border-top: 8px solid var(--surface-sunk);
-}
-
 .comparison-guide .character img {
   height: auto;
   max-height: 150px;
 }
 
+/* 이 자리의 말풍선만 캐릭터를 향한 꼬리(삼각형)를 뺀다. .quiz-bubble은
+   ChapterExercises의 퀴즈 제시 화면과 같이 쓰는 클래스라(game/lesson.css)
+   기본 꼬리는 그대로 두고, 여기서만 스코프를 좁혀 지운다. */
+.comparison-guide .quiz-bubble::before,
+.comparison-guide .quiz-bubble::after {
+  display: none;
+}
+
+.comparison-guide .quiz-bubble {
+  font-size: calc(1rem - 2px);
+  font-weight: 700;
+}
+
 .comparison-rail-count .mono {
   font-family: var(--mono);
+  /* .mono의 기본 font-size(0.75rem)가 이 문단 글자보다 작아서 덮어써야 한다 */
+  font-size: 1em;
+  font-weight: 700;
   color: var(--ink);
 }
 
@@ -2242,13 +2740,18 @@ h3.sub {
    색만으로는 못 가른다 — 얼굴·이름·퍼센트를 반드시 함께 붙인다.
    글자는 본문 색을 쓴다. 막대 색을 글자에 옮기지 않는다 */
 .comparison-chart {
-  margin: 0;
+  /* .comparison-rail의 flex gap(0.9rem)에 얹어, "N칸을 골랐습니다"와 첫
+     인물 사이를 그 아래 인물 간 간격만큼 넉넉하게 띄운다 */
+  margin: 0.75rem 0 0;
   padding: 0;
   list-style: none;
 }
 
+/* 인물 일곱 명은 픽 개수와 무관하게 항상 다 나온다(0%도 그린다) — 목록 높이가
+   고정이라, 사이 간격을 넓히면 아래 여백(.comparison-reset의 margin-top:auto가
+   먹는 자리)이 다시 뺏겨 온다. 그래서 일곱 명 사이에 고르게 나눠 준다 */
 .comparison-chart li + li {
-  margin-top: 0.85rem;
+  margin-top: 1.6rem;
 }
 
 .comparison-chart-label {
@@ -2300,27 +2803,40 @@ h3.sub {
 }
 
 .comparison-reset {
-  /* 남는 자리를 전부 위로 밀어 바닥에 붙인다. 자리가 없으면 gap이 받는다 */
+  /* 남는 자리를 전부 위로 밀어 바닥에 붙인다. 자리가 없으면 gap이 받는다.
+     align-self로 폭을 내용만큼만 잡는다 — rail의 기본 stretch를 두면
+     버튼이 레일 너비 그대로 커진다 */
   margin-top: auto;
-  padding: 0;
-  border: 0;
-  border-bottom: 1px solid var(--line);
-  background: none;
-  color: var(--ink-soft);
+  align-self: center;
+  padding: 0.42rem 0.95rem;
+  border: 1px solid var(--wine);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--wine);
   font: inherit;
   font-size: 0.78rem;
+  font-weight: 700;
   cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
 }
 
 .comparison-reset:hover {
-  color: var(--wine);
-  border-bottom-color: var(--wine);
+  background: var(--wine);
+  color: var(--paper);
+}
+
+/* 살펴보기 버튼 바로 아래 놓이는 자리에서는 아래쪽 여백을 자기가 만들 이유가
+   없다 — margin-top:auto는 표 밑에 혼자 남는 기본 자리(.comparison-reset)를
+   위한 것이라 여기서는 끈다 */
+.comparison-reset-inline {
+  margin-top: 0.6rem;
 }
 
 /* ---------- 좁은 화면: 질문 단위로 다시 쌓는다 ---------- */
 
 .comparison-stack {
   display: none;
+  word-break: keep-all;
 }
 
 .comparison-stack-group + .comparison-stack-group {
@@ -2345,7 +2861,7 @@ h3.sub {
   padding: 0.7rem 0.85rem;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: var(--surface-sunk);
+  background: color-mix(in oklab, var(--gold) 16%, var(--paper));
   color: var(--ink);
   font: inherit;
   text-align: left;
@@ -2468,13 +2984,13 @@ h3.sub {
 }
 
 @media (max-width: 640px) {
-  .stock-row {
-    grid-template-columns: 1.6rem 1fr;
+  /* 375px에서도 한 줄을 지킨다. 막대를 줄여 이름 자리를 남긴다. */
+  .stock-row-select {
+    gap: 0.5rem;
   }
 
-  .stock-score {
-    grid-column: 2;
-    text-align: left;
+  .stock-row-bar {
+    width: 72px;
   }
 
   .stock-market-strip {
@@ -2484,27 +3000,6 @@ h3.sub {
 }
 
 /* ---------- 커리큘럼 챕터 ---------- */
-
-.chapter-progress {
-  display: flex;
-  gap: 3px;
-  margin: 1.25rem 0 1.75rem;
-}
-
-.chapter-progress span {
-  flex: 1;
-  height: 3px;
-  border-radius: 1px;
-  background: var(--line);
-}
-
-.chapter-progress span[data-state="done"] {
-  background: var(--wine-line);
-}
-
-.chapter-progress span[data-state="current"] {
-  background: var(--wine);
-}
 
 /* 챕터 안에서 지금 어디쯤인지. 잠금이 아니라 표시다.
  * 세 상태는 색만으로 구분하지 않는다. 완료는 채운 막대, 지금 위치는 더 크고
@@ -2530,7 +3025,7 @@ h3.sub {
 }
 .step-bar li[data-state="current"] {
   height: 9px;
-  background: var(--wine-soft);
+  background: var(--wine);
   border: 2px solid var(--wine);
 }
 
@@ -2542,8 +3037,22 @@ h3.sub {
   margin: 0 0 0.75rem;
 }
 
+.chapter-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: fit-content;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.chapter-back-link:hover {
+  color: var(--wine);
+}
+
 .chapter-route {
-  margin: 1.25rem 0 1.5rem;
+  margin: 0.85rem 0 1.5rem;
 }
 
 .chapter-route ol {
@@ -2569,11 +3078,11 @@ h3.sub {
 
 .chapter-route a {
   display: grid;
-  min-height: 4.25rem;
+  min-height: 3.2rem;
   grid-template-columns: auto minmax(0, 1fr);
   gap: 0.1rem 0.4rem;
   align-items: center;
-  padding: 0.65rem 0.7rem;
+  padding: 0.45rem 0.7rem;
   box-sizing: border-box;
   color: var(--ink-soft);
   text-decoration: none;
@@ -2651,18 +3160,6 @@ h3.sub {
     bottom: 0.35rem;
     left: 0.35rem;
   }
-}
-
-.style-kicker {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.45rem 0.65rem;
-  color: var(--ink-faint);
-  font-family: var(--sans);
-  font-size: 0.75rem;
-  letter-spacing: 0.02em;
-  margin: 0 0 0.75rem;
 }
 
 .style-name {
@@ -2749,35 +3246,6 @@ h3.sub {
 
 .scoring-steps li:last-child {
   border-bottom: 1px solid var(--line);
-}
-
-/* ---------- 투자자 초상 ---------- */
-
-.investor-avatar {
-  display: block;
-  flex: none;
-  border-radius: 50%;
-  border: 1px solid var(--line);
-  background: var(--surface-sunk);
-}
-
-/* 배우기 목록의 카드 머리. 초상 옆에 인물 이름을 놓는다 */
-.master-card-head {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  margin-bottom: 0.75rem;
-}
-
-/* 초상만큼 이름 칸이 좁아졌다. 두 줄이 되더라도 어절 안에서 끊기지 않게 한다 */
-.master-card-head h3.sub {
-  margin-bottom: 0;
-  word-break: keep-all;
-}
-
-/* 대가 상세의 머리. 초상을 제목 위에 크게 놓는다 */
-.master-lesson-head {
-  margin-bottom: 1.25rem;
 }
 
 .step-nav {
@@ -3240,114 +3708,6 @@ h3.sub {
   flex: 1;
 }
 
-.master-achievements {
-  scroll-margin-top: 5rem;
-  margin: 2.75rem 0 2.5rem;
-}
-
-.master-achievements-head {
-  display: grid;
-  grid-template-columns: minmax(12rem, 0.8fr) minmax(18rem, 1.2fr);
-  align-items: end;
-  gap: 2rem;
-  margin-bottom: 1.15rem;
-}
-
-.master-achievements-head .eyebrow {
-  margin-bottom: 0.2rem;
-}
-
-.master-achievements-head h2 {
-  margin: 0;
-  font-size: clamp(1.45rem, 3vw, 2rem);
-  line-height: 1.25;
-  letter-spacing: -0.035em;
-}
-
-.master-achievements-head > p {
-  margin: 0;
-  color: var(--ink-soft);
-  font-size: 0.92rem;
-  line-height: 1.65;
-  word-break: keep-all;
-}
-
-.achievement-records {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.8rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.achievement-records li {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  padding: 1.4rem 1rem 1rem;
-  border: 1px solid var(--line);
-  border-top: 3px solid var(--gold);
-  border-radius: 4px 4px var(--radius) var(--radius);
-  background: var(--surface);
-  box-shadow: 0 3px 0 var(--line);
-}
-
-.achievement-label {
-  display: inline-block;
-  margin-bottom: 0.75rem;
-  padding: 0.15rem 0.5rem;
-  border: 1px solid var(--gold-line);
-  border-radius: 4px;
-  background: var(--gold-soft);
-  color: var(--gold-deep);
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-}
-
-.achievement-records h3 {
-  margin: 0 0 0.55rem;
-  font-size: 1rem;
-  line-height: 1.45;
-  letter-spacing: -0.02em;
-  word-break: keep-all;
-}
-
-.achievement-records p {
-  margin: 0 0 1rem;
-  color: var(--ink-soft);
-  font-size: 0.86rem;
-  line-height: 1.65;
-  word-break: keep-all;
-}
-
-.achievement-records small {
-  display: block;
-  margin-top: auto;
-  padding-top: 0.7rem;
-  border-top: 1px dashed var(--line-strong);
-  color: var(--ink-faint);
-  font-size: 0.72rem;
-  line-height: 1.5;
-}
-
-@media (max-width: 760px) {
-  .master-achievements-head {
-    grid-template-columns: 1fr;
-    gap: 0.65rem;
-  }
-
-  .achievement-records {
-    grid-template-columns: 1fr;
-  }
-
-  .achievement-records li {
-    padding: 1.15rem 1rem 1rem;
-  }
-}
-
 @media (max-width: 860px) {
   .master-page {
     padding-top: 1rem;
@@ -3488,7 +3848,12 @@ h3.sub {
   border-radius: 8px;
   padding: 0.6rem 0.8rem;
   background: var(--surface-sunk);
-  max-width: 40em;
+  /* .prose 칼럼(본문 문단)과 오른쪽 끝을 맞춘다 — 별도 상한을 두지 않는다 */
+  max-width: 100%;
+  transition: border-color 0.2s ease;
+}
+.source-note:hover {
+  border-color: var(--gold);
 }
 
 .source-note summary {
@@ -3500,6 +3865,27 @@ h3.sub {
   font-size: 0.84rem;
   font-weight: 600;
   color: var(--ink);
+  border-radius: 6px;
+  margin: -0.3rem -0.4rem;
+  padding: 0.3rem 0.4rem;
+}
+.source-note-label {
+  transition: color 0.2s ease;
+}
+.source-note summary:hover .source-note-label {
+  color: var(--wine);
+}
+
+/* 펼침 애니메이션: 최신 브라우저는 부드럽게 열리고, 지원 안 하면 바로 열린다 */
+.source-note::details-content {
+  overflow: hidden;
+  opacity: 0;
+  block-size: 0;
+  transition: block-size 0.25s ease, opacity 0.2s ease;
+}
+.source-note[open]::details-content {
+  opacity: 1;
+  block-size: auto;
 }
 
 .source-note-tally {
@@ -3588,29 +3974,6 @@ h3.sub {
   }
 }
 
-.master-tips {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-.master-tips details {
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 0.6rem 0.8rem;
-}
-.master-tips summary {
-  cursor: pointer;
-  font-size: 0.86rem;
-  font-weight: 600;
-  color: var(--ink);
-}
-.master-tips details[open] summary {
-  margin-bottom: 0.5rem;
-}
-.master-tips .reason-list {
-  margin: 0;
-}
-
 /* ---------- 캐릭터 ---------- */
 
 .character {
@@ -3635,8 +3998,9 @@ h3.sub {
 
 /* ---------- 대가 선택 그리드 ---------- */
 
+/* max-width는 wrap-wide(1700px)가 준다 — 헤더 로고와 같은 폭이라야
+   본문 왼쪽 끝이 로고 아래에서 시작한다(Nav.tsx의 isWide 주석 참고). */
 .learn-page {
-  max-width: 1080px;
   padding-block: 2.5rem 5rem;
 }
 
@@ -3645,6 +4009,11 @@ h3.sub {
   grid-template-columns: minmax(0, 1fr);
   align-items: start;
   margin-bottom: 2rem;
+}
+
+.learn-page-header .thesis {
+  font-size: clamp(1.4rem, 3vw, 2.1rem);
+  max-width: none;
 }
 
 .master-grid {
@@ -3684,9 +4053,23 @@ h3.sub {
   animation: wisor-ribbon-arrow-float 1.8s ease-in-out infinite;
 }
 
-/* 대가 카드 그리드와 비교표 사이. 스크롤을 내리면 표가 다음 화면으로 이어진다 */
+/* 대가 카드 그리드와 비교표 사이. 화면 높이가 넉넉한 데스크톱에서는 첫 화면에
+ * 카드 7장까지만 보이고, "당신은 어떤 기준을 따르고 있나요?" 제목은 스크롤을
+ * 내려야 보이게 간격을 크게 잡는다 — 제목이 화면 아래 끝에 반쯤 걸쳐 보이면
+ * 잘린 것처럼 보인다.
+ * .style-comparison 기본 규칙(위)은 1080px 상한 breakout이지만, /learn은
+ * wrap-wide(1700px)라 위 대가 카드 그리드와 좌우 여백을 맞추려면 그 상한을
+ * 걷어내야 한다. /learn/compare는 여전히 좁은 wrap을 쓰므로 거기서는
+ * 이 규칙이 안 걸려 원래 1080px 상한 그대로다. */
 .learn-page .style-comparison {
-  margin-top: 3.5rem;
+  margin-top: 5rem;
+  width: 100%;
+  margin-inline: 0;
+  /* "투자 철학 한눈에 비교하기"로 넘어온 첫 화면에서 위(마스트헤드 아래
+     여백)와 아래(표+레일 바닥부터 화면 끝까지 남는 여백)를 맞춘다.
+     이 둘의 합(scroll-margin-top과 무관하게 화면 높이·콘텐츠 높이로
+     정해지는 값)을 반으로 나눈 값이라 위아래가 똑같아진다. */
+  scroll-margin-top: 6.375rem;
 }
 
 /* 링크로 건너뛴 뒤 제목·설명·표가 한 화면에 들어와야 한다. 표는 일곱 행이라
@@ -3748,8 +4131,8 @@ h3.sub {
 
 @media (max-width: 640px) {
   .compare-jump {
-    --arrow-x: 88%; /* narrow: M 880 990 */
-    --arrow-y: 99%;
+    --arrow-x: 88%; /* narrow: M 880 1016 */
+    --arrow-y: 100%;
   }
 }
 
@@ -3826,7 +4209,7 @@ h3.sub {
   display: grid;
   grid-template-columns: repeat(8, minmax(0, 1fr));
   column-gap: 20px;
-  row-gap: 36px;
+  row-gap: 200px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -3854,128 +4237,136 @@ h3.sub {
   grid-row: 2;
 }
 
+/* 대가별 색을 카드에 묶는다. 비교표 막대가 이미 쓰는 --master-<id>-deep
+ * 값을 그대로 가져와, 링 그림자·이름표 위치가 비교표와 같은 색으로 이 사람을
+ * 가리키게 한다. */
+.master-grid [data-master="buffett"] { --master-color: var(--master-buffett-deep); }
+.master-grid [data-master="graham"] { --master-color: var(--master-graham-deep); }
+.master-grid [data-master="lynch"] { --master-color: var(--master-lynch-deep); }
+.master-grid [data-master="marks"] { --master-color: var(--master-marks-deep); }
+.master-grid [data-master="fisher"] { --master-color: var(--master-fisher-deep); }
+.master-grid [data-master="greenblatt"] { --master-color: var(--master-greenblatt-deep); }
+.master-grid [data-master="soros"] { --master-color: var(--master-soros-deep); }
+
 .master-card {
   position: relative;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-  border: 2px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: 0 4px 0 var(--line);
-  min-height: 320px;
-  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  align-items: center;
+  text-align: center;
+  text-decoration: none;
 }
 
-.master-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--gold-line);
-  box-shadow: 0 4px 0 var(--gold-line);
-}
-
-.master-card:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 var(--gold-line);
-}
-
-/* 동일한 4:3 아트 프레임이 전신·원형 초상화의 시각적 체급을 맞춘다. */
-.master-card-art {
+.master-card-ring {
   position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 4 / 3;
-  width: 100%;
-  background: var(--surface);
-  overflow: hidden;
-}
-
-.master-card-sequence {
-  position: absolute;
-  z-index: 2;
-  top: 0.85rem;
-  left: 0.9rem;
-  display: grid;
-  place-items: center;
-  min-width: 2.25rem;
-  height: 1.75rem;
-  padding-inline: 0.45rem;
-  border: 1px solid color-mix(in srgb, var(--gold) 60%, var(--surface));
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--surface) 92%, transparent);
-  color: var(--gold-deep);
-  font-family: var(--mono);
-  font-size: 0.76rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  backdrop-filter: blur(5px);
-}
-
-.master-card[data-featured="true"] {
-  border-color: var(--gold);
-  box-shadow: 0 4px 0 var(--gold-deep);
 }
 
 .master-card-portrait {
-  width: 148px;
-  height: 148px;
-  margin-bottom: 0;
+  width: 190px;
+  height: 190px;
   border-radius: 50%;
   object-fit: cover;
-  box-shadow: 0 0 0 8px var(--surface), 0 4px 0 8px var(--line);
+  box-shadow: 0 0 0 8px var(--surface), 0 5px 0 8px var(--master-color, var(--line));
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.master-card-body {
-  position: absolute;
+.master-card:hover .master-card-portrait,
+.master-card:focus-visible .master-card-portrait {
+  transform: translateY(-3px);
+  box-shadow: 0 0 0 8px var(--surface), 0 8px 0 8px var(--master-color, var(--line));
+}
+
+.master-card:active .master-card-portrait {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 8px var(--surface), 0 3px 0 8px var(--master-color, var(--line));
+}
+
+.master-card[data-featured="true"] .master-card-portrait {
+  outline: 3px solid var(--gold);
+  outline-offset: 4px;
+}
+
+/* 이름표는 평소 링 바로 아래. 호버하면 위로 떠올라 링 아랫단을 살짝
+ * 덮는다 — 그 자리를 설명 상자에게 내주는 것. 배경이 불투명해 링을
+ * 실제로 가린다. */
+.master-card-name-row {
+  position: relative;
   z-index: 3;
-  right: 0;
-  bottom: 0;
-  left: 0;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
   gap: 0.4rem;
-  padding: 1.1rem 1.2rem 1.35rem;
-  border-top: 1px solid var(--line);
-  background: color-mix(in srgb, var(--surface) 96%, transparent);
-  backdrop-filter: blur(8px);
-  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  margin-top: 1.1rem;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.master-card:hover .master-card-name-row,
+.master-card:focus-visible .master-card-name-row {
+  transform: none;
+}
+
+.master-card-sequence {
+  color: var(--wine-deep);
+  font-family: var(--mono);
+  font-size: 0.92rem;
+  font-weight: 800;
 }
 
 .master-card-name {
-  font-size: 1.12rem;
+  font-size: 1.2rem;
   font-weight: 800;
   letter-spacing: -0.01em;
   word-break: keep-all;
 }
 
-.master-card-line {
+.master-card .style-name {
+  font-size: 0.78rem;
+  padding: 0.42rem 0.65rem;
+}
+
+/* 카드 전체가 아니라 설명 상자만. 테두리는 없다 — 인물 원형은 가리지
+ * 않고, 이름표 바로 아래에서만 자라난다. 옆 카드 자리를 침범하지
+ * 않도록 높이를 제한한다. */
+.master-card-reveal {
+  position: absolute;
+  z-index: 2;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 270px;
   max-height: 0;
-  margin-top: -0.4rem;
   overflow: hidden;
-  color: var(--ink-soft);
-  font-size: 0.9rem;
-  line-height: 1.55;
   opacity: 0;
-  transform: translateY(6px);
-  transition: max-height 0.2s ease, margin-top 0.2s ease, opacity 0.16s ease,
-    transform 0.2s ease;
-  word-break: keep-all;
+  border-radius: 14px;
+  background: var(--surface);
+  pointer-events: none;
+  transition: max-height 0.2s ease, opacity 0.15s ease;
 }
 
-.master-card:hover .master-card-body,
-.master-card:focus-visible .master-card-body {
-  border-top-color: var(--gold-line);
-  box-shadow: 0 -10px 24px color-mix(in srgb, var(--ink) 8%, transparent);
-}
-
-.master-card:hover .master-card-line,
-.master-card:focus-visible .master-card-line {
-  max-height: 5rem;
-  margin-top: 0;
+.master-card:hover .master-card-reveal,
+.master-card:focus-visible .master-card-reveal {
+  max-height: 9rem;
   opacity: 1;
-  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.master-card-reveal-inner {
+  display: block;
+  padding: 0.9rem 1rem 0.9rem;
+  text-align: center;
+}
+
+.master-card-reveal-inner p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  word-break: keep-all;
 }
 
 @media (max-width: 900px) {
@@ -3997,7 +4388,7 @@ h3.sub {
 
   .master-grid-list {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    row-gap: 56px;
+    row-gap: 130px;
   }
 
   .master-grid-item,
@@ -4008,14 +4399,40 @@ h3.sub {
     grid-row: auto;
   }
 
-  .master-card {
-    min-height: 330px;
+  .master-card-portrait {
+    width: 160px;
+    height: 160px;
   }
 
-  .master-card-portrait {
-    width: 128px;
-    height: 128px;
-    margin-bottom: 0;
+  .master-card:hover .master-card-name-row,
+  .master-card:focus-visible .master-card-name-row {
+    transform: none;
+  }
+
+  .master-card-reveal {
+    top: 100%;
+    width: 230px;
+  }
+
+  .master-card-reveal-inner {
+    padding: 0.8rem 1rem 0.9rem;
+  }
+
+  .master-card-sequence {
+    font-size: 0.84rem;
+  }
+
+  .master-card .style-name {
+    font-size: 0.72rem;
+    padding: 0.38rem 0.58rem;
+  }
+
+  .master-card-name {
+    font-size: 1.05rem;
+  }
+
+  .master-card-reveal-inner p {
+    font-size: 0.88rem;
   }
 }
 
@@ -4055,7 +4472,7 @@ h3.sub {
   }
 
   .master-grid-list {
-    row-gap: 14px;
+    row-gap: 100px;
     column-gap: 12px;
   }
 
@@ -4066,57 +4483,61 @@ h3.sub {
     grid-column: 2 / span 2;
   }
 
-  .master-card {
-    height: 140px;
-    min-height: 140px;
-  }
-
-  .master-card-art {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    aspect-ratio: auto;
-  }
-
   .master-card-portrait {
-    width: 72px;
-    height: 72px;
-    margin-bottom: 0;
-    box-shadow: 0 0 0 4px var(--surface), 0 3px 0 4px var(--line);
-    transform: translateY(-22px);
+    width: 118px;
+    height: 118px;
+    box-shadow: 0 0 0 4px var(--surface), 0 4px 0 4px var(--master-color, var(--line));
   }
 
-  .master-card-body {
-    position: absolute;
-    padding: 0.5rem 0.65rem 0.6rem;
-    gap: 0.22rem;
-    border-top-color: var(--line);
-    background: color-mix(in srgb, var(--surface) 97%, transparent);
-    backdrop-filter: blur(8px);
+  .master-card:hover .master-card-portrait,
+  .master-card:focus-visible .master-card-portrait {
+    box-shadow: 0 0 0 4px var(--surface), 0 6px 0 4px var(--master-color, var(--line));
+  }
+
+  .master-card:active .master-card-portrait {
+    box-shadow: 0 0 0 4px var(--surface), 0 2px 0 4px var(--master-color, var(--line));
+  }
+
+  .master-card-name-row {
+    margin-top: 0.6rem;
+    gap: 0.3rem;
+  }
+
+  .master-card:hover .master-card-name-row,
+  .master-card:focus-visible .master-card-name-row {
+    transform: none;
   }
 
   .master-card-sequence {
-    top: 0.5rem;
-    left: 0.5rem;
-    min-width: 1.8rem;
-    height: 1.45rem;
-    padding-inline: 0.35rem;
-    font-size: 0.65rem;
+    font-size: 0.76rem;
   }
 
   .master-card .style-name {
-    padding: 0.28rem 0.42rem;
-    font-size: 0.58rem;
+    padding: 0.32rem 0.48rem;
+    font-size: 0.66rem;
   }
 
   .master-card-name {
-    font-size: 0.82rem;
+    font-size: 0.9rem;
   }
 
-  .master-card-line {
+  .master-card-reveal {
+    top: 100%;
+    width: 178px;
+  }
+
+  .master-card:hover .master-card-reveal,
+  .master-card:focus-visible .master-card-reveal {
+    max-height: 7rem;
+  }
+
+  .master-card-reveal-inner {
+    padding: 0.65rem 0.5rem 0.55rem;
+  }
+
+  .master-card-reveal-inner p {
     font-size: 0.68rem;
-    line-height: 1.35;
+    line-height: 1.4;
   }
 }
 
@@ -4128,20 +4549,12 @@ h3.sub {
   .learn-page-header {
     margin-bottom: 1rem;
   }
-
-  .master-grid-list {
-    row-gap: 10px;
-  }
-
-  .master-card {
-    height: 136px;
-    min-height: 136px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .master-card-body,
-  .master-card-line {
+  .master-card-name-row,
+  .master-card-reveal,
+  .master-card-portrait {
     transition: none;
   }
 }
@@ -4222,6 +4635,7 @@ h3.sub {
 .chapter-page {
   --chapter-gutter: 176px;
   max-width: 1080px;
+  padding-block: 3.5rem 5rem;
 }
 
 .chapter-page-copy {
@@ -4231,7 +4645,8 @@ h3.sub {
 
 .chapter-page .step-bar,
 .chapter-page .step-nav,
-.chapter-page .disclaimer {
+.chapter-page .disclaimer,
+.chapter-page .lesson-feedback {
   max-width: 720px;
   margin-left: var(--chapter-gutter);
 }
@@ -4264,13 +4679,15 @@ h3.sub {
 @media (max-width: 860px) {
   .chapter-page {
     --chapter-gutter: 0px;
+    padding-block: 2rem 3rem;
   }
 
     .chapter-page-copy,
     .chapter-stage,
     .chapter-page .step-bar,
     .chapter-page .step-nav,
-  .chapter-page .disclaimer {
+    .chapter-page .disclaimer,
+  .chapter-page .lesson-feedback {
     margin-left: 0;
   }
 
@@ -4285,13 +4702,9 @@ h3.sub {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 1rem;
   margin-bottom: 1.15rem;
-}
-
-.watchlist-heading .eyebrow {
-  margin: 0 0 0.2rem;
-  color: var(--wine);
 }
 
 .watchlist-heading h2.section {
@@ -4495,6 +4908,25 @@ a.watch-company-card:hover {
   font-size: 0.82rem;
 }
 
+.watchlist-notes {
+  margin-top: clamp(2rem, 5vw, 3rem);
+  padding-top: 1.5rem;
+  border-top: 1px dotted var(--line-strong);
+}
+
+.watchlist-notes-lede {
+  max-width: none;
+}
+
+.watchlist-notes-title {
+  margin: 0 0 0.5rem;
+  color: var(--ink);
+  font-size: clamp(1.15rem, 2vw, 1.35rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.3;
+}
+
 @media (max-width: 820px) {
   .watch-company-grid {
     grid-template-columns: 1fr;
@@ -4637,8 +5069,16 @@ a.watch-company-card:hover {
   line-height: 1;
 }
 
+/* 대가별 카드 자체가 나열 단위다. 300px 하한 × my-page-content 최대폭
+   (wrap-wide 1700px 기준 약 1284px)이라 한 줄에 최대 4장까지 들어간다 —
+   summary가 이름/접기 1행, 챕터 수·정답 통계 2행으로 나뉘어 있어(위 규칙)
+   이 폭에서도 통계 문구가 잘리지 않는다. 하한을 올리면 4장이 안 들어갈 수
+   있으니 같이 확인할 것. align-items: start는 대가마다 챕터 수가 달라
+   카드 높이가 제각각이라, 짧은 카드가 옆 카드 높이만큼 늘어나지 않게 한다. */
 .quiz-master-groups {
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  align-items: start;
   gap: 1rem;
   margin-top: 1rem;
 }
@@ -4650,10 +5090,14 @@ a.watch-company-card:hover {
   background: var(--surface-sunk);
 }
 
+/* 이름 + 접기 버튼이 1행, 챕터 수 · 정답 통계가 2행 — 대가 카드가 한 줄에
+   여러 장 나란히 앉을 만큼 좁아져도(quiz-master-groups 참고) 통계 문구가
+   잘리지 않는다. */
 .quiz-master-group > summary {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto 2rem;
-  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1fr) 2rem;
+  column-gap: 1rem;
+  row-gap: 0.5rem;
   align-items: center;
   padding: 1rem 1.1rem;
   background: var(--surface);
@@ -4696,6 +5140,8 @@ a.watch-company-card:hover {
 }
 
 .quiz-master-summary {
+  grid-column: 1 / -1;
+  grid-row: 2;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -4716,6 +5162,8 @@ a.watch-company-card:hover {
 }
 
 .quiz-master-toggle {
+  grid-column: 2;
+  grid-row: 1;
   position: relative;
   width: 2rem;
   height: 2rem;
@@ -4745,9 +5193,11 @@ a.watch-company-card:hover {
   transform: translate(-50%, -50%) rotate(0deg);
 }
 
+/* 한 대가 카드 안에서는 챕터를 세로로 쌓는다 — 나란히 놓는 단위는
+   .quiz-master-groups(대가 카드) 쪽이다. */
 .quiz-result-list {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 0.85rem;
   margin: 0;
   padding: 1rem;
@@ -4841,6 +5291,7 @@ a.watch-company-card:hover {
 
 .quiz-result-footer {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.55rem 0.8rem;
   margin-top: 0.75rem;
@@ -4889,10 +5340,6 @@ a.watch-company-card:hover {
     padding-left: 0;
     border-left: 0;
   }
-
-  .quiz-result-list {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 520px) {
@@ -4910,24 +5357,15 @@ a.watch-company-card:hover {
   }
 
   .quiz-master-group > summary {
-    grid-template-columns: minmax(0, 1fr) 2rem;
-    gap: 0.65rem 1rem;
     padding: 0.9rem;
   }
 
   .quiz-master-summary {
-    grid-column: 1 / -1;
-    grid-row: 2;
     gap: 0.7rem;
   }
 
   .quiz-master-summary > span + span {
     padding-left: 0.7rem;
-  }
-
-  .quiz-master-toggle {
-    grid-column: 2;
-    grid-row: 1;
   }
 
   .quiz-result-list {
@@ -4944,10 +5382,6 @@ a.watch-company-card:hover {
 
   .quiz-result-heading {
     gap: 0.65rem;
-  }
-
-  .quiz-result-footer {
-    flex-wrap: wrap;
   }
 
   .quiz-result-link {
@@ -5096,11 +5530,11 @@ a.watch-company-card:hover {
 }
 
 .persona-master-option[aria-pressed="true"] {
-  border-color: var(--ink);
-  border-bottom-color: var(--gold-deep);
+  border-color: var(--gold-line);
   background: var(--gold-soft);
   color: var(--ink);
-  transform: translateY(-2px);
+  box-shadow: inset 0 -3px 0 var(--gold);
+  transform: translateY(-1px);
 }
 
 .persona-master-option[aria-pressed="true"]::after {
@@ -5114,8 +5548,8 @@ a.watch-company-card:hover {
   height: 1.15rem;
   border: 2px solid var(--surface);
   border-radius: 50%;
-  background: var(--ink);
-  color: var(--gold);
+  background: var(--gold-deep);
+  color: var(--surface);
   font-size: 0.68rem;
   font-weight: 900;
   line-height: 1;
@@ -5127,8 +5561,8 @@ a.watch-company-card:hover {
 }
 
 .persona-master-portrait {
-  width: 3.15rem;
-  height: 3.15rem;
+  width: 2.7rem;
+  height: 2.7rem;
   overflow: hidden;
   border: 2px solid var(--surface);
   border-radius: 50%;
@@ -5144,15 +5578,97 @@ a.watch-company-card:hover {
 }
 
 .persona-master-name {
-  font-size: 0.72rem;
+  width: 100%;
+  overflow: hidden;
+  font-size: 0.69rem;
   font-weight: 800;
   line-height: 1.25;
   letter-spacing: -0.03em;
-  word-break: keep-all;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.persona-context {
+  min-height: 3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.6rem 1.15rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-sunk);
+  flex: 0 0 auto;
+}
+
+.persona-context > div {
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  margin-right: auto;
+}
+
+.persona-context > div > span {
+  color: var(--ink-faint);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.persona-context strong {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.86rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.persona-context-kind,
+.persona-context-ticker {
+  flex: none;
+  padding: 0.18rem 0.5rem;
+  border: 1px solid var(--gold-line);
+  border-radius: 999px;
+  background: var(--gold-soft);
+  color: var(--ochre);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.persona-context-ticker {
+  min-height: 1.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  border-color: var(--line);
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-family: var(--mono);
+  cursor: pointer;
+}
+
+.persona-context-ticker:hover,
+.persona-context-ticker:focus-visible {
+  border-color: var(--wine);
+  background: var(--wine-soft);
+  color: var(--wine-deep);
+}
+
+.persona-context-ticker-close {
+  color: var(--ink-faint);
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.persona-context-ticker:hover .persona-context-ticker-close,
+.persona-context-ticker:focus-visible .persona-context-ticker-close {
+  color: var(--wine-deep);
 }
 
 .persona-search {
-  padding: 0.75rem 1rem 0;
+  position: relative;
+  padding: 0.75rem 1.15rem 0;
+  flex: 0 0 auto;
 }
 
 .persona-search label {
@@ -5163,14 +5679,19 @@ a.watch-company-card:hover {
 }
 
 .persona-search input,
-.persona-ask input {
+.persona-ask textarea {
   width: 100%;
-  padding: 0.55rem 0.7rem;
+  padding: 0.65rem 0.75rem;
   border: 1px solid var(--line-strong);
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--surface);
   color: var(--ink);
   font: inherit;
+}
+
+.persona-search input:focus,
+.persona-ask textarea:focus {
+  border-color: var(--gold-deep);
 }
 
 .persona-hits {
@@ -5200,10 +5721,11 @@ a.watch-company-card:hover {
   flex: 1 1 auto;
   min-height: 8rem;
   overflow: auto;
-  padding: 0.85rem 1rem;
+  padding: 1.1rem 1.15rem;
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 1rem;
+  scroll-behavior: smooth;
 }
 
 .persona-empty,
@@ -5216,60 +5738,164 @@ a.watch-company-card:hover {
 }
 
 .persona-error {
-  margin: 0 1rem 0.4rem;
+  margin: 0 0 0.6rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--ochre-line);
+  border-radius: 8px;
+  background: var(--ochre-soft);
   color: var(--ochre);
   text-align: left;
 }
 
+.persona-message {
+  max-width: 94%;
+  display: grid;
+  gap: 0.25rem;
+  align-self: flex-start;
+}
+
+.persona-message[data-role="user"] {
+  max-width: 82%;
+  align-self: flex-end;
+}
+
+.persona-message-author {
+  color: var(--ink-faint);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.persona-message[data-role="user"] .persona-message-author {
+  text-align: right;
+}
+
 .persona-bubble {
   margin: 0;
-  max-width: 92%;
-  padding: 0.65rem 0.75rem;
+  padding: 0.8rem 0.9rem;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 4px 12px 12px 12px;
   background: var(--surface-sunk);
-  font-size: 0.88rem;
-  line-height: 1.6;
+  color: var(--ink);
+  font-size: 0.94rem;
+  line-height: 1.72;
   white-space: pre-wrap;
   word-break: keep-all;
 }
 
-.persona-bubble[data-role="user"] {
-  align-self: flex-end;
+.persona-message[data-role="user"] .persona-bubble {
+  border-radius: 12px 4px 12px 12px;
   background: var(--gold-soft);
   border-color: var(--gold-line);
 }
 
-.persona-disclaimer {
-  margin: 0 1rem 0.5rem;
+.persona-thinking {
+  width: fit-content;
+  margin: -0.3rem 0 0;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  background: var(--gold-soft);
+  color: var(--ochre);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.persona-compose {
+  padding: 0.8rem 1.15rem 0.9rem;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: 0 -8px 24px color-mix(in srgb, var(--ink) 5%, transparent);
+  flex: 0 0 auto;
 }
 
 .persona-ask {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.45rem;
-  padding: 0 1rem 1rem;
+  align-items: end;
+}
+
+.persona-ask label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.persona-ask textarea {
+  min-height: 3.8rem;
+  max-height: 7.5rem;
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.persona-ask .btn {
+  min-height: 3.8rem;
+  padding-inline: 1rem;
+}
+
+.persona-compose-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.45rem;
+  color: var(--ink-faint);
+  font-size: 0.65rem;
+  line-height: 1.4;
 }
 
 @media (max-width: 640px) {
   .persona-dock {
-    right: 1rem;
-    bottom: 1rem;
+    right: 0.75rem;
+    bottom: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .persona-panel {
+    width: calc(100vw - 1.5rem);
+    height: calc(100dvh - 5.5rem);
+    max-height: calc(100vh - 5.5rem);
+  }
+
+  .persona-panel-head {
+    padding-inline: 0.9rem;
+  }
+
+  .persona-context,
+  .persona-search,
+  .persona-log,
+  .persona-compose {
+    padding-inline: 0.9rem;
+  }
+
+  .persona-compose-meta {
+    display: none;
   }
 }
 
-@media (max-width: 360px) {
-  .persona-master-option {
-    min-height: 5.75rem;
+@media (max-width: 420px) {
+  .persona-fab {
+    height: 3.25rem;
+    padding-inline: 0.85rem;
   }
 
-  .persona-master-portrait {
-    width: 2.75rem;
-    height: 2.75rem;
+  .persona-panel {
+    height: calc(100dvh - 4.75rem);
+    max-height: calc(100vh - 4.75rem);
+    border-radius: 14px;
   }
 
-  .persona-master-name {
-    font-size: 0.66rem;
+  .persona-context > div > span,
+  .persona-context-kind {
+    display: none;
+  }
+
+  .persona-message {
+    max-width: 100%;
+  }
+
+  .persona-message[data-role="user"] {
+    max-width: 88%;
   }
 }
 
@@ -5325,83 +5951,16 @@ a.watch-company-card:hover {
     var(--surface-sunk);
 }
 
-.auth-layout {
-  display: grid;
-  grid-template-columns: minmax(18rem, 0.82fr) minmax(22rem, 1fr);
-  gap: clamp(2rem, 6vw, 5rem);
-  align-items: center;
-}
-
-.auth-ledger {
-  position: relative;
-  padding: 2rem 2rem 1.75rem 3.25rem;
-  border: 1px solid var(--line);
-  border-left: 0;
-  border-radius: 0 var(--radius) var(--radius) 0;
+.auth-page-solo {
   background: var(--surface);
-  box-shadow: 0 5px 0 var(--line);
 }
 
-.auth-ledger::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 1rem;
-  width: 1px;
-  background: var(--gold-line);
-  box-shadow: 0.28rem 0 0 var(--gold-line);
+.auth-solo-layout {
+  max-width: 41rem;
 }
 
-.auth-ledger .eyebrow,
 .auth-panel .eyebrow {
   color: var(--gold-deep);
-}
-
-.auth-ledger h2 {
-  margin: 0;
-  color: var(--ink);
-  font-size: clamp(2rem, 4vw, 3.35rem);
-  font-weight: 800;
-  letter-spacing: -0.055em;
-  line-height: 1.08;
-}
-
-.auth-ledger > p:not(.eyebrow):not(.auth-ledger-note) {
-  max-width: 27rem;
-  margin: 1.35rem 0 1.75rem;
-  color: var(--ink-soft);
-  font-size: 0.92rem;
-  line-height: 1.75;
-}
-
-.auth-ledger dl {
-  margin: 0;
-  border-top: 1px solid var(--line);
-}
-
-.auth-ledger dl > div {
-  display: grid;
-  grid-template-columns: 5.8rem 1fr;
-  gap: 1rem;
-  padding: 0.72rem 0;
-  border-bottom: 1px solid var(--line);
-}
-
-.auth-ledger dt {
-  color: var(--ink);
-  font-size: 0.82rem;
-  font-weight: 800;
-}
-
-.auth-ledger dd {
-  margin: 0;
-  color: var(--ink-soft);
-  font-size: 0.8rem;
-}
-
-.auth-ledger .auth-ledger-note {
-  margin: 1rem 0 0;
-  color: var(--ink-faint);
-  font-size: 0.72rem;
 }
 
 .auth-panel {
@@ -5444,18 +6003,12 @@ a.watch-company-card:hover {
 }
 
 .auth-panel h1 {
-  margin: 0;
+  margin: 0 0 1.5rem;
   color: var(--ink);
   font-size: clamp(1.55rem, 3vw, 2.15rem);
   font-weight: 800;
   letter-spacing: -0.045em;
   line-height: 1.25;
-}
-
-.auth-intro {
-  margin: 0.55rem 0 1.5rem;
-  color: var(--ink-soft);
-  font-size: 0.88rem;
 }
 
 .auth-google {
@@ -5603,25 +6156,9 @@ a.watch-company-card:hover {
     background: var(--surface-sunk);
   }
 
-  .auth-layout {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-
-  .auth-ledger {
-    padding: 1.4rem 1.25rem 1.25rem 2.5rem;
-  }
-
-  .auth-ledger h2 {
-    font-size: 2rem;
-  }
-
-  .auth-ledger h2 br {
-    display: none;
-  }
-
-  .auth-ledger > p:not(.eyebrow):not(.auth-ledger-note) {
-    margin-block: 0.8rem 1rem;
+  .auth-page-solo {
+    align-items: center;
+    background: var(--surface);
   }
 }
 
@@ -5636,11 +6173,6 @@ a.watch-company-card:hover {
 
   .auth-page {
     padding-block: 1rem 2.5rem;
-  }
-
-  .auth-ledger dl,
-  .auth-ledger .auth-ledger-note {
-    display: none;
   }
 
   .auth-panel {

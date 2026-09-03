@@ -1,5 +1,252 @@
 # 인계 노트
 
+## 2026-08-31 · Claude · 토스 허용 IP에서 빠진 서버가 닷새 동안 데이터 배치를 멈춰 세웠다
+
+- 2026-08-26 07:05 KST부터 2026-08-31 16:44 KST까지 **닷새 동안 운영 데이터가 한 번도 갱신되지
+  않았습니다.** 그동안 `wisor.site`는 낡은 기준일을 정상 응답으로 계속 내보냈습니다.
+- 원인은 **토스 API 허용 IP 목록에 서버의 송신 IP가 없었던 것**입니다. 목록에는
+  `168.138.45.130`만 있었는데 서버는 `138.2.45.11`로 나가고 있었습니다.
+  `POST https://openapi.tossinvest.com/oauth2/token`이 **HTTP 403**을 돌려주고
+  `wisor_data/providers/sec_toss.py`의 `_fetch_token`이 `ProviderDataError`로 바꿔 던지면서
+  `run_batch.py`가 9초 만에 exit 1로 죽었습니다. 가격을 한 건도 못 받으니 산출물 자체가
+  만들어지지 않았습니다.
+- 허용 목록에 `138.2.45.11`을 **추가**하자 즉시 복구됐습니다. 다른 변경이 없었으므로 이것이
+  원인이었고 서버 송신 IP가 `138.2.45.11`이라는 것도 함께 확정됩니다. 자격증명과 구독은
+  멀쩡했습니다. `168.138.45.130`을 남겨둔 것은 송신 IP가 확정되기 전의 임시 조치였고, 지금은
+  지워도 되는 죽은 항목입니다(남은 일 ①).
+- 복구 실행 결과: `generatedAt=2026-08-31T07:44:18+00:00`, `asOf.price=2026-08-31`,
+  `priceCoverage 379/379`, 데이터 해시 `3fbbad45d409` → `d56a4466aaeb`, `completed mode=full`.
+  `_toss_get` 주석이 경고하는 "토큰이 중간에 만료돼 뒷부분이 조용히 비는" 실패가 아닌 것을
+  379/379로 확인했습니다. 2026-09-01 07:02 KST 자동 실행도 정상이라 스케줄 경로까지 복구됐습니다.
+- **IP가 바뀐 이유는 도메인 연결 작업입니다.** `uptime -s`가 2026-08-25 16:53 KST이고 그 뒤로
+  재부팅이 없었습니다(서버 시스템 시간대는 UTC). OCI 임시 IP는 인스턴스 stop/start 때만
+  바뀌므로, 켜진 채로 주소가 바뀌었다는 건 사람이 바꿨다는 뜻입니다. 실제로 현재 공인 IP는
+  **Reserved**입니다 — 도메인에 고정 주소를 물리려고 임시 `168.138.45.130`을 떼고 예약
+  `138.2.45.11`을 붙인 것이고, 그 작업이 2026-08-26 07:05~10:00 KST 사이에 있었습니다.
+- **재발 위험은 없습니다.** 예약 IP는 재부팅으로 바뀌지 않습니다. 한때 후속 과제로 적어둔
+  "예약 IP 전환"은 이미 끝나 있는 셈이라 할 일이 없습니다.
+- **예방책은 따로 있습니다.** 이번에 DNS는 새 주소로 함께 고쳐졌는데 토스 허용 목록만
+  빠졌습니다. 그래서 사이트는 멀쩡한 채 배치만 조용히 죽었고, 그 조합이 발견을 닷새 늦췄습니다.
+  **서버 공인 IP를 바꾸는 작업을 하면 토스 허용 목록도 함께 고쳐야 합니다.** 이 결합이 적힌
+  곳이 저장소 어디에도 없습니다(남은 일 ⑤).
+- **`.github/workflows/scores.yml`은 복구 수단이 아닙니다.** 근거는 2026-08-26 사후 검토가
+  기록한 "예약 실행 20건 전부 403"입니다 — Azure 대역이 허용돼 있었다면 20건이 전부 403일 수
+  없습니다. GitHub 호스티드 러너는 Azure 대역을 쓰고 실행마다 주소가 바뀌므로 IP 허용 목록을
+  통과할 방법이 아예 없습니다. 따라서 `docs/deploy.md`의 "예약 실행을 하지 않는 수동 복구
+  수단입니다"는 틀린 문장이고, **secret을 새로 발급해도 이 워크플로는 살아나지 않습니다.**
+- **닷새를 몰랐던 게 진짜 문제입니다.** systemd는 매번 제대로 실패했는데(`Result=exit-code`,
+  `ExecMainStatus=1`) 알리는 곳이 없었습니다. `.github/workflows/data-freshness.yml`을 새로
+  넣어 `generatedAt`이 6시간보다 낡으면 실패하게 했습니다. unit의 `OnFailure=` 대신 이쪽을
+  고른 이유는, timer 꺼짐·서버 다운·전환 실패까지 같은 신호 하나로 잡히기 때문입니다.
+- 진단 중 배제한 것 둘. **2026-08-26 13:58 KST 앱 배포는 무관합니다**(고장이 약 6시간 앞섬).
+  `releases`의 `-deploy-` 항목이 데이터 해시 `3fbbad45d409`를 반복하는 것도 정상입니다 — 코드
+  배포가 마지막 정상 데이터를 그대로 실어 나르는 `docs/oci-autodeploy.md`의 계약대로입니다.
+  둘 다 처음 보면 범인처럼 보이니 다음 사람은 여기서 시간 쓰지 마세요.
+- `TOSS_INVEST_CLIENT_ID`·`TOSS_INVEST_CLIENT_SECRET`은 `data-pipeline/run_batch.py`와
+  `.github/workflows/scores.yml`에만 나옵니다. 자격증명과 허용 IP가 어디서 관리되는지 적힌
+  문서가 없어 서버 저널부터 손으로 파야 했습니다.
+- 이 브랜치에서 함께 한 것: 세 곳(`docs/deploy.md`, `.github/workflows/scores.yml`,
+  `data-pipeline/CLAUDE.md`)의 "수동 복구 수단" 설명 정정, 루트 `CLAUDE.md`의 "변경이 번지는
+  지점"에 "서버 공인 IP를 바꾸면" 추가, 신선도 감시 워크플로 신설.
+- 배치 운영 파일도 서버 실물로 바꿨습니다. 추적본은 활성화 대상이
+  `wisor-batch@auto.service`인 옛 설계였고, `deploy/oci/README.md`는 그걸 설치하라는
+  안내서였습니다. 그대로 따르면 돌아가는 배치가 멈춥니다. 옛 설계 파일 넷을 지우고
+  `bin/wisor-batch`·`bin/validate-scores.py`·`systemd/wisor-batch.{service,timer}`를 실물로
+  넣었습니다.
+- **설치 경로 공백은 절반만 닫았습니다.** batch wrapper와 validator는 `wisor-deploy`가 이미
+  libexec/sbin 파일 넷을 자동 갱신하고 있어서 그 목록에 얹었습니다. 새 서버는
+  `bootstrap-autodeploy.sh`가 설치합니다. 배포는 두 파일이 없거나 구문 검사를 통과하지 못하면
+  설치 전에 멈추고, 설치는 배포가 건강하다고 확인된 뒤에만 일어납니다. 배치 잠금을 쥔 채로
+  덮으므로 실행 중인 배치와 겹치지 않습니다.
+- **unit 셋은 일부러 손으로 남겨 뒀습니다.** 자동 설치하려면 `daemon-reload`가 필요하고 돌아가는
+  timer를 배포 도중에 바꾸게 됩니다. 그래서 `wisor.service`·`wisor-batch.service`·
+  `wisor-batch.timer`는 여전히 조용히 낡을 수 있습니다. 다만 낡은 결과가 "데이터가 안 늙는다"로
+  나타나므로 `data-freshness.yml`이 6시간 안에 잡습니다. 원인이 아니라 증상을 잡는 그물입니다.
+- 남은 일: unit 셋의 표류. 지금은 `deploy/oci/README.md`의 표와 `systemctl cat` 대조가 전부이고
+  자동 감지가 없습니다. 자동 설치가 정말 위험한지, 아니면 `daemon-reload`까지 포함해 배포에
+  넣을지는 정하지 않았습니다.
+
+## 2026-09-02 · Claude · 기록형 답 이력에서 정한 것 둘
+
+- **90일 재노출은 되살리지 않습니다.** `lib/journalDue.ts`와 그 테스트 5개를 지운 것은
+  실수가 아니라 결정입니다. 문항별 답이 한 자리에 최신순으로 쌓이므로 "90일이 지났다"는
+  판정 자체가 더는 화면에 쓰이지 않습니다. 다시 넣으려면 그 판단부터 다시 하세요.
+- **`crypto.randomUUID`에 대비를 넣었습니다.** 이 함수는 https와 localhost에서만 있어서,
+  폰으로 개발 서버를 `http://192.168.x.x:3000`처럼 열면 기록 저장이 통째로 실패했습니다.
+  `getRandomValues`는 Crypto에서 유일하게 비보안 컨텍스트에서도 쓸 수 있어(MDN) 그때는
+  이쪽으로 32자리 16진수 ID를 만듭니다. UUID 모양은 흉내 내지 않습니다 — 이 값은 어디서도
+  UUID로 파싱되지 않고, 형식을 맞추려면 버전·변형 비트를 손대야 해서 오히려 깨지기 쉽습니다.
+- 대비를 빼면 테스트가 깨지는지 확인했습니다(`randomUUID가 없는 http 주소에서도 답을 저장한다`).
+
+## 2026-09-01 · Claude · 챗봇 스타일 정규식 테스트를 버린다
+
+- `lib/personaChatStyle.test.ts`(217줄, 11개)를 지웠습니다. 이 테스트는 컴포넌트를
+  실행하지 않고 `PersonaChatFab.tsx`와 `globals.css`를 문자열로 읽어 정규식으로
+  대조합니다. 저장소에서 소스를 문자열로 읽는 테스트는 이 파일뿐이었습니다.
+- 두 방향으로 틀리는 것을 이 브랜치에서 직접 확인했습니다. `globals.css`의
+  `.persona-bubble` 선택자 2개를 지우고 `className="persona-bubble"`을 백틱 형태로
+  바꾸면 — 화면은 실제로 깨지는데 — 11개가 전부 통과합니다. 반대로 변수
+  `conversationSeq`를 `chatSeq`로 이름만 바꾸면 동작이 같은데도 3개가 실패합니다.
+- 이름은 Style인데 11개 중 CSS를 보는 것은 2개뿐이고, 나머지 9개는
+  `let rollbackMessages = messages`, `const panelSeq = useRef(0)` 처럼 `onAsk`와
+  `onPersona` 안에 어떤 줄이 써 있는지를 검사했습니다.
+- 여기서 확인하려던 동작 중 종목 없는 질문, 자유 대화의 대가 전환, 모호한 실패의
+  세션 폐기, 종목 해제 시 세션 삭제는 `lib/personaApi.test.ts`가 함수를 실제로 불러
+  확인합니다. CSS 연결은 테스트가 아니라 PR 본문의 눈으로 확인할 항목으로 남기는
+  편이 맞습니다(루트 CLAUDE.md 클린 코드 1번).
+- 바로 아래 2026-08-28 항목의 마지막 줄에 이 파일을 추가했다는 기록이 있습니다.
+  그 기록은 당시 사실이므로 고치지 않았습니다.
+
+## 2026-08-28 · Codex · 종목 없는 투자 대가 자유 대화와 대화창 복구
+
+- 챗봇 세션은 종목 대화 `{ticker, persona}`와 자유 대화 `{persona}`를 구분합니다.
+  `ticker`를 보냈다면 기존처럼 유니버스를 엄격히 조회하고, 생략했을 때만 서버가
+  `PersonaChat(..., free_chat=True)`를 명시적으로 엽니다. `ticker: null`·빈 문자열은
+  실수로 자유 대화가 되지 않도록 400으로 거부합니다.
+- 자유 대화는 `<대화맥락>` 앵커와 별도 프롬프트를 씁니다. 대가 본문의 투자 기준은
+  설명할 수 있지만 선택하지 않은 회사의 실제 수치·현재 시장 수치·정확한 인용을
+  지어내지 않고, 본문에 없는 역사적 일화를 확인된 사실로 단정하지 않게 했습니다.
+  세션 생성과 대가 전환은 고정 안내문이라 LLM 0회이고,
+  사용자의 첫 실제 질문은 정상 응답 기준 1회(빈 응답 재시도 시 최대 2회) 호출합니다.
+  자유 세션 생성은 분당 60개로 제한해 빈 세션이 보관소의 활성 대화를 빠르게 밀어내는
+  속도를 제한했습니다.
+- `PersonaChatFab`은 종목 미선택 상태에서도 textarea와 전송을 열고 `자유 대화` 상태를
+  표시합니다. 검색은 `선택 사항`으로 남겼으며, 자유 세션에서 대가를 바꿀 때도 서버
+  세션의 페르소나를 함께 바꿔 화면과 답변 주체가 어긋나지 않습니다. 페이지 이동 뒤
+  늦게 온 응답은 세대 번호로 버립니다. 대가 전환의 첫 답변 생성에 실패하면 서버가
+  이전 상태로 롤백합니다. 빈 응답을 두 번 받은 `blocked` 전환과 429·명시적 모델 오류도
+  기존 관점·대화에 남습니다. 질문 반영 여부가 불명확한 네트워크·5xx 실패만 프론트가
+  세션을 폐기하고, 확정적 실패는 낙관적으로 그린 질문 말풍선을 되돌립니다.
+- 티커 배지 안의 `×`는 진행 중 응답과 검색 결과를 무효화하고 종목·세션·대화·초안을
+  함께 비웁니다. 별도 `선택 해제` 버튼은 두지 않습니다. 종목 상세에서 해제한 뒤 패널을
+  닫았다 열어도 경로의 티커를 자동으로 다시 선택하지 않으며, 이미 만들어진 서버 세션은
+  `DELETE /sessions/{id}`로 정리합니다.
+- API 계약·README·시스템 설계·사용자 시나리오·로컬 연습장을 같은 흐름으로 갱신했습니다.
+  Render처럼 Web과 Persona 서버를 따로 배포할 때는 **Persona 서버를 먼저 배포한 뒤
+  Web을 배포**해야 합니다. 반대 순서면 구 서버가 새 Web의 `{persona}` 요청을 400으로
+  거부합니다. 같은 SHA를 쓰는 OCI 배포는 Persona health 확인 뒤 Web을 올려 이 순서를
+  이미 지킵니다.
+- 새 대화 DOM에 연결되지 않았던 선택 관점 바, textarea 작성 영역, 작성자명과 사용자
+  말풍선, 대기 문구, footer와 640px·420px 반응형 규칙을 현재 DOM에 다시 연결했습니다.
+  최신 결정으로 삭제된 면책
+  문구와 `.persona-disclaimer`는 복원하지 않았고, 모바일의 빈 meta 영역도 숨겼습니다.
+- `lib/personaChatStyle.test.ts`를 추가해 `persona-*` 클래스 전부가 CSS 선택자를 갖는지,
+  질문 입력 요소와 `data-role` 소유자가 실제 선택자와 맞는지 검사합니다. 자유 대화·세션
+  폐기·늦은 응답 무효화도 소스 계약 테스트로 고정했습니다.
+- 검증: persona_explain 103 passed, data-pipeline 94 passed, Web 153 passed, TypeScript 검사와
+  439개 정적 페이지 빌드, 브라우저 번들 재무데이터 유출 검사, OCI 셸 계약 3건과 Python
+  6건을 통과했습니다. 새 mock 서버에 실제 HTTP로 자유 세션 생성→질문→피셔 전환,
+  기존 `{ticker, persona}` 계약과 세션 삭제를 확인했습니다. 올바른 작업 트리의 개발 서버에서
+  `/` 200과 제공 CSS의 context·textarea·message·모바일 규칙도 확인했습니다. 연결 가능한
+  인앱 브라우저가 없어 클릭·스크린샷 기반 시각 검증은 진행하지 못했습니다.
+
+## 2026-08-28 · Codex · 객관식이 없던 열네 장에 확인 문항 추가
+
+- 서른다섯 장 중 채점형 문항이 하나도 없던 열네 장에 객관식 22개를 추가해 모든 장에서
+  읽은 내용을 확인하고 퀴즈 결과를 남길 수 있게 했습니다. 피셔·그린블랫·린치·막스·소로스의
+  기존 본문과 출처는 바꾸지 않았고, 본문만으로 답할 수 있는 문항만 각 장의 첫 자리에 뒀습니다.
+- 검증: data-pipeline 132 passed, Web 167 passed, `npx tsc --noEmit`, 439/439 정적 페이지 빌드,
+  재무데이터 번들 경계를 통과했습니다. 개발 서버의 `/learn/masters/fisher/1`이 HTTP 200으로
+  새 문항을 렌더링하는 것도 확인했습니다. 인앱 브라우저가 연결되지 않아 클릭·스크린샷 기반
+  시각 검증은 수행하지 못했습니다.
+
+## 2026-08-28 · Claude · develop 위로 옮기며 조항 문구 두 곳을 더 걷어냄
+
+- 이 브랜치를 develop(13063ae)에 rebase하면서, 8/27에 지운 화면 문구 중 둘이 develop의
+  새 컴포넌트로 옮겨가 있는 것을 확인했습니다. `layout.tsx`의 고지 문단은
+  `components/SiteFooter.tsx`로, 스크리너의 "순위는 매수 신호가 아니라…" 문장은
+  `components/CriteriaLegend.tsx`로 갔습니다.
+- 두 파일은 8/27 커밋이 건드린 적이 없어 충돌 없이 문구가 되살아났습니다. 조항을 걷어낸다는
+  결정을 유지하기로 해 그 두 곳에서도 지웠습니다. **팀이 승인한 범위(8/27의 화면 4곳) 밖의
+  파일을 새로 고친 것이므로 여기 남깁니다.**
+- `SiteFooter`의 주석은 "핵심 한 줄(매수 권유가 아닙니다)은 스크리너 `disclaimer` 문단에
+  이미 있다"고 적혀 있었는데, 그 문장도 8/27에 지워져 거짓이 됐습니다. 함께 고쳤습니다.
+- 화면에 남은 면책은 여전히 "투자 철학은 Wisor가 재구성한 것" 한 문장뿐입니다. 자본시장법·
+  유사투자자문업 관련 위험은 8/27 항목과 같고, 닿는 화면이 두 곳 늘었습니다.
+
+## 2026-08-28 · Codex · 기록형 답변을 응답별 이력으로 보존
+
+- 기록형 문항에 다시 답해도 이전 답을 덮어쓰지 않고, 응답별 `responseId`와 작성 시각을 가진 append-only 이력으로 브라우저와 계정 저장소에 남기도록 바꿨습니다. 기존 브라우저 기록과 DB 행은 문항 ID와 UTC 작성 시각으로 같은 레거시 ID를 만들어 재시도 중복을 막습니다.
+- `/me`에는 전체 답변을 최신순 타임라인으로 보여주고 해당 챕터로 돌아가는 링크를 붙였습니다. 구현하지 않은 `90일 뒤 다시 묻기` 안내와 판정 로직은 제거했습니다. 종목 학습노트와 관심 종목 배치는 이 변경에서 손대지 않았습니다.
+- 계정 저장소는 `supabase/migrations/20260827_journal_entry_history.sql`을 먼저 적용한 뒤 웹을 배포해야 합니다. 마이그레이션은 기존 행에 응답 ID를 채우고 기본 키·RPC·권한을 응답 추가/조회 전용으로 바꿉니다. 새 Web은 로그인 전 이력을 새 복합키로 먼저 멱등 저장하므로 구 DB에서 기존 답을 덮어쓰지 않습니다. 반대 배포 순서에서는 계정 기록이 브라우저 모드로 잠시 보일 수 있습니다. 로컬에는 Supabase CLI·Docker·`psql`이 없어 실제 DB 적용과 RLS·병합 재시도 검증은 하지 못했습니다.
+- 브라우저 저장 공간 부족도 성공으로 표시하지 않고, 입력을 유지한 채 같은 버튼으로 다시 시도하게 했습니다. 선행 학습노트 커밋을 포함한 최종 스택에서 `python -m pytest -q` 132개, `apps/web`의 `npm test` 167개, `npx tsc --noEmit`, `npm run build`(정적 페이지 439개)가 통과했습니다. `/me`는 이 작업트리에서 실행한 서버로 200 응답을 확인했고 금지된 점수 원본의 브라우저 번들 유입은 없었습니다. 인앱 브라우저가 제공되지 않아 데스크톱·모바일 화면 캡처 검증은 남아 있습니다.
+
+
+## 2026-08-28 · Codex · 관심 종목 아래로 학습노트 재분류
+
+- 작업 브랜치는 `feat/my-page-note-placement`, 격리 worktree는
+  `C:\Users\Har10\Desktop\wisor\.worktrees\pr-note-placement`입니다.
+- `/me`의 독립 `종목 학습노트` 블록을 `관심 종목` 앵커 섹션 안으로 옮겼습니다. 사이드바도
+  `내 학습: 진도 · 퀴즈 · 복습`, `관심 종목: 저장한 기업 · 학습노트`로 실제 정보 구조와
+  맞췄습니다.
+- 관심 종목 카드 목록과 학습노트 목록은 형제 하위 구획입니다. 노트를 관심 종목으로 필터링하지
+  않아, 관심 등록 없이 노트만 쓴 종목과 관심 해제 뒤 남은 노트도 계속 보입니다. 이 독립성을
+  브라우저 임시 저장소 회귀 테스트로 고정했습니다.
+- 기록형 답변 저장, 90일 복습, `store.ts`, Supabase 스키마와 마이그레이션은 바꾸지 않았습니다.
+- 검증: web 167 passed, data-pipeline 132 passed, `npx tsc --noEmit`, `npm run build`
+  439/439 정적 페이지, 재무데이터 번들 경계, 격리 worktree의 3001번 `/me` HTTP 200을
+  확인했습니다. 연결 가능한 인앱 브라우저가 없어 데스크톱·모바일 시각 캡처는 수행하지 못했습니다.
+
+## 2026-08-27 · Claude · 매수·매도 권유 금지 조항 제거
+
+- 팀 결정에 따라 "투자 스타일 점수는 매수·매도를 권하지 않는다"는 원칙과 그 강제 장치를
+  전부 걷어냈습니다. 문서 7곳·화면 4곳·실행 검사 3벌에 같은 규칙이 중복돼 있었고,
+  한쪽만 고쳐지는 사고가 반복된 것이 계기입니다.
+- 걷어낸 것: `data-pipeline`의 `BANNED_PHRASES`·`assert_language_is_safe`,
+  `apps/web/content/curriculum/validate.ts`의 권유형 검사, `persona_explain/safety.py`
+  (파일 삭제)와 프롬프트의 [절대 하지 않는 것], 응답의 `disclaimer` 필드
+  (`server.py` → `personaApi.ts` → `PersonaChatFab.tsx`), 루트 `CLAUDE.md`의 제품 원칙 1번.
+- 남긴 것: **빈 응답 재생성 경로**는 조항과 무관한 견고성 장치라 유지했습니다.
+  `safety.py`가 금지어 검사와 함께 태우고 있어서 `explain.py`로 옮겨 빈 응답만 보게 줄였고,
+  `verdict`/`blocked` 응답 계약은 그대로입니다. 커리큘럼 본문의 매수·매도는 대가들의
+  매도 원칙을 가르치는 교육 내용이라 손대지 않았고, 화면의 날짜 표기 규칙도 별개라 남겼습니다.
+- **면책 고지 제거가 자본시장법·유사투자자문업 영역에 닿습니다.** 실명 종목에 매수·매도
+  판단을 내보내는 서비스는 규제 대상이 될 수 있다는 점을 팀에 알린 뒤 진행했습니다.
+  화면에 남은 면책은 "투자 철학은 Wisor가 재구성한 것" 한 문장뿐입니다.
+- 테스트는 data-pipeline 132→94, apps/web 129→120, persona_explain 95→91로 줄었고
+  줄어든 수가 삭제한 테스트 수와 각각 일치합니다. build·tsc·번들 유출 검사는 통과했습니다.
+- 눈으로 확인한 것: 빌드 산출물에서 제거한 문구가 사라졌고, 문구를 덜어낸
+  `<p className="disclaimer">`들은 첫 문장이 남아 빈 요소가 되지 않았습니다(빈 `<p>` 0건).
+  `PersonaChatFab`의 `persona-compose-meta` div는 자식이 하나로 줄었지만 CSS 규칙이
+  없던 래퍼라 시각 변화가 없어 그대로 뒀습니다.
+
+## 2026-08-26 · Codex · 삭제 내용 사후 검토
+
+- `7bef53f` 삭제 커밋을 호출 관계·CSS token·Git 객체·운영 워크플로 기준으로 사후 검토하고
+  [`docs/deleted-content-review-2026-08-26.md`](deleted-content-review-2026-08-26.md)에 기록했습니다.
+- 사용 중인 웹·Python 기능이나 유지 대상 고유 작업의 유실은 발견하지 못했습니다. 삭제된
+  `DuoQuiz`에는 마지막 정답을 중복 합산할 수 있는 잠재 저장 오류가 있었습니다.
+- 병합 전 차단 항목은 OCI 데이터 배치입니다. GitHub 예약 실행은 최근 20건 모두 실패했고,
+  남긴 수동 workflow는 운영 데이터를 게시하지 않습니다. 서버 batch wrapper가 필요로 하는
+  `scores_contract`와 unit도 현재 브랜치에 없어 timer·journal·실제 wrapper 확인이 필요합니다.
+- 챕터 외곽 폭을 720px로 줄이면서 좌우 gutter까지 그 안에 포함돼 넓은 화면의 실제 본문 폭이
+  약 592px가 됐습니다. 연결 가능한 인앱 브라우저가 없어 데스크톱·모바일 시각 확인은 남았습니다.
+- Supabase·Netlify·옛 자격증명은 로컬 파일 삭제로 원격 폐기되지 않았습니다. dropped stash 2개와
+  OCI archive commit은 현재 dangling object로 복구 가능하지만 Git GC 이후에는 보장되지 않습니다.
+
+## 2026-08-26 · Codex · 삭제 기능·로컬 잔재 정리
+
+- `chore/remove-obsolete-features`에서 참조가 없는 `DuoQuiz`·`Quiz`, 장별 mood API와 테스트,
+  잠금 판정·점수/설정 편의 함수, 데이터 공급자 스텁과 계산·Persona 편의 함수를 제거했습니다.
+  버핏 안내 자세만 남기고 미사용 반응 이미지 5개와 마스코트 idle 이미지도 삭제했습니다.
+- `globals.css`의 미사용 규칙 475줄을 걷어내고, 캐릭터가 사라진 챕터 화면의 176px 빈 거터를
+  없애 모든 내용을 최대 720px 중앙 칼럼에 맞췄습니다. `/learn/compare`와 `/play`는 유지했습니다.
+- 삭제된 차트 분석 기능의 `supabase/schema.sql` 기준 테이블·함수·RLS·노트 필드를 제거했습니다.
+  이는 새 환경용 기준 스키마 정리일 뿐이며 원격 Supabase에서 `DROP`은 실행하지 않았습니다.
+- 최근 실행이 계속 실패하던 `scores.yml`의 예약 트리거를 없애 수동 복구 실행만 남겼습니다.
+  운영 데이터 자동 갱신은 OCI `wisor-batch.timer`, `main` 애플리케이션 자동 배포는
+  `deploy-oci.yml`이 맡습니다. 아직 응답하는 기존 Render 구성과 `render.yaml`은 보존했습니다.
+- `magicFormulaRoc`를 Persona의 `magic_formula_roc`에 연결해 기존 계약 테스트 실패를 해결하고,
+  배포·설계·학습 문서를 현재 구현과 OCI 운영 기준으로 맞췄습니다.
+- 이 작업공간에서 삭제된 `services/chart-api/`, 차트 `.next-stale-*`, `.netlify/`, 시장심리
+  `.superpowers` 잔재와 삭제 기능의 `.pyc`를 제거해 약 506MiB를 정리했습니다. 중복·삭제 기능만
+  담긴 stash 2개와 임시 OCI archive tag 1개도 삭제했고, 고유 변경이 있는 로컬 브랜치 6개는
+  모두 보존했습니다. 이 로컬 삭제는 복구 지점 없이 수행했으며 외부 서비스·DB는 건드리지 않았습니다.
+- 검증: data-pipeline 132 passed, Persona 95 passed, Web 129 passed, 엄격한 미사용 타입 검사와
+  일반 타입 검사 통과, 439/439 정적 페이지 빌드, 재무데이터 번들 경계 검사, OCI 계약 셸 테스트와
+  Python 테스트 6건 통과. `/`, `/learn`, 버핏 경로·1장, `/learn/compare`, `/play`는 모두 HTTP 200입니다.
+  연결 가능한 인앱 브라우저가 없어 자동 시각 캡처는 진행하지 못했습니다.
+
 ## 2026-08-20 · Codex · 체크리스트 기반 페르소나 채팅 확장
 
 - 점수식이 없는 하워드 막스, 필립 피셔, 조지 소로스도 페르소나 채팅에서 선택할 수 있도록 체크리스트 평가 방식을 추가했습니다.
@@ -618,3 +865,36 @@
 - 배우기 페이지에서만 헤더를 `1440px`로 넓히던 예외 규칙을 제거했습니다.
 - 일반 메뉴의 활성 밑줄 CSS에서 `.nav-account`를 제외해 로그인 버튼의 아래쪽 테두리가 투명하게 덮이지 않도록 했습니다.
 - `npm test` 101개 통과, `npm run build` 성공을 확인했습니다. 브라우저 연결을 사용할 수 없어 자동 스크린샷 검증은 하지 못했습니다.
+
+## 2026-08-26 · Codex · OCI main 자동 배포 준비
+
+- 작업 브랜치는 `feat/oci-main-autodeploy`, 격리 worktree는
+  `C:\Users\Har10\Desktop\wisor\.worktrees\oci-main-autodeploy`입니다. 기존 dirty worktree는
+  건드리지 않았습니다.
+- `.github/workflows/deploy-oci.yml`은 `main`의 앱 변경을 PR과 같은 검사 뒤 OCI에 배포합니다.
+  점수·재무 캐시 두 파일만 바뀐 push는 이미지 배포를 건너뜁니다.
+- `deploy/oci/`에 현재 운영 Compose/Dockerfile, immutable SHA release 배포기, rollback 검증기,
+  forced-command bootstrap을 정본으로 추가했습니다. 배치와 같은 lock 순서를 쓰며 현재 운영
+  venv로 새 pipeline의 테스트·CLI·sample serialization 계약도 먼저 확인합니다.
+- 롤백은 단계별 flag 대신 실제 `deploy-state/*.previous`를 보고 복구하고, 파일 교체 명령은
+  함수 내부에서 각각 실패를 반환합니다. 이미지 revision·data label 판정은 Python 검증기 한 곳으로
+  모았고 부분 전환·파일 복사 실패·strict health 판정을 임시 디렉터리 회귀 테스트로 고정했습니다.
+- release용 로컬 clone은 원본의 `refs/remotes/origin/main`을 자동 복사하지 않으므로 checkout 전에
+  해당 ref를 명시적으로 fetch합니다. 첫 자동 실행에서 드러난 이 경로를 별도 Git fixture로 재현합니다.
+- OCI에는 `wisor-deploy` 전용 계정과 인자 없는 root deploy 한 개만 허용하는 sudoers를
+  설치했습니다. 공개키에는 `restrict`와 forced command가 붙고 일반 셸은 거부됩니다.
+- GitHub `Production` Environment에 `OCI_DEPLOY_KEY`, `OCI_KNOWN_HOSTS`와
+  `OCI_HOST=wisor.site`, `OCI_PORT=22`, `OCI_USER=wisor-deploy`를 등록하고 branch policy를
+  `main` 하나로 제한했습니다. host key fingerprint는
+  `SHA256:TQI3a4ZRWn1dNpEVxg04sGVB9d54q0B8p6PRaGEAgls`로 재확인했습니다.
+- 허용되지 않은 SSH 명령이 exit 64로 거부되고, 현재 main
+  `f67aa034fac3ad97f5d4c31cb19c7089b959d836`의 idempotent deploy가 `LIVE_OK`를 반환하는 것을
+  실서버에서 확인했습니다. 기존 서비스 tag·코드 SHA는 바뀌지 않았습니다.
+- 자동 배포는 workflow 파일이 `main`에 들어가는 push부터 활성화됩니다. `develop` 검증 뒤
+  `main`이 `develop`을 받는 순서로 병합합니다.
+- 검사: data-pipeline 132 passed, Persona 94 passed/1 known contract test deselected, Web 139 passed,
+  `npm run build`, `npx tsc --noEmit`, OCI dispatcher 계약, Bash/YAML/Python syntax, 실서버
+  Compose config와 LIVE 검증 통과.
+- 운영 제약: `main` 쓰기 권한은 운영 배포 권한이며 현재 admin 4명의 직접 push를 유지합니다.
+  SIGKILL/VM 재부팅 중간상태 자동 복구, 과거 release/state retention, tracked systemd unit 자동 교체는
+  후속 운영 과제입니다.

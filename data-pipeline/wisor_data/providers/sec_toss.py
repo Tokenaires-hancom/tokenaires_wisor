@@ -3,6 +3,10 @@
 from __future__ import annotations
 
 import json
+import math
+import os
+import stat
+import tempfile
 import time
 from dataclasses import asdict
 from datetime import datetime, timedelta, timezone
@@ -57,6 +61,33 @@ class ProviderDataError(RuntimeError):
         #: 왜 빠졌는지. 화면의 '무엇을 배제했나'에 그대로 집계된다.
         self.code = code
         self.detail = detail
+
+
+def _write_text_atomic(path: Path, text: str, default_mode: int) -> None:
+    """완성한 텍스트만 같은 파일시스템에서 교체하고 디렉터리까지 동기화한다."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    mode = stat.S_IMODE(path.stat().st_mode) if path.exists() else default_mode
+    fd, temporary = tempfile.mkstemp(
+        dir=path.parent,
+        prefix=f".{path.name}.",
+        suffix=".tmp",
+    )
+    temporary_path = Path(temporary)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            handle.write(text)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.chmod(temporary_path, mode)
+        os.replace(temporary_path, path)
+        if os.name != "nt":
+            directory_fd = os.open(path.parent, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+            try:
+                os.fsync(directory_fd)
+            finally:
+                os.close(directory_fd)
+    finally:
+        temporary_path.unlink(missing_ok=True)
 
 
 def _get_json(url: str, headers: dict[str, str] | None = None) -> dict:
@@ -121,10 +152,22 @@ def read_checkpoint(path: Path, price_date: str) -> dict[str, Fundamentals]:
     if not path.exists():
         return {}
     found: dict[str, Fundamentals] = {}
-    for line in path.read_text(encoding="utf-8").splitlines():
+    raw = path.read_text(encoding="utf-8")
+    lines = raw.splitlines()
+    for index, line in enumerate(lines):
         if not line.strip():
             continue
-        row = json.loads(line)
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError:
+            # 강제 종료가 마지막 append를 반쪽만 남긴 경우만 버린다. 중간 손상은
+            # 조용히 건너뛰면 이후 모든 결과가 불완전한 checkpoint를 믿게 된다.
+            if index == len(lines) - 1 and not raw.endswith(("\n", "\r")):
+                last_newline = max(raw.rfind("\n"), raw.rfind("\r"))
+                _write_text_atomic(path, raw[:last_newline + 1], 0o640)
+                print(f"[checkpoint] 마지막 미완성 행을 무시합니다: {path}")
+                break
+            raise
         if row.get("priceDate") == price_date:
             found[row["company"]["ticker"]] = Fundamentals(**row["company"])
     return found
@@ -138,12 +181,11 @@ def write_fundamentals_cache(path: Path, companies: list[Fundamentals]) -> None:
     바뀌므로 재무 재사용에는 쓸 수 없다. 재무는 분기에 한 번 바뀌고 가격은 3시간
     마다 바뀐다. 수명이 다른 두 값을 한 파일에 묶지 않는다.
     """
-    path.parent.mkdir(parents=True, exist_ok=True)
     payload = {
         "builtAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "companies": [asdict(company) for company in companies],
     }
-    path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+    _write_text_atomic(path, json.dumps(payload, ensure_ascii=False), 0o640)
 
 
 def read_fundamentals_cache(path: Path) -> tuple[list[Fundamentals], str]:
@@ -165,8 +207,17 @@ def read_fundamentals_cache(path: Path) -> tuple[list[Fundamentals], str]:
 def append_checkpoint(path: Path, price_date: str, company: Fundamentals) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     row = {"priceDate": price_date, "company": asdict(company)}
-    with path.open("a", encoding="utf-8") as handle:
-        handle.write(json.dumps(row, ensure_ascii=False) + "\n")
+    encoded = (json.dumps(row, ensure_ascii=False) + "\n").encode("utf-8")
+    with path.open("ab+") as handle:
+        handle.seek(0, os.SEEK_END)
+        size = handle.tell()
+        if size:
+            handle.seek(-1, os.SEEK_END)
+            if handle.read(1) not in {b"\n", b"\r"}:
+                handle.seek(0, os.SEEK_END)
+                handle.write(b"\n")
+        handle.seek(0, os.SEEK_END)
+        handle.write(encoded)
 
 
 def _annual_values(
@@ -631,6 +682,7 @@ class CachedPriceProvider:
         self.price_at = price_at
         self._as_of: dict[str, str] | None = None
         self._stale: list[str] = []
+        self._refreshed: list[str] = []
 
     def excluded(self) -> list[dict]:
         # 가격 갱신은 종목을 배제하지 않는다. 유니버스는 전체 수집이 정한다.
@@ -640,18 +692,31 @@ class CachedPriceProvider:
         """가격을 받지 못해 캐시 값을 그대로 둔 종목."""
         return self._stale
 
+    def refreshed(self) -> list[str]:
+        """이번 실행에서 가격과 시가총액을 모두 새로 받은 종목."""
+        return self._refreshed
+
     def load(self) -> list[Fundamentals]:
         price_date = self.price_at[:10]
         refreshed: list[Fundamentals] = []
+        self._stale = []
+        self._refreshed = []
         for company in self.companies:
             price = self.prices.get(company.ticker)
             market_cap = self.market_caps.get(company.ticker)
-            if price is None or market_cap is None:
+            fresh_values = (
+                isinstance(price, (int, float)) and not isinstance(price, bool) and
+                math.isfinite(price) and price > 0 and
+                isinstance(market_cap, (int, float)) and not isinstance(market_cap, bool) and
+                math.isfinite(market_cap) and market_cap > 0
+            )
+            if not fresh_values:
                 self._stale.append(company.ticker)
             else:
                 company.price = price
                 company.market_cap = market_cap
                 company.price_as_of = price_date
+                self._refreshed.append(company.ticker)
             refreshed.append(company)
 
         if self._stale:

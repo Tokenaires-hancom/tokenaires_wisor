@@ -1,25 +1,12 @@
-# scores.json 갱신
+# scores.json 수동 갱신
 #
-# 두 주기로 돈다. 수명이 다른 두 값을 한 실행에 묶지 않는다.
-#
-#   3시간마다  체결가만 갱신한다. 캐시된 재무를 읽으므로 SEC를 부르지 않는다
-#   하루 1회   SEC 공시까지 다시 받아 재무 캐시를 새로 만든다
-#
-# 커밋이 생기면 Render가 재빌드한다. scores.json은 빌드 시점에 번들로 들어가므로
-# 커밋 없이는 배포된 화면이 바뀌지 않는다. 그래서 값이 그대로면 커밋하지 않는다.
-# 빈 커밋 하나가 빌드 시간을 쓴다.
-#
-# 챗봇 서버도 같은 scores.json을 런타임에 읽는다. 한쪽만 재배포되면 두 서비스가
-# 서로 다른 기준일 값을 낼 수 있다. docs/deploy.md 참고.
+# 운영 데이터는 OCI의 wisor-batch.timer가 갱신한다. 이 워크플로는 저장소의 생성 파일을
+# 사람이 다시 만드는 수단이고, 생성 파일만 바뀐 커밋은 OCI 앱 자동 배포 대상이 아니다.
+# 운영 반영 경로와 이 워크플로를 지금 쓸 수 있는지는 docs/deploy.md를 본다.
 
-name: scores 갱신
+name: scores 수동 갱신
 
 on:
-  schedule:
-    # UTC 기준 3시간 간격 정각. 한국시간 09·12·15·18·21·00·03·06시.
-    - cron: "0 */3 * * *"
-    # 미국 정규장 마감(21:00 UTC) 뒤에 공시까지 다시 받는다. 한국시간 07시.
-    - cron: "0 22 * * *"
   workflow_dispatch:
     inputs:
       mode:
@@ -52,17 +39,6 @@ jobs:
       - name: 테스트 의존성 설치
         run: python -m pip install pytest
 
-      - name: 모드 정하기
-        id: mode
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "value=${{ inputs.mode }}" >> "$GITHUB_OUTPUT"
-          elif [ "${{ github.event.schedule }}" = "0 22 * * *" ]; then
-            echo "value=full" >> "$GITHUB_OUTPUT"
-          else
-            echo "value=prices" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: 배치 실행
         env:
           TOSS_INVEST_CLIENT_ID: ${{ secrets.TOSS_INVEST_CLIENT_ID }}
@@ -72,7 +48,7 @@ jobs:
         run: >-
           python run_batch.py
           --provider sec-toss
-          --mode "${{ steps.mode.outputs.value }}"
+          --mode "${{ inputs.mode }}"
           --universe data/universe_us.json
 
       - name: 점수 검사
@@ -90,5 +66,5 @@ jobs:
             echo "값이 그대로입니다. 커밋하지 않습니다."
             exit 0
           fi
-          git commit -m "${{ steps.mode.outputs.value }} 실행으로 scores.json을 갱신한다"
+          git commit -m "${{ inputs.mode }} 실행으로 scores.json을 갱신한다"
           git push

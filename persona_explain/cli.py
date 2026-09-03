@@ -187,7 +187,6 @@ def main() -> None:
     print("=" * 60)
     print("페르소나 지표 해설 챗봇")
     print("숫자는 여러분이 넣고, 챗봇은 대가의 기준으로 설명만 합니다.")
-    print("매수·매도·목표가·전망은 다루지 않습니다.")
     print("=" * 60)
 
     adapter = build_adapter(force_mock)
