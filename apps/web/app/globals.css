@@ -277,6 +277,13 @@ button {
   transform: translateX(0);
 }
 
+/* 활성 탭 바로 위 항목의 구분선을 지운다 — 그 선이 없으면 활성 탭이
+   첫 번째 항목일 때(위 경계선이 이미 투명 처리됨)와 다르게, 두 번째·
+   세 번째 항목이 활성 탭일 때만 골드 박스 위에 회색 줄이 남는다. */
+.my-page-menu button:has(+ button[data-active="true"]) {
+  border-bottom-color: transparent;
+}
+
 .my-page-menu button[data-active="true"] {
   border-left-color: var(--gold);
   border-top-color: transparent;
