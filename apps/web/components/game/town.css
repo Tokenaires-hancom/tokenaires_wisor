@@ -30,12 +30,7 @@
      양쪽 아래 모서리에서 삼각형으로 비쳐 보인다. 라운드 반경보다 넉넉히
      여백을 둬서 잘려나가는 부분이 항상 땅(tan) 색 안에서만 일어나게 한다. */
   padding: 7rem 0.6rem 1.25rem;
-  /* 82% 지점에 크림색(#f3ede0)을 한 단 끼워 넣으면 옅은 하늘색이 땅의
-     진한 탄색으로 바로 못 이어지고 그 사이에 밝은 띠가 남아, 바닥
-     테두리(gold-deep)와 색이 뚝 끊겨 보였다. 안개색(#ddf1e9)에서
-     탄색으로 한 번에 블렌딩해서 바닥까지 탄색이 끊김 없이 이어지게
-     했다. */
-  background: linear-gradient(180deg, #bce4f6 0%, #ddf1e9 45%, #dcc79a 80%, #dcc79a 100%);
+  background: linear-gradient(180deg, #bce4f6 0%, #ddf1e9 45%, #f3ede0 82%, #dcc79a calc(100% - 32px), #dcc79a 100%);
   overflow: hidden;
 }
 .town-scene::before {
