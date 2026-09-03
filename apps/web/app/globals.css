@@ -290,6 +290,11 @@ button {
   color: var(--ink);
 }
 
+/* 아래 hover 규칙(298줄)이 활성 탭에도 회색 background-color를 얹는데,
+   그라데이션이 옅어지는 꼬리 부분(288줄) 위로 그 회색이 비쳐 탁하게
+   보인다. 활성 탭에서만 투명으로 되돌려 골드 그라데이션이 그대로
+   유지되게 한다 — 지우면 활성 탭에 마우스를 올릴 때마다 이 얼룩이
+   재발한다. */
 .my-page-menu button[data-active="true"]:hover,
 .my-page-menu button[data-active="true"]:focus-visible {
   background-color: transparent;
