@@ -432,7 +432,7 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
 
       <section aria-labelledby="answer-history-title">
         <h2 id="answer-history-title" className="section">
-          기록 답변 ({journal.length})
+          기록 답변 <span className="count-badge" data-empty={journal.length === 0}>{journal.length}</span>
         </h2>
         <p className="lede">
           같은 질문에 다시 답하면 이전 답 위에 쌓입니다. 그때의 판단과 지금의 판단을
@@ -691,7 +691,7 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
 
         <section className="watchlist-notes" aria-labelledby="watchlist-notes-title">
           <h3 id="watchlist-notes-title" className="watchlist-notes-title">
-            종목 학습노트 ({notes.length})
+            종목 학습노트 <span className="count-badge" data-empty={notes.length === 0}>{notes.length}</span>
           </h3>
           <p className="lede watchlist-notes-lede">
             기업 관점에서 확인한 것을 모아 둔 기록입니다. 시간이 지난 뒤 처음의 판단 근거를 다시 읽는 것이 이 노트의 목적입니다.
