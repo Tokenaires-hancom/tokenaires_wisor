@@ -14,7 +14,7 @@
 }
 .game-streak { font-weight: 700; font-size: 0.95rem; }
 .game-streak small { color: var(--ink-soft); font-weight: 500; }
-.game-level { font-size: 0.8rem; color: var(--wine); font-weight: 700; letter-spacing: 0.02em; }
+.game-level { font-size: 0.95rem; color: var(--ink); font-weight: 700; }
 
 .game-xpbar {
   height: 9px;
