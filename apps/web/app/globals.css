@@ -1421,16 +1421,19 @@ h3.sub {
     flex: none;
   }
 
-  /* 종목 줄을 담는 칸. lib/paginate.ts의 PAGE_SIZE(14)와 같은 수로 grid
-     행을 미리 14칸 만들어 둔다 — 실제 줄이 몇 개든(관심종목 2개, 판정
-     14개) 한 칸의 높이는 항상 "이 칸 전체 높이 / 14"로 똑같이 계산된다.
-     묶음마다 줄 개수가 달라 flex-grow(개수로 나누기)를 쓰면 줄이 적은
-     묶음(관심종목)의 줄이 훨씬 커져 판정 탭과 크기가 달라진다 — grid는
-     안 쓰는 칸을 그냥 빈 채로 아래에 남겨서 이 문제가 없다. 최소 높이는
-     min-content로 둬 로고 28px 밑으로는 안 줄어든다. */
+  /* 종목 줄을 담는 칸. lib/paginate.ts의 PAGE_SIZE만큼 grid 행을 미리
+     만들어 둔다 — 실제 줄이 몇 개든(관심종목 2개, 판정 14개) 한 칸의
+     높이는 항상 "이 칸 전체 높이 / PAGE_SIZE"로 똑같이 계산된다. 묶음마다
+     줄 개수가 달라 flex-grow(개수로 나누기)를 쓰면 줄이 적은 묶음(관심
+     종목)의 줄이 훨씬 커져 판정 탭과 크기가 달라진다 — grid는 안 쓰는
+     칸을 그냥 빈 채로 아래에 남겨서 이 문제가 없다. 최소 높이는
+     min-content로 둬 로고 28px 밑으로는 안 줄어든다.
+     grid-template-rows의 반복 횟수(PAGE_SIZE)는 여기 안 적는다 — CSS
+     repeat()는 반복 횟수 자리에 var()를 못 받아서(스펙 제약) 값을 두
+     군데 손으로 맞춰야 한다. 대신 PAGE_SIZE를 실제로 아는
+     ScreenerCompanies.tsx가 이 속성 전체를 인라인 style로 써 넣는다. */
   .stock-row-list {
     display: grid;
-    grid-template-rows: repeat(14, minmax(min-content, 1fr));
     flex: 1;
     min-height: 0;
   }

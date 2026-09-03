@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import CriteriaBar from "@/components/CriteriaBar";
 import WatchButton from "@/components/WatchButton";
 import { PAGE_SIZE, pageCount, pageSlice } from "@/lib/paginate";
@@ -63,7 +64,14 @@ export default function ScreenerCompanies({
 
   return (
     <>
-      <div className="stock-row-list">
+      <div
+        className="stock-row-list"
+        /* CSS의 repeat()는 반복 횟수 자리에 var()를 못 받는다(스펙 제약,
+           브라우저가 조용히 grid-template-rows 전체를 무효화하고 auto로
+           되돌린다) — PAGE_SIZE를 아는 이 자리에서 문자열을 직접 만든다.
+           숫자를 두 파일에 손으로 맞출 필요가 없다. */
+        style={{ gridTemplateRows: `repeat(${PAGE_SIZE}, minmax(min-content, 1fr))` } as CSSProperties}
+      >
         {visible.map((c) => {
           const s = c.scores[style];
           return (
