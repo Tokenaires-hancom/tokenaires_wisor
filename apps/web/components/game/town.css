@@ -445,6 +445,7 @@
 }
 
 .town-reward {
+  --town-celebrate-pace: 4; /* 기본 대비 0.25x 속도(재생 시간 4배) */
   position: fixed;
   inset: 0;
   z-index: 40;
@@ -455,12 +456,98 @@
   gap: 1.25rem;
   padding: 1.5rem;
   background: color-mix(in srgb, var(--paper) 88%, transparent);
-  animation: town-reward-in 0.35s ease both;
+  animation: town-reward-in calc(0.35s * var(--town-celebrate-pace)) ease both;
 }
 .town-reward .town {
   width: min(100%, 640px);
   margin: 0;
-  animation: town-reward-pop 0.55s cubic-bezier(0.2, 1.5, 0.35, 1) both;
+  animation: town-reward-pop calc(0.55s * var(--town-celebrate-pace)) cubic-bezier(0.2, 1.5, 0.35, 1) both;
+}
+
+/* 장 완료 축하: 연출이 겹쳐 빠르게 느껴진다. --town-celebrate-pace로 속도를 맞춘다.
+ * animation-duration은 shorthand 다음에 쓰면 덮어쓴다. /me 기본 마을에는 적용 안 됨. */
+.town-scene[data-celebrate="true"] {
+  animation-duration: calc(0.65s * var(--town-celebrate-pace, 4));
+}
+.town-scene[data-celebrate="true"]::before {
+  animation-duration: calc(3s * var(--town-celebrate-pace, 4));
+}
+.town-scene[data-celebrate="true"]::after {
+  animation-duration: calc(0.9s * var(--town-celebrate-pace, 4));
+}
+.town-scene[data-celebrate="true"] .town-sun {
+  animation-duration: calc(2s * var(--town-celebrate-pace, 4));
+}
+.town-scene[data-celebrate="true"] .town-sun::before {
+  animation-duration: calc(6s * var(--town-celebrate-pace, 4));
+}
+.town-scene[data-celebrate="true"] .town-sun::after {
+  animation-duration: calc(4s * var(--town-celebrate-pace, 4));
+}
+.town-scene[data-celebrate="true"] .town-cloud {
+  animation-duration: calc(18s * var(--town-celebrate-pace, 4)), calc(2.4s * var(--town-celebrate-pace, 4));
+}
+.town-scene[data-celebrate="true"] .town-cloud-b {
+  animation-duration: calc(24s * var(--town-celebrate-pace, 4)), calc(3.1s * var(--town-celebrate-pace, 4));
+}
+.town-scene[data-celebrate="true"] .town-cloud-c {
+  animation-duration: calc(14s * var(--town-celebrate-pace, 4)), calc(2.8s * var(--town-celebrate-pace, 4));
+}
+.town-scene[data-celebrate="true"] .town-bird::before,
+.town-scene[data-celebrate="true"] .town-bird::after {
+  animation-duration: calc(0.32s * var(--town-celebrate-pace, 4));
+}
+.town-scene[data-celebrate="true"] .town-bird-a {
+  animation-duration: calc(11s * var(--town-celebrate-pace, 4));
+}
+.town-scene[data-celebrate="true"] .town-bird-b {
+  animation-duration: calc(15s * var(--town-celebrate-pace, 4));
+}
+.town-scene[data-celebrate="true"] .town-bird-c {
+  animation-duration: calc(9s * var(--town-celebrate-pace, 4));
+}
+.town-scene[data-celebrate="true"] .town-confetti {
+  animation-duration: calc(2.2s * var(--town-celebrate-pace, 4));
+}
+.town-scene[data-celebrate="true"] .town-bench {
+  animation-duration: calc(2.5s * var(--town-celebrate-pace, 4));
+}
+.town-scene[data-celebrate="true"] .town-row {
+  animation-duration: calc(0.5s * var(--town-celebrate-pace, 4));
+}
+.town-scene[data-celebrate="true"] .town-plot .town-building {
+  animation-duration: calc(2.6s * var(--town-celebrate-pace, 4));
+}
+.town-scene[data-celebrate="true"] .town-plot[data-highlight="true"] .town-building {
+  animation-duration: calc(0.48s * var(--town-celebrate-pace, 4));
+}
+.town-scene[data-celebrate="true"] .town-plot[data-highlight="true"] .town-name,
+.town-scene[data-celebrate="true"] .town-plot[data-highlight="true"] .town-count {
+  animation-duration: calc(0.48s * var(--town-celebrate-pace, 4));
+}
+.town-scene[data-celebrate="true"] .town-burst {
+  animation-duration: calc(0.85s * var(--town-celebrate-pace, 4));
+}
+.town-scene[data-celebrate="true"] .town-coin[data-celebrate="true"] {
+  animation-duration: calc(0.52s * var(--town-celebrate-pace, 4));
+}
+.town-scene[data-celebrate="true"] .town-coin[data-celebrate="true"] .duo-mascot img {
+  animation-duration: calc(0.52s * var(--town-celebrate-pace, 4));
+}
+.town-scene[data-celebrate="true"] .town-flag::after {
+  animation-duration: calc(1.2s * var(--town-celebrate-pace, 4));
+}
+.town-scene[data-celebrate="true"] .town-floor {
+  animation-duration: calc(0.42s * var(--town-celebrate-pace, 4)), calc(1.6s * var(--town-celebrate-pace, 4));
+}
+.town-scene[data-celebrate="true"] .town-roof {
+  animation-duration: calc(3s * var(--town-celebrate-pace, 4));
+}
+.town-scene[data-celebrate="true"] .town-firework {
+  animation-duration: calc(1.5s * var(--town-celebrate-pace, 4));
+}
+.town-scene[data-celebrate="true"] .town-lot {
+  animation-duration: calc(2s * var(--town-celebrate-pace, 4));
 }
 
 .town-name {
