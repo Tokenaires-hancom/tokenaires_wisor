@@ -2,7 +2,9 @@
 
 > 담당: 백엔드·플랫폼·배포·환경변수
 > 현재 운영은 OCI의 <https://wisor.site>입니다. 자동 배포 계약은
-> [OCI main 자동 배포](./oci-autodeploy.md)에 있습니다. `render.yaml`은 기존 Render 설정입니다.
+> [OCI 자동 배포](./oci-autodeploy.md)에 있습니다. `render.yaml`은 기존 Render 설정입니다.
+> `develop`은 개발 서버 <https://dev.wisor.site>로 갑니다 —
+> [개발 서버 세우기](./oci-dev-server.md).
 
 ---
 
@@ -26,6 +28,24 @@ Web·Persona 이미지가 모두 healthy이며 외부 경로가 응답할 때만
 
 `PERSONA_API_ORIGIN`처럼 **스킴까지 있어야 합니다.** 끝에 `/`를 붙이지 않습니다 —
 브라우저가 보내는 `Origin` 헤더에 경로가 없어 문자열이 그대로 어긋납니다.
+
+---
+
+## 개발 서버
+
+`develop` push는 같은 워크플로·같은 배포기로 <https://dev.wisor.site>에 갑니다.
+서버·키·주소는 GitHub `Development` Environment가 따로 들고, 배포기는
+`/etc/wisor/deploy.conf`로 자기가 어느 쪽인지 압니다.
+
+운영과 다른 점은 셋입니다.
+
+- **배치를 돌리지 않습니다.** 토스 API는 운영 서버 IP만 허용합니다. 개발 서버
+  주소를 허용 목록에 넣지 않습니다 — 목록이 어긋나면 조용히 죽는 쪽은 운영입니다
+- **Supabase가 다른 프로젝트입니다.** 계정 삭제 API가 service role 키를 쓰므로
+  운영 프로젝트를 보게 두면 실제 사용자를 지울 수 있습니다
+- **검색에 노출되지 않습니다.** nginx가 `X-Robots-Tag: noindex`를 답니다
+
+설치 절차는 [개발 서버 세우기](./oci-dev-server.md)에 있습니다.
 
 ---
 

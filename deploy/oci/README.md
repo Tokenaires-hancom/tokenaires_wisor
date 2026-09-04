@@ -41,6 +41,10 @@ systemctl cat wisor-batch.timer --no-pager
 **저장소의 unit을 서버에 설치하지 마세요.** 여기가 낡아 있으면 돌아가는 배치가 멈춥니다.
 실제로 2026-08-26에 이 셋이 낡아 있었고, 그때 예전 README는 그걸 설치하라고 적고 있었습니다.
 
+`/etc/wisor/deploy.conf`도 서버에만 있습니다. 배포 대상 브랜치와 공개 주소가 서버마다
+다르기 때문에 저장소에 값이 들어갈 자리가 없습니다. 형식은 `docs/oci-autodeploy.md`에
+있습니다.
+
 ## 배치가 하는 일
 
 매 실행마다 Web·Persona 이미지를 새로 빌드하고, `bin/validate-scores.py`를 통과한 뒤에만
