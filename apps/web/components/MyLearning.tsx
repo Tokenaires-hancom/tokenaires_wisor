@@ -198,7 +198,6 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
   return (
     <div className="wrap wrap-wide my-page-shell">
       <aside className="my-page-sidebar">
-        <p className="eyebrow">개인 기록</p>
         <h1>마이페이지</h1>
         <nav className="my-page-menu" aria-label="마이페이지 메뉴" role="tablist">
           <button
@@ -210,11 +209,13 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
             data-active={activeSection === "my-learning"}
             onClick={() => setActiveSection("my-learning")}
           >
-            <span className="my-page-menu-index" aria-hidden="true">01</span>
-            <span>
+            <span className="my-page-menu-label">
               <strong>내 학습</strong>
-              <small>진도 · 퀴즈 · 기록형 답변</small>
+              <small>진도 · 퀴즈 · 기록</small>
             </span>
+            <svg className="my-page-menu-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 6l6 6-6 6" />
+            </svg>
           </button>
           <button
             type="button"
@@ -225,11 +226,13 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
             data-active={activeSection === "watchlist"}
             onClick={() => setActiveSection("watchlist")}
           >
-            <span className="my-page-menu-index" aria-hidden="true">02</span>
-            <span>
+            <span className="my-page-menu-label">
               <strong>관심 종목</strong>
               <small>저장한 기업 · 학습노트</small>
             </span>
+            <svg className="my-page-menu-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 6l6 6-6 6" />
+            </svg>
           </button>
           <button
             type="button"
@@ -240,11 +243,13 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
             data-active={activeSection === "account-settings"}
             onClick={() => setActiveSection("account-settings")}
           >
-            <span className="my-page-menu-index" aria-hidden="true">03</span>
-            <span>
+            <span className="my-page-menu-label">
               <strong>계정 설정</strong>
               <small>로그인 · 비밀번호 · 로그아웃</small>
             </span>
+            <svg className="my-page-menu-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 6l6 6-6 6" />
+            </svg>
           </button>
         </nav>
       </aside>
@@ -252,9 +257,8 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
       <main className="my-page-content">
       {activeSection === "my-learning" && (
       <div id="mypage-panel-my-learning" role="tabpanel" aria-labelledby="mypage-tab-my-learning">
-        <p className="eyebrow">내 학습</p>
         <h2 className="thesis">
-          지금까지 무엇을 확인했나요?
+          학습 진도
         </h2>
 
       <div className="my-page-hero">
@@ -288,8 +292,8 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
           </div>
 
           <div className="card">
-            <p className="eyebrow">투자 대가 챕터</p>
-            <p className="score-value">
+            <p className="eyebrow eyebrow-strong">완료 챕터</p>
+            <p className="score-value score-value-lg">
               {chaptersDone}
               <span className="score-of"> / {totalChapters}</span>
             </p>
@@ -427,9 +431,8 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
       <hr className="rule" />
 
       <section aria-labelledby="answer-history-title">
-        <p className="eyebrow">기록형 문항</p>
         <h2 id="answer-history-title" className="section">
-          내가 남긴 답변 ({journal.length})
+          기록 답변 <span className="count-badge" data-empty={journal.length === 0}>{journal.length}</span>
         </h2>
         <p className="lede">
           같은 질문에 다시 답하면 이전 답 위에 쌓입니다. 그때의 판단과 지금의 판단을
@@ -608,8 +611,7 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
       <section id="mypage-panel-watchlist" role="tabpanel" aria-labelledby="mypage-tab-watchlist watchlist-title">
         <div className="watchlist-heading">
           <div>
-            <p className="eyebrow">기업 다시 보기</p>
-            <h2 id="watchlist-title" className="section">관심 종목</h2>
+            <h2 id="watchlist-title" className="section">저장 기업</h2>
           </div>
           <span>{watchlist.length}개 기업 · {notes.length}개 노트</span>
         </div>
@@ -688,13 +690,11 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
         )}
 
         <section className="watchlist-notes" aria-labelledby="watchlist-notes-title">
-          <p className="eyebrow">기업 판단 기록</p>
           <h3 id="watchlist-notes-title" className="watchlist-notes-title">
-            종목 학습노트 ({notes.length})
+            종목 학습노트 <span className="count-badge" data-empty={notes.length === 0}>{notes.length}</span>
           </h3>
-          <p className="lede">
-            기업 관점에서 확인한 것을 모아 둔 기록입니다. 시간이 지난 뒤 처음의 판단 근거를 다시
-            읽는 것이 이 노트의 목적입니다.
+          <p className="lede watchlist-notes-lede">
+            기업 관점에서 확인한 것을 모아 둔 기록입니다. 시간이 지난 뒤 처음의 판단 근거를 다시 읽는 것이 이 노트의 목적입니다.
           </p>
           {notes.length === 0 ? (
             <p className="lede">
@@ -777,7 +777,6 @@ export default function MyLearning({ companies }: { companies: Record<string, Wa
 
       {activeSection === "account-settings" && (
       <section id="mypage-panel-account-settings" role="tabpanel" aria-labelledby="mypage-tab-account-settings account-settings-title">
-        <p className="eyebrow">내 계정</p>
         <h2 id="account-settings-title" className="section">계정 설정</h2>
         <AccountSettings />
       </section>

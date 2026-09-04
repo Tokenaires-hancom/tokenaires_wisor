@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import CriteriaBar from "@/components/CriteriaBar";
 import WatchButton from "@/components/WatchButton";
 import { PAGE_SIZE, pageCount, pageSlice } from "@/lib/paginate";
@@ -44,6 +45,7 @@ export default function ScreenerCompanies({
   style,
   selectedTicker,
   onSelect,
+  detailContent,
 }: {
   /** 판정 · 정보 부족 · 판정 제외 세 묶음 중 지금 목록 머리에서 고른 묶음.
    *  세 묶음은 종목마다 `scores[style]`이 있는지·score가 null인지가 다르다
@@ -56,55 +58,82 @@ export default function ScreenerCompanies({
   /** 줄을 누르면 페이지를 떠나지 않고 이 콜백만 부른다. 어느 종목을 보여줄지는
    *  부모(`ScreenerSplit`)가 정한다 — 목록은 목록 그리기만 맡는다. */
   onSelect: (ticker: string) => void;
+  /** 넓은 화면 오른쪽 칸과 같은 내용(ScreenerSplit이 한 번만 만든다). 좁은
+   *  화면에서 줄을 펼치면 그 줄 바로 아래(아코디언)에 이걸 그대로 넣는다. */
+  detailContent: ReactNode;
 }) {
   const [page, setPage] = useState(1);
   const last = pageCount(companies.length);
   const visible = pageSlice(companies, page);
+  /* 좁은 화면(아코디언)에서 지금 펼친 줄. `selectedTicker`(오른쪽 칸이
+     보여주는 종목)와 일부러 분리했다 — 아코디언을 접어도 오른쪽 칸의
+     선택은 그대로 있어야 넓은 화면에서 아무것도 안 바뀐 것처럼 보인다.
+     같은 줄을 다시 누르면 접힌다. */
+  const [expandedTicker, setExpandedTicker] = useState<string | null>(null);
 
   return (
     <>
-      <div>
+      <div
+        className="stock-row-list"
+        /* CSS의 repeat()는 반복 횟수 자리에 var()를 못 받는다(스펙 제약,
+           브라우저가 조용히 grid-template-rows 전체를 무효화하고 auto로
+           되돌린다) — PAGE_SIZE를 아는 이 자리에서 문자열을 직접 만든다.
+           숫자를 두 파일에 손으로 맞출 필요가 없다. */
+        style={{ gridTemplateRows: `repeat(${PAGE_SIZE}, minmax(min-content, 1fr))` } as CSSProperties}
+      >
         {visible.map((c) => {
           const s = c.scores[style];
+          const expanded = expandedTicker === c.ticker;
           return (
-            <div
-              key={c.ticker}
-              className="stock-row"
-              data-current={selectedTicker === c.ticker ? "true" : undefined}
-            >
-              <button
-                type="button"
-                className="stock-row-select"
-                aria-current={selectedTicker === c.ticker ? "true" : undefined}
-                onClick={() => onSelect(c.ticker)}
-              >
-                <StockLogo ticker={c.ticker} />
-                <span className="stock-name" title={c.name}>{c.name}</span>
-                {s ? (
-                  <>
-                    <span className="stock-row-bar">
-                      <CriteriaBar criteria={s.criteria} size="sm" />
-                    </span>
-                    <span className="stock-score">
-                      {s.rank !== undefined ? `#${s.rank}` : s.score ?? s.dataConfidence}
-                    </span>
-                  </>
-                ) : (
-                  /* 정보 부족·판정 제외 종목 중에는 이 철학에서 scores[style] 자체가
-                     없는 경우가 있다(lib/ranking.ts). 판정한 기준이 없으니 막대를
-                     그릴 값이 없다 — 자리는 비워 둔다(그리드 칸 수를 맞춘다).
-                     사유 문장(unscorableReason)은 40자를 넘어 이 좁은 칸에 못 들어가서
-                     여기서는 안 쓴다. 전체 문장은 줄을 눌러 오른쪽 칸(BusinessLens)에서
-                     읽는다. */
-                  <>
-                    <span className="stock-row-bar" />
-                    <span className="stock-score stock-score-reason">
-                      {c.unscorableReason ? "판정 제외" : "정보 부족"}
-                    </span>
-                  </>
-                )}
-              </button>
-              <WatchButton ticker={c.ticker} size="sm" />
+            <div key={c.ticker} className="stock-row-item" data-expanded={expanded ? "true" : undefined}>
+              <div className="stock-row" data-current={selectedTicker === c.ticker ? "true" : undefined}>
+                <button
+                  type="button"
+                  className="stock-row-select"
+                  aria-current={selectedTicker === c.ticker ? "true" : undefined}
+                  aria-expanded={expanded}
+                  onClick={() => {
+                    onSelect(c.ticker);
+                    setExpandedTicker((prev) => (prev === c.ticker ? null : c.ticker));
+                  }}
+                >
+                  <StockLogo ticker={c.ticker} />
+                  {/* 넓은 화면에서는 오른쪽 칸이 따로 있어 뜻이 없으므로 CSS로
+                     숨긴다(globals.css) — 좁은 화면 전용 아코디언 상태 표시.
+                     이름 바로 앞에 둔다 — 줄 오른쪽 끝(하트 옆)에 있던 이전
+                     자리는 다른 표시들 사이에 묻혀 눈에 잘 안 띄었다. 화살표
+                     대신 접힘 −·펼침 + 로 방향성 없이 상태만 보여준다. */}
+                  <span className="stock-row-chevron" aria-hidden="true">
+                    {expanded ? "+" : "−"}
+                  </span>
+                  <span className="stock-name" title={c.name}>{c.name}</span>
+                  {s ? (
+                    <>
+                      <span className="stock-row-bar">
+                        <CriteriaBar criteria={s.criteria} size="sm" />
+                      </span>
+                      <span className="stock-score">
+                        {s.rank !== undefined ? `#${s.rank}` : s.score ?? s.dataConfidence}
+                      </span>
+                    </>
+                  ) : (
+                    /* 정보 부족·판정 제외 종목 중에는 이 철학에서 scores[style] 자체가
+                       없는 경우가 있다(lib/ranking.ts). 판정한 기준이 없으니 막대를
+                       그릴 값이 없다 — 자리는 비워 둔다(그리드 칸 수를 맞춘다).
+                       사유 문장(unscorableReason)은 40자를 넘어 이 좁은 칸에 못 들어가서
+                       여기서는 안 쓴다. 전체 문장은 줄을 눌러 오른쪽 칸(BusinessLens)에서
+                       읽는다. */
+                    <>
+                      <span className="stock-row-bar" />
+                      <span className="stock-score stock-score-reason">
+                        {c.unscorableReason ? "판정 제외" : "정보 부족"}
+                      </span>
+                    </>
+                  )}
+                </button>
+                <WatchButton ticker={c.ticker} size="sm" />
+              </div>
+              {expanded && <div className="stock-row-detail">{detailContent}</div>}
             </div>
           );
         })}

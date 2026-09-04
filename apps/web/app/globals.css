@@ -231,46 +231,86 @@ button {
 .my-page-sidebar h1 {
   margin: 0.25rem 0 1.8rem;
   color: var(--ink);
-  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  font-size: 1.45rem;
   line-height: 1.08;
 }
 
-.my-page-menu {
+.my-page-menu button:first-child {
   border-top: 1px solid var(--line-strong);
 }
 
 .my-page-menu button {
-  display: grid;
-  grid-template-columns: 1.6rem minmax(0, 1fr);
+  display: flex;
+  align-items: center;
   gap: 0.7rem;
   width: 100%;
   padding: 1rem 0.8rem 1rem 0;
   border: 0;
+  border-left: 4px solid transparent;
   border-bottom: 1px solid var(--line);
+  border-radius: 10px 0 0 10px;
   background: none;
   color: var(--ink-soft);
   text-align: left;
+  transition: background-color 0.2s ease, color 0.2s ease,
+    border-left-color 0.2s ease, padding-left 0.2s ease;
+}
+
+.my-page-menu-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.my-page-menu-chevron {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  color: var(--gold);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.my-page-menu button:hover .my-page-menu-chevron,
+.my-page-menu button:focus-visible .my-page-menu-chevron {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* 활성 탭 바로 위 항목의 구분선을 지운다 — 그 선이 없으면 활성 탭이
+   첫 번째 항목일 때(위 경계선이 이미 투명 처리됨)와 다르게, 두 번째·
+   세 번째 항목이 활성 탭일 때만 골드 박스 위에 회색 줄이 남는다. */
+.my-page-menu button:has(+ button[data-active="true"]) {
+  border-bottom-color: transparent;
 }
 
 .my-page-menu button[data-active="true"] {
-  border-left: 4px solid var(--gold);
+  border-left-color: var(--gold);
+  border-top-color: transparent;
+  border-bottom-color: transparent;
   padding-left: 0.75rem;
-  background: linear-gradient(90deg, var(--gold-soft), transparent 86%);
+  background: linear-gradient(
+    90deg,
+    var(--gold-soft),
+    color-mix(in oklab, var(--gold-soft) 35%, white) 100%
+  );
   color: var(--ink);
+}
+
+/* 아래 hover 규칙(298줄)이 활성 탭에도 회색 background-color를 얹는데,
+   그라데이션이 옅어지는 꼬리 부분(288줄) 위로 그 회색이 비쳐 탁하게
+   보인다. 활성 탭에서만 투명으로 되돌려 골드 그라데이션이 그대로
+   유지되게 한다 — 지우면 활성 탭에 마우스를 올릴 때마다 이 얼룩이
+   재발한다. */
+.my-page-menu button[data-active="true"]:hover,
+.my-page-menu button[data-active="true"]:focus-visible {
+  background-color: transparent;
 }
 
 .my-page-menu button:hover,
 .my-page-menu button:focus-visible {
   background-color: var(--surface-sunk);
   color: var(--ink);
-}
-
-.my-page-menu-index {
-  padding-top: 0.16rem;
-  color: var(--ink-faint);
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
 }
 
 .my-page-menu strong,
@@ -282,15 +322,37 @@ button {
   font-size: 0.95rem;
 }
 
+.my-page-menu button:not([data-active="true"]):hover strong,
+.my-page-menu button:not([data-active="true"]):focus-visible strong,
+.my-page-menu button[data-active="true"] strong {
+  color: var(--wine);
+}
+
 .my-page-menu small {
-  margin-top: 0.28rem;
+  margin-top: 0;
   color: var(--ink-faint);
   font-size: 0.7rem;
   line-height: 1.45;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.25s ease, opacity 0.2s ease, margin-top 0.25s ease;
+}
+
+.my-page-menu button:hover small,
+.my-page-menu button:focus-visible small,
+.my-page-menu button[data-active="true"] small {
+  margin-top: 0.28rem;
+  max-height: 2.5rem;
+  opacity: 1;
 }
 
 .my-page-content {
   min-width: 0;
+}
+
+.my-page-content .thesis {
+  font-size: 1.45rem;
 }
 
 /* 연속 학습·챕터 카드가 왼쪽 1/3, 마을(town)이 오른쪽 2/3를 받는다.
@@ -515,6 +577,7 @@ button {
   gap: 1.5rem;
   padding: 1.25rem;
   border: 1px dashed var(--line-strong);
+  border-radius: var(--radius);
   background: var(--surface-sunk);
 }
 
@@ -698,7 +761,6 @@ button {
   }
 
   .my-page-menu button {
-    grid-template-columns: 1.5rem minmax(0, 1fr);
     max-width: 28rem;
   }
 
@@ -774,7 +836,6 @@ button {
 
 .foot p {
   margin: 0.2rem 0;
-  max-width: 60ch;
 }
 
 /* ---------- 활자 ---------- */
@@ -786,6 +847,15 @@ button {
   text-transform: uppercase;
   color: var(--ink-faint);
   margin: 0 0 0.75rem;
+}
+
+.eyebrow-strong {
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--ink);
 }
 
 .thesis {
@@ -810,6 +880,30 @@ h2.section {
   font-size: 1.45rem;
   font-weight: 800;
   margin: 0 0 0.35rem;
+}
+
+/* 제목 옆 개수 표시. 골드 배경 위 흰 글씨는 대비가 낮아(2.05:1) 16px 이상·
+   font-weight 700 이상에서만 쓴다는 규칙이 있어 이 크기 밑으로 줄이지 않는다.
+   개수가 0이면 "비어있음"을 색으로도 구분하도록 흐린 톤으로 바꾼다. */
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  padding: 0 0.5rem;
+  border-radius: 999px;
+  background: var(--gold);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 1rem;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.count-badge[data-empty="true"] {
+  background: var(--line);
+  color: var(--ink-faint);
 }
 
 h3.sub {
@@ -1224,10 +1318,14 @@ h3.sub {
  * ⑤-3a — 641px 이상에서는 화면 전체가 스크롤하지 않는 고정 셸이다. 마스트헤드
  * (60px) 아래 남는 높이를 .screener-page가 통째로 차지하고, 그 안에서 목록·
  * 상세 두 칸이 각자 따로 스크롤한다 — 페이지 자체는 절대 안 늘어난다.
- * 640px 이하는 아직 이 셸을 안 쓴다(보통 페이지 스크롤). 반응형은 다음 단계. */
+ * 640px 이하는 목록 칸을 420px로 고정한 2열 그리드를 그대로 쓰면 화면
+ * 폭보다 목록이 넓어져 상세 칸이 0px로 찌그러진다 — 그 안 문구가 한 글자씩
+ * 줄바꿈되며 페이지 세로 길이가 수천 px로 늘어나 스크롤해도 끝이 안 보이는
+ * 사고로 이어진다. 그래서 640px 이하는 기본값으로 1열로 쌓고, 641px부터만
+ * 2열로 나눈다(아래 미디어쿼리). */
 .screener-split {
   display: grid;
-  grid-template-columns: 420px minmax(0, 1fr);
+  grid-template-columns: 1fr;
   gap: 1.5rem;
   align-items: start;
   margin-top: 1rem;
@@ -1238,15 +1336,12 @@ h3.sub {
   min-width: 0;
 }
 
-/* 목록과 상세를 나누는 세로선. 종목 점수가 선에 바로 붙어 보이지 않도록
-   .screener-split의 gap(1.5rem)을 선 앞쪽 여백으로 먼저 주고, 선 뒤에도
-   같은 1.5rem을 padding-left로 둔다. 오른쪽도 같은 값을 줘서 카드가 칸
-   오른쪽 끝까지 억지로 안 늘어나게 한다 — 양쪽에 숨 쉴 자리를 두면 카드 안
-   그리드도 더 촘촘하게 접힌다. */
+/* 640px 이하는 이 칸을 통째로 숨긴다 — 종목을 골랐을 때는 목록 안
+   아코디언(.stock-row-detail)이, 안 골랐을 때는 대가 탭 밑
+   .philosophy-panel이 좁은 화면 몫을 대신 맡는다. 641px부터는 아래
+   미디어쿼리가 다시 보이게 하고 세로선(desktop용)을 그린다. */
 .screener-split-detail {
-  border-left: 1px solid var(--line);
-  padding-left: 7.5rem;
-  padding-right: 7.5rem;
+  display: none;
 }
 
 /* 종목을 아직 안 고른 기본 화면. 내용이 칸 위쪽에 붙어 아래만 크게 비지
@@ -1257,6 +1352,55 @@ h3.sub {
   flex-direction: column;
   justify-content: center;
   min-height: 100%;
+}
+
+/* 좁은 화면 전용 "투자 철학" 접기 버튼 + 몸통을 담는 자리. 대가 탭
+   바로 아래, 묶음 탭 위에 둔다. 넓은 화면은 통째로 숨긴다 — 오른쪽 칸
+   (.screener-split-detail)이 같은 내용을 항상 보여준다. */
+.philosophy-panel {
+  margin-bottom: 0.75rem;
+}
+
+/* 아래 캡슐형(묶음 탭·검색창·배지, border-radius:999px)과 헷갈리지
+   않도록 각진 카드 테두리(var(--radius), .card와 같은 값)로 다르게
+   만든다 — 눌러도 되는 자리라는 느낌은 테두리·hover 배경으로 준다. */
+.philosophy-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.3rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ink);
+  transition: background 0.15s ease;
+}
+
+.philosophy-toggle:hover {
+  background: var(--surface-sunk);
+}
+
+.philosophy-toggle-icon {
+  color: var(--ink-faint);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* 펼친 상태만 포인트색으로 — 종목 줄 아코디언(+/−)과 같은 규칙. */
+.philosophy-toggle[aria-expanded="true"] .philosophy-toggle-icon {
+  color: var(--wine);
+}
+
+.philosophy-body {
+  display: none;
+  margin-top: 1rem;
+}
+
+.philosophy-body[data-open="true"] {
+  display: block;
 }
 
 /* 640px 이하 기본값. 고정 셸을 아직 안 쓰는 폭이라 보통 페이지처럼 아래
@@ -1273,25 +1417,54 @@ h3.sub {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    padding-block: 0.75rem 0.75rem;
+    padding-block: 0.4rem 0.4rem;
   }
 
   .screener-page > .screener-style-tabs {
     flex: none;
   }
 
-  /* 목록(왼쪽)은 그대로 align-items: start로 자기 높이만큼만 차지한다 —
-     스크롤을 안 주므로 페이지네이션까지 이 칸 안에 다 들어가야 한다.
-     상세(오른쪽)만 align-self: stretch로 칸을 가득 채우고 그 안에서
-     스크롤한다. 페이지에서 스크롤이 나는 곳은 여기 하나뿐이다. */
+  /* 목록(왼쪽)·상세(오른쪽) 둘 다 align-self: stretch로 칸을 가득 채운다.
+     상세는 그 안에서 스크롤하고(overflow-y: auto), 목록은 스크롤을 안 주는
+     대신 14줄이 남는 세로 공간을 flex-grow로 나눠 먹는다(.stock-row-list
+     참고) — 그래서 창이 커도 줄 밑에 빈 공간이 안 남고, 창이 작아도(태블릿)
+     줄이 압축될 뿐 페이지네이션까지 이 칸 안에 다 들어간다. */
   .screener-page > .screener-split {
     flex: 1;
     min-height: 0;
-    margin-top: 0.5rem;
+    margin-top: 0.15rem;
+    grid-template-columns: 420px minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr);
   }
 
+  .screener-split-list {
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    height: 100%;
+    min-height: 0;
+  }
+
+  /* 좁은 화면 전용 아코디언 흔적을 지운다 — 오른쪽 칸이 항상 있으니 목록
+     안에서 또 펼칠 필요가 없다. sticky로 고정했던 줄도 원래대로(고정
+     없음) 되돌린다. "투자 철학" 자리(대가 탭 밑)도 통째로 지운다 — 같은
+     내용이 오른쪽 칸에 늘 펼쳐 보인다. */
+  .stock-row-chevron,
+  .stock-row-detail,
+  .philosophy-panel {
+    display: none;
+  }
+
+  .stock-row-item[data-expanded="true"] .stock-row {
+    position: static;
+  }
+
+  /* 목록과 상세를 나누는 세로선. .screener-split의 gap(1.5rem)을 선
+     앞쪽 여백으로 먼저 주고, 선 뒤에도 같은 1.5rem을 padding-left로
+     둔다. 오른쪽도 같은 값을 줘서 카드가 칸 오른쪽 끝까지 억지로 안
+     늘어나게 한다. */
   .screener-split-detail {
+    display: block;
     align-self: stretch;
     height: 100%;
     min-height: 0;
@@ -1300,6 +1473,34 @@ h3.sub {
        auto로 승격돼 버려서, 안쪽 어딘가 폭이 살짝만 넘쳐도 여기서 조용히
        가로 스크롤이 생긴다. 명시로 막는다. */
     overflow-x: hidden;
+    border-left: 1px solid var(--line);
+    padding-left: 7.5rem;
+    padding-right: 7.5rem;
+  }
+
+  .screener-list-head {
+    flex: none;
+  }
+
+  /* 종목 줄을 담는 칸. lib/paginate.ts의 PAGE_SIZE만큼 grid 행을 미리
+     만들어 둔다 — 실제 줄이 몇 개든(관심종목 2개, 판정 14개) 한 칸의
+     높이는 항상 "이 칸 전체 높이 / PAGE_SIZE"로 똑같이 계산된다. 묶음마다
+     줄 개수가 달라 flex-grow(개수로 나누기)를 쓰면 줄이 적은 묶음(관심
+     종목)의 줄이 훨씬 커져 판정 탭과 크기가 달라진다 — grid는 안 쓰는
+     칸을 그냥 빈 채로 아래에 남겨서 이 문제가 없다. 최소 높이는
+     min-content로 둬 로고 28px 밑으로는 안 줄어든다.
+     grid-template-rows의 반복 횟수(PAGE_SIZE)는 여기 안 적는다 — CSS
+     repeat()는 반복 횟수 자리에 var()를 못 받아서(스펙 제약) 값을 두
+     군데 손으로 맞춰야 한다. 대신 PAGE_SIZE를 실제로 아는
+     ScreenerCompanies.tsx가 이 속성 전체를 인라인 style로 써 넣는다. */
+  .stock-row-list {
+    display: grid;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .stock-pager {
+    flex: none;
   }
 }
 
@@ -1310,13 +1511,13 @@ h3.sub {
 .screener-list-head {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
   /* border-bottom을 여기 두지 않는다 — 첫 종목 줄의 위 경계선은
      .stock-row:first-child가 자기 border-top으로 직접 그린다(아래 참고).
      경계선을 이 머리가 아니라 줄 자신이 갖고 있어야, 마우스를 올렸을 때
      회색으로 차는 영역(hover 배경)과 경계선 위치가 항상 정확히 겹친다. */
-  margin: 10px 0 0.5rem;
-  padding-bottom: 0.6rem;
+  margin: 8px 0 0.25rem;
+  padding-bottom: 0.25rem;
 }
 
 .screener-group-toggle {
@@ -1328,7 +1529,6 @@ h3.sub {
 .screener-search {
   position: relative;
   width: 100%;
-  max-width: 16rem;
 }
 
 .screener-search-input {
@@ -1380,6 +1580,7 @@ h3.sub {
 }
 
 .screener-group-btn {
+  flex: 1 1 auto;
   padding: 0.3rem 0.65rem;
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -1409,8 +1610,10 @@ h3.sub {
 
 /* ---------- 종목 줄 ---------- */
 
-/* 한 줄 44px. 로고 칸이 바닥을 정한다 — 28px 아래로 내리면 로고가 없을 때 넣는
- * 5글자 티커(CMCSA·GOOGL)가 7~8px이 되어 못 읽는다.
+/* 한 줄 약 36px(세로 패딩 0.18rem). 로고 칸(28px)이 바닥을 정한다 — 28px
+ * 아래로 내리면 로고가 없을 때 넣는 5글자 티커(CMCSA·GOOGL)가 7~8px이 되어
+ * 못 읽는다. 14줄+머리+페이지네이션이 태블릿(1024×768) 세로에서도 스크롤
+ * 없이 다 들어가도록 패딩을 줄인 값이라, 로고 아래로는 더 못 줄인다.
  *
  * 종목 선택(.stock-row-select)과 관심종목 하트(.watch-heart-btn)는 둘 다
  * <button>이라 하나의 <button> 안에 넣을 수 없다 — HTML은 버튼 중첩을 허용하지
@@ -1427,8 +1630,12 @@ h3.sub {
 /* 목록의 첫 줄만 위 경계선도 갖는다. 나머지 줄은 바로 앞줄의 border-bottom이
    같은 역할을 하므로 필요 없다. 이 선이 있어야 마우스를 올렸을 때 채워지는
    회색 영역의 위쪽 끝이 어디인지 보인다 — 없으면 첫 줄만 위가 뚫린 채
-   회색이 퍼지는 것처럼 보인다. */
-.stock-row:first-child {
+   회색이 퍼지는 것처럼 보인다.
+   .stock-row:first-child가 아니라 .stock-row-item:first-child로 건다 —
+   좁은 화면 아코디언 때문에 줄마다 .stock-row-item(줄+펼침 칸)으로 한 번
+   더 감싸여 있어서, .stock-row 자신은 항상 그 감싼 칸의 첫(유일한) 자식이라
+   :first-child가 매 줄마다 걸린다. */
+.stock-row-item:first-child .stock-row {
   border-top: 1px solid var(--line);
 }
 
@@ -1446,18 +1653,34 @@ h3.sub {
   box-shadow: inset 3px 0 0 var(--wine);
 }
 
+/* 좁은 화면 아코디언이 펼쳐지면 그 줄을 화면 위(.masthead 60px 아래)에
+   고정한다 — 상세가 길어서 내려 봐야 하는데, 줄 자체가 같이 밀려 올라가
+   버리면 접으려고 다시 누를 때마다 위로 스크롤해 돌아와야 한다. 641px
+   부터는(아래 미디어쿼리) 아코디언 자체가 없으니 원래대로 되돌린다. */
+.stock-row-item[data-expanded="true"] .stock-row {
+  position: sticky;
+  top: 60px;
+  z-index: 10;
+}
+
 /* 넓은 화면에서는 <button>이다 — 눌러도 페이지를 안 떠나고 오른쪽 칸만 바뀐다.
- * border·background는 버튼 기본값을 지운다. */
+ * border·background는 버튼 기본값을 지운다.
+ *
+ * 다섯 칸(로고·화살표·이름·기준막대·점수) 각자 grid-column을 명시로 갖는다
+ * (아래 각 클래스 옆). .stock-row-chevron이 641px부터 display:none으로
+ * 사라지는데, 자동 배치(grid-auto-placement)에 맡기면 사라진 칸이 빈
+ * 자리로 안 남고 뒤 칸들이 전부 한 칸씩 당겨져 이름·기준막대·점수가
+ * 밀리고 겹친다(태블릿 폭에서 실제로 겹쳐 보였다). */
 .stock-row-select {
   display: grid;
-  grid-template-columns: 28px minmax(0, 1fr) auto auto;
+  grid-template-columns: 28px auto minmax(0, 1fr) auto auto;
   gap: 0.7rem;
   align-items: center;
   flex: 1;
   min-width: 0;
   /* 좌우 여백. 왼쪽은 선택 시 붙는 3px 강조선(box-shadow)이 로고와 겹치지
      않게, 오른쪽은 하트 버튼과의 간격을 잡아준다. */
-  padding: 0.5rem 0.6rem;
+  padding: 0.18rem 0.6rem;
   border: 0;
   background: none;
   text-align: left;
@@ -1470,6 +1693,9 @@ h3.sub {
 }
 
 .stock-logo {
+  /* .stock-row-select의 grid-column 자리를 못박는다 — 이유는
+     .stock-row-select 옆 주석 참고. */
+  grid-column: 1;
   display: grid;
   place-items: center;
   width: 28px;
@@ -1498,6 +1724,7 @@ h3.sub {
 /* 이름이 가장 긴 종목은 20자(익스피다이터스 인터내셔널 오브 워싱턴)다.
  * 전체 이름은 종목을 눌러 상세에서 읽는다. */
 .stock-name {
+  grid-column: 3;
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1505,7 +1732,34 @@ h3.sub {
 }
 
 .stock-row-bar {
+  grid-column: 4;
   width: 120px;
+}
+
+/* 좁은 화면(641px 미만) 전용 아코디언 상태 표시. 이 폭에서만 줄을 누르면
+   그 자리에서 상세가 펼쳐지므로(.stock-row-detail) −(접힘)·+(펼침)로
+   열림·닫힘을 보여준다. 넓은 화면은 오른쪽 칸이 항상 따로 있어 뜻이 없어
+   숨긴다. */
+.stock-row-chevron {
+  grid-column: 2;
+  color: var(--ink-faint);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* 펼친 줄만 포인트색으로 — 접힌 −는 눈에 안 띄어야 목록이 조용하고,
+   펼쳐진 +는 지금 뭘 보고 있는지 바로 보여야 한다. */
+.stock-row-select[aria-expanded="true"] .stock-row-chevron {
+  color: var(--wine);
+}
+
+/* 아코디언 몸통. 넓은 화면(오른쪽 칸이 있는)에서는 숨긴다 — 안 숨기면
+   같은 상세가 두 번(오른쪽 칸 + 이 자리) 뜬다. 목록 폭(420px)을 그대로
+   쓰지 않고 화면 끝까지 펼쳐서 좁은 칸에 상세를 욱여넣지 않는다. */
+.stock-row-detail {
+  border-bottom: 1px solid var(--line);
+  padding: 1rem 0.6rem 1.5rem;
 }
 
 .stock-pager {
@@ -1513,7 +1767,7 @@ h3.sub {
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  margin-top: 1.25rem;
+  margin-top: 0.2rem;
 }
 
 .pager-arrow {
@@ -1554,6 +1808,7 @@ h3.sub {
 }
 
 .stock-score {
+  grid-column: 5;
   min-width: 3rem;
   font-family: var(--mono);
   font-size: 1rem;
@@ -1787,6 +2042,11 @@ h3.sub {
   font-size: 0.72rem;
   color: var(--ink-soft);
   font-family: var(--mono);
+}
+
+.score-value-lg {
+  font-size: 2.2rem;
+  font-weight: 800;
 }
 
 .reason-list {
@@ -2253,6 +2513,45 @@ h3.sub {
   white-space: nowrap;
 }
 
+/* 640px 이하: 대가 탭이 220px 최소폭을 지키면 4개 중 1개 반밖에 안 보이고
+   나머지는 옆으로 가로 스크롤해야 찾을 수 있다 — 얼굴·이름만 세로로
+   쌓아 4개를 한 화면 폭에 다 보이게 압축한다. 배지(.style-name)는 이
+   폭에서 넷을 다 넣을 자리가 없어 뺀다 — 어떤 대가인지는 이름으로
+   충분히 구분된다. */
+@media (max-width: 640px) {
+  .screener-style-tab {
+    flex: 1 1 0;
+    flex-direction: column;
+    min-width: 0;
+    gap: 0.3rem;
+    padding: 0.6rem 0.3rem;
+  }
+
+  .screener-style-tab .investor-avatar {
+    width: 28px;
+    height: 28px;
+  }
+
+  .screener-tab-text {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  .screener-tab-name {
+    font-size: 0.72rem;
+    font-weight: 700;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.15;
+  }
+
+  .screener-style-tab .style-name {
+    display: none;
+  }
+}
+
 .lens-note {
   color: var(--ink-soft);
   font-size: 0.95rem;
@@ -2430,7 +2729,7 @@ h3.sub {
 
 .comparison-scroll {
   overflow-x: auto;
-  border: 1px solid var(--line);
+  border: 1px solid var(--gold);
   border-radius: var(--radius);
   background: var(--surface);
 }
@@ -2453,8 +2752,8 @@ h3.sub {
   vertical-align: middle;
 }
 
-.comparison-matrix tr:last-child th,
-.comparison-matrix tr:last-child td {
+.comparison-matrix tbody tr:last-child th,
+.comparison-matrix tbody tr:last-child td {
   border-bottom: 0;
 }
 
@@ -2464,7 +2763,8 @@ h3.sub {
 }
 
 .comparison-matrix thead th {
-  background: color-mix(in oklab, var(--gold) 16%, var(--paper));
+  background: color-mix(in oklab, var(--gold) 7%, var(--paper));
+  border-bottom: 2px solid var(--gold);
   color: var(--wine-deep);
   font-size: 0.9rem;
   font-weight: 700;
@@ -2477,6 +2777,7 @@ h3.sub {
 
 .comparison-matrix thead th:first-child {
   font-size: 1.08rem;
+  border-right: 2px solid var(--gold);
 }
 
 /* 얼굴을 이름 위에 쌓는다. 옆에 두면 "벤저민 그레이엄"이 두 줄로 접힌다 */
@@ -2505,13 +2806,14 @@ h3.sub {
   color: color-mix(in oklab, var(--wine) 45%, var(--ink-faint));
   font-family: var(--sans);
   font-size: calc(0.78rem + 1px);
-  font-style: italic;
-  font-weight: 700;
+  font-style: normal;
+  font-weight: 400;
   line-height: 1.45;
 }
 
 .comparison-matrix tbody th {
-  background: color-mix(in oklab, var(--gold) 16%, var(--paper));
+  background: color-mix(in oklab, var(--gold) 7%, var(--paper));
+  border-right: 2px solid var(--gold);
   color: var(--ink);
   font-size: 0.8rem;
 }
@@ -2785,7 +3087,7 @@ h3.sub {
   padding: 0.7rem 0.85rem;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: color-mix(in oklab, var(--gold) 16%, var(--paper));
+  background: color-mix(in oklab, var(--gold) 7%, var(--paper));
   color: var(--ink);
   font: inherit;
   text-align: left;
@@ -3936,7 +4238,7 @@ h3.sub {
 }
 
 .learn-page-header .thesis {
-  font-size: clamp(1.4rem, 3vw, 2.1rem);
+  font-size: 1.45rem;
   max-width: none;
 }
 
@@ -3975,6 +4277,16 @@ h3.sub {
   transform-box: fill-box;
   transform-origin: center;
   animation: wisor-ribbon-arrow-float 1.8s ease-in-out infinite;
+  transition: filter 0.2s ease, opacity 0.2s ease;
+}
+
+/* compare-jump는 화살표 꼭지 바로 아래 놓인 별도 링크라 화살표(SVG)를 직접
+   감싸지 않는다. 링크에 마우스를 올리면 :has()로 같은 grid 안의 화살표를
+   찾아 같이 밝힌다 — 화살표 근처에 손이 가면 전체가 하나의 버튼처럼 보이게. */
+.master-grid:has(.compare-jump:hover) .master-grid-ribbon-arrow,
+.master-grid:has(.compare-jump:focus-visible) .master-grid-ribbon-arrow {
+  opacity: 1;
+  filter: drop-shadow(0 0 3px var(--gold));
 }
 
 /* 대가 카드 그리드와 비교표 사이. 화면 높이가 넉넉한 데스크톱에서는 첫 화면에
@@ -4023,6 +4335,7 @@ h3.sub {
   --arrow-x: 5.8%; /* wide: M 58 926 */
   --arrow-y: 92.6%;
   --half: 4em; /* 문구 절반 폭. 화면 밖으로 나가지 않게 잡아 두는 값 */
+  --hit-top: 2.75rem; /* 화살표 꼭지까지 클릭 영역을 끌어올리는 높이. 실측: 꼭지~문구 사이 35.8px */
   position: absolute;
   top: var(--arrow-y);
   left: clamp(var(--half), var(--arrow-x), calc(100% - var(--half)));
@@ -4035,6 +4348,18 @@ h3.sub {
   line-height: 1.35;
   text-align: center;
   text-decoration: none;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+/* 화살표(SVG)는 pointer-events: none인 배경 리본 위에 그려져서 그 자체로는
+   클릭도 hover도 안 걸린다. compare-jump 문구 링크의 클릭 영역을 화살표
+   꼭지까지 위로 넓혀서, 화살표에 마우스를 올리거나 눌러도 같은 링크가
+   반응하게 한다. 화살표는 문구 바로 위 빈 자리에만 그려지므로(카드와
+   겹치지 않음) 영역을 넓혀도 다른 카드 클릭을 가리지 않는다. */
+.compare-jump::before {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--hit-top)) 0 0 0;
 }
 
 .compare-jump span {
@@ -4042,20 +4367,24 @@ h3.sub {
   white-space: nowrap;
 }
 
-.compare-jump:hover {
-  color: color-mix(in oklab, var(--gold-deep) 70%, black);
+.compare-jump:hover,
+.compare-jump:focus-visible {
+  color: var(--gold);
+  text-shadow: 0 0 3px var(--gold-line);
 }
 
 @media (max-width: 900px) {
   .compare-jump {
     --arrow-x: 75%; /* medium: M 750 990 */
     --arrow-y: 99%;
+    --hit-top: 3.5rem; /* 실측: 꼭지~문구 사이 50.3px */
   }
 }
 
 @media (max-width: 640px) {
   .compare-jump {
     --arrow-x: 88%; /* narrow: M 880 1016 */
+    --hit-top: 2rem; /* 실측: 꼭지~문구 사이 25.6px */
     --arrow-y: 100%;
   }
 }
@@ -4631,11 +4960,6 @@ h3.sub {
   margin-bottom: 1.15rem;
 }
 
-.watchlist-heading .eyebrow {
-  margin: 0 0 0.2rem;
-  color: var(--wine);
-}
-
 .watchlist-heading h2.section {
   margin: 0;
 }
@@ -4843,9 +5167,8 @@ a.watch-company-card:hover {
   border-top: 1px dotted var(--line-strong);
 }
 
-.watchlist-notes > .eyebrow {
-  margin-bottom: 0.2rem;
-  color: var(--wine);
+.watchlist-notes-lede {
+  max-width: none;
 }
 
 .watchlist-notes-title {

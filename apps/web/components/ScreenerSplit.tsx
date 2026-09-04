@@ -5,6 +5,7 @@ import ScreenerCompanies from "@/components/ScreenerCompanies";
 import StockDetailBody from "@/components/StockDetailBody";
 import { filterCompaniesByQuery } from "@/lib/searchCompanies";
 import { getWatchlist } from "@/lib/store";
+import { MASTER_BY_ID } from "@/content/masters";
 import type { Company } from "@/lib/scores.types";
 
 type Group = "scored" | "unscored" | "unscorable" | "watchlist";
@@ -70,6 +71,11 @@ export default function ScreenerSplit({
      번쩍이는 게 없다는 뜻은 아니지만, 별도 "불러오는 중" 문구를 더하기엔
      이 화면에 그 정도로 오래 걸리지 않는다. */
   const [watchlist, setWatchlist] = useState<string[] | null>(null);
+  /* 좁은 화면 전용. 종목을 아직 안 고르면 emptyState(투자 철학·채점 기준
+     설명)가 목록 아래에 그대로 다 나와 첫 화면이 길어진다 — 버튼으로
+     접어 기본값을 닫힘으로 둔다. 넓은 화면은 이 state와 무관하게 항상
+     펼쳐 보인다(globals.css). */
+  const [philosophyOpen, setPhilosophyOpen] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -107,9 +113,49 @@ export default function ScreenerSplit({
     ? filterCompaniesByQuery([...scored, ...unscored, ...unscorable], query)
     : GROUP_COMPANIES[group];
 
+  /* 오른쪽 칸(넓은 화면)과 아코디언(좁은 화면, ScreenerCompanies 안)이
+     같은 내용을 보여준다 — JSX를 한 번만 적어서 두 자리에 넣는다. 실제
+     마운트는 두 번 일어난다(좁은 화면에서 아코디언이 접혀 있어도 이
+     엘리먼트는 DOM에 남아 있다가 CSS로 숨겨진다). NoteLens의 학습노트
+     읽기 정도라 두 번 일어나도 눈에 띄는 비용은 아니다. */
+  const detailContent = selected ? (
+    <StockDetailBody
+      company={selected}
+      marketCapRank={marketCapRanks[selected.ticker]}
+      marketCapUniverseSize={marketCapUniverseSize}
+      initialStyle={style}
+      stamps={stamps[selected.ticker]}
+      /* 배지는 이미 왼쪽 목록 머리에 있다. 여기서 또 그리면 종목을 고른
+         순간 같은 배지가 한 화면에 두 번 뜬다. */
+      sampleFlag={null}
+    />
+  ) : null;
+
   return (
     <div className="screener-split">
       <div className="screener-split-list">
+        {/* 좁은 화면 전용 "투자 철학" 접기 버튼. 대가 탭 바로 아래, 묶음
+           탭 위에 둔다 — 여기가 실제로 눈에 띄는 자리다(목록 맨 아래는
+           스크롤해야 보인다). 넓은 화면은 CSS로 통째로 숨긴다 — 오른쪽
+           칸(.screener-split-detail)이 같은 내용을 항상 펼쳐 보여준다.
+           종목을 골랐든 안 골랐든 이 자리는 그대로다 — 종목 상세는 아래
+           목록 안 아코디언이 따로 보여준다. */}
+        <div className="philosophy-panel">
+          <button
+            type="button"
+            className="philosophy-toggle"
+            aria-expanded={philosophyOpen}
+            onClick={() => setPhilosophyOpen((o) => !o)}
+          >
+            <span className="philosophy-toggle-icon" aria-hidden="true">
+              {philosophyOpen ? "+" : "−"}
+            </span>
+            {MASTER_BY_ID[style as keyof typeof MASTER_BY_ID]?.name ?? ""} 투자 철학
+          </button>
+          <div className="philosophy-body" data-open={philosophyOpen ? "true" : undefined}>
+            {emptyState}
+          </div>
+        </div>
         <div className="screener-list-head">
           <div className="screener-group-toggle" role="tablist" aria-label="목록 묶음">
             {GROUPS.map((g) => {
@@ -171,24 +217,16 @@ export default function ScreenerSplit({
             style={style}
             selectedTicker={selectedTicker}
             onSelect={setSelectedTicker}
+            detailContent={detailContent}
           />
         )}
       </div>
+      {/* 넓은 화면(641px 이상) 전용 오른쪽 칸. 좁은 화면에서는 통째로
+         숨긴다(globals.css) — 종목을 골랐을 때는 목록 안 아코디언이,
+         안 골랐을 때는 위 .philosophy-panel이 좁은 화면 몫을 대신
+         맡는다. */}
       <div className="screener-split-detail">
-        {selected ? (
-          <StockDetailBody
-            company={selected}
-            marketCapRank={marketCapRanks[selected.ticker]}
-            marketCapUniverseSize={marketCapUniverseSize}
-            initialStyle={style}
-            stamps={stamps[selected.ticker]}
-            /* 배지는 이미 왼쪽 목록 머리에 있다. 여기서 또 그리면 종목을 고른
-               순간 같은 배지가 한 화면에 두 번 뜬다. */
-            sampleFlag={null}
-          />
-        ) : (
-          <div className="screener-empty-state">{emptyState}</div>
-        )}
+        {detailContent ?? <div className="screener-empty-state">{emptyState}</div>}
       </div>
     </div>
   );

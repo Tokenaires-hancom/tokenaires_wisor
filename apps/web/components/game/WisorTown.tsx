@@ -3,7 +3,7 @@
 import type { CSSProperties } from "react";
 import Mascot, { type MascotState } from "@/components/game/Mascot";
 import { xpTotal, levelFor, masterProgress, type ProgressLike } from "@/lib/gamification.ts";
-import { townMasterLabel, townMascotPlot, townScenery } from "@/lib/townScene.ts";
+import { townLastCompletedPlot, townMasterLabel, townMascotPlot, townScenery } from "@/lib/townScene.ts";
 import "./town.css";
 
 /** 대가별 건물 색(온-브랜드 다채색). masterProgress는 MASTERS 순서로 온다. */
@@ -26,12 +26,13 @@ export default function WisorTown({
   const builtCount = rows.filter((r) => r.complete).length;
   const scenery = townScenery(lvl);
   const highlightIndex = highlightId ? rows.findIndex((r) => r.masterId === highlightId) : -1;
-  const coinAt = highlightIndex >= 0 ? highlightIndex : townMascotPlot(rows);
+  const coinAt = highlightIndex >= 0 ? highlightIndex : townMascotPlot(rows, progress.lessonsDone);
+  const fireworkAt = townLastCompletedPlot(rows, progress.lessonsDone);
 
   return (
     <section className="town" aria-label="내 투자 마을">
       <div className="town-head">
-        <p className="eyebrow">내 투자 마을</p>
+        <p className="eyebrow eyebrow-strong">내 투자 마을</p>
         <p className="town-sub">
           배울수록 마을이 자랍니다 · <strong>Lv {lvl}</strong> · 완공 {builtCount} / {rows.length}
         </p>
@@ -71,12 +72,10 @@ export default function WisorTown({
                   Array.from({ length: 10 }).map((_, s) => (
                     <span key={s} className="town-burst" data-i={s} aria-hidden="true" />
                   ))}
-                {r.complete && (
-                  <>
-                    <span className="town-smoke" data-puff="a" aria-hidden="true" />
-                    <span className="town-smoke" data-puff="b" aria-hidden="true" />
-                  </>
-                )}
+                {i === fireworkAt &&
+                  Array.from({ length: 11 }).map((_, s) => (
+                    <span key={s} className="town-firework" data-i={s} aria-hidden="true" />
+                  ))}
                 <div className="town-plot-body">
                   {i === coinAt && (
                     <span className="town-coin" data-celebrate={mascot === "celebrate" ? "true" : undefined}>

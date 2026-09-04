@@ -7,7 +7,7 @@ export default function LearnIndex() {
     <div className="wrap wrap-wide learn-page">
       <div className="learn-page-header">
         <div>
-          <h1 className="thesis">대가들을 통해 투자기준을 세워 보세요</h1>
+          <h1 className="thesis">대가를 통해 투자기준을 세워 보세요</h1>
         </div>
       </div>
 
