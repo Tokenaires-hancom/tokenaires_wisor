@@ -14,6 +14,7 @@ readonly DEPLOY_DIR=${WISOR_ROOT}/deploy
 readonly DEPLOY_STATE_DIR=${WISOR_ROOT}/deploy-state
 readonly RELEASE_ENV=/etc/wisor/release.env
 readonly BATCH_CONF=/etc/wisor/batch.conf
+readonly DEPLOY_CONF=/etc/wisor/deploy.conf
 readonly WEB_BUILD_ENV=/etc/wisor/web-build.env
 readonly PERSONA_REQUIREMENTS_LOCK=/etc/wisor/persona-requirements.lock
 readonly DATA_RELEASES_DIR=/var/lib/wisor-batch/releases
@@ -46,8 +47,9 @@ verify_live() (
     --tag "${tag}" --code-sha "${code_sha}" --data-sha "${data_sha}"
   curl --fail --silent --show-error --max-time 15 http://127.0.0.1:3000/ >/dev/null
   curl --fail --silent --show-error --max-time 15 http://127.0.0.1:8000/health >/dev/null
-  curl --fail --silent --show-error --max-time 20 https://wisor.site/ >/dev/null
-  curl --fail --silent --show-error --max-time 20 https://wisor.site/api/persona/health >/dev/null
+  curl --fail --silent --show-error --max-time 20 "${public_origin}/" >/dev/null
+  curl --fail --silent --show-error --max-time 20 \
+    "${public_origin}/api/persona/health" >/dev/null
 )
 
 [[ ${EUID} -eq 0 ]] || die "root로 실행해야 합니다"
@@ -63,6 +65,7 @@ done
 for required_file in \
   "${RELEASE_ENV}" \
   "${BATCH_CONF}" \
+  "${DEPLOY_CONF}" \
   "${WEB_BUILD_ENV}" \
   "${PERSONA_REQUIREMENTS_LOCK}" \
   "${LIVE_CHECK}" \
@@ -75,6 +78,17 @@ done
 bash -n "${STATE_LIB}" || die "배포 상태 라이브러리 문법이 올바르지 않습니다"
 # shellcheck disable=SC1090
 . "${STATE_LIB}"
+
+# 배포 대상 브랜치와 공개 주소는 서버마다 다르다. 운영과 개발이 같은 배포기를 쓰기
+# 위해 서버 설정에서 읽는다. 기본값으로 떨어지지 않는다 — 값이 없는 채로 배포가
+# 이어지면 개발 배포가 운영 주소를 검증하거나 그 반대가 된다.
+deploy_branch=$(sed -n -E 's#^WISOR_DEPLOY_BRANCH=([A-Za-z0-9._/-]+)$#\1#p' \
+  "${DEPLOY_CONF}")
+[[ -n ${deploy_branch} ]] || die "deploy.conf의 WISOR_DEPLOY_BRANCH가 없습니다"
+public_origin=$(sed -n -E 's#^WISOR_PUBLIC_ORIGIN=(https://[A-Za-z0-9.-]+)$#\1#p' \
+  "${DEPLOY_CONF}")
+[[ -n ${public_origin} ]] \
+  || die "deploy.conf의 WISOR_PUBLIC_ORIGIN이 없습니다. https로 시작하고 끝에 /를 붙이지 않습니다"
 
 install -d -o root -g root -m 0755 \
   "${RELEASES_DIR}" "${DEPLOY_STATE_DIR}" "${RUNS_DIR}"
@@ -118,14 +132,14 @@ if [[ ! -d ${DEPLOY_SOURCE}/.git ]]; then
 fi
 git -C "${DEPLOY_SOURCE}" remote set-url origin "${REPO_URL}"
 git -C "${DEPLOY_SOURCE}" fetch --no-tags --prune origin \
-  +refs/heads/main:refs/remotes/origin/main
+  "+refs/heads/${deploy_branch}:refs/remotes/origin/${deploy_branch}"
 git -C "${DEPLOY_SOURCE}" cat-file -e "${target_sha}^{commit}"
-remote_main_sha=$(git -C "${DEPLOY_SOURCE}" rev-parse refs/remotes/origin/main)
-git -C "${DEPLOY_SOURCE}" merge-base --is-ancestor "${target_sha}" "${remote_main_sha}" \
-  || die "요청한 SHA가 현재 origin/main에 속하지 않습니다"
-if [[ ${target_sha} != "${remote_main_sha}" ]]; then
+remote_branch_sha=$(git -C "${DEPLOY_SOURCE}" rev-parse "refs/remotes/origin/${deploy_branch}")
+git -C "${DEPLOY_SOURCE}" merge-base --is-ancestor "${target_sha}" "${remote_branch_sha}" \
+  || die "요청한 SHA가 현재 origin/${deploy_branch}에 속하지 않습니다"
+if [[ ${target_sha} != "${remote_branch_sha}" ]]; then
   mapfile -t later_paths < <(
-    git -C "${DEPLOY_SOURCE}" diff --name-only "${target_sha}..${remote_main_sha}"
+    git -C "${DEPLOY_SOURCE}" diff --name-only "${target_sha}..${remote_branch_sha}"
   )
   for later_path in "${later_paths[@]}"; do
     wisor_is_data_only_path "${later_path}" \
@@ -150,10 +164,10 @@ if [[ -e ${release} ]]; then
 else
   release_staging=$(mktemp -d "${RELEASES_DIR}/.${target_sha}.XXXXXXXX")
   # A local clone omits the source repository's remote-tracking refs. Fetch
-  # origin/main explicitly before checking out a commit that only it reaches.
+  # the deploy branch explicitly before checking out a commit that only it reaches.
   if ! git clone --no-hardlinks --no-checkout "${DEPLOY_SOURCE}" "${release_staging}" \
     || ! git -C "${release_staging}" fetch --no-tags "${DEPLOY_SOURCE}" \
-      +refs/remotes/origin/main:refs/remotes/origin/main \
+      "+refs/remotes/origin/${deploy_branch}:refs/remotes/origin/${deploy_branch}" \
     || ! git -C "${release_staging}" checkout --detach "${target_sha}" \
     || ! git -C "${release_staging}" remote set-url origin "${REPO_URL}" \
     || ! mv -T -- "${release_staging}" "${release}"; then
